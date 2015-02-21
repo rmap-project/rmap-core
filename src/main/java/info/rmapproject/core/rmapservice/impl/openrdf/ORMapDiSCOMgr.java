@@ -13,7 +13,6 @@ import java.util.Set;
 
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
-import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
@@ -23,7 +22,6 @@ import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.RMapAgent;
 import info.rmapproject.core.model.RMapEvent;
 import info.rmapproject.core.model.RMapEventTargetType;
-import info.rmapproject.core.model.RMapEventType;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
@@ -580,18 +578,14 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 					break;
 				}
 			}
-			event2Disco.put(eventId,discoId);
-			Value eventType = this.getEventType(eventId, ts);
-			if (eventType == null){
-				throw new RMapException("Event does not have event type: " + eventId.stringValue());
-			}			
-			if(eventType.stringValue().equals(RMapEventType.CREATION.getTypeString())){					
+			event2Disco.put(eventId,discoId);			
+			if(this.isCreationEvent(eventId, ts)){					
 				if (lookFoward){
 					event2Disco.putAll(this.lookFoward(discoId, agentId, matchAgent, ts));
 				}
 				break;
 			}
-			if (eventType.stringValue().equals(RMapEventType.UPDATE.getTypeString())){
+			if (this.isUpdateEvent(eventId, ts)){
 				// get id of old DiSCO
 				ORMapEventUpdate uEvent  = this.getUpdateEvent(eventId);
 				if (uEvent.getDerivationStmt().getRmapStmtObject()!=null){

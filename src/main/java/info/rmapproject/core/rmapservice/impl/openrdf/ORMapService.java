@@ -3,7 +3,6 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
-import java.lang.reflect.Array;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
@@ -59,23 +58,23 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getRelatedAll(java.net.URI, info.rmapproject.core.model.RMapStatus)
 	 */
-	public List<URI> getRelatedAll(URI uri, RMapStatus statusCode)
+	public List<URI> getResourceRelatedAll(URI uri, RMapStatus statusCode)
 			throws RMapException {
 		if (uri==null){
 			throw new RMapException("null uri");
 		}
 		List<URI>uris = new ArrayList<URI>();
-		uris.addAll(this.getRelatedStmts(uri, statusCode));
-		uris.addAll(this.getRelatedDiSCOs(uri, statusCode));
-		uris.addAll(this.getAgents(uri, statusCode));
-		uris.addAll(this.getRelatedEvents(uri));
+		uris.addAll(this.getResourceRelatedStmts(uri, statusCode));
+		uris.addAll(this.getResourceRelatedDiSCOs(uri, statusCode));
+		uris.addAll(this.getResourceRelatedAgents(uri, statusCode));
+		uris.addAll(this.getResourceRelatedEvents(uri));
 		return uris;
 	}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getRelatedStmts(java.net.URI, info.rmapproject.core.model.RMapStatus)
 	 */
-	public List<URI> getRelatedStmts(URI uri, RMapStatus statusCode)
+	public List<URI> getResourceRelatedStmts(URI uri, RMapStatus statusCode)
 			throws RMapException {
 		if (uri==null){
 			throw new RMapException("null uri");
@@ -94,7 +93,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getRelatedEvents(java.net.URI)
 	 */
-	public List<URI> getRelatedEvents(URI uri) throws RMapException {
+	public List<URI> getResourceRelatedEvents(URI uri) throws RMapException {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -102,7 +101,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getRelatedDiSCOs(java.net.URI, info.rmapproject.core.model.RMapStatus)
 	 */
-	public List<URI> getRelatedDiSCOs(URI uri, RMapStatus statusCode)
+	public List<URI> getResourceRelatedDiSCOs(URI uri, RMapStatus statusCode)
 			throws RMapException {
 		if (statusCode==null){
 			throw new RMapException("Null status code provided");
@@ -134,7 +133,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getAgents(java.net.URI, info.rmapproject.core.model.RMapStatus)
 	 */
-	public List<URI> getAgents(URI uri, RMapStatus statusCode)
+	public List<URI> getResourceRelatedAgents(URI uri, RMapStatus statusCode)
 			throws RMapException {
 		// TODO Auto-generated method stub
 		return null;
@@ -272,7 +271,7 @@ public class ORMapService implements RMapService {
 	 */
 	public List<URI> getAllDiSCOVersions(URI discoID) throws RMapException {
 		List<org.openrdf.model.URI> versions = 
-		   this.getAllDiSCOVersion(ORAdapter.uri2OpenRdfUri(discoID));
+		   this.getAllDiSCOVersionORdf(ORAdapter.uri2OpenRdfUri(discoID));
 		List<URI> uris = new ArrayList<URI>();
 		for (org.openrdf.model.URI version:versions){
 			uris.add(ORAdapter.openRdfUri2URI(version));
@@ -285,7 +284,7 @@ public class ORMapService implements RMapService {
 	 * @return
 	 * @throws RMapException
 	 */
-	public List<org.openrdf.model.URI> getAllDiSCOVersion (org.openrdf.model.URI discoId)
+	public List<org.openrdf.model.URI> getAllDiSCOVersionORdf (org.openrdf.model.URI discoId)
 	throws RMapException {
 		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
 				this.discomgr.getAllDiSCOVersions(discoId, false, ts);
@@ -431,8 +430,13 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#getEventRelatedDiSCOS(java.net.URI)
 	 */
 	public List<URI> getEventRelatedDiSCOS(URI eventID) throws RMapException {
-		// TODO Auto-generated method stub
-		return null;
+		List<org.openrdf.model.URI> discos = this.eventmgr.getRelatedDiSCOs(
+				ORAdapter.uri2OpenRdfUri(eventID), ts);
+		List<URI> discoIds = new ArrayList<URI>();
+			for (org.openrdf.model.URI disco:discos){
+				discoIds.add(ORAdapter.openRdfUri2URI(disco));
+			}
+		return discoIds;
 	}
 
 	/* (non-Javadoc)

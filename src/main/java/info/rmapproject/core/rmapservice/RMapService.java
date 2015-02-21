@@ -26,28 +26,29 @@ public interface RMapService {
 
 	// Resource services
 	/**
-	 * Get all Resources of all RMap object types with a specified status code related to a Resource URI 
+	 * Get URI of all RMap object types with a specified status code related to a Resource URI 
 	 * @param uri
 	 * @param statusCode
 	 * @return
 	 * @throws RMapException
 	 */
-	public List<URI> getRelatedAll (URI uri, RMapStatus statusCode) throws RMapException;
+	public List<URI> getResourceRelatedAll (URI uri, RMapStatus statusCode) throws RMapException;
 	/**
-	 * Get all RMap Statements with a specified status code related to a Resource URI 
+	 * Get all RMap Statements with a specified status code whose subject or object matches 
+	 * a Resource URI 
 	 * @param uri
 	 * @param statusCode
 	 * @return
 	 * @throws RMapException
 	 */
-	public List<URI> getRelatedStmts (URI uri, RMapStatus statusCode) throws RMapException;
+	public List<URI> getResourceRelatedStmts (URI uri, RMapStatus statusCode) throws RMapException;
 	/**
 	 * Get all RMapEvents related to a Resource URI
 	 * @param uri
 	 * @return
 	 * @throws RMapException
 	 */
-	public List<URI> getRelatedEvents (URI uri) throws RMapException;
+	public List<URI> getResourceRelatedEvents (URI uri) throws RMapException;
 	/**
 	 * Get all RMapDiSCOs with a specified status code related to a Resource URI 
 	 * @param uri
@@ -55,7 +56,7 @@ public interface RMapService {
 	 * @return
 	 * @throws RMapException
 	 */
-	public List<URI> getRelatedDiSCOs (URI uri, RMapStatus statusCode) throws RMapException;
+	public List<URI> getResourceRelatedDiSCOs (URI uri, RMapStatus statusCode) throws RMapException;
 	/**
 	 * Get all RMapAgents with a specified status code related to a Resource URI 
 	 * @param uri
@@ -63,7 +64,7 @@ public interface RMapService {
 	 * @return
 	 * @throws RMapException
 	 */
-	public List<URI> getAgents (URI uri, RMapStatus statusCode) throws RMapException;
+	public List<URI> getResourceRelatedAgents (URI uri, RMapStatus statusCode) throws RMapException;
 	
 	// Statement services 
 	/**
@@ -146,28 +147,30 @@ public interface RMapService {
 			List<URI> aggregatedResources,RMapStatementBag relatedStatements, RMapResource creator, 
 			RMapResource desc) throws RMapException;
 	/**
-	 * 
+	 * Soft delete (tombstone) of a DiSCO
 	 * @param discoID
 	 * @return
 	 * @throws RMapException
 	 */
 	public RMapEvent deleteDiSCO (URI discoID, RMapAgent systemAgent) throws RMapException;
 	/**
-	 * 
+	 * Get all versions of a DiSCO whether created by original creator of DiSCO or by some
+	 * other agent
 	 * @param discoID
 	 * @return
 	 * @throws RMapException
 	 */
 	public List<URI> getAllDiSCOVersions(URI discoID) throws RMapException;
 	/**
-	 * 
+	 * Get all versions of a DiSCO whose creator is the same as the creator
+	 * of that DiSCO
 	 * @param discoID
 	 * @return
 	 * @throws RMapException
 	 */
 	public List<URI> getAllAgentDiSCOVersions(URI discoID) throws RMapException;
 	/**
-	 * 
+	 * Get latest version of DiSCO (same agent as creator of DiSCO)
 	 * @param discoID
 	 * @return
 	 * @throws RMapException
@@ -188,7 +191,7 @@ public interface RMapService {
 	 */
 	public RMapDiSCO getNextVersionDiSCO (URI discoID)throws RMapException;
 	/**
-	 * 
+	 * Get all events associated with a DiSCO
 	 * @param discoID
 	 * @return
 	 * @throws RMapException

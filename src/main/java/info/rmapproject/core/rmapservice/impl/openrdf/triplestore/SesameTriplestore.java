@@ -114,6 +114,10 @@ public abstract class SesameTriplestore  {
 		}		
 		return stmts;
 	}
+	
+	public List<Statement> getStatements(Resource subj, URI pred, Value obj,Resource context) throws Exception{
+		return this.getStatements(subj, pred, obj, false, context);
+	}
 
 	public Statement getStatement(Resource subj, URI pred, Value obj, Resource context) throws Exception {
 		RepositoryResult<Statement> resultset = null;

@@ -13,6 +13,7 @@ import org.openrdf.model.vocabulary.RDF;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
+import info.rmapproject.core.model.RMapEventType;
 import info.rmapproject.core.model.impl.openrdf.ORMapStatement;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
@@ -127,7 +128,14 @@ public abstract class ORMapObjectMgr {
 	 * @return
 	 * @throws RMapException
 	 */
-	protected Value getEventType (URI eventId, SesameTriplestore ts) throws RMapException{
+	protected RMapEventType getEventType (URI eventId, SesameTriplestore ts) 
+	throws RMapObjectNotFoundException, RMapException{
+		if (eventId == null){
+			throw new RMapException("null eventID");
+		}
+		if (ts==null){
+			throw new RMapException ("null triplestore");
+		}
 		Value type = null;
 		Statement stmt = null;
 		try {
@@ -136,11 +144,57 @@ public abstract class ORMapObjectMgr {
 			throw new RMapException ("Exception thrown getting event type for " 
 					+ eventId.stringValue(), e);
 		}
-		if (stmt != null){
+		if (stmt == null){
+			throw new RMapObjectNotFoundException("No event type statement found for ID " +
+		            eventId.stringValue());
+		}
+		else {
 			type = stmt.getObject();
 		}
-		return type;
+		RMapEventType eType = RMapEventType.getEventTypeFromString(type.stringValue());
+		return eType;
 	}
+	/**
+	 * 
+	 * @param eventId
+	 * @param ts
+	 * @return
+	 */
+	protected boolean isCreationEvent(URI eventId, SesameTriplestore ts){
+		RMapEventType et = this.getEventType(eventId, ts);
+		return et.equals(RMapEventType.CREATION);
+	}
+	/**
+	 * 
+	 * @param eventId
+	 * @param ts
+	 * @return
+	 */
+	protected boolean isUpdateEvent(URI eventId, SesameTriplestore ts){
+		RMapEventType et = this.getEventType(eventId, ts);
+		return et.equals(RMapEventType.UPDATE);
+	}
+	/**
+	 * 
+	 * @param eventId
+	 * @param ts
+	 * @return
+	 */
+	protected boolean isTombstoneEvent(URI eventId, SesameTriplestore ts){
+		RMapEventType et = this.getEventType(eventId, ts);
+		return et.equals(RMapEventType.TOMBSTONE);
+	}
+	/**
+	 * 
+	 * @param eventId
+	 * @param ts
+	 * @return
+	 */
+	protected boolean isDeleteEvent(URI eventId, SesameTriplestore ts){
+		RMapEventType et = this.getEventType(eventId, ts);
+		return et.equals(RMapEventType.DELETION);
+	}
+	
 	/**
 	 * 
 	 * @param targetId

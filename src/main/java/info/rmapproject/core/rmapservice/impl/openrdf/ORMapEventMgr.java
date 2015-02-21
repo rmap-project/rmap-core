@@ -28,8 +28,10 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 import info.rmapproject.core.utils.DateUtils;
 
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.RDF;
 
@@ -47,7 +49,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	}
 	
 	/**
-	 * 
+	 * Creates triples that comprise the Event object, and puts into triplesotre
 	 * @param event
 	 * @param ts
 	 * @return
@@ -387,4 +389,119 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		}
 		return date2event;
 	}
+	/**
+	 * Get discos related to an event
+	 * @param eventId
+	 * @param ts
+	 * @return
+	 */
+	public List<URI> getRelatedDiSCOs(URI eventId, SesameTriplestore ts) 
+	throws RMapException{
+		List<URI> relatedDiSCOs = new ArrayList<URI>();
+		RMapEventType eventType = this.getEventType(eventId, ts);
+		switch (eventType){
+		case CREATION :
+			try {
+				List<Statement> createdObjects= ts.getStatements(eventId, PROV.GENERATED, null, eventId);
+				for (Statement stmt:createdObjects){
+					Value obj = stmt.getObject();
+					if (obj instanceof URI){
+						URI uri = (URI)obj;
+						if (this.isDiscoId(uri, ts)){
+							relatedDiSCOs.add(uri);
+						}
+					}
+				}
+			} catch (Exception e) {
+				throw new RMapException("exception thrown getting created objects for event "
+						+ eventId.stringValue(), e);
+			}
+			break;
+		case UPDATE:
+			try {
+				List<Statement> createdObjects= ts.getStatements(eventId, PROV.GENERATED, null, eventId);
+				for (Statement stmt:createdObjects){
+					Value obj = stmt.getObject();
+					if (obj instanceof URI){
+						URI uri = (URI)obj;
+						if (this.isDiscoId(uri, ts)){
+							relatedDiSCOs.add(uri);
+						}
+					}
+				}
+				Statement stmt = ts.getStatement(eventId, RMAP.EVENT_TARGET, null, eventId);
+				if (stmt != null){
+					Value obj = stmt.getObject();
+					if (obj instanceof URI){
+						URI uri = (URI)obj;
+						if (this.isDiscoId(uri, ts)){
+							relatedDiSCOs.add(uri);
+						}
+					}
+				}
+			} catch (Exception e) {
+				throw new RMapException("exception thrown getting created/updated objects for event "
+						+ eventId.stringValue(), e);
+			}			
+			break;			
+		case TOMBSTONE:
+			try {
+				Statement stmt = ts.getStatement(eventId, RMAP.EVENT_TARGET_TOMBSTONED, null, eventId);
+				if (stmt != null){
+					Value obj = stmt.getObject();
+					if (obj instanceof URI){
+						URI uri = (URI)obj;
+						if (this.isDiscoId(uri, ts)){
+							relatedDiSCOs.add(uri);
+						}
+					}
+				}
+			} catch (Exception e) {
+				throw new RMapException("exception thrown getting tombstoned objects for event "
+						+ eventId.stringValue(), e);
+			}
+			break;
+		case DELETION:
+			try {
+				List<Statement> createdObjects= ts.getStatements(eventId, RMAP.EVENT_TARGET_DELETED, null, eventId);
+				for (Statement stmt:createdObjects){
+					Value obj = stmt.getObject();
+					if (obj instanceof URI){
+						URI uri = (URI)obj;
+						if (this.isDiscoId(uri, ts)){
+							relatedDiSCOs.add(uri);
+						}
+					}
+				}
+			} catch (Exception e) {
+				throw new RMapException("exception thrown getting deleted objects for event "
+						+ eventId.stringValue(), e);
+			}
+			break;
+		default:
+			throw new RMapException("Unrecognized event type");
+		}		
+		return relatedDiSCOs;
+	}
+	/**
+	 * Return ids of Statements associated with an event
+	 * Note that if event is a Tombstone or Deletion, then no statement ids are ever returned,
+	 * otherwise it would be possible to reconstitute a tombstoned or deleted DiSCO
+	 * @param eventId
+	 * @param ts
+	 * @return
+	 */
+	public List<URI> getRelatedStatements(URI eventId, SesameTriplestore ts) 
+	throws RMapException {
+		if (eventId==null){
+			throw new RMapException("Null event id");
+		}
+		List<URI>stmtIds = new ArrayList<URI>();
+		if (this.isCreationEvent(eventId, ts) || this.isUpdateEvent(eventId, ts)){
+			List<URI> relatedDiSCOs = this.getRelatedDiSCOs(eventId, ts);
+		}
+		return stmtIds;
+	}
+
+
 }
