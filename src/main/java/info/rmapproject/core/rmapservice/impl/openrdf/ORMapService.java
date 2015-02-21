@@ -215,6 +215,17 @@ public class ORMapService implements RMapService {
 		// TODO implement body
 		return null;
 	}
+	/**
+	 * Return all Resources (URI or Bnode) in subject or object of Statement
+	 * @param stmtId
+	 * @return
+	 * @throws RMapException
+	 */
+	public List<org.openrdf.model.URI>getStatementRelatedResources(org.openrdf.model.URI stmtId)
+			throws RMapException {
+		// TODO implement body
+		return null;
+	}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#readDiSCO(java.net.URI)
@@ -435,16 +446,26 @@ public class ORMapService implements RMapService {
 	 */
 	public List<URI> getEventRelatedStatements(URI eventID)
 			throws RMapException {
-		// TODO Auto-generated method stub
-		return null;
+		List<org.openrdf.model.URI> stmts = this.eventmgr.getRelatedStatements(
+				ORAdapter.uri2OpenRdfUri(eventID), ts);
+		List<URI>stmtIds = new ArrayList<URI>();
+		for (org.openrdf.model.URI id:stmts){
+			stmtIds.add(ORAdapter.openRdfUri2URI(id));
+		}
+		return stmtIds;
 	}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getEventRelatedResources(java.net.URI)
 	 */
 	public List<URI> getEventRelatedResources(URI eventID) throws RMapException {
-		// TODO Auto-generated method stub
-		return null;
+		List<org.openrdf.model.URI> resources = this.eventmgr.getRelatedResources(
+				ORAdapter.uri2OpenRdfUri(eventID), ts);
+		List<URI> resourceIds = new ArrayList<URI>();
+		for (org.openrdf.model.URI resource:resources){
+			resourceIds.add(ORAdapter.openRdfUri2URI(resource));
+		}
+		return resourceIds;
 	}
 
 	/* (non-Javadoc)
@@ -464,8 +485,13 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#getEventRelatedAgents(java.net.URI)
 	 */
 	public List<URI> getEventRelatedAgents(URI eventID) throws RMapException {
-		// TODO Auto-generated method stub
-		return null;
+		List<org.openrdf.model.URI> agents = this.eventmgr.getRelatedAgents(
+				ORAdapter.uri2OpenRdfUri(eventID), ts);
+		List<URI> agentIds = new ArrayList<URI>();
+		for (org.openrdf.model.URI agent:agents){
+			agentIds.add(ORAdapter.openRdfUri2URI(agent));
+		}
+		return agentIds;
 	}
 
 	public RMapAgent readAgent(URI agentID) throws RMapException {

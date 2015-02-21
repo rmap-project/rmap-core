@@ -28,6 +28,7 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 import info.rmapproject.core.utils.DateUtils;
 
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -498,9 +499,62 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		List<URI>stmtIds = new ArrayList<URI>();
 		if (this.isCreationEvent(eventId, ts) || this.isUpdateEvent(eventId, ts)){
 			List<URI> relatedDiSCOs = this.getRelatedDiSCOs(eventId, ts);
+			for (URI disco:relatedDiSCOs){
+				stmtIds.addAll(this.getORMapService().getDiSCORelatedStatements(disco));
+			}
 		}
 		return stmtIds;
 	}
-
+	/**
+	 * Return ids of all resources associated with an Event
+	 * Resources include the Event itself and DiSCOs associated with event
+	 * For creation and update events, includes statements associated with 
+	 * DiSCO associated with event
+	 * Includes Agent associated with event; any agents mentioned in DiSCO will
+	 * be returned as well
+	 * @param eventId
+	 * @param ts
+	 * @return
+	 */
+	public List<URI> getRelatedResources (URI eventId, SesameTriplestore ts){
+		Set<URI> resources = new TreeSet<URI>();
+		// get DiSCO resources
+		Set<URI> relatedDiSCOs = new TreeSet<URI>();
+		relatedDiSCOs.addAll(this.getRelatedDiSCOs(eventId, ts));;
+		resources.addAll(relatedDiSCOs);
+		// get Statement resources
+		Set<URI>stmtIds = new TreeSet<URI>();
+		if (this.isCreationEvent(eventId, ts) || this.isUpdateEvent(eventId, ts)){			
+			for (URI disco:relatedDiSCOs){
+				stmtIds.addAll(this.getORMapService().getDiSCORelatedStatements(disco));
+			}
+			resources.addAll(stmtIds);
+		}
+		Set<Resource>stmtResources = new TreeSet<Resource>();
+		for (URI stmt:stmtIds){
+			stmtResources.addAll(this.getORMapService().getStatementRelatedResources(stmt));
+		}
+		resources.addAll(stmtIds);
+		// get Agent resources
+		resources.addAll(this.getRelatedAgents(eventId, ts));
+		List<URI> lResources = new ArrayList<URI>();
+		lResources.addAll(resources);
+		return lResources;
+	}
+	/**
+	 * Get Event's associate Agent
+	 * Currently ONLY getting single system agent
+	 * @param eventId
+	 * @param ts
+	 * @return
+	 * @throws RMapException
+	 */
+	public List<URI> getRelatedAgents (URI eventId, SesameTriplestore ts)
+    throws RMapException {
+		URI agentId =  this.getEventAssocAgent(eventId, ts);
+		List<URI> agents = new ArrayList<URI>();
+		agents.add(agentId);
+		return agents;
+	}
 
 }
