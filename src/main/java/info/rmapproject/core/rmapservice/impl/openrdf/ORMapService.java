@@ -3,9 +3,14 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
+import java.lang.reflect.Array;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -26,6 +31,7 @@ import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
+import info.rmapproject.core.utils.Utils;
 
 /**
  * @author smorrissey
@@ -200,10 +206,18 @@ public class ORMapService implements RMapService {
 		return uris;
 	}
 
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#readDiSCO(java.net.URI)
+	 */
+	public RMapDiSCO readDiSCO(URI discoID) throws RMapException {
+		return this.discomgr.readDiSCO(ORAdapter.uri2OpenRdfUri(discoID), ts);
+	}
+
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#createDisco(java.util.List, info.rmapproject.core.model.RMapStatementBag, info.rmapproject.core.model.RMapResource, info.rmapproject.core.model.RMapResource)
 	 */
-	public RMapEvent createDisco(RMapAgent systemAgent,
+	public RMapEvent createDiSCO(RMapAgent systemAgent,
 			List<URI> aggregatedResources, RMapResource creator,
 			RMapStatementBag relatedStatements, RMapResource desc) throws RMapException {
 		ORMapDiSCO disco = new ORMapDiSCO(creator, aggregatedResources, desc, relatedStatements);
@@ -213,7 +227,7 @@ public class ORMapService implements RMapService {
 		return createEvent;
 	}
 	
-	public RMapEvent createDisco(org.openrdf.model.URI systemAgentId, List<Statement> stmts) throws RMapException{
+	public RMapEvent createDiSCO(org.openrdf.model.URI systemAgentId, List<Statement> stmts) throws RMapException{
 		RMapEvent createEvent = 
 				this.discomgr.createDiSCO(systemAgentId, stmts, ts);
 		return createEvent;
@@ -273,8 +287,10 @@ public class ORMapService implements RMapService {
 	 */
 	public List<org.openrdf.model.URI> getAllDiSCOVersion (org.openrdf.model.URI discoId)
 	throws RMapException {
-		List<org.openrdf.model.URI> discos = 
+		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
 				this.discomgr.getAllDiSCOVersions(discoId, false, ts);
+		List<org.openrdf.model.URI> discos = new ArrayList<org.openrdf.model.URI>();
+		discos.addAll(event2disco.values())	;	
 		return discos;
 	}
 	/* (non-Javadoc)
@@ -292,8 +308,10 @@ public class ORMapService implements RMapService {
 	
 	public List<org.openrdf.model.URI> getAllAgentDiSCOVersions(org.openrdf.model.URI discoID) 
 	throws RMapException {
-		List<org.openrdf.model.URI> discos = 
+		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
 				this.discomgr.getAllDiSCOVersions(discoID, true, ts);
+		List<org.openrdf.model.URI> discos = new ArrayList<org.openrdf.model.URI>();
+		discos.addAll(event2disco.values())	;		
 		return discos;
 	}
 
@@ -301,22 +319,62 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#getLatestVersionDiSCO(java.net.URI)
 	 */
 	public RMapDiSCO getLatestVersionDiSCO(URI discoID) throws RMapException {
-		// TODO Auto-generated method stub
-		return null;
+		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
+				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),true,ts);
+		org.openrdf.model.URI lastEvent = 
+				this.eventmgr.getLatestEvent(event2disco.keySet(),ts);
+		org.openrdf.model.URI discoId = event2disco.get(lastEvent);
+		return this.discomgr.readDiSCO(discoId, ts);
 	}
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getPreviousVersionDiSCO(java.net.URI)
 	 */
 	public RMapDiSCO getPreviousVersionDiSCO(URI discoID) throws RMapException {
-		// TODO Auto-generated method stub
-		return null;
+		RMapDiSCO nextDisco = null;
+		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
+				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),true,ts);
+		Map<org.openrdf.model.URI,org.openrdf.model.URI> disco2event = 
+				Utils.invertMap(event2disco);
+		org.openrdf.model.URI discoEventId = disco2event.get(discoID);
+		Map <Date, org.openrdf.model.URI> date2event = 
+				this.eventmgr.getDate2EventMap(event2disco.keySet(),ts);
+		Map<org.openrdf.model.URI,Date> event2date = Utils.invertMap(date2event);
+		Date eventDate = event2date.get(discoEventId);
+		SortedSet<Date> sortedDates = new TreeSet<Date>();
+		sortedDates.addAll(date2event.keySet());
+		SortedSet<Date>earlierDates = sortedDates.headSet(eventDate);
+		if (earlierDates.size()>0){
+			Date previousDate = earlierDates.last()	;
+			org.openrdf.model.URI prevEventId = date2event.get(previousDate);
+			org.openrdf.model.URI prevDiscoId = event2disco.get(prevEventId);
+			nextDisco = this.discomgr.readDiSCO(prevDiscoId,ts);
+		}
+		return nextDisco;
 	}
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getNextVersionDiSCO(java.net.URI)
 	 */
 	public RMapDiSCO getNextVersionDiSCO(URI discoID) throws RMapException {
-		// TODO Auto-generated method stub
-		return null;
+		RMapDiSCO nextDisco = null;
+		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
+				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),true,ts);
+		Map<org.openrdf.model.URI,org.openrdf.model.URI> disco2event = 
+				Utils.invertMap(event2disco);
+		org.openrdf.model.URI discoEventId = disco2event.get(discoID);
+		Map <Date, org.openrdf.model.URI> date2event = 
+				this.eventmgr.getDate2EventMap(event2disco.keySet(),ts);
+		Map<org.openrdf.model.URI,Date> event2date = Utils.invertMap(date2event);
+		Date eventDate = event2date.get(discoEventId);
+		SortedSet<Date> sortedDates = new TreeSet<Date>();
+		sortedDates.addAll(date2event.keySet());
+		SortedSet<Date> laterDates = sortedDates.tailSet(eventDate);
+		if (laterDates.size()>1){
+			Date[] dateArray = laterDates.toArray(new Date[laterDates.size()]);	
+			org.openrdf.model.URI nextEventId = date2event.get(dateArray[1]);
+			org.openrdf.model.URI nextDiscoId = event2disco.get(nextEventId);
+			nextDisco = this.discomgr.readDiSCO(nextDiscoId, ts);
+		}
+		return nextDisco;
 	}
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCOEvents(java.net.URI)

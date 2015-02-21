@@ -15,8 +15,6 @@ public interface RMapEvent extends RMapObject{
 
 
 
-	 public static String ISO8601 = "yyyy-MM-dd'T'HH:mm:ss'Z'";
-
 	/**
 	 * @return the eventType
 	 * @throws RMapException

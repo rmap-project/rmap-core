@@ -5,8 +5,10 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.openrdf.model.Statement;
@@ -61,6 +63,27 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 */
 	public ORMapDiSCOMgr() {
 		super();
+	}
+	/**
+	 * Return DiSCO corresponding to discoID
+	 * @param discoID
+	 * @param ts
+	 * @return
+	 * @throws RMapObjectNotFoundException
+	 */
+	public ORMapDiSCO readDiSCO(URI discoID, SesameTriplestore ts) 
+	throws RMapObjectNotFoundException {
+		ORMapDiSCO disco = null;
+		if (discoID ==null){
+			throw new RMapException ("null discoID");
+		}
+		if (ts==null){
+			throw new RMapException("null triplestore");
+		}
+		List<Statement> discoStmts = this.getNamedGraph(discoID, ts);
+		
+		disco = new ORMapDiSCO(discoStmts);
+		return disco;
 	}
 	
 	/**
@@ -514,7 +537,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @return List of DiSCO ids, or null if none found
 	 * @throws RMapException
 	 */
-	public List<URI> getAllDiSCOVersions(URI discoId, boolean matchAgent, SesameTriplestore ts) 
+	public Map<URI,URI> getAllDiSCOVersions(URI discoId, boolean matchAgent, SesameTriplestore ts) 
 			throws RMapObjectNotFoundException, RMapException {
 		if (discoId==null){
 			throw new RMapException ("Null disco");
@@ -523,8 +546,8 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			throw new RMapObjectNotFoundException("No disco found with identifer " + 
 					discoId.stringValue());
 		}
-		List<URI> discos = lookBack(discoId, null, true, matchAgent,ts);		
-		return discos;
+		Map<URI,URI> event2Disco = lookBack(discoId, null, true, matchAgent,ts);		
+		return event2Disco;
 	}
 	/**
 	 * 
@@ -535,7 +558,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @param ts
 	 * @return
 	 */
-	protected List<URI> lookBack(URI discoId, URI agentId, boolean lookFoward, 
+	protected Map<URI,URI> lookBack(URI discoId, URI agentId, boolean lookFoward, 
 			boolean matchAgent, SesameTriplestore ts) 
 					throws RMapObjectNotFoundException, RMapException {
 		Statement eventStmt = this.getDiSCOCreateEventStatement(discoId, ts);
@@ -543,7 +566,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			throw new RMapObjectNotFoundException("No creating event found for DiSCO id " +
 		             discoId.stringValue());
 		}
-		List<URI> discos = new ArrayList<URI>();
+		Map<URI,URI> event2Disco = new HashMap<URI,URI>();
 		do {
 			URI eventId = (URI)eventStmt.getSubject();
 			if (matchAgent){
@@ -557,14 +580,14 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 					break;
 				}
 			}
-			discos.add(discoId);
+			event2Disco.put(eventId,discoId);
 			Value eventType = this.getEventType(eventId, ts);
 			if (eventType == null){
 				throw new RMapException("Event does not have event type: " + eventId.stringValue());
 			}			
 			if(eventType.stringValue().equals(RMapEventType.CREATION.getTypeString())){					
-				if (lookFoward){					
-					discos.addAll(this.lookFoward(discoId, agentId, matchAgent, ts));
+				if (lookFoward){
+					event2Disco.putAll(this.lookFoward(discoId, agentId, matchAgent, ts));
 				}
 				break;
 			}
@@ -575,14 +598,14 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 					URI oldDiscoID = (URI)uEvent.getDerivationStmt().getRmapStmtObject();
 					// look back recursively on create/updates for oldDiscoID
 					// DONT look forward on the backward search - you'll already have stuff
-					discos.addAll(this.lookBack(oldDiscoID, agentId, false, matchAgent, ts));
+					 event2Disco.putAll(this.lookBack(oldDiscoID, agentId, false, matchAgent, ts));
 					// now look ahead for any derived discos
-					discos.addAll(this.lookFoward(discoId, agentId, matchAgent, ts));
+					 event2Disco.putAll(this.lookFoward(discoId, agentId, matchAgent, ts));
 				}
 				break;
 			}
 		} while (false);		
-		return discos;
+		return event2Disco;
 	}
 	/**
 	 * 
@@ -592,9 +615,9 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @param ts
 	 * @return
 	 */
-	protected List<URI> lookFoward(URI discoId, URI agentId, boolean matchAgent, 
+	protected Map<URI,URI> lookFoward(URI discoId, URI agentId, boolean matchAgent, 
 			SesameTriplestore ts) throws RMapObjectNotFoundException{
-		List<URI> discos = new ArrayList<URI>();			
+		Map<URI,URI> event2Disco = new HashMap<URI,URI>();			
 		do {
 			List<Statement> eventStmts = this.getUpdateEvents(discoId, ts);
 			if (eventStmts==null || eventStmts.size()==0){
@@ -613,16 +636,13 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				// get id of new DiSCO
 				URI newDisco = this.getIdOfCreatedDisco(updateEventId, ts);
 				if (newDisco != null){
-					discos.add(newDisco);
+					event2Disco.put(updateEventId,newDisco);
+					// follow new DiSCO forward
+					event2Disco.putAll(lookFoward(newDisco,agentId,matchAgent,ts));
 				}
 			}				
 		} while (false);			 
-		List<URI> forwardDiscos = new ArrayList<URI>();
-		// follow the new DiSCOS forward
-		for (URI fDisco:discos){
-			forwardDiscos.addAll(lookFoward(fDisco,agentId,matchAgent,ts));
-		}
-		return forwardDiscos;
+		return event2Disco;
 	}
 	/**
 	 * 
@@ -668,7 +688,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	}
 
 	/**
-	 * Confirm 2 identfiers refer to the same agent
+	 * Confirm 2 identifiers refer to the same agent
 	 * @param oldDisco
 	 * @param systemAgentId
 	 * @param ts

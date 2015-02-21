@@ -3,9 +3,7 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.openrdf.model.URI;
@@ -20,6 +18,7 @@ import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
+import info.rmapproject.core.utils.DateUtils;
 
 /**
  * @author smorrissey
@@ -58,8 +57,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		super();
 		this.context = ORAdapter.uri2OpenRdfUri(this.getId());
 		Date date = new Date();
-		DateFormat format = new SimpleDateFormat(ISO8601);
-		String dateString = format.format(date);
+		String dateString = DateUtils.getIsoStringDate(date);
 		ORMapStatement startTime = new ORMapStatement(this.context, PROV.STARTEDATTIME, 
 				dateString, this.context);
 		this.startTimeStmt = startTime;
@@ -209,10 +207,9 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 */
 	public Date getStartTime() throws RMapException {
 		Date finalResult = null;
-		DateFormat format = new SimpleDateFormat(ISO8601);
 		String timeStr = this.startTimeStmt.getRmapStmtObject().stringValue();
 		try {
-			finalResult = format.parse(timeStr);
+			finalResult =  DateUtils.getDateFromIsoString(timeStr);
 		} catch (ParseException e){
 			throw new RMapException (e);
 		}		
@@ -230,10 +227,9 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 */
 	public Date getEndTime() throws RMapException {
 		Date finalResult = null;
-		DateFormat format = new SimpleDateFormat(ISO8601);
 		String timeStr = this.endTimeStmt.getRmapStmtObject().stringValue();
 		try {
-			finalResult = format.parse(timeStr);
+			finalResult = DateUtils.getDateFromIsoString(timeStr);
 		} catch (ParseException e){
 			throw new RMapException (e);
 		}		
@@ -251,8 +247,13 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @see info.rmapproject.core.model.RMapEvent#setEndTime(java.util.Date)
 	 */
 	public void setEndTime(Date endTime) throws RMapException {
-		DateFormat format = new SimpleDateFormat(ISO8601);
-		String dateString = format.format(endTime);
+		String dateString = null;
+		try {
+			dateString = DateUtils.getIsoStringDate(endTime);
+		}
+		catch (Exception e){
+			throw new RMapException(e);
+		}
 		ORMapStatement endTimeStmt = new ORMapStatement(this.context, PROV.ENDEDATTIME, 
 				dateString, this.context);
 		this.endTimeStmt = endTimeStmt;

@@ -3,8 +3,15 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
@@ -19,6 +26,7 @@ import info.rmapproject.core.model.impl.openrdf.ORMapStatement;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
+import info.rmapproject.core.utils.DateUtils;
 
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -329,5 +337,54 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			throw new RMapException ("Unrecognized event type");
 		}
 		return event;
+	}
+	/**
+	 * Return id of event with latest end date
+	 * @param eventIds
+	 * @param ts
+	 * @return
+	 */
+	public URI getLatestEvent (Set<URI> eventIds,SesameTriplestore ts)
+	throws RMapException {
+		Map <Date, URI>date2event = this.getDate2EventMap(eventIds, ts);
+				new HashMap<Date, URI>();
+		SortedSet<Date> dates = new TreeSet<Date>();
+		dates.addAll(date2event.keySet());
+		Date latestDate = dates.last(); 
+		return date2event.get(latestDate);
+	}
+	/**
+	 * 
+	 * @param eventIds
+	 * @param ts
+	 * @return
+	 * @throws RMapException
+	 */
+	public Map <Date, URI> getDate2EventMap(Set<URI> eventIds,SesameTriplestore ts)
+	throws RMapException {
+		if (eventIds==null){
+			throw new RMapException("List of eventIds is null");
+		}
+		Map <Date, URI>date2event = new HashMap<Date, URI>();
+		for (URI eventId:eventIds){
+			Statement stmt = null;
+			try {
+				stmt = ts.getStatement(eventId, PROV.ENDEDATTIME, null, eventId);
+				
+			} catch (Exception e) {
+				throw new RMapException("Exception thrown getting end time statement for event "
+							+ eventId.stringValue());
+			}
+			String endTimeStr = stmt.getObject().stringValue();
+			Date date = null;
+			try {
+				date = DateUtils.getDateFromIsoString(endTimeStr);
+			} catch (ParseException e) {
+				throw new RMapException("Cannot parse date string " +
+						endTimeStr + " for event id " + eventId.stringValue());
+			}
+			date2event.put(date, eventId);
+		}
+		return date2event;
 	}
 }

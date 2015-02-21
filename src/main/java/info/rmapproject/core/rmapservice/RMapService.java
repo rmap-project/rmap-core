@@ -107,6 +107,13 @@ public interface RMapService {
 	
 	// DiSCO services
 	/**
+	 * Return the DiSCO
+	 * @param discoID
+	 * @return
+	 * @throws RMapException
+	 */
+	public RMapDiSCO readDiSCO(URI discoID) throws RMapException;
+	/**
 	 * 
 	 * @param aggregatedResources
 	 * @param creator
@@ -115,7 +122,7 @@ public interface RMapService {
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapEvent createDisco(RMapAgent systemAgent, List<URI> aggregatedResources,
+	public RMapEvent createDiSCO(RMapAgent systemAgent, List<URI> aggregatedResources,
 			RMapResource creator, RMapStatementBag relatedStatements, RMapResource desc)  throws RMapException;
 	/**
 	 * 
