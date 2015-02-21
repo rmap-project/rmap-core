@@ -9,8 +9,6 @@ import java.util.Set;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
-import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.RMapServiceFactoryIOC;
 
 import org.openrdf.model.URI;
 
@@ -35,17 +33,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		if (stmtIds==null || statusCode==null){
 			throw new RMapException ("Null URI list or status code");
 		}
-		RMapService rservice = null;
-		try {
-			rservice = RMapServiceFactoryIOC.getFactory().createService();
-		} catch (Exception e) {
-			throw new RMapException (e);
-		}
-		ORMapService service = null;
-		if (!(rservice instanceof ORMapService)){		
-			throw new RMapException("Unable to instantiate OpenRDF service implmentation.");
-		}
-		service = (ORMapService)rservice;
+		ORMapService service = this.getORMapService();
 		Set<URI> relatedStmts = new HashSet<URI>();
 		for (URI stmtId:stmtIds){
 			List<ORMapDiSCO> discos = service.getResourceAllRelatedDiSCOS(stmtId,statusCode);

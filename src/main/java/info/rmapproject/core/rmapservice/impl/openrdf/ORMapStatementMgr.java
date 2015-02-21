@@ -7,8 +7,6 @@ import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.impl.openrdf.ORMapStatement;
-import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.RMapServiceFactoryIOC;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
@@ -258,17 +256,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 			throw new RMapException ("Null Statement ID");
 		}
 		RMapStatus status = null;
-		RMapService rservice = null;
-		try {
-			rservice = RMapServiceFactoryIOC.getFactory().createService();
-		} catch (Exception e) {
-			throw new RMapException (e);
-		}
-		ORMapService service = null;
-		if (!(rservice instanceof ORMapService)){		
-			throw new RMapException("Unable to instantiate OpenRDF service implmentation.");
-		}
-		service = (ORMapService)rservice;
+		ORMapService service = this.getORMapService();
 		List<URI> discos = service.getStatementRelatedDiSCOs(stmtId);
 		boolean activeFound = false;
 		boolean inactiveFound = false;
@@ -333,17 +321,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 		if (! this.isStatementId(uri, ts)){
 			throw new RMapObjectNotFoundException("No Statement found with ID " + uri.stringValue());
 		}		
-		RMapService rservice = null;
-		try {
-			rservice = RMapServiceFactoryIOC.getFactory().createService();
-		} catch (Exception e) {
-			throw new RMapException (e);
-		}
-		ORMapService service = null;
-		if (!(rservice instanceof ORMapService)){		
-			throw new RMapException("Unable to instantiate OpenRDF service implmentation.");
-		}
-		service = (ORMapService)rservice;
+		ORMapService service = this.getORMapService();
 		List<ORMapDiSCO> discos = service.getResourceAllRelatedDiSCOS(uri, null);
 		Set <java.net.URI> events = new HashSet<java.net.URI>();;
 		for (ORMapDiSCO disco:discos){

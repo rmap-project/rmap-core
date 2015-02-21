@@ -30,8 +30,6 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
 import info.rmapproject.core.model.impl.openrdf.ORMapStatement;
-import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.RMapServiceFactoryIOC;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
@@ -378,7 +376,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			throw new RMapException("System Agent ID required: was null");
 		}
 		// Confirm systemAgentId (not null, is Agent)
-		RMapService service = RMapServiceFactoryIOC.getFactory().createService();
+		ORMapService service = this.getORMapService();
 		RMapAgent agent = service.readAgent(ORAdapter.openRdfUri2URI(systemAgentId));
 		if (agent==null){
 			throw new RMapObjectNotFoundException("No agent with id " + systemAgentId.stringValue());
@@ -647,7 +645,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	protected ORMapEventUpdate getUpdateEvent(URI updateEventID)
 	throws RMapException {
 		ORMapEventUpdate uEvent = null;
-		ORMapService service = (ORMapService)RMapServiceFactoryIOC.getFactory().createService();
+		ORMapService service = this.getORMapService();
 		RMapEvent event = service.readEvent(updateEventID);
 		if (event==null){
 			throw new RMapObjectNotFoundException("Event id " + updateEventID.stringValue());
