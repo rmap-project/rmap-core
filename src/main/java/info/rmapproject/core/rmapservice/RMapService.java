@@ -160,7 +160,7 @@ public interface RMapService {
 	 * @return
 	 * @throws RMapException
 	 */
-	public List<URI> getAllDiSCOVersions(URI discoID) throws RMapException;
+	public List<URI> getDiSCOAllVersions(URI discoID) throws RMapException;
 	/**
 	 * Get all versions of a DiSCO whose creator is the same as the creator
 	 * of that DiSCO
@@ -168,28 +168,28 @@ public interface RMapService {
 	 * @return
 	 * @throws RMapException
 	 */
-	public List<URI> getAllAgentDiSCOVersions(URI discoID) throws RMapException;
+	public List<URI> getDiSCOAllAgentVersions(URI discoID) throws RMapException;
 	/**
 	 * Get latest version of DiSCO (same agent as creator of DiSCO)
 	 * @param discoID
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapDiSCO getLatestVersionDiSCO (URI discoID) throws RMapException;
+	public RMapDiSCO getDiSCOLatestVersion (URI discoID) throws RMapException;
 	/**
 	 * Get previous version created by same system agent, if any, of this DiSCO
 	 * @param discoID
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapDiSCO getPreviousVersionDiSCO (URI discoID) throws RMapException;
+	public RMapDiSCO getDiSCOPreviousVersion (URI discoID) throws RMapException;
 	/**
 	 * Get next version created by same system agent, if any, of this DiSCO
 	 * @param discoID
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapDiSCO getNextVersionDiSCO (URI discoID)throws RMapException;
+	public RMapDiSCO getDiSCONextVersion (URI discoID)throws RMapException;
 	/**
 	 * Get all events associated with a DiSCO
 	 * @param discoID

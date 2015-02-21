@@ -269,7 +269,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getAllDiSCOVersions(java.net.URI)
 	 */
-	public List<URI> getAllDiSCOVersions(URI discoID) throws RMapException {
+	public List<URI> getDiSCOAllVersions(URI discoID) throws RMapException {
 		List<org.openrdf.model.URI> versions = 
 		   this.getAllDiSCOVersionORdf(ORAdapter.uri2OpenRdfUri(discoID));
 		List<URI> uris = new ArrayList<URI>();
@@ -295,9 +295,9 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getAllAgentDiSCOVersions(java.net.URI)
 	 */
-	public List<URI> getAllAgentDiSCOVersions(URI discoID) throws RMapException {
+	public List<URI> getDiSCOAllAgentVersions(URI discoID) throws RMapException {
 		List<org.openrdf.model.URI> versions = 
-				this.getAllAgentDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID));
+				this.getDiSCOAllAgentVersions(ORAdapter.uri2OpenRdfUri(discoID));
 		List<URI> uris = new ArrayList<URI>();
 		for (org.openrdf.model.URI version:versions){
 			uris.add(ORAdapter.openRdfUri2URI(version));
@@ -305,7 +305,7 @@ public class ORMapService implements RMapService {
 		return uris;
 	}
 	
-	public List<org.openrdf.model.URI> getAllAgentDiSCOVersions(org.openrdf.model.URI discoID) 
+	public List<org.openrdf.model.URI> getDiSCOAllAgentVersions(org.openrdf.model.URI discoID) 
 	throws RMapException {
 		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
 				this.discomgr.getAllDiSCOVersions(discoID, true, ts);
@@ -317,7 +317,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getLatestVersionDiSCO(java.net.URI)
 	 */
-	public RMapDiSCO getLatestVersionDiSCO(URI discoID) throws RMapException {
+	public RMapDiSCO getDiSCOLatestVersion(URI discoID) throws RMapException {
 		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
 				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),true,ts);
 		org.openrdf.model.URI lastEvent = 
@@ -328,7 +328,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getPreviousVersionDiSCO(java.net.URI)
 	 */
-	public RMapDiSCO getPreviousVersionDiSCO(URI discoID) throws RMapException {
+	public RMapDiSCO getDiSCOPreviousVersion(URI discoID) throws RMapException {
 		RMapDiSCO nextDisco = null;
 		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
 				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),true,ts);
@@ -353,7 +353,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getNextVersionDiSCO(java.net.URI)
 	 */
-	public RMapDiSCO getNextVersionDiSCO(URI discoID) throws RMapException {
+	public RMapDiSCO getDiSCONextVersion(URI discoID) throws RMapException {
 		RMapDiSCO nextDisco = null;
 		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
 				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),true,ts);
