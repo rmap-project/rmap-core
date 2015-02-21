@@ -48,7 +48,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		service = (ORMapService)rservice;
 		Set<URI> relatedStmts = new HashSet<URI>();
 		for (URI stmtId:stmtIds){
-			List<ORMapDiSCO> discos = service.getAllRelatedDiSCOS(stmtId,statusCode);
+			List<ORMapDiSCO> discos = service.getResourceAllRelatedDiSCOS(stmtId,statusCode);
 			if (discos.size()>0){
 				relatedStmts.add(stmtId);
 	//TODO  should we add agents??			

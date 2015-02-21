@@ -107,7 +107,7 @@ public class ORMapService implements RMapService {
 			throw new RMapException("Null status code provided");
 		}
 		org.openrdf.model.URI mUri = ORAdapter.uri2OpenRdfUri(uri);
-		List<ORMapDiSCO> orDiscos = this.getAllRelatedDiSCOS(mUri, statusCode);
+		List<ORMapDiSCO> orDiscos = this.getResourceAllRelatedDiSCOS(mUri, statusCode);
 		List<URI> uris = new ArrayList<URI>();
 		for (ORMapDiSCO disco:orDiscos){
 			URI dUri = disco.getId();
@@ -124,7 +124,7 @@ public class ORMapService implements RMapService {
 	 * @return
 	 * @throws RMapException
 	 */
-	protected List<ORMapDiSCO> getAllRelatedDiSCOS(org.openrdf.model.URI uri, RMapStatus statusCode)
+	protected List<ORMapDiSCO> getResourceAllRelatedDiSCOS(org.openrdf.model.URI uri, RMapStatus statusCode)
 		throws RMapException {
 			// TODO Auto-generated method stub
 			return null;			
@@ -204,7 +204,17 @@ public class ORMapService implements RMapService {
 		List<URI>uris = this.stmtmgr.getRelatedEvents(uri, ts);
 		return uris;
 	}
-
+	/**
+	 * Get ids of all DiSCOS containing Statement identified by stmtID
+	 * @param stmtId
+	 * @return
+	 * @throws RMapException
+	 */
+	public List<org.openrdf.model.URI>getStatementRelatedDiSCOs(org.openrdf.model.URI stmtId)
+			throws RMapException {
+		// TODO implement body
+		return null;
+	}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#readDiSCO(java.net.URI)
@@ -394,6 +404,17 @@ public class ORMapService implements RMapService {
 			throws RMapException {
 		List<org.openrdf.model.URI> events = this.discomgr.getDiscoEvents(discoID, ts);
 		return events;
+	}
+	/**
+	 * Get ids of all Statements that are part of a DiSCO
+	 * @param discoID
+	 * @return
+	 * @throws RMapException
+	 */
+	public List<org.openrdf.model.URI>getDiSCORelatedStatements(org.openrdf.model.URI discoID)
+			throws RMapException {
+		// TODO implement body
+		return null;
 	}
 
 	/* (non-Javadoc)

@@ -269,13 +269,13 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 			throw new RMapException("Unable to instantiate OpenRDF service implmentation.");
 		}
 		service = (ORMapService)rservice;
-		List<ORMapDiSCO> discos = service.getAllRelatedDiSCOS(stmtId,null);
+		List<URI> discos = service.getStatementRelatedDiSCOs(stmtId);
 		boolean activeFound = false;
 		boolean inactiveFound = false;
 		boolean tombstoneFound = false;
 		boolean deletedFound = false;
-		for (ORMapDiSCO disco:discos){
-			RMapStatus dStatus = service.getDiSCOStatus(disco.getId());
+		for (URI disco:discos){
+			RMapStatus dStatus = service.getDiSCOStatus(ORAdapter.openRdfUri2URI(disco));
 			switch (dStatus){
 			case ACTIVE:
 				activeFound = true;
@@ -344,7 +344,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 			throw new RMapException("Unable to instantiate OpenRDF service implmentation.");
 		}
 		service = (ORMapService)rservice;
-		List<ORMapDiSCO> discos = service.getAllRelatedDiSCOS(uri, null);
+		List<ORMapDiSCO> discos = service.getResourceAllRelatedDiSCOS(uri, null);
 		Set <java.net.URI> events = new HashSet<java.net.URI>();;
 		for (ORMapDiSCO disco:discos){
 			List<RMapEvent> dEvents = disco.getRelatedEvents();
