@@ -507,11 +507,11 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	}
 	/**
 	 * Return ids of all resources associated with an Event
-	 * Resources include the Event itself and DiSCOs associated with event
+	 * Resources include DiSCOs associated with event
 	 * For creation and update events, includes statements associated with 
-	 * DiSCO associated with event
+	 * DiSCOs associated with event
 	 * Includes Agent associated with event; any agents mentioned in DiSCO will
-	 * be returned as well
+	 * be returned as well as part of any related statment's related resources
 	 * @param eventId
 	 * @param ts
 	 * @return

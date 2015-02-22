@@ -67,7 +67,7 @@ public abstract class ORMapObjectMgr {
 		}
 		boolean isCorrectType = false;
 		try {
-			Statement stmt = ts.getStatement(id, RDF.TYPE, typeURI, id);
+			Statement stmt = ts.getStatement(id, RDF.TYPE, typeURI, null);
 			if (stmt != null){
 				isCorrectType = true;
 			}

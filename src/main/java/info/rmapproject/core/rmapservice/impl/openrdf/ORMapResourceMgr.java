@@ -1,16 +1,17 @@
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapStatus;
-import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+
 
 public class ORMapResourceMgr extends ORMapObjectMgr {
 
@@ -22,29 +23,62 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	}
 	/**
 	 * 
-	 * @param stmtIds
+	 * @param uri
 	 * @param statusCode
+	 * @param stmtmgr
+	 * @param discomgr
+	 * @param ts
 	 * @return
 	 * @throws RMapException
 	 */
-	public List<URI> getRelatedStmts(List<URI> stmtIds, RMapStatus statusCode) throws RMapException{
-		// for each statement, if it is part of a DiSCO or Agent with matching status code,
-		// add it to return list
-		if (stmtIds==null || statusCode==null){
-			throw new RMapException ("Null URI list or status code");
-		}
-		ORMapService service = this.getORMapService();
-		Set<URI> relatedStmts = new HashSet<URI>();
-		for (URI stmtId:stmtIds){
-			List<ORMapDiSCO> discos = service.getResourceAllRelatedDiSCOS(stmtId,statusCode);
-			if (discos.size()>0){
-				relatedStmts.add(stmtId);
-	//TODO  should we add agents??			
+	public List<URI> getRelatedStatements(URI uri, RMapStatus statusCode,
+			ORMapStatementMgr stmtmgr, ORMapDiSCOMgr discomgr, SesameTriplestore ts) 
+			throws RMapException {
+		// get all Statements with uri in subject or object
+		List<Statement>stmts = stmtmgr.getRelatedTriples(uri,ts);
+		// now make sure Statement status is same as statusCode
+		// context of each statement is URI of disco containing it
+		List<Statement>statusStmts = new ArrayList<Statement>();
+		for (Statement stmt:stmts){
+			URI context = (URI)stmt.getContext();
+			RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
+			if (dStatus.equals(statusCode)){
+				statusStmts.add(stmt);
 			}
 		}
-		List<URI> rStmts = new ArrayList<URI>();
-		rStmts.addAll(relatedStmts);
-		return rStmts;
+		// now get the ids of the statements
+		List<URI> relatedStmtIds = new ArrayList<URI>();
+		for (Statement stmt:statusStmts){
+			URI stmId = stmtmgr.getStatementID(stmt.getSubject(),
+					stmt.getPredicate(), stmt.getObject(), ts);
+			relatedStmtIds.add(stmId);
+		}
+		return relatedStmtIds;
 	}
-
+	/**
+	 * 
+	 * @param uri
+	 * @param statusCode  if null, match any status code
+	 * @param stmtmgr
+	 * @param discomgr
+	 * @param ts
+	 * @return
+	 * @throws RMapException
+	 */
+	public Set<URI> getRelatedDiSCOS(URI uri, RMapStatus statusCode,
+			ORMapStatementMgr stmtmgr, ORMapDiSCOMgr discomgr, SesameTriplestore ts)
+			throws RMapException {
+		// get all Statements with uri in subject or object
+		List<Statement>stmts = stmtmgr.getRelatedTriples(uri,ts);
+		Set<URI> discos = new TreeSet<URI>();
+		// make sure DiSCO in which statement appears matches statusCode
+		for (Statement stmt:stmts){
+			URI context = (URI)stmt.getContext();
+			RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
+			if (statusCode != null && dStatus.equals(statusCode)){
+				discos.add(context);
+			}
+		}
+		return discos;		
+	}
 }
