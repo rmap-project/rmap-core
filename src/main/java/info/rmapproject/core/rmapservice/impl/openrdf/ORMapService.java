@@ -216,7 +216,7 @@ public class ORMapService implements RMapService {
 		ORMapDiSCO disco = new ORMapDiSCO(creator, aggregatedResources, desc, relatedStatements);
 		RMapEvent createEvent = 
 				this.discomgr.createDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent.getId()),
-				disco, ts);
+				disco, this.eventmgr, ts);
 		return createEvent;
 	}
 
@@ -240,7 +240,7 @@ public class ORMapService implements RMapService {
 				relatedStatements);		
 		RMapEvent updateEvent = 
 				this.discomgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent.getId()),
-					ORAdapter.uri2OpenRdfUri(oldDiscoId), disco, ts);
+					ORAdapter.uri2OpenRdfUri(oldDiscoId), disco, this.eventmgr, ts);
 		return updateEvent;
 	}
 
@@ -250,7 +250,7 @@ public class ORMapService implements RMapService {
 	public RMapEvent deleteDiSCO(URI discoID, RMapAgent systemAgent) throws RMapException {
 		RMapEvent tombstoneEvent = 
 				this.discomgr.tombstoneDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent.getId()),
-						ORAdapter.uri2OpenRdfUri(discoID), ts);
+						ORAdapter.uri2OpenRdfUri(discoID), this.eventmgr, ts);
 		return tombstoneEvent;
 	}
 

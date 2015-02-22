@@ -91,7 +91,8 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapException
 	 */
 	public RMapEvent createDiSCO(org.openrdf.model.URI systemAgentId,
-			List<Statement> stmts, SesameTriplestore ts) throws RMapException {
+			List<Statement> stmts, ORMapEventMgr eventMgr, SesameTriplestore ts) 
+					throws RMapException {
 		if (systemAgentId==null){
 			throw new RMapException ("Null system agent id");			
 		}
@@ -102,7 +103,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			throw new RMapException ("null value for triplestore");
 		}
 		ORMapDiSCO disco = new ORMapDiSCO(stmts);		
-		return this.createDiSCO(systemAgentId, disco, ts);
+		return this.createDiSCO(systemAgentId, disco, eventMgr, ts);
 	}
 	
 	/**
@@ -113,7 +114,8 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @return
 	 * @throws RMapException
 	 */
-	public ORMapEvent createDiSCO(URI systemAgentId, ORMapDiSCO disco, SesameTriplestore ts) 
+	public ORMapEvent createDiSCO(URI systemAgentId, ORMapDiSCO disco, 
+			ORMapEventMgr eventMgr, SesameTriplestore ts) 
 			throws RMapException{		
 		// confirm non-null disco
 		if (disco==null){
@@ -203,7 +205,6 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		event.setCreatedObjectIdsFromURI(created);		
 		// end the event, write the event triples, and commit everything
 		event.setEndTime(new Date());
-		ORMapEventMgr eventMgr = new ORMapEventMgr();
 		eventMgr.createEvent(event, ts);
 
 		if (doCommitTransaction){
@@ -226,7 +227,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @return
 	 */
 	public RMapEvent updateDiSCO(URI systemAgentId,
-			URI oldDiscoId, ORMapDiSCO disco,
+			URI oldDiscoId, ORMapDiSCO disco, ORMapEventMgr eventMgr,
 			SesameTriplestore ts) {
 		// confirm non-null old disco
 		if (oldDiscoId==null){
@@ -250,7 +251,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		// get the event started
 		ORMapEventUpdate event = new ORMapEventUpdate(systemAgentId, RMapEventTargetType.DISCO, oldDiscoId);	
 		//if Update is different Agent then DO NOT inactivate target object; new Disco is a derivation
-		if (this.isSameDiscoAgent(oldDiscoId, systemAgentId, ts)){
+		if (this.isSameDiscoAgent(oldDiscoId, systemAgentId, eventMgr, ts)){
 			event.inactivateTarget();
 			if (disco!=null){
 				event.deriveFromTarget(ORAdapter.openRdfUri2RMapUri(disco.getDiscoContext()));
@@ -342,7 +343,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		} while (false);
 		// end the event, write the event triples, and commit everything
 		event.setEndTime(new Date());
-		ORMapEventMgr eventMgr = new ORMapEventMgr();
+//		ORMapEventMgr eventMgr = new ORMapEventMgr();
 		eventMgr.createEvent(event, ts);
 		if (doCommitTransaction){
 			try {
@@ -359,11 +360,11 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * but DiSCO named graph is not deleted from triplestore
 	 * @param systemAgentId
 	 * @param oldDiscoId
+	 * @param eventMgr TODO
 	 * @param ts
 	 * @return
 	 */
-	public RMapEvent tombstoneDiSCO(URI systemAgentId,
-			URI oldDiscoId, SesameTriplestore ts) {
+	public RMapEvent tombstoneDiSCO(URI systemAgentId,URI oldDiscoId, ORMapEventMgr eventMgr, SesameTriplestore ts) {
 		// confirm non-null old disco
 		if (oldDiscoId==null){
 			throw new RMapException ("Null value for id of DiSCO to be tombstoned");
@@ -378,7 +379,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			throw new RMapObjectNotFoundException("No agent with id " + systemAgentId.stringValue());
 		}
 		// make sure same Agent created the DiSCO now being inactivated
-		if (! this.isSameDiscoAgent(oldDiscoId, systemAgentId, ts)){
+		if (! this.isSameDiscoAgent(oldDiscoId, systemAgentId, eventMgr, ts)){
 			throw new RMapException(
 					"Agent attempting to tombstoned DiSCO is not same as creating Agent");
 		}
@@ -399,7 +400,6 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}
 		// end the event, write the event triples, and commit everything
 		event.setEndTime(new Date());
-		ORMapEventMgr eventMgr = new ORMapEventMgr();
 		eventMgr.createEvent(event, ts);
 
 		if (doCommitTransaction){
@@ -596,21 +596,21 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				// first time through, agentID will be null
 				URI oldAgentId = agentId;
 				if (agentId==null){
-					oldAgentId = this.getEventAssocAgent(eventId, ts);
+					oldAgentId = eventmgr.getEventAssocAgent(eventId, ts);
 				}
-				URI uAgent = this.getEventAssocAgent(eventId, ts);
+				URI uAgent = eventmgr.getEventAssocAgent(eventId, ts);
 				if (!(oldAgentId.equals(uAgent))){
 					break;
 				}
 			}
 			event2Disco.put(eventId,discoId);			
-			if(this.isCreationEvent(eventId, ts)){					
+			if(eventmgr.isCreationEvent(eventId, ts)){					
 				if (lookFoward){
 					event2Disco.putAll(this.lookFoward(discoId, agentId, matchAgent,eventmgr, ts));
 				}
 				break;
 			}
-			if (this.isUpdateEvent(eventId, ts)){
+			if (eventmgr.isUpdateEvent(eventId, ts)){
 				// get id of old DiSCO
 				ORMapEventUpdate uEvent  = this.getUpdateEvent(eventId, eventmgr);
 				if (uEvent.getDerivationStmt().getRmapStmtObject()!=null){
@@ -639,7 +639,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			ORMapEventMgr eventmgr, SesameTriplestore ts) throws RMapObjectNotFoundException{
 		Map<URI,URI> event2Disco = new HashMap<URI,URI>();			
 		do {
-			List<Statement> eventStmts = this.getUpdateEvents(discoId, ts);
+			List<Statement> eventStmts = eventmgr.getUpdateEvents(discoId, ts);
 			if (eventStmts==null || eventStmts.size()==0){
 				break;
 			}
@@ -648,7 +648,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				URI updateEventId = (URI) eventStmt.getSubject();
 				// confirm matching agent if necessary	
 				if (matchAgent){
-					URI uAgent = this.getEventAssocAgent(updateEventId, ts);
+					URI uAgent = eventmgr.getEventAssocAgent(updateEventId, ts);
 					if (!(agentId.equals(uAgent))){
 						continue;
 					}	
@@ -717,7 +717,8 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @return
 	 * @throws RMapException
 	 */
-	protected boolean isSameDiscoAgent (URI oldDisco, URI systemAgentId, SesameTriplestore ts) 
+	protected boolean isSameDiscoAgent (URI oldDisco, URI systemAgentId, 
+			ORMapEventMgr eventmgr, SesameTriplestore ts) 
 			throws RMapException {
 		boolean isSame = false;
 		Statement stmt = this.getDiSCOCreateEventStatement(oldDisco, ts);
@@ -729,7 +730,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				throw new RMapException ("Event ID is not URI: " + stmt.getSubject().stringValue());
 			}
 			URI eventId = (URI)stmt.getSubject();
-			URI createAgent = this.getEventAssocAgent(eventId, ts);
+			URI createAgent = eventmgr.getEventAssocAgent(eventId, ts);
 			isSame = (systemAgentId.equals(createAgent));
 		}while (false);
 		return isSame;
