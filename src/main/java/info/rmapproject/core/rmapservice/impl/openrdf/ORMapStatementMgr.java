@@ -168,7 +168,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 		// get statements whose context matches concatenated subject/object/predicate
 		List <Statement> matchingTriples = null;
 		try {
-			matchingTriples = ts.getStatements(subject, predicate, object, true, context);
+			matchingTriples = ts.getStatements(subject, predicate, object, false, context);
 		} catch (Exception e) {
 			throw new RMapException (e);
 		}
@@ -176,8 +176,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 			throw new RMapObjectNotFoundException("No Statement found with subject " + subject.stringValue() +
 					"  predicate " + predicate.stringValue() + " object " + object.stringValue());
 		}
-		Statement stmt = matchingTriples.get(0);
-		
+		Statement stmt = matchingTriples.get(0);		
 		Resource rSubject = stmt.getSubject();
 		URI id = null;
 		if (rSubject instanceof URI){

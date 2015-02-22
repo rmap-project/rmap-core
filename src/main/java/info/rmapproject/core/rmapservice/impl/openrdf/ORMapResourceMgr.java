@@ -39,19 +39,27 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		// now make sure Statement status is same as statusCode
 		// context of each statement is URI of disco containing it
 		List<Statement>statusStmts = new ArrayList<Statement>();
-		for (Statement stmt:stmts){
-			URI context = (URI)stmt.getContext();
-			RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
-			if (dStatus.equals(statusCode)){
-				statusStmts.add(stmt);
+		if (statusCode==null){
+			statusStmts.addAll(stmts);
+		}
+		else {
+			for (Statement stmt:stmts){
+				URI context = (URI)stmt.getContext();
+				RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
+				if (dStatus.equals(statusCode)){
+					statusStmts.add(stmt);				
+				}
 			}
 		}
 		// now get the ids of the statements
 		List<URI> relatedStmtIds = new ArrayList<URI>();
 		for (Statement stmt:statusStmts){
-			URI stmId = stmtmgr.getStatementID(stmt.getSubject(),
-					stmt.getPredicate(), stmt.getObject(), ts);
-			relatedStmtIds.add(stmId);
+			try{
+				URI stmId = stmtmgr.getStatementID(stmt.getSubject(),
+						stmt.getPredicate(), stmt.getObject(), ts);
+				relatedStmtIds.add(stmId);
+			} 
+			catch (RMapException e){}
 		}
 		return relatedStmtIds;
 	}
@@ -74,9 +82,15 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		// make sure DiSCO in which statement appears matches statusCode
 		for (Statement stmt:stmts){
 			URI context = (URI)stmt.getContext();
-			RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
-			if (statusCode != null && dStatus.equals(statusCode)){
+			if (statusCode==null){
+				// match any status
 				discos.add(context);
+			}
+			else {
+				RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
+				if (dStatus.equals(statusCode)){
+					discos.add(context);
+				}
 			}
 		}
 		return discos;		

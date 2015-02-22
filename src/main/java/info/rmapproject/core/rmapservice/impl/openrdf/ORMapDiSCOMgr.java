@@ -523,6 +523,36 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		return events;
 	}
 	/**
+	 * Get ids of Statements associated with a DiSCO
+	 * @param discoId
+	 * @param stmtmgr
+	 * @param ts
+	 * @return
+	 * @throws RMapException
+	 */
+	public List<URI> getDiSCOStatements(URI discoId, ORMapStatementMgr stmtmgr,
+			SesameTriplestore ts) throws RMapException {
+		if (discoId==null){
+			throw new RMapException("Null discoID");
+		}
+		if (ts==null){
+			throw new RMapException("Null triplestore");
+		}
+		List<Statement>stmts = new ArrayList<Statement>();
+		try {
+			stmts.addAll(this.getNamedGraph(discoId, ts));
+		}
+		catch (RMapObjectNotFoundException e){}
+		catch (RMapException e) {throw e;}
+		List<URI>uris = new ArrayList<URI>();
+		for (Statement stmt:stmts){
+			URI stmtId = stmtmgr.getStatementID(stmt.getSubject(), stmt.getPredicate(),
+					stmt.getObject(), ts);
+			uris.add(stmtId);
+		}
+		return uris;
+	}
+	/**
 	 * Method to get all versions of DiSCO
 	 * If matchAgent = true, then return only versions created by same agent as creating agent
 	 *                 if false, then return all versions by all agents

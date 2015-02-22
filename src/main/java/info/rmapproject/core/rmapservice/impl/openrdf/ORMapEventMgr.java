@@ -28,7 +28,6 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 import info.rmapproject.core.utils.DateUtils;
 
-import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -485,22 +484,23 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	}
 	/**
 	 * Return ids of Statements associated with an event
-	 * Note that if event is a Tombstone or Deletion, then no statement ids are ever returned,
-	 * otherwise it would be possible to reconstitute a tombstoned or deleted DiSCO
+	 * Note that if event is a Deletion, then no statement ids are ever returned,
+	 * otherwise it would be possible to reconstitute a deleted DiSCO
 	 * @param eventId
 	 * @param ts
 	 * @return
 	 */
-	public List<URI> getRelatedStatements(URI eventId, SesameTriplestore ts) 
+	public List<URI> getRelatedStatements(URI eventId, ORMapDiSCOMgr discomgr,
+			ORMapStatementMgr stmtmgr, SesameTriplestore ts) 
 	throws RMapException {
 		if (eventId==null){
 			throw new RMapException("Null event id");
 		}
 		List<URI>stmtIds = new ArrayList<URI>();
-		if (this.isCreationEvent(eventId, ts) || this.isUpdateEvent(eventId, ts)){
+		if (!(this.isDeleteEvent(eventId, ts))){
 			List<URI> relatedDiSCOs = this.getRelatedDiSCOs(eventId, ts);
 			for (URI disco:relatedDiSCOs){
-				stmtIds.addAll(this.getORMapService().getDiSCORelatedStatements(disco));
+				stmtIds.addAll(discomgr.getDiSCOStatements(disco, stmtmgr, ts));
 			}
 		}
 		return stmtIds;
@@ -510,13 +510,14 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * Resources include DiSCOs associated with event
 	 * For creation and update events, includes statements associated with 
 	 * DiSCOs associated with event
-	 * Includes Agent associated with event; any agents mentioned in DiSCO will
-	 * be returned as well as part of any related statment's related resources
+	 * Includes Agent associated with event
+	 * Does NOT descend on Statements to get subject and object resources
 	 * @param eventId
 	 * @param ts
 	 * @return
 	 */
-	public List<URI> getRelatedResources (URI eventId, SesameTriplestore ts){
+	public List<URI> getRelatedResources (URI eventId, ORMapDiSCOMgr discomgr,
+			ORMapStatementMgr stmtmgr, SesameTriplestore ts){
 		Set<URI> resources = new TreeSet<URI>();
 		// get DiSCO resources
 		Set<URI> relatedDiSCOs = new TreeSet<URI>();
@@ -526,15 +527,10 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		Set<URI>stmtIds = new TreeSet<URI>();
 		if (this.isCreationEvent(eventId, ts) || this.isUpdateEvent(eventId, ts)){			
 			for (URI disco:relatedDiSCOs){
-				stmtIds.addAll(this.getORMapService().getDiSCORelatedStatements(disco));
+				stmtIds.addAll(discomgr.getDiSCOStatements(disco, stmtmgr, ts));
 			}
 			resources.addAll(stmtIds);
 		}
-		Set<Resource>stmtResources = new TreeSet<Resource>();
-		for (URI stmt:stmtIds){
-			stmtResources.addAll(this.getORMapService().getStatementRelatedResources(stmt));
-		}
-		resources.addAll(stmtIds);
 		// get Agent resources
 		resources.addAll(this.getRelatedAgents(eventId, ts));
 		List<URI> lResources = new ArrayList<URI>();

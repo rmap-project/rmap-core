@@ -194,17 +194,6 @@ public class ORMapService implements RMapService {
 		}
 		return events;
 	}
-	/**
-	 * Return all Resources (URI or Bnode) in subject or object of Statement
-	 * @param stmtId
-	 * @return
-	 * @throws RMapException
-	 */
-	public List<org.openrdf.model.URI>getStatementRelatedResources(org.openrdf.model.URI stmtId)
-			throws RMapException {
-		// TODO implement body
-		return null;
-	}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#readDiSCO(java.net.URI)
@@ -380,31 +369,12 @@ public class ORMapService implements RMapService {
 	 */
 	public List<URI> getDiSCOEvents(URI discoID) throws RMapException {
 		List<org.openrdf.model.URI> events = 
-				this.getDiSCOEvents(ORAdapter.uri2OpenRdfUri(discoID));
+				this.discomgr.getDiscoEvents(ORAdapter.uri2OpenRdfUri(discoID), ts);
 		List<URI> uris = new ArrayList<URI>();
 		for (org.openrdf.model.URI event:events){
 			uris.add(ORAdapter.openRdfUri2URI(event));
 		}
 		return uris;
-	}
-	/**
-	 * 
-	 */
-	public List<org.openrdf.model.URI> getDiSCOEvents(org.openrdf.model.URI discoID)
-			throws RMapException {
-		List<org.openrdf.model.URI> events = this.discomgr.getDiscoEvents(discoID, ts);
-		return events;
-	}
-	/**
-	 * Get ids of all Statements that are part of a DiSCO
-	 * @param discoID
-	 * @return
-	 * @throws RMapException
-	 */
-	public List<org.openrdf.model.URI>getDiSCORelatedStatements(org.openrdf.model.URI discoID)
-			throws RMapException {
-		// TODO implement body
-		return null;
 	}
 
 	/* (non-Javadoc)
@@ -426,7 +396,7 @@ public class ORMapService implements RMapService {
 	public List<URI> getEventRelatedStatements(URI eventID)
 			throws RMapException {
 		List<org.openrdf.model.URI> stmts = this.eventmgr.getRelatedStatements(
-				ORAdapter.uri2OpenRdfUri(eventID), ts);
+				ORAdapter.uri2OpenRdfUri(eventID), this.discomgr, this.stmtmgr,ts);
 		List<URI>stmtIds = new ArrayList<URI>();
 		for (org.openrdf.model.URI id:stmts){
 			stmtIds.add(ORAdapter.openRdfUri2URI(id));
@@ -439,7 +409,7 @@ public class ORMapService implements RMapService {
 	 */
 	public List<URI> getEventRelatedResources(URI eventID) throws RMapException {
 		List<org.openrdf.model.URI> resources = this.eventmgr.getRelatedResources(
-				ORAdapter.uri2OpenRdfUri(eventID), ts);
+				ORAdapter.uri2OpenRdfUri(eventID),this.discomgr, this.stmtmgr, ts);
 		List<URI> resourceIds = new ArrayList<URI>();
 		for (org.openrdf.model.URI resource:resources){
 			resourceIds.add(ORAdapter.openRdfUri2URI(resource));
