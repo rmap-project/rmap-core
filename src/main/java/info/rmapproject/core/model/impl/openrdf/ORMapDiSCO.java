@@ -61,7 +61,9 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 * Statement declaring type of DiSCO
 	 */
 	protected ORMapStatement typeStatement;
-	
+	/**
+	 * ID used by provider of DiSCO on their own system
+	 */
 	protected ORMapStatement providerIdStmt;
 	/** 
 	 * ID of DiSCO is also used as context	
@@ -69,6 +71,8 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	protected URI discoContext = null;	
 
 	/**
+	 * Base constructor
+	 * Sets DiSCO context equal to DiSCO ID, so DiSCO is named graph
 	 * @throws Exception
 	 */
 	protected ORMapDiSCO() throws RMapException {
@@ -78,10 +82,11 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 				new ORMapStatement(this.discoContext,RDF.TYPE,RMAP.DISCO,this.discoContext);
 	}	
 	/**
-	 * 
-	 * @param creator
-	 * @param aggregatedResources
-	 * @throws RMapException
+	 * Constructor
+	 * Constructs statement triples aggregating resources in DiSCO
+	 * @param creator Author of DiSCO
+	 * @param aggregatedResources Resources comprising compound object
+	 * @throws RMapException if unable to create Creator or aggregated resources Statements
 	 */
 	public ORMapDiSCO(RMapResource creator, List<java.net.URI> aggregatedResources) 
 			throws RMapException {
@@ -90,12 +95,16 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		this.setAggregratedResources(aggregatedResources);
 	}
 	/**
-	 * 
-	 * @param creator
-	 * @param aggregatedResources
-	 * @param description
-	 * @param relatedStatements
-	 * @throws RMapException
+	 * Constructor
+	 * Constructs statement triples aggregating resources in DiSCO
+	 * @param creator Author of DiSCO
+	 * @param aggregatedResources Resources comprising compound object
+	 * @param description Optional description of DiSCO
+	 * @param relatedStatements Optional statements related to aggregated resources.
+	 *           Related Statements must reference at least one aggregated resource, 
+	 *           and must not comprise a disjoint graph
+	 * @throws RMapException if related statements do not reference at least one resource, or
+	 *            comprise a disjoint graph, or if cannot create Statements from parameters
 	 */
 	public ORMapDiSCO(RMapResource creator, List<java.net.URI> aggregatedResources, RMapResource description,
 			RMapStatementBag relatedStatements) throws RMapException {		
@@ -104,9 +113,10 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		this.setRelatedStatements(relatedStatements);
 	}
 	/**
-	 * 
-	 * @param stmts
-	 * @throws RMapException
+	 * Constructs DiSCO from List of triples
+	 * @param stmts Statements to be structured into DiSCO
+	 * @throws RMapException if resources not present, or related statements do not reference at least one resource, or
+	 *            comprise a disjoint graph, or if cannot create Statements from parameters
 	 */
 	public ORMapDiSCO(List<Statement> stmts) throws RMapException{
 		this();
@@ -223,7 +233,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		this.relatedStatements = relStatements;
 	}
 	/**
-	 * Checks to see that at least once statement in DiSCO's RelatedStatement has
+	 * Checks to see that at least once statement in DiSCO's RelatedStatements has
 	 * one of the aggregated resources as its subject
 	 * @param relatedResources
 	 * @return
@@ -358,8 +368,8 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		return resources;
 	}
 	/**
-	 * 
-	 * @return
+	 * Get list of aggregated resources as list of OpenRDF Statements
+	 * @return list of aggregated resources as list of OpenRDF Statements
 	 * @throws RMapException
 	 */
 	public List<ORMapStatement> getAggregatedResourceStatements() throws RMapException{
@@ -401,8 +411,8 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		return bag;
 	}
 	/**
-	 * 
-	 * @return
+	 * Return related statement triples as list of ORMapStatement objects
+	 * @return ist of ORMapStatement objects
 	 */
 	public List<ORMapStatement> getRelatedStatementsAsStatements (){
 		return this.relatedStatements;
@@ -474,8 +484,8 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		return creator;
 	}
 	/**
-	 * 
-	 * @return
+	 * Returns creator as ORMapStatement object
+	 * @return creator as ORMapStatement object
 	 */
 	public ORMapStatement getCreatorStmt() {
 		return this.creator;
@@ -512,8 +522,8 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		return desc;
 	}
 	/**
-	 * 
-	 * @return
+	 * Returns DiSCO description as ORMapStatement object
+	 * @return ORMapStatement
 	 */
 	public ORMapStatement getDescriptonStatement () {
 		return this.description;
@@ -558,6 +568,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		return events;
 	}
 	/**
+	 * Return RDF type statement as ORMapStatement object
 	 * @return the typeStatement
 	 */
 	public ORMapStatement getTypeStatement() {
@@ -565,13 +576,14 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	}
 
 	/**
+	 * Get disco context URI
 	 * @return the discoContext
 	 */
 	public URI getDiscoContext() {
 		return discoContext;
 	}
 	/**
-	 * 
+	 * Return id used by provider of DiSCO in their own system as String
 	 */
 	public String getProviderId() throws RMapException {
 		String id = null;
@@ -581,7 +593,10 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		}
 		return id;
 	}
-	
+	/**
+	 * Return id used by provider of DiSCO in their own system as ORMapStatement
+	 * @return
+	 */
 	public ORMapStatement getProviderIdStmt(){
 		return this.providerIdStmt;
 	}

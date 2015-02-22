@@ -32,13 +32,6 @@ public class ORMapDiscoTest {
 		vf = ORAdapter.getValueFactory();
 	}
 
-	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#ORMapDiSCO()}.
-	 */
-	@Test
-	public void testORMapDiSCO() {
-		fail("Not yet implemented");
-	}
 
 	/**
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#ORMapDiSCO(info.rmapproject.core.model.RMapResource, java.util.List)}.

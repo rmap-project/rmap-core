@@ -26,6 +26,7 @@ public class RMAP {
 //	public static final String API_NS = "http://rmapdns.ddns.net:8080/api/";
 //	public static final String DATA_NS = "http://rmapdns.ddns.net:8080/data/";
 //	public static final String STATEMENT_DATA_NS = "http://rmapdns.ddns.net:8080/data/stmtid/";
+	//TODO  why separate namespace for Agent?
 	public static final String AGENT_DATA_NS = "http://rmapdns.ddns.net:8080/data/agentid/";
 //	public static final String PROFILE_DATA_NS = "http://rmapdns.ddns.net:8080/data/profileid/";
 //	public static final String DISCO_DATA_NS = "http://rmapdns.ddns.net:8080/data/discoid/";
