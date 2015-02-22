@@ -22,7 +22,27 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		super();
 	}
 	/**
-	 * 
+	 * Find all triples with subject or object equal to resource
+	 * @param resource
+	 * @param ts
+	 * @return
+	 * @throws RMapException
+	 */
+	public List<Statement> getRelatedTriples(URI resource, SesameTriplestore ts)
+	throws RMapException{
+		List<Statement> triples = null;
+		try {
+			triples = ts.getStatements(resource, null, null);
+			triples.addAll(ts.getStatements(null, null, resource));
+		} catch (Exception e) {
+			throw new RMapException (e);
+		}		
+		return triples;
+	}
+	/**
+	 * Find ids for Statements whose subject or object matches resource URI
+	 * If statusCode anything but null, only return statement id if statement
+	 * status matches statusCode
 	 * @param uri
 	 * @param statusCode
 	 * @param stmtmgr
@@ -31,11 +51,11 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @return
 	 * @throws RMapException
 	 */
-	public List<URI> getRelatedStatements(URI uri, RMapStatus statusCode,
+	public Set<URI> getRelatedStatements(URI uri, RMapStatus statusCode,
 			ORMapStatementMgr stmtmgr, ORMapDiSCOMgr discomgr, SesameTriplestore ts) 
 			throws RMapException {
 		// get all Statements with uri in subject or object
-		List<Statement>stmts = stmtmgr.getRelatedTriples(uri,ts);
+		List<Statement>stmts = this.getRelatedTriples(uri, ts);
 		// now make sure Statement status is same as statusCode
 		// context of each statement is URI of disco containing it
 		List<Statement>statusStmts = new ArrayList<Statement>();
@@ -45,14 +65,16 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		else {
 			for (Statement stmt:stmts){
 				URI context = (URI)stmt.getContext();
-				RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
-				if (dStatus.equals(statusCode)){
-					statusStmts.add(stmt);				
+				if (this.isDiscoId(context, ts)){
+					RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
+					if (dStatus.equals(statusCode)){
+						statusStmts.add(stmt);				
+					}
 				}
 			}
 		}
 		// now get the ids of the statements
-		List<URI> relatedStmtIds = new ArrayList<URI>();
+		Set<URI> relatedStmtIds = new TreeSet<URI>();
 		for (Statement stmt:statusStmts){
 			try{
 				URI stmId = stmtmgr.getStatementID(stmt.getSubject(),
@@ -67,17 +89,16 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * 
 	 * @param uri
 	 * @param statusCode  if null, match any status code
-	 * @param stmtmgr
 	 * @param discomgr
 	 * @param ts
 	 * @return
 	 * @throws RMapException
 	 */
 	public Set<URI> getRelatedDiSCOS(URI uri, RMapStatus statusCode,
-			ORMapStatementMgr stmtmgr, ORMapDiSCOMgr discomgr, SesameTriplestore ts)
+			ORMapDiSCOMgr discomgr, SesameTriplestore ts)
 			throws RMapException {
 		// get all Statements with uri in subject or object
-		List<Statement>stmts = stmtmgr.getRelatedTriples(uri,ts);
+		List<Statement>stmts = this.getRelatedTriples(uri, ts);
 		Set<URI> discos = new TreeSet<URI>();
 		// make sure DiSCO in which statement appears matches statusCode
 		for (Statement stmt:stmts){
@@ -94,5 +115,39 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			}
 		}
 		return discos;		
+	}
+	/**
+	 * Get ids of Events related to resource.
+	 * @param resource
+	 * @param stmtmgr
+	 * @param discomgr
+	 * @param ts
+	 * @return
+	 */
+	public Set<URI> getRelatedEvents(URI resource,ORMapStatementMgr stmtmgr, 
+			ORMapDiSCOMgr discomgr, SesameTriplestore ts) {
+		Set<URI>events = new TreeSet<URI>();
+		do {
+			if (this.isDiscoId(resource, ts)){
+				events.addAll(discomgr.getDiscoEvents(resource, ts));
+				break;
+			}
+			if (this.isStatementId(resource, ts)){
+				events.addAll(stmtmgr.getRelatedEvents(resource, discomgr, ts));
+				break;
+			}
+			if (this.isAgentId(resource, ts)){
+				//TODO need agentmgr with getRelatedEvents() method
+				break;
+			}
+			// it's just a resource - get all Statements in appears in, and
+			// get events related to those statements
+			Set<URI>stmts = this.getRelatedStatements(resource, null, stmtmgr,
+					discomgr, ts);
+			for (URI stmt:stmts){
+				events.addAll(stmtmgr.getRelatedEvents(stmt, discomgr, ts));
+			}
+		}while (false);
+		return events;
 	}
 }

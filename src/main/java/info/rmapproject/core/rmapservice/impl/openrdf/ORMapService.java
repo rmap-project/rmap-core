@@ -81,8 +81,9 @@ public class ORMapService implements RMapService {
 			throw new RMapException("null uri");
 		}
 		org.openrdf.model.URI mUri = ORAdapter.uri2OpenRdfUri(uri);
-		List<org.openrdf.model.URI> stmtIds = 
-				this.resourcemgr.getRelatedStatements(mUri, statusCode, stmtmgr, discomgr, ts);
+		Set<org.openrdf.model.URI> stmtIds = 
+				this.resourcemgr.getRelatedStatements(mUri, statusCode, stmtmgr, 
+						discomgr, ts);
 		List<URI> ids = new ArrayList<URI>();
 		for (org.openrdf.model.URI id:stmtIds){
 			ids.add(ORAdapter.openRdfUri2URI(id));
@@ -94,8 +95,15 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#getRelatedEvents(java.net.URI)
 	 */
 	public List<URI> getResourceRelatedEvents(URI uri) throws RMapException {
-		// TODO Auto-generated method stub
-		return null;
+		org.openrdf.model.URI mUri = ORAdapter.uri2OpenRdfUri(uri);
+		Set<org.openrdf.model.URI> orEvents =
+				this.resourcemgr.getRelatedEvents(mUri, stmtmgr, discomgr, ts);
+		List<URI> uris = new ArrayList<URI>();
+		for (org.openrdf.model.URI event:orEvents){
+			URI dUri = ORAdapter.openRdfUri2URI(event);
+			uris.add(dUri);
+		}
+		return uris;
 	}
 
 	/* (non-Javadoc)
@@ -103,12 +111,9 @@ public class ORMapService implements RMapService {
 	 */
 	public List<URI> getResourceRelatedDiSCOs(URI uri, RMapStatus statusCode)
 			throws RMapException {
-		if (statusCode==null){
-			throw new RMapException("Null status code provided");
-		}
 		org.openrdf.model.URI mUri = ORAdapter.uri2OpenRdfUri(uri);
 		Set<org.openrdf.model.URI> orDiscos = 
-				this.resourcemgr.getRelatedDiSCOS(mUri, statusCode, stmtmgr, discomgr, ts);
+				this.resourcemgr.getRelatedDiSCOS(mUri, statusCode, discomgr, ts);
 		List<URI> uris = new ArrayList<URI>();
 		for (org.openrdf.model.URI disco:orDiscos){
 			URI dUri = ORAdapter.openRdfUri2URI(disco);
@@ -259,56 +264,39 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#getAllDiSCOVersions(java.net.URI)
 	 */
 	public List<URI> getDiSCOAllVersions(URI discoID) throws RMapException {
-		List<org.openrdf.model.URI> versions = 
-		   this.getAllDiSCOVersionORdf(ORAdapter.uri2OpenRdfUri(discoID));
+		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
+				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),
+						false,this.eventmgr, ts);
+		List<org.openrdf.model.URI> versions = new ArrayList<org.openrdf.model.URI>();
+		versions.addAll(event2disco.values());
 		List<URI> uris = new ArrayList<URI>();
 		for (org.openrdf.model.URI version:versions){
 			uris.add(ORAdapter.openRdfUri2URI(version));
 		}
 		return uris;
-	}
-	/**
-	 * 
-	 * @param discoId
-	 * @return
-	 * @throws RMapException
-	 */
-	public List<org.openrdf.model.URI> getAllDiSCOVersionORdf (org.openrdf.model.URI discoId)
-	throws RMapException {
-		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
-				this.discomgr.getAllDiSCOVersions(discoId, false, ts);
-		List<org.openrdf.model.URI> discos = new ArrayList<org.openrdf.model.URI>();
-		discos.addAll(event2disco.values())	;	
-		return discos;
 	}
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getAllAgentDiSCOVersions(java.net.URI)
 	 */
 	public List<URI> getDiSCOAllAgentVersions(URI discoID) throws RMapException {
-		List<org.openrdf.model.URI> versions = 
-				this.getDiSCOAllAgentVersions(ORAdapter.uri2OpenRdfUri(discoID));
+		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
+				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID), 
+						true,this.eventmgr, ts);
+		List<org.openrdf.model.URI> versions = new ArrayList<org.openrdf.model.URI>();
+		versions.addAll(event2disco.values());		
 		List<URI> uris = new ArrayList<URI>();
 		for (org.openrdf.model.URI version:versions){
 			uris.add(ORAdapter.openRdfUri2URI(version));
 		}
 		return uris;
 	}
-	
-	public List<org.openrdf.model.URI> getDiSCOAllAgentVersions(org.openrdf.model.URI discoID) 
-	throws RMapException {
-		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
-				this.discomgr.getAllDiSCOVersions(discoID, true, ts);
-		List<org.openrdf.model.URI> discos = new ArrayList<org.openrdf.model.URI>();
-		discos.addAll(event2disco.values())	;		
-		return discos;
-	}
-
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getLatestVersionDiSCO(java.net.URI)
 	 */
 	public RMapDiSCO getDiSCOLatestVersion(URI discoID) throws RMapException {
 		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
-				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),true,ts);
+				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),
+						true,this.eventmgr,ts);
 		org.openrdf.model.URI lastEvent = 
 				this.eventmgr.getLatestEvent(event2disco.keySet(),ts);
 		org.openrdf.model.URI discoId = event2disco.get(lastEvent);
@@ -320,7 +308,8 @@ public class ORMapService implements RMapService {
 	public RMapDiSCO getDiSCOPreviousVersion(URI discoID) throws RMapException {
 		RMapDiSCO nextDisco = null;
 		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
-				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),true,ts);
+				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),
+						true,this.eventmgr,ts);
 		Map<org.openrdf.model.URI,org.openrdf.model.URI> disco2event = 
 				Utils.invertMap(event2disco);
 		org.openrdf.model.URI discoEventId = disco2event.get(discoID);
@@ -345,7 +334,8 @@ public class ORMapService implements RMapService {
 	public RMapDiSCO getDiSCONextVersion(URI discoID) throws RMapException {
 		RMapDiSCO nextDisco = null;
 		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
-				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),true,ts);
+				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),
+						true,this.eventmgr,ts);
 		Map<org.openrdf.model.URI,org.openrdf.model.URI> disco2event = 
 				Utils.invertMap(event2disco);
 		org.openrdf.model.URI discoEventId = disco2event.get(discoID);

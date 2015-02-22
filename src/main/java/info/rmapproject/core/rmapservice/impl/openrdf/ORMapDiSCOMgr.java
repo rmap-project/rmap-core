@@ -162,8 +162,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			created.add(discoCreator);
 		}
 		this.createTriple(ts, disco.getCreatorStmt());
-		// Create new Agent for discoCreater if necessary, and add the triple(s)
-		// TODO
+		// TODO Create new Agent for discoCreater if necessary, and add the triple(s)
 
 		// Create reified statement for description if necessary, and add the triple
 		URI desc = stmtMgr.createStatement(disco.getDescriptonStatement(), ts);
@@ -197,8 +196,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			this.createTriple(ts, stmt);
 			URI predicate = stmt.getRmapStmtPredicate();
 			if (agentRelations.contains(predicate)){
-				// see if you need to create or update Agent here
-				//TODO
+				//TODO see if you need to create or update Agent here
 			}
 		}		
 		// update the event with created object IDS
@@ -302,8 +300,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				created.add(discoCreator);
 			}
 			this.createTriple(ts, disco.getCreatorStmt());
-			// Create new Agent for discoCreater if necessary, and add the triple(s)
-			// TODO
+			// TODO Create new Agent for discoCreater if necessary, and add the triple(s)
 
 			// Create reified statement for description if necessary, and add the triple
 			URI desc = stmtMgr.createStatement(disco.getDescriptonStatement(), ts);
@@ -337,8 +334,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				this.createTriple(ts, stmt);
 				URI predicate = stmt.getRmapStmtPredicate();
 				if (agentRelations.contains(predicate)){
-					// see if you need to create or update Agent here
-					//TODO
+					//TODO see if you need to create or update Agent here
 				}
 			}		
 			// update the event with created object IDS
@@ -475,7 +471,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		return status;
 	}
 	/**
-	 * Get ids of all events associated with an RMapObject
+	 * Get ids of all events associated with a DiSCO
 	 * "Associated" means the  id is the object of one of 5 predicates in triple whose subject
 	 * is an eventid.  Those predicates are:
 	 * 	RMAP.EVENT_TARGET_DELETED
@@ -563,7 +559,8 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @return List of DiSCO ids, or null if none found
 	 * @throws RMapException
 	 */
-	public Map<URI,URI> getAllDiSCOVersions(URI discoId, boolean matchAgent, SesameTriplestore ts) 
+	public Map<URI,URI> getAllDiSCOVersions(URI discoId, boolean matchAgent, 
+			ORMapEventMgr eventmgr, SesameTriplestore ts) 
 			throws RMapObjectNotFoundException, RMapException {
 		if (discoId==null){
 			throw new RMapException ("Null disco");
@@ -572,7 +569,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			throw new RMapObjectNotFoundException("No disco found with identifer " + 
 					discoId.stringValue());
 		}
-		Map<URI,URI> event2Disco = lookBack(discoId, null, true, matchAgent,ts);		
+		Map<URI,URI> event2Disco = lookBack(discoId, null, true, matchAgent, eventmgr, ts);		
 		return event2Disco;
 	}
 	/**
@@ -585,7 +582,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @return
 	 */
 	protected Map<URI,URI> lookBack(URI discoId, URI agentId, boolean lookFoward, 
-			boolean matchAgent, SesameTriplestore ts) 
+			boolean matchAgent, ORMapEventMgr eventmgr, SesameTriplestore ts) 
 					throws RMapObjectNotFoundException, RMapException {
 		Statement eventStmt = this.getDiSCOCreateEventStatement(discoId, ts);
 		if (eventStmt==null){
@@ -609,20 +606,21 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			event2Disco.put(eventId,discoId);			
 			if(this.isCreationEvent(eventId, ts)){					
 				if (lookFoward){
-					event2Disco.putAll(this.lookFoward(discoId, agentId, matchAgent, ts));
+					event2Disco.putAll(this.lookFoward(discoId, agentId, matchAgent,eventmgr, ts));
 				}
 				break;
 			}
 			if (this.isUpdateEvent(eventId, ts)){
 				// get id of old DiSCO
-				ORMapEventUpdate uEvent  = this.getUpdateEvent(eventId);
+				ORMapEventUpdate uEvent  = this.getUpdateEvent(eventId, eventmgr);
 				if (uEvent.getDerivationStmt().getRmapStmtObject()!=null){
 					URI oldDiscoID = (URI)uEvent.getDerivationStmt().getRmapStmtObject();
 					// look back recursively on create/updates for oldDiscoID
 					// DONT look forward on the backward search - you'll already have stuff
-					 event2Disco.putAll(this.lookBack(oldDiscoID, agentId, false, matchAgent, ts));
+					 event2Disco.putAll(this.lookBack(oldDiscoID, agentId, false, 
+							 matchAgent, eventmgr, ts));
 					// now look ahead for any derived discos
-					 event2Disco.putAll(this.lookFoward(discoId, agentId, matchAgent, ts));
+					 event2Disco.putAll(this.lookFoward(discoId, agentId, matchAgent, eventmgr,ts));
 				}
 				break;
 			}
@@ -638,7 +636,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @return
 	 */
 	protected Map<URI,URI> lookFoward(URI discoId, URI agentId, boolean matchAgent, 
-			SesameTriplestore ts) throws RMapObjectNotFoundException{
+			ORMapEventMgr eventmgr, SesameTriplestore ts) throws RMapObjectNotFoundException{
 		Map<URI,URI> event2Disco = new HashMap<URI,URI>();			
 		do {
 			List<Statement> eventStmts = this.getUpdateEvents(discoId, ts);
@@ -656,11 +654,11 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 					}	
 				}
 				// get id of new DiSCO
-				URI newDisco = this.getIdOfCreatedDisco(updateEventId, ts);
+				URI newDisco = this.getIdOfCreatedDisco(updateEventId, eventmgr, ts);
 				if (newDisco != null){
 					event2Disco.put(updateEventId,newDisco);
 					// follow new DiSCO forward
-					event2Disco.putAll(lookFoward(newDisco,agentId,matchAgent,ts));
+					event2Disco.putAll(lookFoward(newDisco,agentId,matchAgent,eventmgr,ts));
 				}
 			}				
 		} while (false);			 
@@ -669,10 +667,11 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	/**
 	 * 
 	 * @param updateEventID
+	 * @param eventmgr 
 	 * @return
 	 * @throws RMapException
 	 */
-	protected ORMapEventUpdate getUpdateEvent(URI updateEventID)
+	protected ORMapEventUpdate getUpdateEvent(URI updateEventID, ORMapEventMgr eventmgr)
 	throws RMapException {
 		ORMapEventUpdate uEvent = null;
 		ORMapService service = this.getORMapService();
@@ -693,10 +692,11 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @return
 	 * @throws RMapException
 	 */
-	protected URI getIdOfCreatedDisco(URI updateEventID, SesameTriplestore ts)
+	protected URI getIdOfCreatedDisco(URI updateEventID, ORMapEventMgr eventmgr,
+			SesameTriplestore ts)
 	throws RMapException {
 		URI discoId = null;
-		ORMapEventUpdate uEvent = this.getUpdateEvent(updateEventID);
+		ORMapEventUpdate uEvent = this.getUpdateEvent(updateEventID, eventmgr);
 		if (uEvent.getCreatedObjectStatements() != null){
 			for (ORMapStatement stmt:uEvent.getCreatedObjectStatements()){
 				URI obj = (URI)stmt.getObject();

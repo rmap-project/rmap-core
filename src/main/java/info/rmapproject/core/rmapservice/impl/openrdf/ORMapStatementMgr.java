@@ -11,7 +11,6 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -163,12 +162,13 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 			throw new RMapException ("Null subject or predicate or object");
 		}
 		String contextString = 
-				this.createContextURIString(subject.stringValue(), predicate.stringValue(), object.stringValue());
+				this.createContextURIString(subject.stringValue(), predicate.stringValue(), 
+						object.stringValue());
 		URI context = ORAdapter.getValueFactory().createURI(contextString);	
 		// get statements whose context matches concatenated subject/object/predicate
 		List <Statement> matchingTriples = null;
 		try {
-			matchingTriples = ts.getStatements(subject, predicate, object, false, context);
+			matchingTriples = ts.getStatements(null, null, null, false, context);
 		} catch (Exception e) {
 			throw new RMapException (e);
 		}
@@ -185,7 +185,11 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 		else {
 			throw new RMapException("NON-URI Statement Subject: " + rSubject.stringValue());
 		}
-		return id;
+		URI stmtId = null;
+		if (this.isStatementId(id, ts)){
+			stmtId = id;
+		}
+		return stmtId;
 	}
     /**
      * "Un-reifies" statements matching stmtid
@@ -347,7 +351,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 		}	
 		// get the triples for this Statement
 		Statement stmt = this.getRMapStatement(uri, ts).getRmapStmtStatement();
-		// get all discos in which this statement get appear
+		// get all discos in which this statement appears
 		List<Statement>triples = null;
 		try {
 			triples = ts.getStatements(stmt.getSubject(), stmt.getPredicate(),
@@ -364,60 +368,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 		}
 		return discoIds;
 	}
-	
-	/**
-	 * 
-	 * Get id for any RMapStatement in the repository whose subject or object matches the provided URI
-	 * @param resource
-	 * @param ts 
-	 * @param statusCode
-	 * @return
-	 * @throws RMapException
-	 */
-	public List<URI> getRelatedStmts(URI resource, SesameTriplestore ts) 
-			throws RMapException {
-		if (resource==null){
-			throw new RMapException("Null URI for statement id");
-		}
-		List<Statement> statements = this.getRelatedTriples(resource, ts);
-		Set<URI> idSet = new HashSet<URI>();
-		for (Statement stmt:statements)	{
-			Resource subject = stmt.getSubject();
-			URI sUri = null;
-			if (! (subject instanceof URI)){
-				throw new RMapException ("RMapStatement with non-URI identifier: " + subject.stringValue());
-			}
-			else {
-				sUri = (URI)subject;
-			}
-			if (this.isStatementId(sUri,ts)){
-				idSet.add(sUri);
-			}
-		}
-		List<URI> idList = new ArrayList<URI>();
-		idList.addAll(idSet);
-		return idList;
-	}	
-	/**
-	 * Get OpenRDF statements with Resource uri in subject or object
-	 * @param uri
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 */
-	public List<Statement> getRelatedTriples(URI uri, SesameTriplestore ts)
-	throws RMapException {
-		List<Statement> statements = null;
-		try {
-			statements = ts.getStatements(null, RDF.SUBJECT, uri,true,null);
-			statements.addAll(ts.getStatements(null, RDF.OBJECT, uri,true,null));		
-		} catch (Exception e) {
-			throw new RMapException (e);
-		}
-		return statements;
-	}
-	
-	
+
 	// THIS needs to return create ORMapStatements from the reified statements it gets from
 	// the repository, and then use the getRelatedEvents to add the events and getStatus to getStatus
 	// ALSO since we are NOT returning events or status in the media type, we might want to consider a
