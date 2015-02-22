@@ -19,7 +19,6 @@ import org.openrdf.model.vocabulary.RDF;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
-import info.rmapproject.core.model.RMapAgent;
 import info.rmapproject.core.model.RMapEvent;
 import info.rmapproject.core.model.RMapEventTargetType;
 import info.rmapproject.core.model.RMapStatus;
@@ -37,7 +36,8 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 /**
  * Class that creates actual triples for DiSCO, and related Events, Agents, and
  * reified RMapStatements in the tripleStore;
- * @author smorrissey
+ * 
+ *  @author khansen, smorrissey
  *
  */
 public class ORMapDiSCOMgr extends ORMapObjectMgr {
@@ -343,7 +343,6 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		} while (false);
 		// end the event, write the event triples, and commit everything
 		event.setEndTime(new Date());
-//		ORMapEventMgr eventMgr = new ORMapEventMgr();
 		eventMgr.createEvent(event, ts);
 		if (doCommitTransaction){
 			try {
@@ -360,7 +359,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * but DiSCO named graph is not deleted from triplestore
 	 * @param systemAgentId
 	 * @param oldDiscoId
-	 * @param eventMgr TODO
+	 * @param eventMgr 
 	 * @param ts
 	 * @return
 	 */
@@ -373,9 +372,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			throw new RMapException("System Agent ID required: was null");
 		}
 		// Confirm systemAgentId (not null, is Agent)
-		ORMapService service = this.getORMapService();
-		RMapAgent agent = service.readAgent(ORAdapter.openRdfUri2URI(systemAgentId));
-		if (agent==null){
+		if (!(this.isAgentId(systemAgentId, ts))){
 			throw new RMapObjectNotFoundException("No agent with id " + systemAgentId.stringValue());
 		}
 		// make sure same Agent created the DiSCO now being inactivated
@@ -612,7 +609,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			}
 			if (eventmgr.isUpdateEvent(eventId, ts)){
 				// get id of old DiSCO
-				ORMapEventUpdate uEvent  = this.getUpdateEvent(eventId, eventmgr);
+				ORMapEventUpdate uEvent  = eventmgr.getUpdateEvent(eventId, ts);
 				if (uEvent.getDerivationStmt().getRmapStmtObject()!=null){
 					URI oldDiscoID = (URI)uEvent.getDerivationStmt().getRmapStmtObject();
 					// look back recursively on create/updates for oldDiscoID
@@ -664,27 +661,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		} while (false);			 
 		return event2Disco;
 	}
-	/**
-	 * 
-	 * @param updateEventID
-	 * @param eventmgr 
-	 * @return
-	 * @throws RMapException
-	 */
-	protected ORMapEventUpdate getUpdateEvent(URI updateEventID, ORMapEventMgr eventmgr)
-	throws RMapException {
-		ORMapEventUpdate uEvent = null;
-		ORMapService service = this.getORMapService();
-		RMapEvent event = service.readEvent(ORAdapter.openRdfUri2URI(updateEventID));
-		if (event==null){
-			throw new RMapObjectNotFoundException("Event id " + updateEventID.stringValue());
-		}
-		if (! (event instanceof ORMapEventUpdate)){
-			throw new RMapException("Event is not an update event: " + updateEventID.stringValue());
-		}
-		uEvent = (ORMapEventUpdate)event;
-		return uEvent;
-	}
+	
 	/**
 	 * 
 	 * @param updateEventID
@@ -696,7 +673,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			SesameTriplestore ts)
 	throws RMapException {
 		URI discoId = null;
-		ORMapEventUpdate uEvent = this.getUpdateEvent(updateEventID, eventmgr);
+		ORMapEventUpdate uEvent = eventmgr.getUpdateEvent(updateEventID,ts);
 		if (uEvent.getCreatedObjectStatements() != null){
 			for (ORMapStatement stmt:uEvent.getCreatedObjectStatements()){
 				URI obj = (URI)stmt.getObject();

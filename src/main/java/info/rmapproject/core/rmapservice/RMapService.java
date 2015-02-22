@@ -19,7 +19,7 @@ import info.rmapproject.core.model.RMapResource;
 
 /**
  *
- * @author smorrissey
+ *  @author khansen, smorrissey
  *
  */
 public interface RMapService {

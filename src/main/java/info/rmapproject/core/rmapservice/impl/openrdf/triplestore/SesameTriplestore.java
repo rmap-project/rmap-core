@@ -17,6 +17,10 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 
+/**
+ *  @author khansen, smorrissey
+ *
+ */
 public abstract class SesameTriplestore  {
 
     protected boolean connectionOpen = false;

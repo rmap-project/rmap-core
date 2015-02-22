@@ -25,6 +25,7 @@ import org.openrdf.model.ValueFactory;
 
 /**
  * Adapter utilities for conversion between RMap classes and OpenRDF/Sesame classes
+ * 
  * @author smorrissey
  *
  */

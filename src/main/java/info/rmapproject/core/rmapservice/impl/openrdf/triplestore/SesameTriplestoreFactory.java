@@ -1,6 +1,9 @@
 package info.rmapproject.core.rmapservice.impl.openrdf.triplestore;
 
-
+/**
+ *  @author khansen, smorrissey
+ *
+ */
 public interface SesameTriplestoreFactory  {
 
 

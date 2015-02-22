@@ -3,6 +3,11 @@ package info.rmapproject.core.model.impl.openrdf;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapAgent;
 
+/**
+ * 
+ *  @author khansen, smorrissey
+ *
+ */
 public class ORMapAgent extends ORMapObject implements RMapAgent {
 
 	public ORMapAgent() throws RMapException {

@@ -12,7 +12,7 @@ import info.rmapproject.core.idservice.IdService;
 import info.rmapproject.core.utils.ConfigUtils;
 
 /**
- * @author smorrissey, khansen
+ * @author khansen, smorrissey
  *
  */
 public class ArkIdService implements IdService {

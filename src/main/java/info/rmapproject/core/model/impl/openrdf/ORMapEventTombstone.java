@@ -14,7 +14,7 @@ import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 /**
- * @author smorrissey
+ *  @author khansen, smorrissey
  *
  */
 public class ORMapEventTombstone extends ORMapEvent implements

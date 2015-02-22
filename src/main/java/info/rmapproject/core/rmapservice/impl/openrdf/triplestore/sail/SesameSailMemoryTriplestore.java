@@ -16,7 +16,7 @@ import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.memory.MemoryStore;
 
 /**
- * @author smorrissey
+ *  @author khansen, smorrissey
  *
  */
 public class SesameSailMemoryTriplestore extends SesameTriplestore {

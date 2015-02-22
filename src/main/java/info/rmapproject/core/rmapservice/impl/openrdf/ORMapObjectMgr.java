@@ -3,7 +3,6 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.openrdf.model.Statement;
@@ -13,13 +12,11 @@ import org.openrdf.model.vocabulary.RDF;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.impl.openrdf.ORMapStatement;
-import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.RMapServiceFactoryIOC;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 /**
- * @author smorrissey
+ *  @author khansen, smorrissey
  *
  */
 public abstract class ORMapObjectMgr {
@@ -28,21 +25,7 @@ public abstract class ORMapObjectMgr {
 	 * 
 	 */
 	protected ORMapObjectMgr() {}
-	
-	public ORMapService getORMapService() throws RMapException{
-		RMapService rservice = null;
-		try {
-			rservice = RMapServiceFactoryIOC.getFactory().createService();
-		} catch (Exception e) {
-			throw new RMapException (e);
-		}
-		ORMapService service = null;
-		if (!(rservice instanceof ORMapService)){		
-			throw new RMapException("Unable to instantiate OpenRDF service implmentation.");
-		}
-		service = (ORMapService)rservice;
-		return service;
-	}
+
 	/**
 	 * 
 	 * @param ts

@@ -23,6 +23,11 @@ import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.RDF;
 
+/**
+ * 
+ *  @author khansen, smorrisseyy
+ *
+ */
 public class ORMapStatementMgr extends ORMapObjectMgr {
 
 	public static final String SCHEME = "http";

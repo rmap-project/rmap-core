@@ -9,7 +9,7 @@ import info.rmapproject.core.utils.ConfigUtils;
 
 
 /**
- * @author smorrissey
+ * @author  khansen, smorrissey
  *
  */
 public class IdServiceFactoryIOC {

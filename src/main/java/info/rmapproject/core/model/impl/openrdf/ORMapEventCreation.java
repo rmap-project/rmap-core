@@ -18,7 +18,7 @@ import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 
 /**
- * @author smorrissey
+ *  @author khansen, smorrissey
  *
  */
 public class ORMapEventCreation extends ORMapEvent implements RMapEventCreation {

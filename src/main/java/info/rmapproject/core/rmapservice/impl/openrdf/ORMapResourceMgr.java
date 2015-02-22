@@ -12,7 +12,11 @@ import java.util.TreeSet;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 
-
+/**
+ * 
+ *  @author khansen, smorrissey
+ *
+ */
 public class ORMapResourceMgr extends ORMapObjectMgr {
 
 	/**

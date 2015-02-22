@@ -11,7 +11,8 @@ import info.rmapproject.core.model.RMapObject;
 
 /**
  * Base class for OpenRDF implementation classes of RMapObjects
- * @author smorrissey
+ * 
+ *  @author khansen, smorrissey
  *
  */
 public class ORMapObject implements RMapObject  {

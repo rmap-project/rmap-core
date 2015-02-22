@@ -35,7 +35,7 @@ import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.RDF;
 
 /**
- * @author smorrissey
+ *  @author khansen, smorrissey
  *
  */
 public class ORMapEventMgr extends ORMapObjectMgr {
@@ -692,7 +692,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		return returnStmts;
 	}
 	/**
-	 * 
+	 * Get id of Events where Resource is inactivated, whether updated or not
 	 * @param targetId
 	 * @param ts
 	 * @return
@@ -726,5 +726,27 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 							+ targetId.stringValue(), e);
 		}		
 		return returnStmts;
+	}
+	/**
+	 * 
+	 * @param updateEventID
+	 * @param eventmgr 
+	 * @param ts
+	 * @return
+	 * @throws RMapException
+	 */
+	protected ORMapEventUpdate getUpdateEvent(URI updateEventID, SesameTriplestore ts)
+	throws RMapException {
+		ORMapEvent event = null;
+		ORMapEventUpdate uEvent = null;
+		event = this.readEvent(updateEventID, ts);
+		if (event==null){
+			throw new RMapObjectNotFoundException("Event id " + updateEventID.stringValue());
+		}
+		if (! (event instanceof ORMapEventUpdate)){
+			throw new RMapException("Event is not an update event: " + updateEventID.stringValue());
+		}
+		uEvent = (ORMapEventUpdate)event;
+		return uEvent;
 	}
 }

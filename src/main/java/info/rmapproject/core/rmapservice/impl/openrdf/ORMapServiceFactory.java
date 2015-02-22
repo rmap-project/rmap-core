@@ -8,7 +8,7 @@ import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.RMapServiceFactory;
 
 /**
- * @author smorrissey
+ * @author khansen, smorrissey
  *
  */
 public class ORMapServiceFactory implements RMapServiceFactory {

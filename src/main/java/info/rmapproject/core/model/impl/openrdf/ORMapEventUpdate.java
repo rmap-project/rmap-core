@@ -19,7 +19,7 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 /**
- * @author smorrissey
+ * @author khansen, smorrissey
  *
  */
 public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {

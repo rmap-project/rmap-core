@@ -16,6 +16,7 @@ import info.rmapproject.core.rmapservice.RMapServiceFactoryIOC;
  * The list of related resources submitted with a DiSCO can be a list of RMapStatements,
  * or a list of RMapStatment ids, or a lit of both RMapStatements and RMAPStatement ids.
  * This Bag class is created to reflect possible mixed nature of that list
+ *
  * @author smorrissey
  *
  */

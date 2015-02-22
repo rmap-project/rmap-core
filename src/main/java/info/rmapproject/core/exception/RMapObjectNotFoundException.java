@@ -4,7 +4,7 @@
 package info.rmapproject.core.exception;
 
 /**
- * @author smorrissey
+ * @author  khansen, smorrissey
  *
  */
 public class RMapObjectNotFoundException extends RMapException {

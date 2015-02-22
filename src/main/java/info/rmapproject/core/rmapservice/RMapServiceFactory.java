@@ -6,7 +6,7 @@ package info.rmapproject.core.rmapservice;
 import info.rmapproject.core.exception.RMapException;
 
 /**
- * @author smorrissey
+ *  @author khansen, smorrissey
  *
  */
 public interface RMapServiceFactory {

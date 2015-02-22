@@ -33,7 +33,7 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
 import info.rmapproject.core.utils.Utils;
 
 /**
- * @author smorrissey
+ *  @author khansen, smorrissey
  *
  */
 public class ORMapService implements RMapService {

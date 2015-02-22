@@ -7,7 +7,7 @@ import java.net.URI;
 
 
 /**
- * @author smorrissey
+ * @author  khansen, smorrissey
  *
  */
 public interface IdService {

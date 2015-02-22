@@ -4,7 +4,7 @@
 package info.rmapproject.core.idservice;
 
 /**
- * @author smorrissey
+ * @author  khansen, smorrissey
  *
  */
 public interface IdServiceFactory {

@@ -21,7 +21,7 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 import info.rmapproject.core.utils.DateUtils;
 
 /**
- * @author smorrissey
+ * @author khansen, smorrissey
  *
  */
 public abstract class ORMapEvent extends ORMapObject implements RMapEvent {

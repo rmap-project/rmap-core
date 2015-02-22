@@ -7,7 +7,7 @@ import info.rmapproject.core.idservice.IdService;
 import info.rmapproject.core.idservice.IdServiceFactory;
 
 /**
- * @author smorrissey
+ * @author  khansen, smorrissey
  *
  */
 public class ArkIdServiceFactory implements IdServiceFactory {

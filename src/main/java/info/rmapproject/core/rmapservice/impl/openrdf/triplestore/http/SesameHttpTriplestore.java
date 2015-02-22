@@ -11,7 +11,11 @@ import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.http.HTTPRepository;
 
-
+/**
+ * 
+ *  @author khansen, smorrissey
+ *
+ */
 public class SesameHttpTriplestore  extends SesameTriplestore{
 
     
