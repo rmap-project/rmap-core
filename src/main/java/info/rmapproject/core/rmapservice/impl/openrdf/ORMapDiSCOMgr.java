@@ -675,7 +675,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	throws RMapException {
 		ORMapEventUpdate uEvent = null;
 		ORMapService service = this.getORMapService();
-		RMapEvent event = service.readEvent(updateEventID);
+		RMapEvent event = service.readEvent(ORAdapter.openRdfUri2URI(updateEventID));
 		if (event==null){
 			throw new RMapObjectNotFoundException("Event id " + updateEventID.stringValue());
 		}

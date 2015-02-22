@@ -13,7 +13,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 
 import info.rmapproject.core.exception.RMapException;
@@ -212,17 +211,12 @@ public class ORMapService implements RMapService {
 	 */
 	public RMapEvent createDiSCO(RMapAgent systemAgent,
 			List<URI> aggregatedResources, RMapResource creator,
-			RMapStatementBag relatedStatements, RMapResource desc) throws RMapException {
+			RMapStatementBag relatedStatements, RMapResource desc) 
+			throws RMapException {
 		ORMapDiSCO disco = new ORMapDiSCO(creator, aggregatedResources, desc, relatedStatements);
 		RMapEvent createEvent = 
 				this.discomgr.createDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent.getId()),
 				disco, ts);
-		return createEvent;
-	}
-	
-	public RMapEvent createDiSCO(org.openrdf.model.URI systemAgentId, List<Statement> stmts) throws RMapException{
-		RMapEvent createEvent = 
-				this.discomgr.createDiSCO(systemAgentId, stmts, ts);
 		return createEvent;
 	}
 
@@ -240,10 +234,10 @@ public class ORMapService implements RMapService {
 	 */
 	public RMapEvent updateDiSCO(RMapAgent systemAgent, URI oldDiscoId,
 			List<URI> aggregatedResources, RMapStatementBag relatedStatements,
-			RMapResource creator, RMapResource desc) throws RMapException {
+			RMapResource creator, RMapResource desc) 
+			throws RMapException {
 		ORMapDiSCO disco = new ORMapDiSCO(creator, aggregatedResources, desc, 
-				relatedStatements);
-		
+				relatedStatements);		
 		RMapEvent updateEvent = 
 				this.discomgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent.getId()),
 					ORAdapter.uri2OpenRdfUri(oldDiscoId), disco, ts);
@@ -372,12 +366,6 @@ public class ORMapService implements RMapService {
 	 */
 	public RMapEvent readEvent(URI eventId) throws RMapException {
 		return this.eventmgr.readEvent(ORAdapter.uri2OpenRdfUri(eventId), ts);
-	}
-	/**
-	 * 
-	 */
-	public RMapEvent readEvent(org.openrdf.model.URI eventId) throws RMapException {
-		return this.eventmgr.readEvent((eventId), ts);
 	}
 
 	/* (non-Javadoc)
