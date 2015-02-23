@@ -13,6 +13,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 
 import info.rmapproject.core.exception.RMapException;
@@ -219,6 +220,22 @@ public class ORMapService implements RMapService {
 				disco, this.eventmgr, ts);
 		return createEvent;
 	}
+	/**
+	 * Create DiSCO from list of OpenRdf Statements
+	 * @param systemAgent Agent creating DiSCO
+	 * @param stmts List of Statements making up DiSCO
+	 * @return Creation Event for successfully created DiSCO
+	 * @throws RMapException if Statements do not comprise a valid DiSCO, or
+	 * if the DiSCO cannot be created in the triplestore
+	 */
+	public RMapEvent createDisco(RMapAgent systemAgent, List<Statement> stmts )
+	throws RMapException{
+		ORMapDiSCO disco = new ORMapDiSCO(stmts);
+		RMapEvent createEvent = 
+				this.discomgr.createDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent.getId()),
+				disco, this.eventmgr, ts);
+		return createEvent;
+	}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCOStatus(java.net.URI)
@@ -243,7 +260,27 @@ public class ORMapService implements RMapService {
 					ORAdapter.uri2OpenRdfUri(oldDiscoId), disco, this.eventmgr, ts);
 		return updateEvent;
 	}
-
+	/**
+	 * Update DiSCO with new DiSCO provided as list of OpenRdf Statements.
+	 * If list of Statements is null, then just inactivate old DiSCO.
+	 * @param systemAgent
+	 * @param oldDiscoId
+	 * @param stmts
+	 * @return
+	 * @throws RMapException
+	 */
+	public RMapEvent updateDiSCO(RMapAgent systemAgent, URI oldDiscoId, 
+			List<Statement> stmts)
+	throws RMapException {
+		ORMapDiSCO disco = null;
+		if (stmts != null){
+			disco = new ORMapDiSCO(stmts);
+		}
+		RMapEvent updateEvent = 
+				this.discomgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent.getId()),
+					ORAdapter.uri2OpenRdfUri(oldDiscoId), disco, this.eventmgr, ts);
+		return updateEvent;
+	}
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#deleteDiSCO(java.net.URI)
 	 */
