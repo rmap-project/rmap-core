@@ -97,7 +97,7 @@ public class ORMapService implements RMapService {
 	public List<URI> getResourceRelatedEvents(URI uri) throws RMapException {
 		org.openrdf.model.URI mUri = ORAdapter.uri2OpenRdfUri(uri);
 		Set<org.openrdf.model.URI> orEvents =
-				this.resourcemgr.getRelatedEvents(mUri, stmtmgr, discomgr, ts);
+				this.resourcemgr.getRelatedEvents(mUri, stmtmgr, discomgr, eventmgr, ts);
 		List<URI> uris = new ArrayList<URI>();
 		for (org.openrdf.model.URI event:orEvents){
 			URI dUri = ORAdapter.openRdfUri2URI(event);
@@ -192,7 +192,7 @@ public class ORMapService implements RMapService {
 			throw new RMapException("null uri");
 		}
 		org.openrdf.model.URI uri = ORAdapter.uri2OpenRdfUri(stmtId);
-		List<org.openrdf.model.URI>uris = this.stmtmgr.getRelatedEvents(uri, this.discomgr, ts);
+		List<org.openrdf.model.URI>uris = this.stmtmgr.getRelatedEvents(uri, this.eventmgr, ts);
 		List<URI>events = new ArrayList<URI>();
 		for (org.openrdf.model.URI event:uris){
 			events.add(ORAdapter.openRdfUri2URI(event));
@@ -390,7 +390,7 @@ public class ORMapService implements RMapService {
 	 */
 	public List<URI> getDiSCOEvents(URI discoID) throws RMapException {
 		List<org.openrdf.model.URI> events = 
-				this.discomgr.getDiscoEvents(ORAdapter.uri2OpenRdfUri(discoID), ts);
+				this.eventmgr.getDiscoRelatedEventIds(ORAdapter.uri2OpenRdfUri(discoID), ts);
 		List<URI> uris = new ArrayList<URI>();
 		for (org.openrdf.model.URI event:events){
 			uris.add(ORAdapter.openRdfUri2URI(event));

@@ -129,15 +129,15 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @return
 	 */
 	public Set<URI> getRelatedEvents(URI resource,ORMapStatementMgr stmtmgr, 
-			ORMapDiSCOMgr discomgr, SesameTriplestore ts) {
+			ORMapDiSCOMgr discomgr, ORMapEventMgr eventMgr, SesameTriplestore ts) {
 		Set<URI>events = new TreeSet<URI>();
 		do {
 			if (this.isDiscoId(resource, ts)){
-				events.addAll(discomgr.getDiscoEvents(resource, ts));
+				events.addAll(eventMgr.getDiscoRelatedEventIds(resource, ts));
 				break;
 			}
 			if (this.isStatementId(resource, ts)){
-				events.addAll(stmtmgr.getRelatedEvents(resource, discomgr, ts));
+				events.addAll(stmtmgr.getRelatedEvents(resource, eventMgr, ts));
 				break;
 			}
 			if (this.isAgentId(resource, ts)){
@@ -149,7 +149,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			Set<URI>stmts = this.getRelatedStatements(resource, null, stmtmgr,
 					discomgr, ts);
 			for (URI stmt:stmts){
-				events.addAll(stmtmgr.getRelatedEvents(stmt, discomgr, ts));
+				events.addAll(stmtmgr.getRelatedEvents(stmt, eventMgr, ts));
 			}
 		}while (false);
 		return events;

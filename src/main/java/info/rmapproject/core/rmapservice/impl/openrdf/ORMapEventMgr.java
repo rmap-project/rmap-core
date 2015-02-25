@@ -136,13 +136,13 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		return event;
 	}
 	/**
-	 * 
+	 * Construct ORMapEvent object from OpenRdf Statements
 	 * @param eventStmts
 	 * @param ts
 	 * @return
 	 * @throws RMapException
 	 */
-	protected  ORMapEvent createORMapEventFromStmts (List<Statement> eventStmts,
+	public  ORMapEvent createORMapEventFromStmts (List<Statement> eventStmts,
 			SesameTriplestore ts) throws RMapException {
 		if (eventStmts==null || eventStmts.size()==0){
 			throw new RMapException ("null or emtpy list of event statements");	
@@ -211,7 +211,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 				targetObjectStatement = new ORMapStatement(stmt);
 				continue;
 			}
-			if (predicate.equals(PROV.WASDERIVEDFROM)){
+			if (predicate.equals(RMAP.EVENT_NEW_OBJECT_DERIVATION_SOURCE)){
 				derivationStatement = new ORMapStatement(stmt);
 				continue;
 			}
@@ -310,9 +310,10 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			if (targetObjectStatement==null){
 				throw new RMapException("Update event missing target object statement");
 			}
-			if (derivationStatement == null){
-				throw new RMapException("Update event missing derivation object statement");
+			if (derivationStatement == null &&inactivatedObjectStatement==null ){			
+				throw new RMapException("Update event missing derivation and inactivated object statements");	
 			}
+
 			if (createdObjects.size()==0 && inactivatedObjectStatement == null){
 				throw new RMapException("Updated is derivation but has no new created objects ");
 			}
@@ -481,6 +482,54 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			throw new RMapException("Unrecognized event type");
 		}		
 		return relatedDiSCOs;
+	}
+	/**
+	 * Get ids of all events associated with a DiSCO
+	 * "Associated" means the  id is the object of one of 5 predicates in triple whose subject
+	 * is an eventid.  Those predicates are:
+	 * 	RMAP.EVENT_TARGET_DELETED
+	 *  MAP.EVENT_TARGET_TOMBSTONED
+	 *  RMAP.EVENT_TARGET_INACTIVATED
+	 *  PROV.GENERATED
+	 *  PROV.WASDERIVEDFROM
+	 * @param id
+	 * @param ts
+	 * @return
+	 * @throws RMapObjectNotFoundException
+	 * @throws RMapException
+	 */
+	public List<URI> getDiscoRelatedEventIds(URI id, SesameTriplestore ts) 
+			throws RMapObjectNotFoundException, RMapException {
+		List<URI> events = null;
+		if (id==null){
+			throw new RMapException ("Null disco");
+		}
+		// first ensure Exists statement URI rdf:TYPE rmap:DISO  if not: raise NOTFOUND exception
+		if (! this.isDiscoId(id, ts)){
+			throw new RMapObjectNotFoundException ("No object found with id " + id.stringValue());
+		}
+		do {
+			List<Statement> eventStmts = new ArrayList<Statement>();
+			try {
+				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_TARGET_DELETED, id));
+				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_TARGET_TOMBSTONED, id));
+				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_TARGET, id));
+				eventStmts.addAll(ts.getStatements(null, PROV.GENERATED, id));
+				if (eventStmts.isEmpty()){
+					break;
+				}
+				events = new ArrayList<URI>();
+				for (Statement stmt:eventStmts){
+					URI eventId = (URI)stmt.getSubject();
+					if (this.isEventId(eventId,ts)){
+						events.add(eventId);
+					}
+				}
+			} catch (Exception e) {
+				throw new RMapException("Exception thrown querying triplestore for events", e);
+			}
+		} while (false);
+		return events;
 	}
 	/**
 	 * Return ids of Statements associated with an event
@@ -656,6 +705,34 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		return agent;
 	}
 	/**
+	 * Find the creation Event associated with a DiSCO
+	 * @param disco
+	 * @param ts
+	 * @return
+	 * @throws RMapException
+	 */
+	protected Statement getDiSCOCreateEventStatement(URI disco, SesameTriplestore ts) 
+	throws RMapException {
+		Statement stmt = null;
+		try {
+			stmt = ts.getStatement(null, PROV.GENERATED, disco);
+			// make sure this is an event
+			if (stmt != null && stmt.getSubject().equals(stmt.getContext())){
+				Statement typeStmt = ts.getStatement(stmt.getSubject(), RDF.TYPE, 
+						RMAP.EVENT, stmt.getContext());
+				if (typeStmt==null){
+					stmt = null;
+				}
+			}
+			else {
+				stmt = null;
+			}
+		} catch (Exception e) {
+			throw new RMapException ("Exception thrown when querying for Disco Create event", e);
+		}		
+		return stmt;
+	}
+	/**
 	 * Get ids of Events that update (not inactivate) a DiSCO
 	 * @param targetId
 	 * @param ts
@@ -667,7 +744,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		List<Statement> stmts = null;
 		List<Statement> returnStmts = new ArrayList<Statement>();
 		try {
-			stmts = ts.getStatements(null, RMAP.EVENT_TARGET_DERIVATION_SOURCE, targetId);
+			stmts = ts.getStatements(null, RMAP.EVENT_NEW_OBJECT_DERIVATION_SOURCE, targetId);
 			for (Statement stmt:stmts){
 				// make sure this is an event
 				if (stmt != null && stmt.getSubject().equals(stmt.getContext())){
@@ -728,25 +805,53 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		return returnStmts;
 	}
 	/**
-	 * 
-	 * @param updateEventID
-	 * @param eventmgr 
-	 * @param ts
-	 * @return
-	 * @throws RMapException
+	 * Get id of source of new version of DiSCO from Update event
+	 * @param updateEventID id of update event
+	 * @param ts Triplestore
+	 * @return new version of DiSCO from Update event or null if not found
 	 */
-	protected ORMapEventUpdate getUpdateEvent(URI updateEventID, SesameTriplestore ts)
-	throws RMapException {
-		ORMapEvent event = null;
-		ORMapEventUpdate uEvent = null;
-		event = this.readEvent(updateEventID, ts);
-		if (event==null){
-			throw new RMapObjectNotFoundException("Event id " + updateEventID.stringValue());
+	protected URI getIdOfSourceDisco(URI updateEventID, SesameTriplestore ts){
+		URI sourceDisco = null;
+		Statement stmt = null;
+		try {
+			stmt = ts.getStatement(updateEventID, RMAP.EVENT_NEW_OBJECT_DERIVATION_SOURCE, null, updateEventID);
+			if (stmt != null){
+				Value vObject = stmt.getObject();
+				if (vObject instanceof URI){
+					sourceDisco = (URI)vObject;
+				}
+			}
+		} catch (Exception e) {
+			throw new RMapException (e);
 		}
-		if (! (event instanceof ORMapEventUpdate)){
-			throw new RMapException("Event is not an update event: " + updateEventID.stringValue());
+		return sourceDisco;
+	}
+	/**
+	 * Get id of created DiSCO from UpdateEvent
+	 * @param updateEventID ID of update event
+	 * @param ts Triplestore
+	 * @return id of created DiSCO from UpdateEvent, or null if not found
+	 */
+	protected URI getIdOfCreatedDisco(URI updateEventID, SesameTriplestore ts){
+		URI createdDisco = null;
+		List<Statement> stmts = null;
+		try {
+			stmts = ts.getStatements(updateEventID, PROV.GENERATED, null, updateEventID);
+			if (stmts != null){
+					for (Statement stmt:stmts){
+						Value vObject = stmt.getObject();
+						if (vObject instanceof URI){
+							URI uri = (URI)vObject;
+							if (this.isDiscoId(uri, ts)){
+								createdDisco = (URI)vObject;
+								break;
+							}
+						}
+					}
+				}
+		} catch (Exception e) {
+			throw new RMapException (e);
 		}
-		uEvent = (ORMapEventUpdate)event;
-		return uEvent;
+		return createdDisco;
 	}
 }

@@ -106,7 +106,7 @@ public class RMAP {
 	/**
 	 * 
 	 */
-	public static final URI EVENT_TARGET_DERIVATION_SOURCE;
+	public static final URI EVENT_NEW_OBJECT_DERIVATION_SOURCE;
 	/**
 	 * 
 	 */
@@ -173,7 +173,7 @@ public class RMAP {
 		EVENT_TARGET_TYPE = f.createURI(NAMESPACE, "eventTargetType");
 		EVENT_TARGET = f.createURI(NAMESPACE, "eventTarget");
 		EVENT_TARGET_INACTIVATED = f.createURI(NAMESPACE, "inactivated");
-		EVENT_TARGET_DERIVATION_SOURCE = f.createURI(NAMESPACE, "derivationSource");
+		EVENT_NEW_OBJECT_DERIVATION_SOURCE = f.createURI(NAMESPACE, "derivationSource");
 		EVENT_TARGET_TOMBSTONED = f.createURI(NAMESPACE, "tombstoned");
 		EVENT_TARGET_DELETED = f.createURI(NAMESPACE, "deleted");
 		EVENT = f.createURI(NAMESPACE, "Event");

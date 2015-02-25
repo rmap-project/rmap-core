@@ -4,34 +4,34 @@
 package info.rmapproject.core.exception;
 
 /**
- * @author  khansen, smorrissey
+ * @author smorrissey
  *
  */
-public class RMapObjectNotFoundException extends RuntimeException{
+public class RMapDeletedObjectException extends RuntimeException {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 5455801171833854862L;
+	private static final long serialVersionUID = -232792600855868381L;
 
 	/**
 	 * 
 	 */
-	public RMapObjectNotFoundException() {
+	public RMapDeletedObjectException() {
 		super();
 	}
 
 	/**
 	 * @param message
 	 */
-	public RMapObjectNotFoundException(String message) {
+	public RMapDeletedObjectException(String message) {
 		super(message);
 	}
 
 	/**
 	 * @param cause
 	 */
-	public RMapObjectNotFoundException(Throwable cause) {
+	public RMapDeletedObjectException(Throwable cause) {
 		super(cause);
 	}
 
@@ -39,7 +39,7 @@ public class RMapObjectNotFoundException extends RuntimeException{
 	 * @param message
 	 * @param cause
 	 */
-	public RMapObjectNotFoundException(String message, Throwable cause) {
+	public RMapDeletedObjectException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
@@ -49,7 +49,7 @@ public class RMapObjectNotFoundException extends RuntimeException{
 	 * @param enableSuppression
 	 * @param writableStackTrace
 	 */
-	public RMapObjectNotFoundException(String message, Throwable cause,
+	public RMapDeletedObjectException(String message, Throwable cause,
 			boolean enableSuppression, boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}

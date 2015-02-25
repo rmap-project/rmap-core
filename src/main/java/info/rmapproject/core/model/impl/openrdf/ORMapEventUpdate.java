@@ -41,7 +41,7 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 			ORMapStatement typeStatement, List<ORMapStatement> createdObjects,
 			ORMapStatement targetObjectStatement,ORMapStatement derivationStatement,
 			ORMapStatement inactivatedObjectStatement) 
-					throws RMapException {
+	throws RMapException {
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
 				startTimeStmt, endTimeStmt,context,typeStatement);
 		this.createdObjects = createdObjects;	
@@ -203,8 +203,7 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 		if (derivedObject==null){
 			throw new RMapException("Derived object id is null");
 		}
-		URI doUri = ORAdapter.rMapUri2OpenRdfUri(derivedObject);
-		ORMapStatement stmt = new ORMapStatement (doUri, PROV.WASDERIVEDFROM,
+		ORMapStatement stmt = new ORMapStatement (this.context, RMAP.EVENT_NEW_OBJECT_DERIVATION_SOURCE,
 				this.targetObjectStatement.getRmapStmtObject(), this.context);
 		this.derivationStatement = stmt;
 	}

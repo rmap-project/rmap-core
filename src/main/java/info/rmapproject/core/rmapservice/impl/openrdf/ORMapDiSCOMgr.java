@@ -15,10 +15,11 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.DCTERMS;
-import org.openrdf.model.vocabulary.RDF;
 
+import info.rmapproject.core.exception.RMapDeletedObjectException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
+import info.rmapproject.core.exception.RMapTombstonedObjectException;
 import info.rmapproject.core.model.RMapEvent;
 import info.rmapproject.core.model.RMapEventTargetType;
 import info.rmapproject.core.model.RMapStatus;
@@ -65,10 +66,10 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @param discoID
 	 * @param ts
 	 * @return
-	 * @throws RMapObjectNotFoundException
+	 * @throws RMapObjectNotFoundException, RMapTombstonedObjectException, RMapDeletedObjectException
 	 */
 	public ORMapDiSCO readDiSCO(URI discoID, SesameTriplestore ts) 
-	throws RMapObjectNotFoundException {
+	throws RMapObjectNotFoundException, RMapTombstonedObjectException {
 		ORMapDiSCO disco = null;
 		if (discoID ==null){
 			throw new RMapException ("null discoID");
@@ -76,8 +77,20 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		if (ts==null){
 			throw new RMapException("null triplestore");
 		}
-		List<Statement> discoStmts = this.getNamedGraph(discoID, ts);
-		
+		if (! (this.isDiscoId(discoID, ts))){
+			throw new RMapObjectNotFoundException("No DiSCO with id " + discoID.stringValue());
+		}
+		RMapStatus status = this.getDiSCOStatus(discoID, ts);
+		switch (status){
+		case TOMBSTONED :
+			throw new RMapTombstonedObjectException("DiSCO "+ discoID.stringValue() + " has been (soft) deleted");
+		case DELETED :
+			throw new RMapDeletedObjectException ("DiSCO "+ discoID.stringValue() + " has been deleted");
+		default:
+			break;		
+		}
+		List<Statement> discoStmts = this.getNamedGraph(discoID, ts);		
+		//TODO  Do we want to create a "non=validaiting" DiSCO create for DiSCOs created from triplestore (as opposed to incoming stmts?)
 		disco = new ORMapDiSCO(discoStmts);
 		return disco;
 	}
@@ -468,54 +481,6 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		return status;
 	}
 	/**
-	 * Get ids of all events associated with a DiSCO
-	 * "Associated" means the  id is the object of one of 5 predicates in triple whose subject
-	 * is an eventid.  Those predicates are:
-	 * 	RMAP.EVENT_TARGET_DELETED
-	 *  MAP.EVENT_TARGET_TOMBSTONED
-	 *  RMAP.EVENT_TARGET_INACTIVATED
-	 *  PROV.GENERATED
-	 *  PROV.WASDERIVEDFROM
-	 * @param id
-	 * @param ts
-	 * @return
-	 * @throws RMapObjectNotFoundException
-	 * @throws RMapException
-	 */
-	public List<URI> getDiscoEvents(URI id, SesameTriplestore ts) 
-			throws RMapObjectNotFoundException, RMapException {
-		List<URI> events = null;
-		if (id==null){
-			throw new RMapException ("Null disco");
-		}
-		// first ensure Exists statement URI rdf:TYPE rmap:DISO  if not: raise NOTFOUND exception
-		if (! this.isDiscoId(id, ts)){
-			throw new RMapObjectNotFoundException ("No object found with id " + id.stringValue());
-		}
-		do {
-			List<Statement> eventStmts = new ArrayList<Statement>();
-			try {
-				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_TARGET_DELETED, id));
-				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_TARGET_TOMBSTONED, id));
-				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_TARGET, id));
-				eventStmts.addAll(ts.getStatements(null, PROV.GENERATED, id));
-				if (eventStmts.isEmpty()){
-					break;
-				}
-				events = new ArrayList<URI>();
-				for (Statement stmt:eventStmts){
-					URI eventId = (URI)stmt.getSubject();
-					if (this.isEventId(eventId,ts)){
-						events.add(eventId);
-					}
-				}
-			} catch (Exception e) {
-				throw new RMapException("Exception thrown querying triplestore for events", e);
-			}
-		} while (false);
-		return events;
-	}
-	/**
 	 * Get ids of Statements associated with a DiSCO
 	 * @param discoId
 	 * @param stmtmgr
@@ -581,7 +546,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	protected Map<URI,URI> lookBack(URI discoId, URI agentId, boolean lookFoward, 
 			boolean matchAgent, ORMapEventMgr eventmgr, SesameTriplestore ts) 
 					throws RMapObjectNotFoundException, RMapException {
-		Statement eventStmt = this.getDiSCOCreateEventStatement(discoId, ts);
+		Statement eventStmt = eventmgr.getDiSCOCreateEventStatement(discoId, ts);
 		if (eventStmt==null){
 			throw new RMapObjectNotFoundException("No creating event found for DiSCO id " +
 		             discoId.stringValue());
@@ -609,16 +574,13 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			}
 			if (eventmgr.isUpdateEvent(eventId, ts)){
 				// get id of old DiSCO
-				ORMapEventUpdate uEvent  = eventmgr.getUpdateEvent(eventId, ts);
-				if (uEvent.getDerivationStmt().getRmapStmtObject()!=null){
-					URI oldDiscoID = (URI)uEvent.getDerivationStmt().getRmapStmtObject();
-					// look back recursively on create/updates for oldDiscoID
-					// DONT look forward on the backward search - you'll already have stuff
-					 event2Disco.putAll(this.lookBack(oldDiscoID, agentId, false, 
-							 matchAgent, eventmgr, ts));
-					// now look ahead for any derived discos
-					 event2Disco.putAll(this.lookFoward(discoId, agentId, matchAgent, eventmgr,ts));
-				}
+				URI oldDiscoID = eventmgr.getIdOfSourceDisco(eventId, ts);
+				// look back recursively on create/updates for oldDiscoID
+				// DONT look forward on the backward search - you'll already have stuff
+				 event2Disco.putAll(this.lookBack(oldDiscoID, agentId, false, 
+						 matchAgent, eventmgr, ts));
+				// now look ahead for any derived discos
+				 event2Disco.putAll(this.lookFoward(discoId, agentId, matchAgent, eventmgr,ts));
 				break;
 			}
 		} while (false);		
@@ -651,7 +613,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 					}	
 				}
 				// get id of new DiSCO
-				URI newDisco = this.getIdOfCreatedDisco(updateEventId, eventmgr, ts);
+				URI newDisco = eventmgr.getIdOfSourceDisco(updateEventId, ts);
 				if (newDisco != null){
 					event2Disco.put(updateEventId,newDisco);
 					// follow new DiSCO forward
@@ -660,30 +622,6 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			}				
 		} while (false);			 
 		return event2Disco;
-	}
-	
-	/**
-	 * 
-	 * @param updateEventID
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 */
-	protected URI getIdOfCreatedDisco(URI updateEventID, ORMapEventMgr eventmgr,
-			SesameTriplestore ts)
-	throws RMapException {
-		URI discoId = null;
-		ORMapEventUpdate uEvent = eventmgr.getUpdateEvent(updateEventID,ts);
-		if (uEvent.getCreatedObjectStatements() != null){
-			for (ORMapStatement stmt:uEvent.getCreatedObjectStatements()){
-				URI obj = (URI)stmt.getObject();
-				if (this.isDiscoId(obj, ts)){
-					discoId = obj;
-					break;
-				}
-			}
-		}
-		return discoId;
 	}
 
 	/**
@@ -698,7 +636,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			ORMapEventMgr eventmgr, SesameTriplestore ts) 
 			throws RMapException {
 		boolean isSame = false;
-		Statement stmt = this.getDiSCOCreateEventStatement(oldDisco, ts);
+		Statement stmt = eventmgr.getDiSCOCreateEventStatement(oldDisco, ts);
 		do {
 			if (stmt==null){
 				break;
@@ -712,34 +650,6 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}while (false);
 		return isSame;
 	}
-	/**
-	 * Find the creation Event associated with a DiSCO
-	 * @param disco
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 */
-	protected Statement getDiSCOCreateEventStatement(URI disco, SesameTriplestore ts) 
-	throws RMapException {
-		Statement stmt = null;
-		try {
-			stmt = ts.getStatement(null, PROV.GENERATED, disco);
-			// make sure this is an event
-			if (stmt != null && stmt.getSubject().equals(stmt.getContext())){
-				Statement typeStmt = ts.getStatement(stmt.getSubject(), RDF.TYPE, 
-						RMAP.EVENT, stmt.getContext());
-				if (typeStmt==null){
-					stmt = null;
-				}
-			}
-			else {
-				stmt = null;
-			}
-		} catch (Exception e) {
-			throw new RMapException ("Exception thrown when querying for Disco Create event", e);
-		}		
-		return stmt;
-	}
-	
 
+	
 }

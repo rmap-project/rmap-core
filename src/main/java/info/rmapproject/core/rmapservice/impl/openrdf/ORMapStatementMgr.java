@@ -324,14 +324,14 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	 * @return
 	 * @throws RMapException
 	 */
-	public List<URI> getRelatedEvents(URI uri, ORMapDiSCOMgr discomgr,
+	public List<URI> getRelatedEvents(URI uri, ORMapEventMgr eventmgr,
 			SesameTriplestore ts) 
 			throws RMapObjectNotFoundException, RMapException {
 
 		Set<URI>discoIds = this.getRelatedDiSCOs(uri, ts);
 		List<URI> events = new ArrayList<URI>();
 		for (URI discoId:discoIds){
-			List<URI> discoEvents = discomgr.getDiscoEvents(discoId, ts);
+			List<URI> discoEvents = eventmgr.getDiscoRelatedEventIds(discoId, ts);
 			events.addAll(discoEvents);
 		}
 		return events;
