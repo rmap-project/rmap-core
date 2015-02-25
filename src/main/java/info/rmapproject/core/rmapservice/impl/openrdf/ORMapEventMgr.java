@@ -485,13 +485,12 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	}
 	/**
 	 * Get ids of all events associated with a DiSCO
-	 * "Associated" means the  id is the object of one of 5 predicates in triple whose subject
+	 * "Associated" means the  id is the object of one of 4 predicates in triple whose subject
 	 * is an eventid.  Those predicates are:
 	 * 	RMAP.EVENT_TARGET_DELETED
 	 *  MAP.EVENT_TARGET_TOMBSTONED
-	 *  RMAP.EVENT_TARGET_INACTIVATED
-	 *  PROV.GENERATED
-	 *  PROV.WASDERIVEDFROM
+	 *  RMAP.EVENT_TARGET (update event)
+	 *  PROV.GENERATED (Create and Update events)
 	 * @param id
 	 * @param ts
 	 * @return
@@ -733,7 +732,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		return stmt;
 	}
 	/**
-	 * Get ids of Events that update (not inactivate) a DiSCO
+	 * Get ids of Events that update (whether or not they also inactivate) a DiSCO
 	 * @param targetId
 	 * @param ts
 	 * @return
