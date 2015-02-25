@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.openrdf.model.Model;
 import org.openrdf.model.URI;
 
 import info.rmapproject.core.exception.RMapException;
@@ -94,6 +95,17 @@ public class ORMapEventCreation extends ORMapEvent implements RMapEventCreation 
 		throws RMapException{
 		this(associatedAgent, targetType, desc);
 		this.setCreatedObjectIds(createdObjIds);
+	}
+	
+	@Override
+	public Model getAsModel() throws RMapException {
+		Model model = super.getAsModel();
+		if (createdObjects != null){
+			for (ORMapStatement stmt: createdObjects){
+				model.add(stmt.rmapStmtStatement);
+			}
+		}
+		return model;
 	}
 	
 	/* (non-Javadoc)

@@ -1,13 +1,29 @@
+/**
+ * 
+ */
 package info.rmapproject.core.rdfhandler.impl.openrdf;
 
+import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rdfhandler.RDFHandlerFactory;
 
+/**
+ * @author smorrissey
+ *
+ */
 public class RioRDFHandlerFactory implements RDFHandlerFactory {
 
-	private static RDFHandler rdfHandler = new RioRDFHandler();
-	
-	public RDFHandler getRDFHandler() throws Exception	{
-		return rdfHandler;
+	/**
+	 * 
+	 */
+	private RioRDFHandlerFactory() {}
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rdfhandler.RDFHandlerFactory#createRDFHandler()
+	 */
+	@Override
+	public RDFHandler createRDFHandler() throws RMapException {
+		return new RioRDFHandler();
 	}
+
 }

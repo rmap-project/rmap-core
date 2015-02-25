@@ -11,5 +11,5 @@ import info.rmapproject.core.exception.RMapException;
  */
 public interface RMapServiceFactory {
 	
-	RMapService createService() throws RMapException;
+	public RMapService createService() throws RMapException;
 }

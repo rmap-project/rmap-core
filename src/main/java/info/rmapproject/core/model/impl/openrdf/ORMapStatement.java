@@ -14,13 +14,17 @@ import info.rmapproject.core.model.RMapStatement;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.RMapServiceFactoryIOC;
+import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 
 import org.openrdf.model.Literal;
+import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.impl.LinkedHashModel;
+import org.openrdf.model.vocabulary.RDF;
 
 /**
  * @author khansen, smorrissey
@@ -30,7 +34,7 @@ public class ORMapStatement extends ORMapObject implements RMapStatement {
 
 
 	protected Statement rmapStmtStatement;
-	
+	protected Statement typeStatement;
 
 	/**
 	 * @throws RMapException
@@ -48,6 +52,8 @@ public class ORMapStatement extends ORMapObject implements RMapStatement {
 	public ORMapStatement (RMapNonLiteral subject, RMapUri predicate, RMapResource object) 
 			throws RMapException {
 		this();
+		this.typeStatement = 
+				this.makeRmapStmtStatement(ORAdapter.uri2OpenRdfUri(this.getId()), RDF.TYPE, RMAP.STATEMENT, null);
 		this.rmapStmtStatement = this.makeRmapStmtStatement(
 				 ORAdapter.rMapNonLiteral2OpenRdfResource(subject), 
 				 ORAdapter.rMapUri2OpenRdfUri(predicate), 
@@ -281,6 +287,13 @@ public class ORMapStatement extends ORMapObject implements RMapStatement {
 			java.net.URI uri = ORAdapter.openRdfUri2URI(context);
 			this.setId(uri);
 		}
+	}
+	@Override
+	public Model getAsModel() throws RMapException {
+		Model stmtModel = new LinkedHashModel();
+		stmtModel.add(typeStatement);
+		stmtModel.add(rmapStmtStatement.getSubject(), rmapStmtStatement.getPredicate(), rmapStmtStatement.getObject());
+		return stmtModel;
 	}
 
 }

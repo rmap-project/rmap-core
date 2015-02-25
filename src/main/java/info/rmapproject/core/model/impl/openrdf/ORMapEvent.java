@@ -6,7 +6,9 @@ package info.rmapproject.core.model.impl.openrdf;
 import java.text.ParseException;
 import java.util.Date;
 
+import org.openrdf.model.Model;
 import org.openrdf.model.URI;
+import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.RDF;
 
@@ -271,5 +273,19 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	public URI getContext() {
 		return context;
 	}
-
+	
+	@Override
+	public Model getAsModel() throws RMapException {
+		Model eventModel = new LinkedHashModel();
+		eventModel.add(typeStatement.rmapStmtStatement);
+		eventModel.add(associatedAgentStmt.rmapStmtStatement);
+		eventModel.add(eventTypeStmt.rmapStmtStatement);
+		eventModel.add(eventTargetTypeStmt.rmapStmtStatement);
+		eventModel.add(startTimeStmt.rmapStmtStatement);
+		eventModel.add(endTimeStmt.rmapStmtStatement);
+		if (descriptionStmt != null){
+			eventModel.add(descriptionStmt.rmapStmtStatement);
+		}
+		return eventModel;
+	}
 }

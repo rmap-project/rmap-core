@@ -8,10 +8,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
@@ -599,5 +601,27 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 */
 	public ORMapStatement getProviderIdStmt(){
 		return this.providerIdStmt;
+	}
+	@Override
+	public Model getAsModel() throws RMapException {
+		Model discoModel = new LinkedHashModel();
+		discoModel.add(typeStatement.rmapStmtStatement);
+		discoModel.add(creator.rmapStmtStatement);
+		if (description != null){
+			discoModel.add(description.rmapStmtStatement);
+		}
+		if (providerIdStmt != null){
+			discoModel.add(providerIdStmt.rmapStmtStatement);
+		}
+		for (ORMapStatement aggRes: aggregatedResources){
+			discoModel.add(aggRes.rmapStmtStatement);
+		}
+		if (relatedStatements != null){
+			for (ORMapStatement stmt:relatedStatements){
+				discoModel.add(stmt.rmapStmtStatement);
+			}
+		}
+		//TODO  expand any statements with AgentIds as objects to return complete agent info
+		return discoModel;
 	}
 }

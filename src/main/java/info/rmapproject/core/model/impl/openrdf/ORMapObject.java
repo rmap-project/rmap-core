@@ -4,6 +4,8 @@
 package info.rmapproject.core.model.impl.openrdf;
 
 
+import org.openrdf.model.Model;
+
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdServiceFactoryIOC;
 import info.rmapproject.core.model.RMapObject;
@@ -15,7 +17,7 @@ import info.rmapproject.core.model.RMapObject;
  *  @author khansen, smorrissey
  *
  */
-public class ORMapObject implements RMapObject  {
+public abstract class ORMapObject implements RMapObject  {
 	protected java.net.URI id;
 	
 	
@@ -44,5 +46,7 @@ public class ORMapObject implements RMapObject  {
 	protected void setId(java.net.URI id){
 		this.id = id;
 	}
+	
+	public abstract Model getAsModel() throws RMapException;
 
 }

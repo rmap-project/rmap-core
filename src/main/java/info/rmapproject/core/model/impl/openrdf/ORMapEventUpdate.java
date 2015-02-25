@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.openrdf.model.Model;
 import org.openrdf.model.URI;
 
 import info.rmapproject.core.exception.RMapException;
@@ -88,6 +89,24 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 		super(associatedAgent, targetType, desc);
 		this.makeEventTypeStatement(RMapEventType.UPDATE);
 		this.setTargetObjectStmt(ORAdapter.rMapUri2OpenRdfUri(targetObject));
+	}
+	
+	@Override
+	public Model getAsModel() throws RMapException {
+		Model model = super.getAsModel();
+		model.add(targetObjectStatement.rmapStmtStatement);
+		if (createdObjects != null){
+			for (ORMapStatement stmt: createdObjects){
+				model.add(stmt.rmapStmtStatement);
+			}
+		}
+		if (inactivatedObjectStatement != null){
+			model.add(inactivatedObjectStatement.rmapStmtStatement);
+		}
+		if (derivationStatement != null){
+			model.add(derivationStatement.rmapStmtStatement);
+		}
+		return model;
 	}
 
 	/* (non-Javadoc)

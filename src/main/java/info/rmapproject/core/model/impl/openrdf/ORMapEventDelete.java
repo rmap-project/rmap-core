@@ -6,6 +6,7 @@ package info.rmapproject.core.model.impl.openrdf;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openrdf.model.Model;
 import org.openrdf.model.URI;
 
 import info.rmapproject.core.exception.RMapException;
@@ -63,6 +64,15 @@ public class ORMapEventDelete extends ORMapEvent implements RMapEventDelete {
 			throws RMapException {
 		super(associatedAgent, targetType, desc);
 		this.makeEventTypeStatement(RMapEventType.DELETION);
+	}
+	
+	@Override
+	public Model getAsModel() throws RMapException {
+		Model model = super.getAsModel();
+		for (ORMapStatement stmt:deletedObjects){
+			model.add(stmt.rmapStmtStatement);
+		}
+		return model;
 	}
 
 	/* (non-Javadoc)

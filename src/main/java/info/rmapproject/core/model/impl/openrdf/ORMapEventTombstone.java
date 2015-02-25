@@ -3,6 +3,7 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
+import org.openrdf.model.Model;
 import org.openrdf.model.URI;
 
 import info.rmapproject.core.exception.RMapException;
@@ -80,6 +81,12 @@ public class ORMapEventTombstone extends ORMapEvent implements
 		this.makeEventTypeStatement(RMapEventType.TOMBSTONE);
 	}
 
+	@Override
+	public Model getAsModel() throws RMapException {
+		Model model = super.getAsModel();
+		model.add(tombstoned.rmapStmtStatement);
+		return model;
+	}
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEventTombstone#getTombstonedResourceId()
 	 */

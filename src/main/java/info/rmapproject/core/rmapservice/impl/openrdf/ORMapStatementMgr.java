@@ -95,7 +95,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 		URI stmtId = ORAdapter.uri2OpenRdfUri(rmapStatement.getId());;
 		try {
 			URI predicate = RDF.TYPE;
-			Value object = RMAP.STATEMENT;;
+			Value object = RMAP.STATEMENT;
 			ts.addStatement(stmtId, predicate,object,context);	
 			
 			predicate = RDF.SUBJECT;
