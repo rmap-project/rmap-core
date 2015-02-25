@@ -21,10 +21,11 @@ public interface RDFHandler {
 	 * Deserialize an RDF InputStream into an RMapDiSCO
 	 * @param rdfIn an RDF InputStream
 	 * @param baseUri for resolving relative URIs; null if no relative URIs in stream
+	 * @param rdfFormat name of RDF format 
 	 * @return RMapDiSCO built from RDF statements in InputStream
 	 * @throws RMapException if InputStream cannot be converted to valid DiSCO
 	 */
-	public RMapDiSCO rdf2RMapDiSCO(InputStream rdfIn, String baseUri) throws RMapException;
+	public RMapDiSCO rdf2RMapDiSCO(InputStream rdfIn, String baseUri, String rdfFormat) throws RMapException;
 	/**
 	 * Serialize RMapStatement as RDF
 	 * @param stmt RMapStatement to be serialized

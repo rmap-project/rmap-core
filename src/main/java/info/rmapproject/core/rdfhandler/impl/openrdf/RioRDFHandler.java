@@ -6,126 +6,190 @@ import info.rmapproject.core.model.RMapAgent;
 import info.rmapproject.core.model.RMapDiSCO;
 import info.rmapproject.core.model.RMapEvent;
 import info.rmapproject.core.model.RMapStatement;
+import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
+import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
+import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventDelete;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
+import info.rmapproject.core.model.impl.openrdf.ORMapStatement;
 import info.rmapproject.core.rdfhandler.RDFHandler;
-import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
-import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
+import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
-import org.openrdf.model.vocabulary.DC;
-import org.openrdf.model.vocabulary.DCTERMS;
-import org.openrdf.model.vocabulary.FOAF;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
 
 
 public class RioRDFHandler implements RDFHandler {
 	
-   static Map<String, String>nsDefaults = null;
-   
-   static{
-	   nsDefaults = new HashMap<String,String>();
-	   nsDefaults.put(RMAP.PREFIX, RMAP.NAMESPACE);
-	   nsDefaults.put(PROV.PREFIX, PROV.NAMESPACE);
-	   nsDefaults.put(DC.PREFIX, DC.NAMESPACE);
-	   nsDefaults.put(DCTERMS.PREFIX, DCTERMS.NAMESPACE);
-	   nsDefaults.put(FOAF.PREFIX, FOAF.NAMESPACE);
-	   nsDefaults.put(RDF.PREFIX, RDF.NAMESPACE);
-	   nsDefaults.put(RDFS.PREFIX, RDFS.NAMESPACE);
-   }
 
 	public RioRDFHandler() {}
-
-	public String convertStmtListToRDF(List<Statement> stmts, Map<String,String> namespaces, String rdfType) throws Exception	{
-		String rdf = null;		
+	/**
+	 * Convert Model of RMap object to an OutputStream of RDF
+	 * @param model Model of RMap object to be converted
+	 * @param rdfType RDF Format for serialization
+	 * @return OutputStream containing RDF serialization of RMap object
+	 * @throws RMapException
+	 */
+	public OutputStream convertStmtListToRDF(Model model, String rdfType) 
+	throws RMapException	{
+		if (model==null){
+			throw new RMapException("Null or empty Statement model");
+		}
+		if (rdfType==null){
+			throw new RMapException("RDF format name null");
+		}	
+		RDFFormat rdfFormat = null;
 		OutputStream bOut = new ByteArrayOutputStream();
-		//TODO: do this format constant better!
-		RDFFormat rdfFormat = RioUtil.getRDFFormatConstant(rdfType);
-		RDFWriter rdfWriter = Rio.createWriter(rdfFormat, bOut);
-		rdfWriter.startRDF();
-
-		if (namespaces!=null){
-			for(Iterator<Map.Entry<String, String>> it = namespaces.entrySet().iterator(); it.hasNext();) 	{
-				Map.Entry<String, String> ns = it.next();
-				String nsAbbrev = ns.getKey();
-				String nsURL = ns.getValue();
-				rdfWriter.handleNamespace(nsAbbrev,nsURL);
-			}
+		try {
+			rdfFormat = RioUtil.getRDFFormatConstant(rdfType);
+			Rio.write(model, bOut, rdfFormat);
+		} catch (Exception e) {
+			throw new RMapException("Exception thrown creating RDF from statement list",e);
 		}
-		
-		if (stmts!=null){
-			for (Statement stmt : stmts) {
-				if (stmt != null) {
-					rdfWriter.handleStatement(stmt);
-				}
-			}
-		}
-
-		rdfWriter.endRDF();
-		rdf = bOut.toString();
-		return rdf;		
+		return bOut;		
 	}
-
-	public List <Statement> convertRDFToStmtList(String rdf, String rdfType) throws Exception	{
+	/**
+	 * Deserialize RDF InputStream into a list of Statements
+	 * @param rdfIn InputStream of RDF
+	 * @param rdfType Format of RDF in InputStream
+	 * @param baseUri  String with base URI of any relative URI in InputStream.
+	 * @return List of Statements created from RDF InputStsream
+	 * @throws RMapException if null parameters, or invalid rdfType, or error parsing stream
+	 */
+	public List <Statement> convertRDFToStmtList(InputStream rdfIn, String rdfType,
+			String baseUri) 
+	throws RMapException	{
+		if (rdfIn==null){
+			throw new RMapException("Null rdf input stream");
+		}
+		if (rdfType==null){
+			throw new RMapException("Null rdf type");
+		}
 		List <Statement> stmts = new ArrayList<Statement>();
-		
-		RDFFormat rdfFormat = RioUtil.getRDFFormatConstant(rdfType);
+		RDFFormat rdfFormat = null;
+		try {
+			rdfFormat = RioUtil.getRDFFormatConstant(rdfType);
+		} catch (Exception e1) {
+			throw new RMapException("Unable to match rdfType: " + rdfType, e1);
+		}
 		RDFParser rdfParser = Rio.createParser(rdfFormat);	
-		InputStream stream = new ByteArrayInputStream(rdf.getBytes());
-		StatementCollector collector = new StatementCollector(stmts);
-		
+		StatementCollector collector = new StatementCollector(stmts);		
 		rdfParser.setRDFHandler(collector);
-		rdfParser.parse(stream, "");
-		
+		try {
+			rdfParser.parse(rdfIn, baseUri);
+		} catch (RDFParseException | RDFHandlerException | IOException e) {
+			throw new RMapException("Unable to parse input RDF: ",e);
+		}		
 		return stmts;
 	}
 
 	@Override
-	public RMapDiSCO rdf2RMapDiSCO(InputStream rdfIn, String baseUri)
+	public RMapDiSCO rdf2RMapDiSCO(InputStream rdfIn, String baseUri, String rdfFormat)
 			throws RMapException {
-		// TODO Auto-generated method stub
-		return null;
+		List <Statement> stmts = this.convertRDFToStmtList(rdfIn, rdfFormat, baseUri);
+		ORMapDiSCO disco = new ORMapDiSCO(stmts);
+		return disco;
 	}
 
 	@Override
 	public OutputStream statement2Rdf(RMapStatement stmt, String rdfFormat)
 			throws RMapException {
-		// TODO Auto-generated method stub
-		return null;
+		if (stmt==null){
+			throw new RMapException("null RMapStatement");
+		}
+		if (rdfFormat==null){
+			throw new RMapException("null rdf format name");
+		}
+		if (! (stmt instanceof ORMapStatement)){
+			throw new RMapException("RMapStatement not instance of ORMapStatement");
+		}
+	
+		ORMapStatement orStmt = (ORMapStatement)stmt;
+		Model model = orStmt.getAsModel();
+		OutputStream os = this.convertStmtListToRDF(model, rdfFormat);
+		return os;
 	}
 
 	@Override
 	public OutputStream disco2Rdf(RMapDiSCO disco, String rdfFormat)
 			throws RMapException {
-		// TODO Auto-generated method stub
-		return null;
+		if (disco==null){
+			throw new RMapException("Null DiSCO");
+		}
+		if (rdfFormat==null){
+			throw new RMapException("null rdf format name");
+		}
+		if (!(disco instanceof ORMapDiSCO)){
+			throw new RMapException("RMapStatement not instance of ORMapDiSCO");
+		}
+		ORMapDiSCO orDisco = (ORMapDiSCO)disco;
+		Model model = orDisco.getAsModel();
+		OutputStream os = this.convertStmtListToRDF(model, rdfFormat);
+		return os;
 	}
 
 	@Override
 	public OutputStream event2Rdf(RMapEvent event, String rdfFormat)
 			throws RMapException {
-		// TODO Auto-generated method stub
-		return null;
+		if (event==null){
+			throw new RMapException("Null Event");
+		}
+		if (rdfFormat==null){
+			throw new RMapException("null rdf format name");
+		}
+		if (!(event instanceof ORMapEvent)){
+			throw new RMapException("RMapStatement not instance of ORMapEvent");
+		}
+		ORMapEvent orEvent = (ORMapEvent)event;
+		Model model = null;
+		if (orEvent instanceof ORMapEventCreation){
+			model =((ORMapEventCreation)orEvent).getAsModel();
+		}
+		else if (orEvent instanceof ORMapEventUpdate){
+			model =((ORMapEventUpdate)orEvent).getAsModel();
+		}
+		else if (orEvent instanceof ORMapEventTombstone){
+			model =((ORMapEventTombstone)orEvent).getAsModel();
+		}
+		else if (orEvent instanceof ORMapEventDelete){
+			model =((ORMapEventDelete)orEvent).getAsModel();
+		}
+		else {
+			throw new RMapException("Unrecognized event type");
+		}
+		OutputStream os = this.convertStmtListToRDF(model, rdfFormat);
+		return os;
 	}
 
 	@Override
 	public OutputStream agent2Rdf(RMapAgent agent, String rdfFormat)
 			throws RMapException {
-		// TODO Auto-generated method stub
-		return null;
+		if (agent==null){
+			throw new RMapException("Null agent");
+		}
+		if (rdfFormat==null){
+			throw new RMapException("null rdf format name");
+		}
+		if (!(agent instanceof ORMapAgent)){
+			throw new RMapException("RMapStatement not instance of ORMapAgent");
+		}
+		ORMapAgent orAgent = (ORMapAgent)agent;
+		Model model = orAgent.getAsModel();
+		OutputStream os = this.convertStmtListToRDF(model, rdfFormat);
+		return os;
 	}
 }
