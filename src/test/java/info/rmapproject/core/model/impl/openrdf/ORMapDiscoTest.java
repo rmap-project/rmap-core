@@ -5,6 +5,8 @@ package info.rmapproject.core.model.impl.openrdf;
 
 import static org.junit.Assert.*;
 
+import info.rmapproject.core.model.RMapLiteral;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 import java.util.ArrayList;
@@ -42,7 +44,7 @@ public class ORMapDiscoTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#ORMapDiSCO(info.rmapproject.core.model.RMapResource, java.util.List, info.rmapproject.core.model.RMapResource, info.rmapproject.core.model.RMapStatementBag)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#ORMapDiSCO(info.rmapproject.core.model.RMapResource, java.util.List, RMapLiteral, info.rmapproject.core.model.RMapStatementBag)}.
 	 */
 	@Test
 	public void testORMapDiSCORMapResourceListOfURIRMapResourceRMapStatementBag() {
@@ -194,7 +196,7 @@ public class ORMapDiscoTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#setDescription(info.rmapproject.core.model.RMapResource)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#setDescription(RMapValue)}.
 	 */
 	@Test
 	public void testSetDescription() {

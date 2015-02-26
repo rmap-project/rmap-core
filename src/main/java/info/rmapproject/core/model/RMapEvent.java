@@ -36,7 +36,7 @@ public interface RMapEvent extends RMapObject{
 	 * @return the description
 	 * @throws RMapException 
 	 */
-	public RMapResource getDescription() throws RMapException;
+	public RMapValue getDescription() throws RMapException;
 
 	/**
 	 * Start time will be set by the constructor

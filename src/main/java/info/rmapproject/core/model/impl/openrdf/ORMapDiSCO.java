@@ -23,7 +23,7 @@ import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.idservice.IdServiceFactoryIOC;
 import info.rmapproject.core.model.RMapDiSCO;
 import info.rmapproject.core.model.RMapEvent;
-import info.rmapproject.core.model.RMapResource;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.RMapStatement;
 import info.rmapproject.core.model.RMapStatementBag;
 import info.rmapproject.core.model.RMapStatus;
@@ -90,7 +90,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 * @param aggregatedResources Resources comprising compound object
 	 * @throws RMapException if unable to create Creator or aggregated resources Statements
 	 */
-	public ORMapDiSCO(RMapResource creator, List<java.net.URI> aggregatedResources) 
+	public ORMapDiSCO(RMapValue creator, List<java.net.URI> aggregatedResources) 
 			throws RMapException {
 		this();
 		this.setCreator(creator);
@@ -108,7 +108,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 * @throws RMapException if related statements do not reference at least one resource, or
 	 *            comprise a disjoint graph, or if cannot create Statements from parameters
 	 */
-	public ORMapDiSCO(RMapResource creator, List<java.net.URI> aggregatedResources, RMapResource description,
+	public ORMapDiSCO(RMapValue creator, List<java.net.URI> aggregatedResources, RMapValue description,
 			RMapStatementBag relatedStatements) throws RMapException {		
 		this(creator, aggregatedResources);
 		this.setDescription(description);
@@ -478,8 +478,8 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapDiSCO#getCreators()
 	 */
-	public RMapResource getCreator() throws RMapException {
-		RMapResource creator = null;
+	public RMapValue getCreator() throws RMapException {
+		RMapValue creator = null;
 		if (this.creator != null){
 			creator = this.creator.getObject();
 		}
@@ -495,7 +495,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapDiSCO#setCreators(List<info.rmapproject.core.model.RMapResource)>
 	 */
-	public void setCreator(RMapResource creator) throws RMapException {
+	public void setCreator(RMapValue creator) throws RMapException {
 		ORMapStatement stmt = null;
 		if (creator != null){
 			URI predicate = DCTERMS.CREATOR;
@@ -513,8 +513,8 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapDiSCO#getDescription()
 	 */
-	public RMapResource getDescription() throws RMapException {
-		RMapResource desc = null;
+	public RMapValue getDescription() throws RMapException {
+		RMapValue desc = null;
 		do {
 			if (this.description==null){
 				break;
@@ -533,7 +533,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapDiSCO#setDescription(info.rmapproject.core.model.RMapResource)
 	 */
-	public void setDescription(RMapResource description) throws RMapException {
+	public void setDescription(RMapValue description) throws RMapException {
 		ORMapStatement stmt = null;
 		if (description != null){
 			URI predicate = DC.DESCRIPTION;

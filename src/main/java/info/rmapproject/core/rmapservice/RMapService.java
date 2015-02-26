@@ -9,13 +9,13 @@ import java.util.List;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapAgent;
 import info.rmapproject.core.model.RMapUri;
-import info.rmapproject.core.model.RMapNonLiteral;
+import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapDiSCO;
 import info.rmapproject.core.model.RMapEvent;
 import info.rmapproject.core.model.RMapStatement;
 import info.rmapproject.core.model.RMapStatementBag;
 import info.rmapproject.core.model.RMapStatus;
-import info.rmapproject.core.model.RMapResource;
+import info.rmapproject.core.model.RMapValue;
 
 /**
  *
@@ -82,7 +82,7 @@ public interface RMapService {
 	 * @return
 	 * @throws RMapException
 	 */
-	public URI getStatementID (RMapNonLiteral subject, RMapUri predicate, RMapResource object) throws RMapException;
+	public URI getStatementID (RMapResource subject, RMapUri predicate, RMapValue object) throws RMapException;
 	/**
 	 * Return the RMapStatements identified by the listed URIS
 	 * @param ids
@@ -124,7 +124,7 @@ public interface RMapService {
 	 * @throws RMapException
 	 */
 	public RMapEvent createDiSCO(RMapAgent systemAgent, List<URI> aggregatedResources,
-			RMapResource creator, RMapStatementBag relatedStatements, RMapResource desc)  throws RMapException;
+			RMapValue creator, RMapStatementBag relatedStatements, RMapValue desc)  throws RMapException;
 	/**
 	 * 
 	 * @param discoId
@@ -144,8 +144,8 @@ public interface RMapService {
 	 */
 	
 	public RMapEvent updateDiSCO (RMapAgent systemAgent, URI oldDiscoId, 
-			List<URI> aggregatedResources,RMapStatementBag relatedStatements, RMapResource creator, 
-			RMapResource desc) throws RMapException;
+			List<URI> aggregatedResources,RMapStatementBag relatedStatements, RMapValue creator, 
+			RMapValue desc) throws RMapException;
 	/**
 	 * Soft delete (tombstone) of a DiSCO
 	 * @param discoID

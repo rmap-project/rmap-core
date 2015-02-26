@@ -14,7 +14,7 @@ import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapEventCreation;
 import info.rmapproject.core.model.RMapEventTargetType;
 import info.rmapproject.core.model.RMapEventType;
-import info.rmapproject.core.model.RMapResource;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 
@@ -84,14 +84,14 @@ public class ORMapEventCreation extends ORMapEvent implements RMapEventCreation 
 	 * @throws RMapException
 	 */
 	public ORMapEventCreation(RMapUri associatedAgent,
-			RMapEventTargetType targetType, RMapResource desc)
+			RMapEventTargetType targetType, RMapValue desc)
 			throws RMapException {
 		super(associatedAgent, targetType, desc);
 		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.CREATION);
 	}
 
 	public ORMapEventCreation(RMapUri associatedAgent,
-			RMapEventTargetType targetType, RMapResource desc, List<RMapUri> createdObjIds)
+			RMapEventTargetType targetType, RMapValue desc, List<RMapUri> createdObjIds)
 		throws RMapException{
 		this(associatedAgent, targetType, desc);
 		this.setCreatedObjectIds(createdObjIds);

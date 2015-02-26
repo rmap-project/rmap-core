@@ -7,7 +7,7 @@ package info.rmapproject.core.model;
  * @author smorrissey
  *
  */
-public class RMapBlankNode extends RMapNonLiteral {
+public class RMapBlankNode extends RMapResource {
 
 	protected String id;
 	/**

@@ -9,8 +9,8 @@ import java.net.URISyntaxException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapBlankNode;
 import info.rmapproject.core.model.RMapLiteral;
-import info.rmapproject.core.model.RMapNonLiteral;
 import info.rmapproject.core.model.RMapResource;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
@@ -105,7 +105,7 @@ public class ORAdapter {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Resource rMapNonLiteral2OpenRdfResource(RMapNonLiteral nonLiteral) 
+	public static Resource rMapNonLiteral2OpenRdfResource(RMapResource nonLiteral) 
 			throws RMapException {
 		Resource resource = null;
 		if (nonLiteral==null){
@@ -142,13 +142,13 @@ public class ORAdapter {
 		return literal;
 	}
 	
-	public static Value rMapResource2OpenRdfValue (RMapResource resource) throws RMapException {
+	public static Value rMapResource2OpenRdfValue (RMapValue resource) throws RMapException {
 		Value value = null;
 		if (resource==null){
 			throw new IllegalArgumentException ("Null RMapLiteral");
 		}
-		if (resource instanceof RMapNonLiteral){
-			value = rMapNonLiteral2OpenRdfResource((RMapNonLiteral)resource);
+		if (resource instanceof RMapResource){
+			value = rMapNonLiteral2OpenRdfResource((RMapResource)resource);
 		}
 		else if (resource instanceof RMapLiteral){
 			value = rMapLiteral2OpenRdfLiteral((RMapLiteral)resource);
@@ -208,9 +208,9 @@ public class ORAdapter {
 	 * @throws IllegalArgumentException
 	 * @throws URISyntaxException
 	 */
-	public static RMapNonLiteral openRdfResource2NonLiteralResource(Resource resource)
+	public static RMapResource openRdfResource2NonLiteralResource(Resource resource)
 	throws IllegalArgumentException, URISyntaxException {
-		RMapNonLiteral nlResource = null;
+		RMapResource nlResource = null;
 		if (resource==null){
 			throw new IllegalArgumentException("Resource is null");
 		}				
@@ -244,9 +244,9 @@ public class ORAdapter {
 	 * @throws URISyntaxException
 	 * @throws IllegalArgumentException
 	 */
-	public static RMapResource openRdfValue2RMapResource (Value value) 
+	public static RMapValue openRdfValue2RMapResource (Value value) 
 			throws URISyntaxException, IllegalArgumentException{
-		RMapResource resource = null;
+		RMapValue resource = null;
 		if (value==null){
 			throw new IllegalArgumentException("Resource is null");
 		}				

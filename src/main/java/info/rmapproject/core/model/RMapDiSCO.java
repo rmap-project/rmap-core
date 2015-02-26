@@ -45,27 +45,27 @@ public interface RMapDiSCO extends RMapObject  {
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapResource getCreator() throws RMapException;
+	public RMapValue getCreator() throws RMapException;
 	/**
 	 * 
 	 * @param creator
 	 * @throws RMapException
 	 */
-	public void setCreator(RMapResource creator) throws RMapException;
+	public void setCreator(RMapValue creator) throws RMapException;
 
 	/**
 	 * 
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapResource getDescription() throws RMapException;
+	public RMapValue getDescription() throws RMapException;
 
 	/**
 	 * 
 	 * @param description
 	 * @throws RMapException
 	 */
-	public void setDescription(RMapResource description) throws RMapException ;
+	public void setDescription(RMapValue description) throws RMapException ;
 
 	/**
 	 * 

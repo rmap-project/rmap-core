@@ -12,11 +12,11 @@ import java.util.List;
  */
 public interface RMapStatement extends RMapObject  {
 	
-	public RMapNonLiteral getSubject();
+	public RMapResource getSubject();
 	
 	public RMapUri getPredicate();
 	
-	public RMapResource getObject();
+	public RMapValue getObject();
 	
 	// Status -- it is inferred from related DiSCOs and Events
 	public RMapStatus getStatus() throws Exception;

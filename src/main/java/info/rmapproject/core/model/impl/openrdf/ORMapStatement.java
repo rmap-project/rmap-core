@@ -7,9 +7,9 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapResource;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.RMapUri;
-import info.rmapproject.core.model.RMapNonLiteral;
+import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapStatement;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.rmapservice.RMapService;
@@ -49,7 +49,7 @@ public class ORMapStatement extends ORMapObject implements RMapStatement {
 	 * @param object
 	 * @throws RMapException
 	 */
-	public ORMapStatement (RMapNonLiteral subject, RMapUri predicate, RMapResource object) 
+	public ORMapStatement (RMapResource subject, RMapUri predicate, RMapValue object) 
 			throws RMapException {
 		this();
 		this.typeStatement = 
@@ -67,7 +67,7 @@ public class ORMapStatement extends ORMapObject implements RMapStatement {
 	 * @param uri context
 	 * @throws RMapException
 	 */
-	public ORMapStatement (RMapNonLiteral subject, RMapUri predicate, RMapResource object, RMapUri context) 
+	public ORMapStatement (RMapResource subject, RMapUri predicate, RMapValue object, RMapUri context) 
 			throws RMapException {
 		this();
 		this.rmapStmtStatement = this.makeRmapStmtStatement(
@@ -163,8 +163,8 @@ public class ORMapStatement extends ORMapObject implements RMapStatement {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapStatement#getSubject()
 	 */
-	public RMapNonLiteral getSubject() {
-		RMapNonLiteral subject = null;
+	public RMapResource getSubject() {
+		RMapResource subject = null;
 		try {
 			subject = ORAdapter.openRdfResource2NonLiteralResource(
 					this.rmapStmtStatement.getSubject());
@@ -189,8 +189,8 @@ public class ORMapStatement extends ORMapObject implements RMapStatement {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapStatement#getObject()
 	 */
-	public RMapResource getObject() {
-		RMapResource object = null;
+	public RMapValue getObject() {
+		RMapValue object = null;
 		try {
 			object = ORAdapter.openRdfValue2RMapResource(
 					this.rmapStmtStatement.getObject());

@@ -5,12 +5,17 @@ package info.rmapproject.core.model;
 
 /**
  * @author smorrissey
- * Interface for RDF resources  
- * A resource is something in the world that can be denoted by a literal or an IRI
- * @see http://www.w3.org/TR/rdf11-concepts/#resources-and-statements
  *
  */
-public interface RMapResource {
-	
-	public String getStringValue();
+public abstract class RMapResource implements RMapValue{
+
+	/**
+	 * 
+	 */
+	public RMapResource() {}
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.RdfResource#getStringValue()
+	 */
+	public abstract String getStringValue();
 }

@@ -11,7 +11,7 @@ import java.net.URI;
  * @author smorrissey
  *
  */
-public class RMapUri extends RMapNonLiteral  {
+public class RMapUri extends RMapResource  {
 
 	URI iri;
 	

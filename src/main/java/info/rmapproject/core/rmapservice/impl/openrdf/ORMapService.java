@@ -20,8 +20,8 @@ import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapAgent;
 import info.rmapproject.core.model.RMapDiSCO;
 import info.rmapproject.core.model.RMapEvent;
-import info.rmapproject.core.model.RMapNonLiteral;
 import info.rmapproject.core.model.RMapResource;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.RMapStatement;
 import info.rmapproject.core.model.RMapStatementBag;
 import info.rmapproject.core.model.RMapStatus;
@@ -149,8 +149,8 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getStatementID(info.rmapproject.core.model.RMapNonLiteral, info.rmapproject.core.model.RMapUri, info.rmapproject.core.model.RMapResource)
 	 */
-	public URI getStatementID(RMapNonLiteral subject, RMapUri predicate,
-			RMapResource object) throws RMapException {
+	public URI getStatementID(RMapResource subject, RMapUri predicate,
+			RMapValue object) throws RMapException {
 		Resource orSubject = ORAdapter.rMapNonLiteral2OpenRdfResource(subject);
 		org.openrdf.model.URI orPredicate = ORAdapter.rMapUri2OpenRdfUri(predicate);
 		Value orValue = ORAdapter.rMapResource2OpenRdfValue(object);
@@ -211,8 +211,8 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#createDisco(java.util.List, info.rmapproject.core.model.RMapStatementBag, info.rmapproject.core.model.RMapResource, info.rmapproject.core.model.RMapResource)
 	 */
 	public RMapEvent createDiSCO(RMapAgent systemAgent,
-			List<URI> aggregatedResources, RMapResource creator,
-			RMapStatementBag relatedStatements, RMapResource desc) 
+			List<URI> aggregatedResources, RMapValue creator,
+			RMapStatementBag relatedStatements, RMapValue desc) 
 			throws RMapException {
 		ORMapDiSCO disco = new ORMapDiSCO(creator, aggregatedResources, desc, relatedStatements);
 		RMapEvent createEvent = 
@@ -251,7 +251,7 @@ public class ORMapService implements RMapService {
 	 */
 	public RMapEvent updateDiSCO(RMapAgent systemAgent, URI oldDiscoId,
 			List<URI> aggregatedResources, RMapStatementBag relatedStatements,
-			RMapResource creator, RMapResource desc) 
+			RMapValue creator, RMapValue desc) 
 			throws RMapException {
 		ORMapDiSCO disco = new ORMapDiSCO(creator, aggregatedResources, desc, 
 				relatedStatements);		

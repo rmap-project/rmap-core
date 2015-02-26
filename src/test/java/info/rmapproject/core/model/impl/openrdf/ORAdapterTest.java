@@ -5,8 +5,8 @@ import static org.junit.Assert.*;
 import info.rmapproject.core.idservice.IdServiceFactoryIOC;
 import info.rmapproject.core.model.RMapBlankNode;
 import info.rmapproject.core.model.RMapLiteral;
-import info.rmapproject.core.model.RMapNonLiteral;
 import info.rmapproject.core.model.RMapResource;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.RMapUri;
 
 import java.net.URI;
@@ -194,7 +194,7 @@ public class ORAdapterTest {
 			fail();
 		}
 		BNode bnode = ORAdapter.getValueFactory().createBNode(bnId);
-		RMapNonLiteral nonLit = null;
+		RMapResource nonLit = null;
 		try {
 			nonLit = ORAdapter.openRdfResource2NonLiteralResource(bnode);
 		} catch (IllegalArgumentException e) {
@@ -231,7 +231,7 @@ public class ORAdapterTest {
 	@Test
 	public void testOpenRdfValue2RMapResource() {
 		Value value = ORAdapter.getValueFactory().createLiteral("OpenRDF Literal");
-		RMapResource rmr = null;
+		RMapValue rmr = null;
 		try {
 			 rmr = ORAdapter.openRdfValue2RMapResource(value);
 		} catch (IllegalArgumentException e) {
