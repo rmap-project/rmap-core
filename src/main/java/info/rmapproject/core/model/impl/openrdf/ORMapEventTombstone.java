@@ -4,6 +4,7 @@
 package info.rmapproject.core.model.impl.openrdf;
 
 import org.openrdf.model.Model;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 
 import info.rmapproject.core.exception.RMapException;
@@ -21,7 +22,7 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 public class ORMapEventTombstone extends ORMapEvent implements
 		RMapEventTombstone {
 	
-	protected ORMapStatement tombstoned;
+	protected Statement tombstoned;
 
 	/**
 	 * @throws RMapException
@@ -31,11 +32,11 @@ public class ORMapEventTombstone extends ORMapEvent implements
 		this.makeEventTypeStatement(RMapEventType.TOMBSTONE);
 	}
 	
-	public ORMapEventTombstone(ORMapStatement eventTypeStmt, 
-			ORMapStatement eventTargetTypeStmt, ORMapStatement associatedAgentStmt,
-			ORMapStatement descriptionStmt, ORMapStatement startTimeStmt,  
-			ORMapStatement endTimeStmt, URI context, ORMapStatement typeStatement, 
-			ORMapStatement tombstoned) throws RMapException {
+	public ORMapEventTombstone(Statement eventTypeStmt, 
+			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
+			Statement descriptionStmt, Statement startTimeStmt,  
+			Statement endTimeStmt, URI context, Statement typeStatement, 
+			Statement tombstoned) throws RMapException {
 		
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
 				startTimeStmt, endTimeStmt,context,typeStatement);
@@ -84,7 +85,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model model = super.getAsModel();
-		model.add(tombstoned.rmapStmtStatement);
+		model.add(tombstoned);
 		return model;
 	}
 	/* (non-Javadoc)
@@ -93,7 +94,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	public RMapUri getTombstonedResourceId() throws RMapException {
 		RMapUri uri = null;
 		if (this.tombstoned!= null){
-			URI tUri = (URI) this.tombstoned.getRmapStmtObject();
+			URI tUri = (URI) this.tombstoned.getObject();
 			uri = ORAdapter.openRdfUri2RMapUri(tUri);
 		}
 		return uri;
@@ -102,7 +103,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	 * 
 	 * @return
 	 */
-	public ORMapStatement getTombstonedResourceStmt(){
+	public Statement getTombstonedResourceStmt(){
 		return this.tombstoned;
 	}
 
@@ -113,7 +114,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	 */
 	private void setTombstonedResourceId(RMapUri tombstonedResource) throws RMapException {
 		if (tombstonedResource != null){
-			ORMapStatement stmt = new ORMapStatement (this.context, RMAP.EVENT_TARGET_TOMBSTONED,
+			Statement stmt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_TARGET_TOMBSTONED,
 					ORAdapter.rMapUri2OpenRdfUri(tombstonedResource), this.context);
 			this.tombstoned = stmt;
 		}
@@ -125,7 +126,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	 */
 	private void setTombstonedResourceIdStmt(URI tombstonedResource) throws RMapException {
 		if (tombstonedResource != null){
-			ORMapStatement stmt = new ORMapStatement (this.context, RMAP.EVENT_TARGET_TOMBSTONED,
+			Statement stmt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_TARGET_TOMBSTONED,
 					tombstonedResource, this.context);
 			this.tombstoned = stmt;
 		}

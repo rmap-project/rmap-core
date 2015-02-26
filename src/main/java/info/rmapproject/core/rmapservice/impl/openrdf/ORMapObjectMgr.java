@@ -11,7 +11,6 @@ import org.openrdf.model.vocabulary.RDF;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
-import info.rmapproject.core.model.impl.openrdf.ORMapStatement;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
@@ -32,9 +31,9 @@ public abstract class ORMapObjectMgr {
 	 * @param stmt
 	 * @throws RMapException
 	 */
-	public void createTriple(SesameTriplestore ts, ORMapStatement stmt) throws RMapException {
+	public void createTriple(SesameTriplestore ts, Statement stmt) throws RMapException {
 		try {
-			ts.addStatement(stmt.getRmapStmtStatement());
+			ts.addStatement(stmt);
 		} catch (Exception e) {
 			throw new RMapException ("Exception thrown creating triple from ORMapStatement ", e);
 		}

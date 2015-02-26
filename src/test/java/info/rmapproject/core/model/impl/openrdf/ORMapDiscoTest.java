@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.openrdf.model.Literal;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 
@@ -67,9 +68,9 @@ public class ORMapDiscoTest {
 		ORMapDiSCO disco = new ORMapDiSCO();
 		URI r = vf.createURI("http://rmap-info.org");	
 		URI r2 = vf.createURI("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki");
-		ORMapStatement rStmt = new ORMapStatement(disco.discoContext, RMAP.AGGREGATES, r,disco.discoContext);
-		ORMapStatement rStmt2 = new ORMapStatement(disco.discoContext, RMAP.AGGREGATES, r2,disco.discoContext);
-		disco.aggregatedResources = new ArrayList<ORMapStatement>();
+		Statement rStmt = vf.createStatement(disco.discoContext, RMAP.AGGREGATES, r,disco.discoContext);
+		Statement rStmt2 = vf.createStatement(disco.discoContext, RMAP.AGGREGATES, r2,disco.discoContext);
+		disco.aggregatedResources = new ArrayList<Statement>();
 		disco.aggregatedResources.add(rStmt);
 		disco.aggregatedResources.add(rStmt2);
 		
@@ -78,13 +79,13 @@ public class ORMapDiscoTest {
 		URI c = vf.createURI("http://c.org");
 		URI d = vf.createURI("http://d.org");
 		
-		List<ORMapStatement> relatedStmts = new ArrayList<ORMapStatement>();
+		List<Statement> relatedStmts = new ArrayList<Statement>();
 		//predicates are nonsense here
 		// first test connected r->a r->b b->c b->d
-		ORMapStatement s1 = new ORMapStatement(r,RMAP.ACTIVE,a);
-		ORMapStatement s2 = new ORMapStatement(r,RMAP.ACTIVE,b);
-		ORMapStatement s3 = new ORMapStatement(b,RMAP.ACTIVE,c);
-		ORMapStatement s4 = new ORMapStatement(b,RMAP.ACTIVE,d);
+		Statement s1 = vf.createStatement(r,RMAP.ACTIVE,a);
+		Statement s2 = vf.createStatement(r,RMAP.ACTIVE,b);
+		Statement s3 = vf.createStatement(b,RMAP.ACTIVE,c);
+		Statement s4 = vf.createStatement(b,RMAP.ACTIVE,d);
 		relatedStmts.add(s1);
 		relatedStmts.add(s2);
 		relatedStmts.add(s3);
@@ -97,9 +98,9 @@ public class ORMapDiscoTest {
 		isConnected = disco.isConnectedGraph(relatedStmts);
 		assertFalse(isConnected);
 		// third test connected r->a  b->c r2->c c->b, handles cycle, duplicates
-		ORMapStatement s5 = new ORMapStatement(r2,RMAP.ACTIVE,c);
-		ORMapStatement s6 = new ORMapStatement(c,RMAP.ACTIVE,b);
-		ORMapStatement s7 = new ORMapStatement(c,RMAP.ACTIVE,b);
+		Statement s5 = vf.createStatement(r2,RMAP.ACTIVE,c);
+		Statement s6 = vf.createStatement(c,RMAP.ACTIVE,b);
+		Statement s7 = vf.createStatement(c,RMAP.ACTIVE,b);
 		relatedStmts.add(s6);
 		relatedStmts.add(s5);
 		relatedStmts.add(s7);
@@ -140,7 +141,7 @@ public class ORMapDiscoTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#getRelatedStatementsAsStatements()}.
+	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#getRelatedStatementsAsList()}.
 	 */
 	@Test
 	public void testGetRelatedStatementsAsStatements() {

@@ -16,8 +16,6 @@ import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.RMapServiceFactoryIOC;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
-
-import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -32,9 +30,10 @@ import org.openrdf.model.vocabulary.RDF;
  */
 public class ORMapStatement extends ORMapObject implements RMapStatement {
 
-
-	protected Statement rmapStmtStatement;
 	protected Statement typeStatement;
+	protected Statement subjectStatement;
+	protected Statement predicateStatement;
+	protected Statement objectStatement;
 
 	/**
 	 * @throws RMapException
@@ -43,133 +42,57 @@ public class ORMapStatement extends ORMapObject implements RMapStatement {
 		super();
 	}
 	/**
-	 * Construct ORMapStatement from RMap model objects
+	 * Instantiate ORMapStatement from reified statement triples
 	 * @param subject
 	 * @param predicate
 	 * @param object
 	 * @throws RMapException
 	 */
-	public ORMapStatement (RMapResource subject, RMapUri predicate, RMapValue object) 
-			throws RMapException {
+	public ORMapStatement(Statement subject, Statement predicate, Statement object)
+	throws RMapException {
 		this();
-		this.typeStatement = 
-				this.makeRmapStmtStatement(ORAdapter.uri2OpenRdfUri(this.getId()), RDF.TYPE, RMAP.STATEMENT, null);
-		this.rmapStmtStatement = this.makeRmapStmtStatement(
-				 ORAdapter.rMapNonLiteral2OpenRdfResource(subject), 
-				 ORAdapter.rMapUri2OpenRdfUri(predicate), 
-				 ORAdapter.rMapResource2OpenRdfValue(object), null);
-	}
-	/**
-	 * Construct ORMapStatement from RMap model objects
-	 * @param subject
-	 * @param predicate
-	 * @param object
-	 * @param uri context
-	 * @throws RMapException
-	 */
-	public ORMapStatement (RMapResource subject, RMapUri predicate, RMapValue object, RMapUri context) 
-			throws RMapException {
-		this();
-		this.rmapStmtStatement = this.makeRmapStmtStatement(
-				 ORAdapter.rMapNonLiteral2OpenRdfResource(subject), 
-				 ORAdapter.rMapUri2OpenRdfUri(predicate), 
-				 ORAdapter.rMapResource2OpenRdfValue(object), 
-				 ORAdapter.rMapUri2OpenRdfUri(context));
-	}
-	/**
-	 * Construct  ORMapStatement from org.openrdf.model.Statement
-	 * @param stmt
-	 * @throws RMapException
-	 */
-	public ORMapStatement(Statement stmt) throws RMapException {
-		this();
-		this.setRmapStmtStatement(stmt);
-	}
-	/**
-	 * 
-	 * @param rmapStmt
-	 * @throws RMapException
-	 */
-	public ORMapStatement(RMapStatement rmapStmt) throws RMapException {
-		this();
-		if (rmapStmt instanceof ORMapStatement){
-			this.setId(rmapStmt.getId());
-			this.rmapStmtStatement = ((ORMapStatement)rmapStmt).rmapStmtStatement;			
+		if (subject==null || predicate==null || object==null){
+			throw new RMapException("Null statement object passed as parameter");
 		}
-		else {
-			this.rmapStmtStatement = this.makeRmapStmtStatement(
-					 ORAdapter.rMapNonLiteral2OpenRdfResource(rmapStmt.getSubject()), 
-					 ORAdapter.rMapUri2OpenRdfUri(rmapStmt.getPredicate()), 
-					 ORAdapter.rMapResource2OpenRdfValue(rmapStmt.getObject()), 
-					 null);
+		// all Statements should have same subject, which is id of statement
+		if (!(subject.getSubject().equals(predicate.getSubject()) &&
+				predicate.getSubject().equals(object.getSubject()))){
+			throw new RMapException("Statements do not have same ID");
 		}
+		if (!(subject.getContext().equals(predicate.getContext()) &&
+				predicate.getContext().equals(object.getContext()))){
+			throw new RMapException("Statements do not have same Context");
+		}
+		if (!(subject.getObject() instanceof Resource)){
+			throw new RMapException("subject value is not a resource");
+		}
+		if (!(predicate.getObject() instanceof URI)){
+			throw new RMapException("predicate value is not a URI");
+		}
+		Resource subjId = subject.getSubject();
+		if (!(subjId instanceof URI)){
+			throw new RMapException ("Statement has non-URI id");
+		}
+		this.id = ORAdapter.openRdfUri2URI((URI)subject.getSubject());
+		this.subjectStatement = subject;
+		this.predicateStatement = predicate;
+		this.objectStatement = object;
+		this.typeStatement = this.getValueFactory().createStatement(subjId, 
+				RDF.TYPE, RMAP.STATEMENT, subject.getContext());
+			
 	}
-	/**
-	 * Construct ORMapStatement from org.openrdf.model subject, predicate, and (String) object
-	 * @param rmapStmtSubject
-	 * @param rmapStmtPredicate
-	 * @param rmapStmtObject
-	 * @throws RMapException
-	 */
-	public ORMapStatement(Resource rmapStmtSubject, URI rmapStmtPredicate, 
-			String rmapStmtObject) throws RMapException {
-		this();
-		Literal literal = ORAdapter.getValueFactory().createLiteral(rmapStmtObject);
-		this.rmapStmtStatement = this.makeRmapStmtStatement(rmapStmtSubject,rmapStmtPredicate,literal,null);
-	}
-	/**
-	 * Construct ORMapStatement from org.openrdf.model subject, predicate, and (Value) object
-	 * @param rmapStmtSubject
-	 * @param rmapStmtPredicate
-	 * @param rmapStmtObject
-	 * @throws RMapException
-	 */
-	public ORMapStatement(Resource rmapStmtSubject, URI rmapStmtPredicate, 
-			Value rmapStmtObject) throws RMapException {
-		this();
-		this.rmapStmtStatement = this.makeRmapStmtStatement(rmapStmtSubject,rmapStmtPredicate,rmapStmtObject,null);
-	}
-	/**
-	 * Construct ORMapStatement from org.openrdf.model subject, predicate, (String) object, and context
-	 * @param rmapStmtSubject
-	 * @param rmapStmtPredicate
-	 * @param rmapStmtObject
-	 * @param rmapStmtContext
-	 * @throws RMapException
-	 */
-	public ORMapStatement(Resource rmapStmtSubject, URI rmapStmtPredicate, 
-			String rmapStmtObject, URI rmapStmtContext) throws RMapException {
-		this();
-		Literal literal = ORAdapter.getValueFactory().createLiteral(rmapStmtObject);
-		this.rmapStmtStatement = this.makeRmapStmtStatement(rmapStmtSubject,rmapStmtPredicate,
-				literal,rmapStmtContext);
-	}
-	/**
-	 * Construct ORMapStatement from org.openrdf.model subject, predicate, (Value) object, and context
-	 * @param rmapStmtSubject
-	 * @param rmapStmtPredicate
-	 * @param rmapStmtObject
-	 * @param rmapStmtContext
-	 * @throws RMapException
-	 */
-	public ORMapStatement(Resource rmapStmtSubject, URI rmapStmtPredicate, 
-			Value rmapStmtObject, URI rmapStmtContext) throws RMapException {
-		this();
-		this.rmapStmtStatement = this.makeRmapStmtStatement(rmapStmtSubject,rmapStmtPredicate,
-				rmapStmtObject,rmapStmtContext);
-	}
-
-	
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapStatement#getSubject()
 	 */
 	public RMapResource getSubject() {
 		RMapResource subject = null;
+		Value value = this.subjectStatement.getObject();
+		Resource rValue = (Resource)value;
 		try {
-			subject = ORAdapter.openRdfResource2NonLiteralResource(
-					this.rmapStmtStatement.getSubject());
+			subject = ORAdapter.openRdfResource2NonLiteral(rValue);
+		} catch (IllegalArgumentException | URISyntaxException e) {
+			throw new RMapException(e);
 		}
-		catch (Exception e){}
 		return subject;
 	}
 
@@ -178,11 +101,9 @@ public class ORMapStatement extends ORMapObject implements RMapStatement {
 	 */
 	public RMapUri getPredicate() {
 		RMapUri predicate = null;
-		try {
-			predicate = ORAdapter.openRdfUri2RMapUri(
-					this.rmapStmtStatement.getPredicate());
-		}
-		catch (Exception e){}
+		Value value = this.predicateStatement.getObject();
+		URI uValue = (URI)value;
+		predicate = ORAdapter.openRdfUri2RMapUri(uValue);
 		return predicate;
 	}
 
@@ -192,10 +113,12 @@ public class ORMapStatement extends ORMapObject implements RMapStatement {
 	public RMapValue getObject() {
 		RMapValue object = null;
 		try {
-			object = ORAdapter.openRdfValue2RMapResource(
-					this.rmapStmtStatement.getObject());
+			object = ORAdapter.openRdfValue2RMapValue(
+					this.objectStatement.getObject());
 		}
-		catch (Exception e){}
+		catch (IllegalArgumentException | URISyntaxException e){
+			throw new RMapException(e);
+		}
 		return object;
 	}
 
@@ -217,83 +140,36 @@ public class ORMapStatement extends ORMapObject implements RMapStatement {
 		return eventids;
 	}
 	
-	
-	/**
-	 * Construct org.openrdf.model.Statement from subject, predicate, object, and context
-	 * @param rmapStmtSubject
-	 * @param rmapStmtPredicate
-	 * @param rmapStmtObject
-	 * @param rmapStmtContext
-	 * @return
-	 * @throws Exception
-	 */
-	protected Statement makeRmapStmtStatement(Resource rmapStmtSubject,
-			URI rmapStmtPredicate, Value rmapStmtObject, Resource rmapStmtContext) 
-					throws RMapException {
-		if (rmapStmtSubject==null){
-			throw new RMapException (new IllegalArgumentException("Null Statement Subject"));
-		}
-		if (rmapStmtPredicate==null){
-			throw new RMapException (new IllegalArgumentException("Null Statement Predicate"));
-		}
-		if (rmapStmtObject==null){
-			throw new RMapException (new IllegalArgumentException("Null StatementOobject"));
-		}
-		Statement rmapStmtStatement = ORAdapter.getValueFactory().createStatement(
-					rmapStmtSubject, rmapStmtPredicate, rmapStmtObject, rmapStmtContext);
-		return rmapStmtStatement;
-	}
-	/**
-	 * @return the rmapStmtSubject
-	 */
-	public Resource getRmapStmtSubject() {
-		return this.rmapStmtStatement.getSubject();
-	}
-	/**
-	 * @return the rmapStmtPredicate
-	 */
-	public URI getRmapStmtPredicate() {
-		return this.rmapStmtStatement.getPredicate();
-	}
-	/**
-	 * @return the rmapStmtObject
-	 */
-	public Value getRmapStmtObject() {
-		return this.rmapStmtStatement.getObject();
-	}
-	/**
-	 * @return the rmapStmtContext
-	 */
-	public Resource getRmapStmtContext() {	
-		return this.rmapStmtStatement.getContext();
-	}
-	/**
-	 * Accessor 
-	 * @return
-	 */
-	public Statement getRmapStmtStatement() {
-		return rmapStmtStatement;
-	}
-	/**
-	 * Set Statement object.  If Statement's context is not null, then set this ORMapStatement's id to the context
-	 * @param statement
-	 * @throws URISyntaxException
-	 */
-	public void setRmapStmtStatement(Statement statement) throws RMapException {
-		this.rmapStmtStatement = statement;
-		if ((statement.getContext() != null) && 
-				(statement.getContext() instanceof URI)){
-			URI context = (URI)statement.getContext();
-			java.net.URI uri = ORAdapter.openRdfUri2URI(context);
-			this.setId(uri);
-		}
-	}
+
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model stmtModel = new LinkedHashModel();
 		stmtModel.add(typeStatement);
-		stmtModel.add(rmapStmtStatement.getSubject(), rmapStmtStatement.getPredicate(), rmapStmtStatement.getObject());
+		stmtModel.add(subjectStatement);
+		stmtModel.add(predicateStatement);
+		stmtModel.add(objectStatement);
 		return stmtModel;
+	}
+
+	/**
+	 * @return the subjectStatement
+	 */
+	public Statement getSubjectStatement() {
+		return subjectStatement;
+	}
+
+	/**
+	 * @return the predicateStatement
+	 */
+	public Statement getPredicateStatement() {
+		return predicateStatement;
+	}
+
+	/**
+	 * @return the objectStatement
+	 */
+	public Statement getObjectStatement() {
+		return objectStatement;
 	}
 
 }

@@ -153,7 +153,7 @@ public class ORMapService implements RMapService {
 			RMapValue object) throws RMapException {
 		Resource orSubject = ORAdapter.rMapNonLiteral2OpenRdfResource(subject);
 		org.openrdf.model.URI orPredicate = ORAdapter.rMapUri2OpenRdfUri(predicate);
-		Value orValue = ORAdapter.rMapResource2OpenRdfValue(object);
+		Value orValue = ORAdapter.rMapValue2OpenRdfValue(object);
 		org.openrdf.model.URI id = this.stmtmgr.getStatementID(orSubject, orPredicate, orValue, ts);
 		return ORAdapter.openRdfUri2RMapUri(id).getIri();
 	}
@@ -461,6 +461,41 @@ public class ORMapService implements RMapService {
 	public RMapAgent readAgent(URI agentID) throws RMapException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	/**
+	 * @return the resourcemgr
+	 */
+	public ORMapResourceMgr getResourcemgr() {
+		return resourcemgr;
+	}
+
+	/**
+	 * @return the stmtmgr
+	 */
+	public ORMapStatementMgr getStmtmgr() {
+		return stmtmgr;
+	}
+
+	/**
+	 * @return the discomgr
+	 */
+	public ORMapDiSCOMgr getDiscomgr() {
+		return discomgr;
+	}
+
+	/**
+	 * @return the eventmgr
+	 */
+	public ORMapEventMgr getEventmgr() {
+		return eventmgr;
+	}
+
+	/**
+	 * @return the ts
+	 */
+	public SesameTriplestore getTriplestore() {
+		return ts;
 	}
 
 

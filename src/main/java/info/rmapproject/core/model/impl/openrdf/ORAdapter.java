@@ -142,7 +142,7 @@ public class ORAdapter {
 		return literal;
 	}
 	
-	public static Value rMapResource2OpenRdfValue (RMapValue resource) throws RMapException {
+	public static Value rMapValue2OpenRdfValue (RMapValue resource) throws RMapException {
 		Value value = null;
 		if (resource==null){
 			throw new IllegalArgumentException ("Null RMapLiteral");
@@ -208,7 +208,7 @@ public class ORAdapter {
 	 * @throws IllegalArgumentException
 	 * @throws URISyntaxException
 	 */
-	public static RMapResource openRdfResource2NonLiteralResource(Resource resource)
+	public static RMapResource openRdfResource2NonLiteral(Resource resource)
 	throws IllegalArgumentException, URISyntaxException {
 		RMapResource nlResource = null;
 		if (resource==null){
@@ -244,7 +244,7 @@ public class ORAdapter {
 	 * @throws URISyntaxException
 	 * @throws IllegalArgumentException
 	 */
-	public static RMapValue openRdfValue2RMapResource (Value value) 
+	public static RMapValue openRdfValue2RMapValue (Value value) 
 			throws URISyntaxException, IllegalArgumentException{
 		RMapValue resource = null;
 		if (value==null){

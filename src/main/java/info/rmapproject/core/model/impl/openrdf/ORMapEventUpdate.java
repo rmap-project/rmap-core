@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.openrdf.model.Model;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 
 import info.rmapproject.core.exception.RMapException;
@@ -24,10 +25,10 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
  *
  */
 public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
-	protected List<ORMapStatement> createdObjects;
-	protected ORMapStatement targetObjectStatement;
-	protected ORMapStatement derivationStatement;
-	protected ORMapStatement inactivatedObjectStatement;
+	protected List<Statement> createdObjects;
+	protected Statement targetObjectStatement;
+	protected Statement derivationStatement;
+	protected Statement inactivatedObjectStatement;
 
 	/**
 	 * @throws RMapException
@@ -36,12 +37,12 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 		super();
 		this.makeEventTypeStatement(RMapEventType.UPDATE);
 	}
-	public ORMapEventUpdate(ORMapStatement eventTypeStmt, ORMapStatement eventTargetTypeStmt, 
-			ORMapStatement associatedAgentStmt,  ORMapStatement descriptionStmt, 
-			ORMapStatement startTimeStmt,  ORMapStatement endTimeStmt, URI context, 
-			ORMapStatement typeStatement, List<ORMapStatement> createdObjects,
-			ORMapStatement targetObjectStatement,ORMapStatement derivationStatement,
-			ORMapStatement inactivatedObjectStatement) 
+	public ORMapEventUpdate(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
+			Statement associatedAgentStmt,  Statement descriptionStmt, 
+			Statement startTimeStmt,  Statement endTimeStmt, URI context, 
+			Statement typeStatement, List<Statement> createdObjects,
+			Statement targetObjectStatement,Statement derivationStatement,
+			Statement inactivatedObjectStatement) 
 	throws RMapException {
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
 				startTimeStmt, endTimeStmt,context,typeStatement);
@@ -94,17 +95,17 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model model = super.getAsModel();
-		model.add(targetObjectStatement.rmapStmtStatement);
+		model.add(targetObjectStatement);
 		if (createdObjects != null){
-			for (ORMapStatement stmt: createdObjects){
-				model.add(stmt.rmapStmtStatement);
+			for (Statement stmt: createdObjects){
+				model.add(stmt);
 			}
 		}
 		if (inactivatedObjectStatement != null){
-			model.add(inactivatedObjectStatement.rmapStmtStatement);
+			model.add(inactivatedObjectStatement);
 		}
 		if (derivationStatement != null){
-			model.add(derivationStatement.rmapStmtStatement);
+			model.add(derivationStatement);
 		}
 		return model;
 	}
@@ -116,8 +117,8 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 		List<RMapUri> uris = null;
 		if (this.createdObjects != null){
 			uris = new ArrayList<RMapUri>();
-			for (ORMapStatement stmt:this.createdObjects){
-				URI idURI = (URI) stmt.getRmapStmtObject();
+			for (Statement stmt:this.createdObjects){
+				URI idURI = (URI) stmt.getObject();
 				RMapUri rid = ORAdapter.openRdfUri2RMapUri(idURI);
 				uris.add(rid);
 			}
@@ -128,7 +129,7 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 	 * 
 	 * @return
 	 */
-	public List<ORMapStatement> getCreatedObjectStatements() {
+	public List<Statement> getCreatedObjectStatements() {
 		return this.createdObjects;
 	}
 
@@ -136,12 +137,12 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 	 * @see info.rmapproject.core.model.RMapEventUpdate#setCreatedObjectIds(java.util.List)
 	 */
 	public void setCreatedObjectIds(List<RMapUri> createdObjects) throws RMapException {
-		List<ORMapStatement> stmts = null;
+		List<Statement> stmts = null;
 		if (createdObjects != null){
-			stmts = new ArrayList<ORMapStatement>();
+			stmts = new ArrayList<Statement>();
 			for (RMapUri rUri:createdObjects){
 				URI id = ORAdapter.rMapUri2OpenRdfUri(rUri);
-				ORMapStatement stmt = new ORMapStatement(this.context, PROV.GENERATED, id, this.context);
+				Statement stmt = this.getValueFactory().createStatement(this.context, PROV.GENERATED, id, this.context);
 				stmts.add(stmt);
 			}
 			this.createdObjects = stmts;
@@ -153,11 +154,11 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 	 * @param createdObjects
 	 */
 	public void setCreatedObjectIdsFromURI(Set<URI> createdObjects) {
-		List<ORMapStatement> stmts = null;
+		List<Statement> stmts = null;
 		if (createdObjects != null){
-			stmts = new ArrayList<ORMapStatement>();
+			stmts = new ArrayList<Statement>();
 			for (URI id:createdObjects){
-				ORMapStatement stmt = new ORMapStatement(this.context, PROV.GENERATED, id, 
+				Statement stmt = this.getValueFactory().createStatement(this.context, PROV.GENERATED, id, 
 						this.context);
 				stmts.add(stmt);
 			}
@@ -171,7 +172,7 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 	public RMapUri getTargetObjectId() throws RMapException {
 		RMapUri rid = null;
 		if (this.derivationStatement!= null){
-			URI uri = (URI) this.derivationStatement.getRmapStmtObject();
+			URI uri = (URI) this.derivationStatement.getObject();
 			rid = ORAdapter.openRdfUri2RMapUri(uri);
 		}
 		return rid;
@@ -180,7 +181,7 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 	 * 
 	 * @return
 	 */
-	public ORMapStatement getTargetObjectStmt() {
+	public Statement getTargetObjectStmt() {
 		return this.targetObjectStatement;
 	}
 	/* (non-Javadoc)
@@ -188,7 +189,7 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 	 */
 	public void setTargetObjectId(RMapUri targetObject) throws RMapException {
 		if (targetObject != null){
-			ORMapStatement stmt = new ORMapStatement (this.context, RMAP.EVENT_TARGET,
+			Statement stmt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_TARGET,
 					ORAdapter.rMapUri2OpenRdfUri(targetObject), this.context);
 			this.targetObjectStatement = stmt;
 		}
@@ -200,7 +201,7 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 	public RMapUri getDerivedObjectId() throws RMapException {
 		RMapUri rid = null;
 		if (this.derivationStatement!= null){
-			URI uri = (URI) this.derivationStatement.getRmapStmtObject();
+			URI uri = (URI) this.derivationStatement.getObject();
 			rid = ORAdapter.openRdfUri2RMapUri(uri);
 		}
 		return rid;
@@ -209,7 +210,7 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 	 * 
 	 * @return
 	 */
-	public ORMapStatement getDerivationStmt (){
+	public Statement getDerivationStmt (){
 		return this.derivationStatement;
 	}
 	/* (non-Javadoc)
@@ -222,8 +223,8 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 		if (derivedObject==null){
 			throw new RMapException("Derived object id is null");
 		}
-		ORMapStatement stmt = new ORMapStatement (this.context, RMAP.EVENT_NEW_OBJECT_DERIVATION_SOURCE,
-				this.targetObjectStatement.getRmapStmtObject(), this.context);
+		Statement stmt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_NEW_OBJECT_DERIVATION_SOURCE,
+				this.targetObjectStatement.getObject(), this.context);
 		this.derivationStatement = stmt;
 	}
 
@@ -232,7 +233,7 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 	 */
 	public void inactivateTarget() throws RMapException {
 			URI targetUri = (URI)this.targetObjectStatement.getObject();
-			ORMapStatement stmt = new ORMapStatement(this.context, RMAP.EVENT_TARGET_INACTIVATED,
+			Statement stmt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_TARGET_INACTIVATED,
 					targetUri, this.context);
 			this.inactivatedObjectStatement = stmt;
 	}
@@ -248,7 +249,7 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 	 * 
 	 * @return
 	 */
-	public ORMapStatement getInactivatedObjectStmt() {
+	public Statement getInactivatedObjectStmt() {
 		return this.inactivatedObjectStatement;
 	}
 	
@@ -259,7 +260,7 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 	 */
 	protected void setTargetObjectStmt(URI targetObject) throws RMapException {
 		if (targetObject != null){
-			ORMapStatement stmt = new ORMapStatement (this.context, RMAP.EVENT_TARGET,
+			Statement stmt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_TARGET,
 					targetObject, this.context);
 			this.targetObjectStatement = stmt;
 		}

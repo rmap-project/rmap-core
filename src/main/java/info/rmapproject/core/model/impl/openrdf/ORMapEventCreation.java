@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.openrdf.model.Model;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 
 import info.rmapproject.core.exception.RMapException;
@@ -24,7 +25,7 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
  */
 public class ORMapEventCreation extends ORMapEvent implements RMapEventCreation {
 
-	List<ORMapStatement> createdObjects;
+	List<Statement> createdObjects;
 	/**
 	 * @throws RMapException
 	 */
@@ -67,10 +68,10 @@ public class ORMapEventCreation extends ORMapEvent implements RMapEventCreation 
 	 * @param createdObjects
 	 * @throws RMapException
 	 */
-	public ORMapEventCreation(ORMapStatement eventTypeStmt, ORMapStatement eventTargetTypeStmt, 
-			ORMapStatement associatedAgentStmt,  ORMapStatement descriptionStmt, 
-			ORMapStatement startTimeStmt,  ORMapStatement endTimeStmt, URI context, 
-			ORMapStatement typeStatement, List<ORMapStatement> createdObjects) 
+	public ORMapEventCreation(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
+			Statement associatedAgentStmt,  Statement descriptionStmt, 
+			Statement startTimeStmt,  Statement endTimeStmt, URI context, 
+			Statement typeStatement, List<Statement> createdObjects) 
 					throws RMapException {
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
 				startTimeStmt, endTimeStmt,context,typeStatement);
@@ -101,8 +102,8 @@ public class ORMapEventCreation extends ORMapEvent implements RMapEventCreation 
 	public Model getAsModel() throws RMapException {
 		Model model = super.getAsModel();
 		if (createdObjects != null){
-			for (ORMapStatement stmt: createdObjects){
-				model.add(stmt.rmapStmtStatement);
+			for (Statement stmt: createdObjects){
+				model.add(stmt);
 			}
 		}
 		return model;
@@ -115,8 +116,8 @@ public class ORMapEventCreation extends ORMapEvent implements RMapEventCreation 
 		List<RMapUri> uris = null;
 		if (this.createdObjects != null){
 			uris = new ArrayList<RMapUri>();
-			for (ORMapStatement stmt:this.createdObjects){
-				URI idURI = (URI) stmt.getRmapStmtObject();
+			for (Statement stmt:this.createdObjects){
+				URI idURI = (URI) stmt.getObject();
 				RMapUri rid = ORAdapter.openRdfUri2RMapUri(idURI);
 				uris.add(rid);
 			}
@@ -127,19 +128,19 @@ public class ORMapEventCreation extends ORMapEvent implements RMapEventCreation 
 	 * 
 	 * @return
 	 */
-	public List<ORMapStatement> getCreatedObjectStatements(){
+	public List<Statement> getCreatedObjectStatements(){
 		return this.createdObjects;
 	}
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEventCreation#setCreatedObjectIds(java.util.List)
 	 */
 	public void setCreatedObjectIds(List<RMapUri> createdObjects) throws RMapException {
-		List<ORMapStatement> stmts = null;
+		List<Statement> stmts = null;
 		if (createdObjects != null){
-			stmts = new ArrayList<ORMapStatement>();
+			stmts = new ArrayList<Statement>();
 			for (RMapUri rUri:createdObjects){
 				URI id = ORAdapter.rMapUri2OpenRdfUri(rUri);
-				ORMapStatement stmt = new ORMapStatement(this.context, PROV.GENERATED, id, this.context);
+				Statement stmt = this.getValueFactory().createStatement(this.context, PROV.GENERATED, id, this.context);
 				stmts.add(stmt);
 			}
 			this.createdObjects = stmts;
@@ -151,11 +152,11 @@ public class ORMapEventCreation extends ORMapEvent implements RMapEventCreation 
 	 * @throws RMapException
 	 */
 	public void setCreatedObjectIdsFromURI (Set<URI> createdObjects) throws RMapException {
-		List<ORMapStatement> stmts = null;
+		List<Statement> stmts = null;
 		if (createdObjects != null){
-			stmts = new ArrayList<ORMapStatement>();
+			stmts = new ArrayList<Statement>();
 			for (URI id:createdObjects){
-				ORMapStatement stmt = new ORMapStatement(this.context, PROV.GENERATED, id, 
+				Statement stmt = this.getValueFactory().createStatement(this.context, PROV.GENERATED, id, 
 						this.context);
 				stmts.add(stmt);
 			}

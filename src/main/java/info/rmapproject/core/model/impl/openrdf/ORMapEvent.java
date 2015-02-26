@@ -3,11 +3,15 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
+import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.Date;
 
+import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.RDF;
@@ -27,19 +31,19 @@ import info.rmapproject.core.utils.DateUtils;
  *
  */
 public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
-	protected ORMapStatement eventTypeStmt;  // will be set by constructor of concrete Event class
-	protected ORMapStatement eventTargetTypeStmt;
-	protected ORMapStatement associatedAgentStmt; // must be non-null and set by constructor
-	protected ORMapStatement descriptionStmt;
-	protected ORMapStatement startTimeStmt;  // set by constructor
-	protected ORMapStatement endTimeStmt;
+	protected Statement eventTypeStmt;  // will be set by constructor of concrete Event class
+	protected Statement eventTargetTypeStmt;
+	protected Statement associatedAgentStmt; // must be non-null and set by constructor
+	protected Statement descriptionStmt;
+	protected Statement startTimeStmt;  // set by constructor
+	protected Statement endTimeStmt;
 	protected URI context;
-	protected ORMapStatement typeStatement;
+	protected Statement typeStatement;
    
-	protected  ORMapEvent(ORMapStatement eventTypeStmt, ORMapStatement eventTargetTypeStmt, 
-			ORMapStatement associatedAgentStmt,  ORMapStatement descriptionStmt, 
-			ORMapStatement startTimeStmt,  ORMapStatement endTimeStmt, URI context, 
-			ORMapStatement typeStatement) throws RMapException {
+	protected  ORMapEvent(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
+			Statement associatedAgentStmt,  Statement descriptionStmt, 
+			Statement startTimeStmt,  Statement endTimeStmt, URI context, 
+			Statement typeStatement) throws RMapException {
 		super();
 		this.context = context;
 		this.id = ORAdapter.openRdfUri2URI(this.context);
@@ -60,11 +64,12 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		this.context = ORAdapter.uri2OpenRdfUri(this.getId());
 		Date date = new Date();
 		String dateString = DateUtils.getIsoStringDate(date);
-		ORMapStatement startTime = new ORMapStatement(this.context, PROV.STARTEDATTIME, 
-				dateString, this.context);
+		Literal dateLiteral = this.getValueFactory().createLiteral(dateString);
+		Statement startTime = this.getValueFactory().createStatement(this.context, PROV.STARTEDATTIME, 
+				dateLiteral, this.context);
 		this.startTimeStmt = startTime;
 		this.typeStatement = 
-				new ORMapStatement(this.context,RDF.TYPE,RMAP.EVENT,this.context);
+				this.getValueFactory().createStatement(this.context,RDF.TYPE,RMAP.EVENT,this.context);
 	}
 	/**
 	 * 
@@ -80,10 +85,11 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		if (targetType==null){
 			throw new RMapException("Null target type not allowed in RMapEvent");
 		}
-		ORMapStatement agent = new ORMapStatement(this.context, PROV.WASASSOCIATEDWITH, 
+		Statement agent = this.getValueFactory().createStatement(this.context, PROV.WASASSOCIATEDWITH, 
 				ORAdapter.rMapUri2OpenRdfUri(associatedAgent), this.context);
 		this.associatedAgentStmt=agent;
-		ORMapStatement tt = new ORMapStatement(this.context, RMAP.EVENT_TARGET_TYPE, targetType.uriString(),
+		Statement tt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_TARGET_TYPE, 
+				this.getValueFactory().createLiteral(targetType.uriString()),
 				this.context);
 		this.eventTargetTypeStmt = tt;
 	}
@@ -102,10 +108,11 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		if (targetType==null){
 			throw new RMapException("Null target type not allowed in RMapEvent");
 		}
-		ORMapStatement agent = new ORMapStatement(this.context, PROV.WASASSOCIATEDWITH, 
+		Statement agent = this.getValueFactory().createStatement(this.context, PROV.WASASSOCIATEDWITH, 
 				associatedAgent, this.context);
 		this.associatedAgentStmt=agent;
-		ORMapStatement tt = new ORMapStatement(this.context, RMAP.EVENT_TARGET_TYPE, targetType.uriString(),
+		Statement tt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_TARGET_TYPE, 
+				this.getValueFactory().createLiteral(targetType.uriString()),
 				this.context);
 		this.eventTargetTypeStmt = tt;
 	}
@@ -121,8 +128,9 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 			throws RMapException {
 		this(associatedAgent, targetType);
 		if (desc != null){
-			ORMapStatement descSt = new ORMapStatement(this.context, DC.DESCRIPTION,
-					ORAdapter.rMapResource2OpenRdfValue(desc), this.context);
+			Statement descSt = this.getValueFactory().createStatement(this.context, 
+					DC.DESCRIPTION,
+					ORAdapter.rMapValue2OpenRdfValue(desc), this.context);
 			this.descriptionStmt = descSt;
 		}
 	}	
@@ -133,11 +141,11 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @return
 	 * @throws RMapException
 	 */
-	protected ORMapStatement makeEventTypeStatement (RMapEventType eventType) 
+	protected Statement makeEventTypeStatement (RMapEventType eventType) 
 			throws RMapException{
-		ORMapStatement et = null;
-		et = new ORMapStatement(context, RMAP.EVENT_TYPE, 
-				eventType.getTypeString(),context);
+		Statement et = null;
+		et = this.getValueFactory().createStatement(context, RMAP.EVENT_TYPE, 
+				this.getValueFactory().createLiteral(eventType.getTypeString()),context);
 		return et;
 	}
 	
@@ -145,28 +153,28 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @see info.rmapproject.core.model.RMapEvent#getEventType()
 	 */
 	public RMapEventType getEventType() throws RMapException {
-		String et = this.eventTypeStmt.getRmapStmtObject().stringValue();
+		String et = this.eventTypeStmt.getObject().stringValue();
 		return RMapEventType.getEventTypeFromString(et);
 	}
 	/**
 	 * 
 	 * @return
 	 */
-	public ORMapStatement getEventTypeStmt() {
+	public Statement getEventTypeStmt() {
 		return this.eventTypeStmt;
 	}
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEvent#getEventTargetType()
 	 */
 	public RMapEventTargetType getEventTargetType() throws RMapException {
-		String tt = this.eventTargetTypeStmt.getRmapStmtObject().stringValue();
+		String tt = this.eventTargetTypeStmt.getObject().stringValue();
 		return RMapEventTargetType.getTargetTypeFromString(tt);
 	}
 	/**
 	 * 
 	 * @return
 	 */
-	public ORMapStatement getEventTargetTypeStmt(){
+	public Statement getEventTargetTypeStmt(){
 		return this.eventTargetTypeStmt;
 	}
 
@@ -182,7 +190,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * 
 	 * @return
 	 */
-	public ORMapStatement getAssociatedAgentStmt() {
+	public Statement getAssociatedAgentStmt() {
 		return this.associatedAgentStmt;
 	}
 
@@ -192,7 +200,12 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	public RMapValue getDescription() throws RMapException {
 		RMapValue rResource= null;
 		if (this.descriptionStmt!= null){
-				rResource = this.descriptionStmt.getObject();
+				Value value = this.descriptionStmt.getObject();
+				try {
+					rResource = ORAdapter.openRdfValue2RMapValue(value);
+				} catch (IllegalArgumentException | URISyntaxException e) {
+					throw new RMapException(e);
+				}
 		}
 		return rResource;
 	}
@@ -200,7 +213,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * 
 	 * @return
 	 */
-	public ORMapStatement getDescriptionStmt() {
+	public Statement getDescriptionStmt() {
 		return this.descriptionStmt;
 	}
 
@@ -209,7 +222,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 */
 	public Date getStartTime() throws RMapException {
 		Date finalResult = null;
-		String timeStr = this.startTimeStmt.getRmapStmtObject().stringValue();
+		String timeStr = this.startTimeStmt.getObject().stringValue();
 		try {
 			finalResult =  DateUtils.getDateFromIsoString(timeStr);
 		} catch (ParseException e){
@@ -221,7 +234,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * 
 	 * @return
 	 */
-	public ORMapStatement getStartTypeStmt(){
+	public Statement getStartTypeStmt(){
 		return this.startTimeStmt;
 	}
 	/* (non-Javadoc)
@@ -229,7 +242,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 */
 	public Date getEndTime() throws RMapException {
 		Date finalResult = null;
-		String timeStr = this.endTimeStmt.getRmapStmtObject().stringValue();
+		String timeStr = this.endTimeStmt.getObject().stringValue();
 		try {
 			finalResult = DateUtils.getDateFromIsoString(timeStr);
 		} catch (ParseException e){
@@ -241,7 +254,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * 
 	 * @return
 	 */
-	public ORMapStatement getEndTimeStmt(){
+	public Statement getEndTimeStmt(){
 		return this.endTimeStmt;
 	}
 
@@ -250,20 +263,21 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 */
 	public void setEndTime(Date endTime) throws RMapException {
 		String dateString = null;
+		Literal dateLiteral = this.getValueFactory().createLiteral(dateString);
 		try {
 			dateString = DateUtils.getIsoStringDate(endTime);
 		}
 		catch (Exception e){
 			throw new RMapException(e);
 		}
-		ORMapStatement endTimeStmt = new ORMapStatement(this.context, PROV.ENDEDATTIME, 
-				dateString, this.context);
+		Statement endTimeStmt = this.getValueFactory().createStatement(this.context, PROV.ENDEDATTIME, 
+				dateLiteral, this.context);
 		this.endTimeStmt = endTimeStmt;
 	}
 	/**
 	 * @return the typeStatement
 	 */
-	public ORMapStatement getTypeStatement() {
+	public Statement getTypeStatement() {
 		return typeStatement;
 	}
 
@@ -277,14 +291,14 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model eventModel = new LinkedHashModel();
-		eventModel.add(typeStatement.rmapStmtStatement);
-		eventModel.add(associatedAgentStmt.rmapStmtStatement);
-		eventModel.add(eventTypeStmt.rmapStmtStatement);
-		eventModel.add(eventTargetTypeStmt.rmapStmtStatement);
-		eventModel.add(startTimeStmt.rmapStmtStatement);
-		eventModel.add(endTimeStmt.rmapStmtStatement);
+		eventModel.add(typeStatement);
+		eventModel.add(associatedAgentStmt);
+		eventModel.add(eventTypeStmt);
+		eventModel.add(eventTargetTypeStmt);
+		eventModel.add(startTimeStmt);
+		eventModel.add(endTimeStmt);
 		if (descriptionStmt != null){
-			eventModel.add(descriptionStmt.rmapStmtStatement);
+			eventModel.add(descriptionStmt);
 		}
 		return eventModel;
 	}

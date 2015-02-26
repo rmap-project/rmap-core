@@ -2,6 +2,7 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
+import info.rmapproject.core.idservice.IdServiceFactoryIOC;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapStatement;
@@ -61,24 +62,23 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	 * @return Resource URi of the reified statement corresponding to this triple
 	 * @throws Exception
 	 */
-	public URI createStatement(ORMapStatement rmapStatement, SesameTriplestore ts) 
+	public URI createStatement(Statement rmapStatement, SesameTriplestore ts) 
 			throws RMapException {	
 		if (rmapStatement == null){
 			throw new RMapException("Null RMapStatement");
 		}
-		Resource context = rmapStatement.getRmapStmtContext();
+		Resource context = rmapStatement.getContext();
 		if (context==null){
 			// Statements should be coming in here with DiSCO id as context
 			throw new RMapException("Null Context in ORMapStatement");
 		}
-		URI stmtURI = this.getStatementID(rmapStatement.getRmapStmtSubject(), 
-				rmapStatement.getRmapStmtPredicate(), rmapStatement.getRmapStmtObject(), ts);
-		URI stmtUri = null;
-		if (stmtURI==null){
+		URI stmtId = this.getStatementID(rmapStatement.getSubject(), 
+				rmapStatement.getPredicate(), rmapStatement.getObject(), ts);
+		if (stmtId==null){
 			// first time we are seeing this triple:  create reified statement before adding simple triple
-			stmtUri = this.createReifiedStatement(rmapStatement, ts);
+			stmtId = this.createReifiedStatement(rmapStatement, ts);
 		}						
-		return stmtUri;
+		return stmtId;
 	}
 	/**
 	 * Create triples that comprise reified version of statement
@@ -88,26 +88,32 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	 * @return URI that is identifier for reified statements
 	 * @throws Exception
 	 */
-	protected URI createReifiedStatement (ORMapStatement rmapStatement, SesameTriplestore ts ) 
+	protected URI createReifiedStatement (Statement rmapStatement, SesameTriplestore ts ) 
 			throws RMapException {
 		String contextString = this.createContextURIString(rmapStatement);
-		URI context = ORAdapter.getValueFactory().createURI(contextString);			
-		URI stmtId = ORAdapter.uri2OpenRdfUri(rmapStatement.getId());;
+		URI context = ORAdapter.getValueFactory().createURI(contextString);	
+		java.net.URI stmtURI;
+		try {
+			stmtURI = IdServiceFactoryIOC.getFactory().createService().createId();
+		} catch (Exception e1) {
+			throw new RMapException("failed to create new ID",e1);
+		}
+		URI stmtId = ORAdapter.uri2OpenRdfUri(stmtURI);
 		try {
 			URI predicate = RDF.TYPE;
 			Value object = RMAP.STATEMENT;
 			ts.addStatement(stmtId, predicate,object,context);	
 			
 			predicate = RDF.SUBJECT;
-			object = rmapStatement.getRmapStmtSubject();
+			object = rmapStatement.getSubject();
 			ts.addStatement(stmtId, predicate,object,context);	
 			
 			predicate = RDF.PREDICATE;
-			object = rmapStatement.getRmapStmtPredicate();
+			object = rmapStatement.getPredicate();
 			ts.addStatement(stmtId, predicate,object,context);	
 			
 			predicate = RDF.OBJECT;
-			object = rmapStatement.getRmapStmtObject();
+			object = rmapStatement.getObject();
 			ts.addStatement(stmtId, predicate,object,context);	
 		} catch (Exception e){
 			throw new RMapException("Exception creating reified statement", e);
@@ -121,13 +127,13 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	 * @return
 	 * @throws RMapException
 	 */
-	protected String createContextURIString(ORMapStatement rmapStatement) throws RMapException {
+	protected String createContextURIString(Statement rmapStatement) throws RMapException {
 		if (rmapStatement == null){
 			throw new RMapException("Null RMapStatement");
 		}
 		// Construct the context by concatenating subject, predicate, object		
-		return this.createContextURIString(rmapStatement.getRmapStmtSubject().toString(), 
-				rmapStatement.getRmapStmtPredicate().toString(), rmapStatement.getRmapStmtObject().stringValue());
+		return this.createContextURIString(rmapStatement.getSubject().toString(), 
+				rmapStatement.getPredicate().toString(), rmapStatement.getObject().stringValue());
 	}
 	/**
 	 * 
@@ -213,47 +219,31 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 		if (! this.isStatementId(stmtId, ts)){
 			throw new RMapObjectNotFoundException("No Statement found with ID " + stmtId.stringValue());
 		}
-		Resource subject = null;
-		URI predicate = null;
-		Value object = null;
-		Value value = null;
+		Statement subjectStmt  = null;
+		Statement predicateStmt = null;
+		Statement objectStmt = null;
 		try {
 			do {
-				Statement stmt = ts.getStatement(stmtId, RDF.SUBJECT, null, null);
-				if (stmt==null){
+				subjectStmt = ts.getStatement(stmtId, RDF.SUBJECT, null, null);
+				if (subjectStmt==null){
 					break;
 				}
-				value = stmt.getObject();
-				if (value instanceof Resource){
-					subject = (Resource)stmt.getObject();
-				}
-				else {
+				predicateStmt = ts.getStatement(stmtId, RDF.PREDICATE, null, null);
+				if (predicateStmt==null){
 					break;
 				}
-				stmt = ts.getStatement(stmtId, RDF.PREDICATE, null, null);
-				if (stmt==null){
-					break;
-				}
-				value = stmt.getObject();
-				if (value instanceof URI){
-					predicate = (URI)stmt.getObject();
-				}
-				else {
-					break;
-				}
-				stmt = ts.getStatement(stmtId, RDF.OBJECT, null, null);
-				if (stmt==null){
+				objectStmt = ts.getStatement(stmtId, RDF.OBJECT, null, null);
+				if (objectStmt==null){
 					break;
 				}			
-				object = stmt.getObject();
 			} while (false);
 		} catch (Exception e){
 			throw new RMapException (e);
 		}
-		if (subject==null || predicate==null || object==null){
+		if (subjectStmt==null || predicateStmt==null || objectStmt==null){
 			throw new RMapException("stmtID is missing subject or predicate or object");
 		}
-		rmapStatement = new ORMapStatement(subject, predicate, object);		
+		rmapStatement = new ORMapStatement(subjectStmt, predicateStmt, objectStmt);		
 		return rmapStatement;
 	}
 
@@ -355,12 +345,13 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 			throw new RMapObjectNotFoundException("No Statement found with ID " + uri.stringValue());
 		}	
 		// get the triples for this Statement
-		Statement stmt = this.getRMapStatement(uri, ts).getRmapStmtStatement();
+		ORMapStatement stmt = this.getRMapStatement(uri, ts);
 		// get all discos in which this statement appears
 		List<Statement>triples = null;
 		try {
-			triples = ts.getStatements(stmt.getSubject(), stmt.getPredicate(),
-					stmt.getObject());
+			triples = ts.getStatements((Resource)(stmt.getSubjectStatement().getObject()), 
+					(URI)(stmt.getPredicateStatement().getObject()),
+					stmt.getObjectStatement().getObject());
 		} catch (Exception e) {
 			throw new RMapException("Exception thrown matching triples for " + uri.stringValue(), e);
 		}
@@ -373,54 +364,6 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 		}
 		return discoIds;
 	}
-
-	// THIS needs to return create ORMapStatements from the reified statements it gets from
-	// the repository, and then use the getRelatedEvents to add the events and getStatus to getStatus
-	// ALSO since we are NOT returning events or status in the media type, we might want to consider a
-	// data structure with location, event links, and status link along with RDF of statement
-	// THIS belongs in the RDF handler, not here
-//	public String getRMapStatementAsRDF(String stmtId, String rdfType) throws Exception	{
-//
-//		String stmtRdf = null;
-//		
-//		if (stmtId!=null && stmtId.length()>0)	{
-//
-//			SesameTriplestore ts =  SesameTriplestoreFactory.getTriplestore();
-//			URI stmtURI = null;
-//			stmtURI = GeneralUtils.toURI(RMAP.STATEMENT_DATA_NS + stmtId);
-//			
-//			Statement statement = ts.getStatement(null, null, null, stmtURI);
-//			List <Statement> eventStmts = ts.getStatements(stmtURI, PROV.WASGENERATEDBY, null);
-//			List <Statement> stmtStmts = new ArrayList <Statement>();
-//			
-//			if (statement!=null)	{
-//
-//				Map<String, String> namespaces = new HashMap<String, String>();
-//				namespaces.put("prov", "http://www.w3.org/ns/prov#");
-//				namespaces.put("rmap", RMAP.NAMESPACE);
-//				namespaces.put("foaf", "http://xmlns.com/foaf/0.1/");
-//				
-//				stmtStmts.add(new StatementImpl(stmtURI, RDF.TYPE, RMAP.STATEMENT));
-//				stmtStmts.add(new StatementImpl(stmtURI, RDF.SUBJECT, statement.getSubject()));
-//				stmtStmts.add(new StatementImpl(stmtURI, RDF.PREDICATE, statement.getPredicate()));
-//				stmtStmts.add(new StatementImpl(stmtURI, RDF.OBJECT, statement.getObject()));
-//				stmtStmts.addAll(eventStmts);
-//
-//				RDFHandler rdfHandler = RDFHandlerUtil.getFactory().getRDFHandler();
-//				stmtRdf = rdfHandler.convertStmtListToRDF(stmtStmts, namespaces, rdfType);			
-//				
-//				}
-//			else {
-//				log.info("Statement could not be found.");
-//			}
-//		}
-//		else {
-//			log.info("Invalid parameters for getMatchingRMapStmts, cannot pass null or empty values.");
-//		}
-//		
-//	return stmtRdf;
-//	}	
-
 
 }
 

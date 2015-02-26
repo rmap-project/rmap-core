@@ -22,7 +22,6 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventDelete;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
-import info.rmapproject.core.model.impl.openrdf.ORMapStatement;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
@@ -70,28 +69,28 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		}
 		if (event instanceof ORMapEventCreation){
 			ORMapEventCreation crEvent = (ORMapEventCreation)event;
-			List<ORMapStatement> stmts = crEvent.getCreatedObjectStatements();
+			List<Statement> stmts = crEvent.getCreatedObjectStatements();
 			if (stmts != null && !stmts.isEmpty()){
-				for (ORMapStatement stmt:stmts){
+				for (Statement stmt:stmts){
 					this.createTriple(ts, stmt);
 				}
 			}			
 		}
 		else if (event instanceof ORMapEventUpdate){
 			ORMapEventUpdate upEvent = (ORMapEventUpdate)event;
-			ORMapStatement target = upEvent.getTargetObjectStmt();
+			Statement target = upEvent.getTargetObjectStmt();
 			this.createTriple(ts, target);
-			ORMapStatement inactivated = upEvent.getInactivatedObjectStmt();
+			Statement inactivated = upEvent.getInactivatedObjectStmt();
 			if (inactivated != null){
 				this.createTriple(ts, inactivated);
 			}
-			ORMapStatement derivationSource = upEvent.getDerivationStmt();
+			Statement derivationSource = upEvent.getDerivationStmt();
 			if (derivationSource != null){
 				this.createTriple(ts, derivationSource);
 			}
-			List<ORMapStatement> stmts = upEvent.getCreatedObjectStatements();
+			List<Statement> stmts = upEvent.getCreatedObjectStatements();
 			if (stmts != null && !stmts.isEmpty()){
-				for (ORMapStatement stmt:stmts){
+				for (Statement stmt:stmts){
 					this.createTriple(ts, stmt);
 				}
 			}	
@@ -102,9 +101,9 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		}
 		else if (event instanceof ORMapEventDelete){
 			ORMapEventDelete dEvent = (ORMapEventDelete)event;
-			List<ORMapStatement> stmts = dEvent.getDeletedObjectStmts();
+			List<Statement> stmts = dEvent.getDeletedObjectStmts();
 			if (stmts != null && !stmts.isEmpty()){
-				for (ORMapStatement stmt:stmts){
+				for (Statement stmt:stmts){
 					this.createTriple(ts, stmt);
 				}
 			}
@@ -147,24 +146,24 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		if (eventStmts==null || eventStmts.size()==0){
 			throw new RMapException ("null or emtpy list of event statements");	
 		}
-		ORMapStatement eventTypeStmt = null;
-		ORMapStatement eventTargetTypeStmt = null;
-		ORMapStatement associatedAgentStmt = null; 
-		ORMapStatement descriptionStmt = null;
-		ORMapStatement startTimeStmt = null;  
-		ORMapStatement endTimeStmt = null;
+		Statement eventTypeStmt = null;
+		Statement eventTargetTypeStmt = null;
+		Statement associatedAgentStmt = null; 
+		Statement descriptionStmt = null;
+		Statement startTimeStmt = null;  
+		Statement endTimeStmt = null;
 		URI context = null;
-		ORMapStatement typeStatement = null;
+		Statement typeStatement = null;
 		// for create  and update events
-		List<ORMapStatement> createdObjects = new ArrayList<ORMapStatement>();
+		List<Statement> createdObjects = new ArrayList<Statement>();
 		// for update events
-		ORMapStatement targetObjectStatement = null;
-		ORMapStatement derivationStatement = null;
-		ORMapStatement inactivatedObjectStatement = null;
+		Statement targetObjectStatement = null;
+		Statement derivationStatement = null;
+		Statement inactivatedObjectStatement = null;
 		// for Tombstone events
-		ORMapStatement tombstoned = null;
+		Statement tombstoned = null;
 		// for Delete events
-		List<ORMapStatement> deletedObjects = new ArrayList<ORMapStatement>();;	
+		List<Statement> deletedObjects = new ArrayList<Statement>();;	
 		ORMapEvent event = null;		
 		
 		context = (URI) eventStmts.get(0).getContext(); 
@@ -176,55 +175,55 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			}
 			URI predicate = stmt.getPredicate();
 			if (predicate.equals(RDF.TYPE)){
-				typeStatement = new ORMapStatement(stmt);
+				typeStatement = stmt;
 				continue;
 			}
 			if (predicate.equals(RMAP.EVENT_TYPE)){
-				eventTypeStmt = new ORMapStatement(stmt);
+				eventTypeStmt = stmt;
 				continue;
 			}
 			if (predicate.equals(RMAP.EVENT_TARGET_TYPE)){
-				eventTargetTypeStmt = new ORMapStatement(stmt);
+				eventTargetTypeStmt = stmt;
 				continue;
 			}
 			if (predicate.equals(PROV.STARTEDATTIME)){
-				startTimeStmt = new ORMapStatement(stmt);
+				startTimeStmt =stmt;
 				continue;
 			}
 			if (predicate.equals(PROV.ENDEDATTIME)){
-				endTimeStmt = new ORMapStatement(stmt);
+				endTimeStmt = stmt;
 				continue;
 			}
 			if (predicate.equals(PROV.WASASSOCIATEDWITH)){
-				associatedAgentStmt = new ORMapStatement(stmt);
+				associatedAgentStmt = stmt;
 				continue;
 			}
 			if (predicate.equals(DC.DESCRIPTION)){
-				descriptionStmt = new ORMapStatement(stmt);
+				descriptionStmt = stmt;
 				continue;
 			}
 			if (predicate.equals(PROV.GENERATED)){
-				createdObjects.add(new ORMapStatement(stmt));
+				createdObjects.add(stmt);
 				continue;
 			}
 			if (predicate.equals(RMAP.EVENT_TARGET)){
-				targetObjectStatement = new ORMapStatement(stmt);
+				targetObjectStatement = stmt;
 				continue;
 			}
 			if (predicate.equals(RMAP.EVENT_NEW_OBJECT_DERIVATION_SOURCE)){
-				derivationStatement = new ORMapStatement(stmt);
+				derivationStatement = stmt;
 				continue;
 			}
 			if (predicate.equals(RMAP.EVENT_TARGET_INACTIVATED)){
-				inactivatedObjectStatement = new ORMapStatement(stmt);
+				inactivatedObjectStatement = stmt;
 				continue;
 			}
 			if (predicate.equals(RMAP.EVENT_TARGET_TOMBSTONED)){
-				tombstoned = new ORMapStatement(stmt);
+				tombstoned = stmt;
 				continue;
 			}
 			if (predicate.equals(RMAP.EVENT_TARGET_DELETED)){
-				deletedObjects.add(new ORMapStatement(stmt));
+				deletedObjects.add(stmt);
 				continue;
 			}
 		}
@@ -232,7 +231,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		if (typeStatement != null){				
 			if (!(typeStatement.getObject().equals(RMAP.EVENT))){
 				throw new RMapException("RDF type should be " + RMAP.EVENT.stringValue()
-						+ " but is " + typeStatement.getObject().getStringValue());
+						+ " but is " + typeStatement.getObject().stringValue());
 			}
 		}
 		boolean isCreateEvent = false;
@@ -243,7 +242,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			throw new RMapException ("No event type in event graph " + context.stringValue());
 		}
 		else {
-			String type = eventTypeStmt.getObject().getStringValue();
+			String type = eventTypeStmt.getObject().stringValue();
 			do {
 				if (type.equals(RMapEventType.CREATION.getTypeString())){
 					isCreateEvent = true;
@@ -269,7 +268,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			throw new RMapException("No event target type in event graph " + 
 					context.stringValue());
 		}
-		String targetType = eventTargetTypeStmt.getObject().getStringValue();
+		String targetType = eventTargetTypeStmt.getObject().stringValue();
 		do {
 			if (targetType.equals(RMapEventTargetType.DISCO.uriString())){
 				break;

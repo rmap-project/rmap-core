@@ -131,7 +131,7 @@ public class ORAdapterTest {
 			fail();
 		}
 		RMapBlankNode bn = new RMapBlankNode(bnId);
-		Value resource = ORAdapter.rMapResource2OpenRdfValue(bn);
+		Value resource = ORAdapter.rMapValue2OpenRdfValue(bn);
 		assertEquals(bnId, resource.stringValue());
 		assertTrue (resource instanceof BNode);
 		String urString = "http://rmap-project.info/rmap/";
@@ -143,11 +143,11 @@ public class ORAdapterTest {
 			fail();
 		}
 		RMapUri rmUri = new RMapUri(uri);
-		resource = ORAdapter.rMapResource2OpenRdfValue(rmUri);
+		resource = ORAdapter.rMapValue2OpenRdfValue(rmUri);
 		assertTrue (resource instanceof org.openrdf.model.URI);
 		assertEquals(urString, resource.stringValue());
 		RMapLiteral lit = new RMapLiteral("RMapLiteral");
-		resource = ORAdapter.rMapResource2OpenRdfValue(lit);
+		resource = ORAdapter.rMapValue2OpenRdfValue(lit);
 		assertTrue (resource instanceof org.openrdf.model.Literal);
 		assertEquals(lit.getStringValue(), resource.stringValue());
 	}
@@ -196,7 +196,7 @@ public class ORAdapterTest {
 		BNode bnode = ORAdapter.getValueFactory().createBNode(bnId);
 		RMapResource nonLit = null;
 		try {
-			nonLit = ORAdapter.openRdfResource2NonLiteralResource(bnode);
+			nonLit = ORAdapter.openRdfResource2NonLiteral(bnode);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			fail();
@@ -209,7 +209,7 @@ public class ORAdapterTest {
 		String urString = "http://rmap-project.info/rmap/";
 		org.openrdf.model.URI rUri =ORAdapter.getValueFactory().createURI(urString);
 		try {
-			nonLit = ORAdapter.openRdfResource2NonLiteralResource(rUri);
+			nonLit = ORAdapter.openRdfResource2NonLiteral(rUri);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			fail();
@@ -233,7 +233,7 @@ public class ORAdapterTest {
 		Value value = ORAdapter.getValueFactory().createLiteral("OpenRDF Literal");
 		RMapValue rmr = null;
 		try {
-			 rmr = ORAdapter.openRdfValue2RMapResource(value);
+			 rmr = ORAdapter.openRdfValue2RMapValue(value);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			fail();
@@ -253,7 +253,7 @@ public class ORAdapterTest {
 		}
 		value = ORAdapter.getValueFactory().createBNode(bnId);
 		try {
-			 rmr = ORAdapter.openRdfValue2RMapResource(value);
+			 rmr = ORAdapter.openRdfValue2RMapValue(value);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			fail();
@@ -266,7 +266,7 @@ public class ORAdapterTest {
 		String urString = "http://rmap-project.info/rmap/";
 		value = ORAdapter.getValueFactory().createURI(urString);
 		try {
-			 rmr = ORAdapter.openRdfValue2RMapResource(value);
+			 rmr = ORAdapter.openRdfValue2RMapValue(value);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			fail();

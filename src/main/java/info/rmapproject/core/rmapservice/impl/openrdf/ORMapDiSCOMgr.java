@@ -29,7 +29,6 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
-import info.rmapproject.core.model.impl.openrdf.ORMapStatement;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
@@ -90,7 +89,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			break;		
 		}
 		List<Statement> discoStmts = this.getNamedGraph(discoID, ts);		
-		//TODO  Do we want to create a "non=validaiting" DiSCO create for DiSCOs created from triplestore (as opposed to incoming stmts?)
+		//TODO  Do we want to create a "non=validating" DiSCO create for DiSCOs created from triplestore (as opposed to incoming stmts?)
 		disco = new ORMapDiSCO(discoStmts);
 		return disco;
 	}
@@ -144,7 +143,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		// get the event started
 		ORMapEventCreation event = new ORMapEventCreation(systemAgentId, RMapEventTargetType.DISCO);
 		// Create reified statements for aggregrated resources if needed
-		List<ORMapStatement> aggResources = disco.getAggregatedResourceStatements();
+		List<Statement> aggResources = disco.getAggregatedResourceStatements();
 		if (aggResources == null){
 			throw new RMapException("Null aggregated resources in DiSCO");
 		}
@@ -193,7 +192,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			}
 		}
 		// for each aggregated resource, create reified statement if necessary, create triples
-		for (ORMapStatement stmt:aggResources){
+		for (Statement stmt:aggResources){
 			URI aggResource = stmtMgr.createStatement(stmt, ts);
 			if (aggResource != null){
 				created.add(aggResource);
@@ -203,13 +202,13 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		// for each statement in relatedStatements
 		//   create reified statement if necessary, and add the triple
 		//   if dct:create or dc:creator create agent, agent profile as needed,and add the triple
-		for (ORMapStatement stmt:disco.getRelatedStatementsAsStatements()){
+		for (Statement stmt:disco.getRelatedStatementsAsList()){
 			URI relStmt = stmtMgr.createStatement(stmt, ts);
 			if (relStmt != null){
 				created.add(relStmt);
 			}
 			this.createTriple(ts, stmt);
-			URI predicate = stmt.getRmapStmtPredicate();
+			URI predicate = stmt.getPredicate();
 			if (agentRelations.contains(predicate)){
 				//TODO see if you need to create or update Agent here
 			}
@@ -254,7 +253,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			throw new RMapObjectNotFoundException("No agent with id " + systemAgentId.stringValue());
 		}
 		// if Disco, cannot have null agg resources
-		List<ORMapStatement> aggResources = null;
+		List<Statement> aggResources = null;
 		if (disco != null){
 			aggResources = disco.getAggregatedResourceStatements();
 			if (aggResources == null){
@@ -330,7 +329,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				}
 			}
 			// for each aggregated resource, create reified statement if necessary, create triples
-			for (ORMapStatement stmt:aggResources){
+			for (Statement stmt:aggResources){
 				URI aggResource = stmtMgr.createStatement(stmt, ts);
 				if (aggResource != null){
 					created.add(aggResource);
@@ -340,13 +339,13 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			// for each statement in relatedStatements
 			//   create reified statement if necessary, and add the triple
 			//   if dct:create or dc:creator create agent, agent profile as needed,and add the triple
-			for (ORMapStatement stmt:disco.getRelatedStatementsAsStatements()){
+			for (Statement stmt:disco.getRelatedStatementsAsList()){
 				URI relStmt = stmtMgr.createStatement(stmt, ts);
 				if (relStmt != null){
 					created.add(relStmt);
 				}
 				this.createTriple(ts, stmt);
-				URI predicate = stmt.getRmapStmtPredicate();
+				URI predicate = stmt.getPredicate();
 				if (agentRelations.contains(predicate)){
 					//TODO see if you need to create or update Agent here
 				}
