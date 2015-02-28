@@ -53,7 +53,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		this.descriptionStmt = descriptionStmt;
 		this.startTimeStmt = startTimeStmt;
 		this.endTimeStmt = endTimeStmt;
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.CREATION);	
+			
 	}
 	/**
 	 * Constructor sets the start time

@@ -11,7 +11,7 @@ import java.util.List;
  * @author smorrissey
  *
  */
-public interface RMapEventDelete extends RMapEvent {
+public interface RMapEventDeletion extends RMapEvent {
 	
 
 

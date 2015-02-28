@@ -40,6 +40,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 		
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
 				startTimeStmt, endTimeStmt,context,typeStatement);
+		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.TOMBSTONE);
 		this.tombstoned = tombstoned;
 	}
 

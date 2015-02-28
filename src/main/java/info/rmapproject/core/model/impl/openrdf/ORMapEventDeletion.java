@@ -11,7 +11,7 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapEventDelete;
+import info.rmapproject.core.model.RMapEventDeletion;
 import info.rmapproject.core.model.RMapEventTargetType;
 import info.rmapproject.core.model.RMapEventType;
 import info.rmapproject.core.model.RMapValue;
@@ -22,18 +22,18 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
  *  @author khansen, smorrissey
  *
  */
-public class ORMapEventDelete extends ORMapEvent implements RMapEventDelete {
+public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion {
 
 	protected List<Statement> deletedObjects;
 	/**
 	 * @throws RMapException
 	 */
-	protected ORMapEventDelete() throws RMapException {
+	protected ORMapEventDeletion() throws RMapException {
 		super();
 		this.makeEventTypeStatement(RMapEventType.DELETION);
 	}
 
-	public ORMapEventDelete(Statement eventTypeStmt, 
+	public ORMapEventDeletion(Statement eventTypeStmt, 
 			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
 			Statement descriptionStmt, Statement startTimeStmt,  
 			Statement endTimeStmt, URI context, Statement typeStatement, 
@@ -41,6 +41,7 @@ public class ORMapEventDelete extends ORMapEvent implements RMapEventDelete {
 		
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
 				startTimeStmt, endTimeStmt,context,typeStatement);
+		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.DELETION);
 		this.deletedObjects = deletedObjects;
 	}
 	/**
@@ -48,7 +49,7 @@ public class ORMapEventDelete extends ORMapEvent implements RMapEventDelete {
 	 * @param targetType
 	 * @throws RMapException
 	 */
-	public ORMapEventDelete(RMapUri associatedAgent,
+	public ORMapEventDeletion(RMapUri associatedAgent,
 			RMapEventTargetType targetType) throws RMapException {
 		super(associatedAgent, targetType);
 		this.makeEventTypeStatement(RMapEventType.DELETION);
@@ -60,7 +61,7 @@ public class ORMapEventDelete extends ORMapEvent implements RMapEventDelete {
 	 * @param desc
 	 * @throws RMapException
 	 */
-	public ORMapEventDelete(RMapUri associatedAgent,
+	public ORMapEventDeletion(RMapUri associatedAgent,
 			RMapEventTargetType targetType, RMapValue desc)
 			throws RMapException {
 		super(associatedAgent, targetType, desc);

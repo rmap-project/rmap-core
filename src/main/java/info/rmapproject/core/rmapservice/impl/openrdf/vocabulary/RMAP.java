@@ -78,7 +78,7 @@ public class RMAP {
 	/**
 	 * 
 	 */
-	public static final URI EVENT_TYPE_CREATE;
+	public static final URI EVENT_TYPE_CREATION;
 	/**
 	 * 
 	 */
@@ -86,11 +86,19 @@ public class RMAP {
 	/**
 	 * 
 	 */
+	public static final URI EVENT_TYPE_INACTIVATION;
+	/**
+	 * 
+	 */
+	public static final URI EVENT_TYPE_DERIVATION;
+	/**
+	 * 
+	 */
 	public static final URI EVENT_TYPE_TOMBSTONE;
 	/**
 	 * 
 	 */
-	public static final URI EVENT_TYPE_DELETE;
+	public static final URI EVENT_TYPE_DELETION;
 	/**
 	 * 
 	 */
@@ -98,15 +106,15 @@ public class RMAP {
 	/**
 	 * 
 	 */
-	public static final URI EVENT_TARGET;
+	public static final URI EVENT_SOURCE_OBJECT;
+	/**
+	 * 	
+	 */
+	public static final URI EVENT_DERIVED_OBJECT;
 	/**
 	 * 
 	 */
-	public static final URI EVENT_TARGET_INACTIVATED;
-	/**
-	 * 
-	 */
-	public static final URI EVENT_NEW_OBJECT_DERIVATION_SOURCE;
+	public static final URI EVENT_INACTIVATED_OBJECT;
 	/**
 	 * 
 	 */
@@ -166,16 +174,18 @@ public class RMAP {
 		SYSTEM_AGENT = f.createURI(NAMESPACE, "SystemAgent");
 		SCHOLARLY_AGENT = f.createURI(NAMESPACE, "ScholarlyAgent");
 		EVENT_TYPE = f.createURI(NAMESPACE, "eventType");
-		EVENT_TYPE_CREATE = f.createURI(NAMESPACE, "create");
+		EVENT_TYPE_CREATION = f.createURI(NAMESPACE, "creation");
 		EVENT_TYPE_UPDATE = f.createURI(NAMESPACE, "update");
+		EVENT_TYPE_INACTIVATION = f.createURI(NAMESPACE, "inactivation");
+		EVENT_TYPE_DERIVATION = f.createURI(NAMESPACE, "derivation");
 		EVENT_TYPE_TOMBSTONE = f.createURI(NAMESPACE, "tombstone");
-		EVENT_TYPE_DELETE = f.createURI(NAMESPACE, "delete");
+		EVENT_TYPE_DELETION = f.createURI(NAMESPACE, "deletion");
 		EVENT_TARGET_TYPE = f.createURI(NAMESPACE, "eventTargetType");
-		EVENT_TARGET = f.createURI(NAMESPACE, "eventTarget");
-		EVENT_TARGET_INACTIVATED = f.createURI(NAMESPACE, "inactivated");
-		EVENT_NEW_OBJECT_DERIVATION_SOURCE = f.createURI(NAMESPACE, "derivationSource");
-		EVENT_TARGET_TOMBSTONED = f.createURI(NAMESPACE, "tombstoned");
-		EVENT_TARGET_DELETED = f.createURI(NAMESPACE, "deleted");
+		EVENT_SOURCE_OBJECT = f.createURI(NAMESPACE, "sourceObject");
+		EVENT_INACTIVATED_OBJECT = f.createURI(NAMESPACE, "inactivatedObject");
+		EVENT_DERIVED_OBJECT = f.createURI(NAMESPACE, "derivedObject");
+		EVENT_TARGET_TOMBSTONED = f.createURI(NAMESPACE, "tombstonedObject");
+		EVENT_TARGET_DELETED = f.createURI(NAMESPACE, "deletedObject");
 		EVENT = f.createURI(NAMESPACE, "Event");
 		AGGREGATES = f.createURI(NAMESPACE, "aggregates");   
 		RMAP_AGENT_ID = f.createURI(AGENT_DATA_NS,"RMap");

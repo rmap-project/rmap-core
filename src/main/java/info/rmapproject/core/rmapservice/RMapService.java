@@ -89,6 +89,7 @@ public interface RMapService {
 	 * @return
 	 * @throws RMapException
 	 */
+	//TODO  add status as parameter, and only allow Active, Inactive
 	public List<RMapStatement> readStatements (List<URI> ids) throws RMapException;
 	/**
 	 * Get the status of the RMapStatement identified by the provided URI
@@ -228,6 +229,8 @@ public interface RMapService {
 	 * @throws RMapException
 	 */
 	public List<URI> getEventRelatedDiSCOS (URI eventID) throws RMapException;
+	
+	//TODO  add method to API to get event-related scholarly agents
 	/**
 	 * 
 	 * @param eventID

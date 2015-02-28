@@ -27,8 +27,11 @@ import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventInactivation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventWithNewObjects;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
@@ -230,11 +233,12 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	}
 
 	/**
-	 * Update: inactivate an existing DiSCO; if new DiSCO provided, also update
+	 * Update: inactivate an existing DiSCO (same agent); derive from existing disco (same or different agent)
 	 * by creating new DiSCO
 	 * @param systemAgentId
 	 * @param oldDiscoId
 	 * @param disco
+	 * @param eventMgr
 	 * @param ts
 	 * @return
 	 */
@@ -251,32 +255,35 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}		
 		if (! this.isAgentId(systemAgentId, ts)){
 			throw new RMapObjectNotFoundException("No agent with id " + systemAgentId.stringValue());
-		}
-		// if Disco, cannot have null agg resources
-		List<Statement> aggResources = null;
-		if (disco != null){
-			aggResources = disco.getAggregatedResourceStatements();
-			if (aggResources == null){
-				throw new RMapException("Null aggregated resources in DiSCO");
-			}
-		}				
+		}			
 		// get the event started
-		ORMapEventUpdate event = new ORMapEventUpdate(systemAgentId, RMapEventTargetType.DISCO, oldDiscoId);	
-		//if Update is different Agent then DO NOT inactivate target object; new Disco is a derivation
+		ORMapEvent event = null;	
+		// same agent:  can be inactivation or update
 		if (this.isSameDiscoAgent(oldDiscoId, systemAgentId, eventMgr, ts)){
-			event.inactivateTarget();
-			if (disco!=null){
-				event.deriveFromTarget(ORAdapter.openRdfUri2RMapUri(disco.getDiscoContext()));
+			// either an inactivation or update event
+			if (disco==null){
+				// inactivation
+				ORMapEventInactivation iEvent = new ORMapEventInactivation(systemAgentId, RMapEventTargetType.DISCO);
+				iEvent.setInactivatedObjectId(ORAdapter.openRdfUri2RMapUri(oldDiscoId));
+				event = iEvent;
+			}
+			else{
+				ORMapEventUpdate uEvent = new ORMapEventUpdate(systemAgentId, RMapEventTargetType.DISCO,
+						oldDiscoId, disco.getDiscoContext());
+				event = uEvent;
 			}
 		}
 		else {
 			// but if it is a new Agent, MUST have new DiSCO, or else it's an illegal attempted update
+			// and it's a derivation event
 			if (disco==null){
 				throw new RMapException("No new DiSCO provided; Agent is not the same as creating agent; " +
 						" cannot inactivate another agent's DiSCO");
 			}
 			else {
-				event.deriveFromTarget(ORAdapter.openRdfUri2RMapUri(disco.getDiscoContext()));
+				ORMapEventDerivation dEvent = new ORMapEventDerivation(systemAgentId, RMapEventTargetType.DISCO,
+						oldDiscoId, disco.getDiscoContext());
+				event = dEvent;
 			}
 		}
 		// set up triplestore and start transaction
@@ -329,6 +336,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				}
 			}
 			// for each aggregated resource, create reified statement if necessary, create triples
+			List<Statement> aggResources = disco.getAggregatedResourceStatements();
 			for (Statement stmt:aggResources){
 				URI aggResource = stmtMgr.createStatement(stmt, ts);
 				if (aggResource != null){
@@ -350,8 +358,11 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 					//TODO see if you need to create or update Agent here
 				}
 			}		
-			// update the event with created object IDS
-			event.setCreatedObjectIdsFromURI(created);		
+			// update the event with created object IDS for update and derivation events
+			if (event instanceof ORMapEventWithNewObjects){
+				((ORMapEventWithNewObjects)event).setCreatedObjectIdsFromURI(created);
+			}
+					
 		} while (false);
 		// end the event, write the event triples, and commit everything
 		event.setEndTime(new Date());
@@ -458,7 +469,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 					break;
 				}
 				//   ? RMap:Updates discoID	done return Inactive
-				eventStmts = ts.getStatements(null, RMAP.EVENT_TARGET_INACTIVATED, discoId);
+				eventStmts = ts.getStatements(null, RMAP.EVENT_INACTIVATED_OBJECT, discoId);
 				if (eventStmts!=null && ! eventStmts.isEmpty()){
 					status = RMapStatus.INACTIVE;
 					break;
@@ -571,9 +582,9 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				}
 				break;
 			}
-			if (eventmgr.isUpdateEvent(eventId, ts)){
+			if ((eventmgr.isUpdateEvent(eventId, ts)) || (eventmgr.isDerivationEvent(eventId, ts))){
 				// get id of old DiSCO
-				URI oldDiscoID = eventmgr.getIdOfSourceDisco(eventId, ts);
+				URI oldDiscoID = eventmgr.getIdOfOldDisco(eventId, ts);
 				// look back recursively on create/updates for oldDiscoID
 				// DONT look forward on the backward search - you'll already have stuff
 				 event2Disco.putAll(this.lookBack(oldDiscoID, agentId, false, 
@@ -612,7 +623,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 					}	
 				}
 				// get id of new DiSCO
-				URI newDisco = eventmgr.getIdOfSourceDisco(updateEventId, ts);
+				URI newDisco = eventmgr.getIdOfOldDisco(updateEventId, ts);
 				if (newDisco != null){
 					event2Disco.put(updateEventId,newDisco);
 					// follow new DiSCO forward

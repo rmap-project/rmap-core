@@ -3,9 +3,7 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
@@ -17,16 +15,13 @@ import info.rmapproject.core.model.RMapEventType;
 import info.rmapproject.core.model.RMapEventUpdate;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.RMapUri;
-import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 /**
  * @author khansen, smorrissey
  *
  */
-public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
-	protected List<Statement> createdObjects;
-	protected Statement targetObjectStatement;
+public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEventUpdate {
 	protected Statement derivationStatement;
 	protected Statement inactivatedObjectStatement;
 
@@ -37,70 +32,102 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 		super();
 		this.makeEventTypeStatement(RMapEventType.UPDATE);
 	}
+	/**
+	 * 
+	 * @param eventTypeStmt
+	 * @param eventTargetTypeStmt
+	 * @param associatedAgentStmt
+	 * @param descriptionStmt
+	 * @param startTimeStmt
+	 * @param endTimeStmt
+	 * @param context
+	 * @param typeStatement
+	 * @param createdObjects
+	 * @param derivationStatement
+	 * @param inactivatedObjectStatement
+	 * @throws RMapException
+	 */
 	public ORMapEventUpdate(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
 			Statement associatedAgentStmt,  Statement descriptionStmt, 
 			Statement startTimeStmt,  Statement endTimeStmt, URI context, 
 			Statement typeStatement, List<Statement> createdObjects,
-			Statement targetObjectStatement,Statement derivationStatement,
-			Statement inactivatedObjectStatement) 
+			Statement derivationStatement, Statement inactivatedObjectStatement) 
 	throws RMapException {
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
 				startTimeStmt, endTimeStmt,context,typeStatement);
+		this.makeEventTypeStatement(RMapEventType.UPDATE);
+		if (createdObjects==null || createdObjects.size()==0){
+			throw new RMapException ("Null or empty list of created object in Update");
+		}		
+		if (derivationStatement==null){
+			throw new RMapException("Null derived object");
+		}
+		if (inactivatedObjectStatement==null){
+			throw new RMapException("Null inactivated object statement");
+		}
 		this.createdObjects = createdObjects;	
-		this.targetObjectStatement = targetObjectStatement;
 		this.derivationStatement = derivationStatement;
 		this.inactivatedObjectStatement = inactivatedObjectStatement;
 	}
+
 	/**
+	 * 
 	 * @param associatedAgent
 	 * @param targetType
-	 * @param targetObject
+	 * @param intactivatedObject
+	 * @param derivedObject
 	 * @throws RMapException
 	 */
-	public ORMapEventUpdate(RMapUri associatedAgent,
-			RMapEventTargetType targetType, RMapUri targetObject) throws RMapException {
+	public ORMapEventUpdate(URI associatedAgent,
+			RMapEventTargetType targetType, URI intactivatedObject, URI derivedObject) 
+	throws RMapException {
 		super(associatedAgent, targetType);
 		this.makeEventTypeStatement(RMapEventType.UPDATE);
-		this.setTargetObjectStmt(ORAdapter.rMapUri2OpenRdfUri(targetObject));
+		this.setInactivatedObjectStmt(intactivatedObject);
+		this.setDerivationStmt(derivedObject);
 	}
 	/**
 	 * 
 	 * @param associatedAgent
 	 * @param targetType
-	 * @param targetObject
+	 * @param intactivatedObject
+	 * @param derivedObject
+	 * @param createdObjects
 	 * @throws RMapException
 	 */
 	public ORMapEventUpdate(URI associatedAgent,
-			RMapEventTargetType targetType, URI targetObject) throws RMapException {
-		super(associatedAgent, targetType);
-		this.makeEventTypeStatement(RMapEventType.UPDATE);
-		this.setTargetObjectStmt(targetObject);
+			RMapEventTargetType targetType, URI intactivatedObject, URI derivedObject,
+			List<Statement> createdObjects) 
+	throws RMapException {
+		this(associatedAgent, targetType, intactivatedObject, derivedObject);
+		this.createdObjects = createdObjects;
 	}
 
 	/**
+	 * 
 	 * @param associatedAgent
 	 * @param targetType
-	 * @param targetObject
+	 * @param inactivatedObject
+	 * @param derivedObject
+	 * @param createdObjects
 	 * @param desc
 	 * @throws RMapException
 	 */
 	public ORMapEventUpdate(RMapUri associatedAgent,
-			RMapEventTargetType targetType, RMapUri targetObject, RMapValue desc)
+			RMapEventTargetType targetType, RMapUri inactivatedObject, RMapUri derivedObject,
+			List<RMapUri> createdObjects, RMapValue desc)
 			throws RMapException {
 		super(associatedAgent, targetType, desc);
 		this.makeEventTypeStatement(RMapEventType.UPDATE);
-		this.setTargetObjectStmt(ORAdapter.rMapUri2OpenRdfUri(targetObject));
+		this.setInactivatedObjectStmt(ORAdapter.rMapUri2OpenRdfUri(inactivatedObject));
+		this.setDerivationStmt(ORAdapter.rMapUri2OpenRdfUri(derivedObject));
+		this.setCreatedObjectIds(createdObjects);
+		
 	}
 	
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model model = super.getAsModel();
-		model.add(targetObjectStatement);
-		if (createdObjects != null){
-			for (Statement stmt: createdObjects){
-				model.add(stmt);
-			}
-		}
 		if (inactivatedObjectStatement != null){
 			model.add(inactivatedObjectStatement);
 		}
@@ -111,90 +138,42 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 	}
 
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.RMapEventUpdate#getCreatedObjectIds()
-	 */
-	public List<RMapUri> getCreatedObjectIds() throws RMapException {	
-		List<RMapUri> uris = null;
-		if (this.createdObjects != null){
-			uris = new ArrayList<RMapUri>();
-			for (Statement stmt:this.createdObjects){
-				URI idURI = (URI) stmt.getObject();
-				RMapUri rid = ORAdapter.openRdfUri2RMapUri(idURI);
-				uris.add(rid);
-			}
-		}
-		return uris;
-	}
-	/**
-	 * 
-	 * @return
-	 */
-	public List<Statement> getCreatedObjectStatements() {
-		return this.createdObjects;
-	}
-
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.RMapEventUpdate#setCreatedObjectIds(java.util.List)
-	 */
-	public void setCreatedObjectIds(List<RMapUri> createdObjects) throws RMapException {
-		List<Statement> stmts = null;
-		if (createdObjects != null){
-			stmts = new ArrayList<Statement>();
-			for (RMapUri rUri:createdObjects){
-				URI id = ORAdapter.rMapUri2OpenRdfUri(rUri);
-				Statement stmt = this.getValueFactory().createStatement(this.context, PROV.GENERATED, id, this.context);
-				stmts.add(stmt);
-			}
-			this.createdObjects = stmts;
-		}
-	}
-
-	/**
-	 * 
-	 * @param createdObjects
-	 */
-	public void setCreatedObjectIdsFromURI(Set<URI> createdObjects) {
-		List<Statement> stmts = null;
-		if (createdObjects != null){
-			stmts = new ArrayList<Statement>();
-			for (URI id:createdObjects){
-				Statement stmt = this.getValueFactory().createStatement(this.context, PROV.GENERATED, id, 
-						this.context);
-				stmts.add(stmt);
-			}
-			this.createdObjects = stmts;
-		}		
-	}
-
-	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEventUpdate#getInactivatedObjectId()
 	 */
-	public RMapUri getTargetObjectId() throws RMapException {
+	public RMapUri getInactivatedObjectId() throws RMapException {
 		RMapUri rid = null;
-		if (this.derivationStatement!= null){
-			URI uri = (URI) this.derivationStatement.getObject();
+		if (this.inactivatedObjectStatement!= null){
+			URI uri = (URI) this.inactivatedObjectStatement.getObject();
 			rid = ORAdapter.openRdfUri2RMapUri(uri);
 		}
 		return rid;
 	}
+	@Override
+	public void setInactivatedObjectId(RMapUri uri) throws RMapException {
+		URI inactiveUri = ORAdapter.rMapUri2OpenRdfUri(uri);
+		this.setInactivatedObjectStmt(inactiveUri);
+	}
 	/**
 	 * 
 	 * @return
 	 */
-	public Statement getTargetObjectStmt() {
-		return this.targetObjectStatement;
+	public Statement getInactivatedObjectStmt() {
+		return this.inactivatedObjectStatement;
 	}
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.RMapEventUpdate#setInactivatedObjectId(info.rmapproject.core.model.RMapUri)
+	
+	/**
+	 * 
+	 * @param intactivatedObject
 	 */
-	public void setTargetObjectId(RMapUri targetObject) throws RMapException {
-		if (targetObject != null){
-			Statement stmt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_TARGET,
-					ORAdapter.rMapUri2OpenRdfUri(targetObject), this.context);
-			this.targetObjectStatement = stmt;
+	protected void setInactivatedObjectStmt(URI intactivatedObject) {
+		if (intactivatedObject != null){
+			Statement stmt = this.getValueFactory().createStatement(this.context, 
+					RMAP.EVENT_INACTIVATED_OBJECT,
+					intactivatedObject, this.context);
+			this.inactivatedObjectStatement = stmt;
 		}
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEventUpdate#getDerivationSourceObjectId()
 	 */
@@ -213,56 +192,23 @@ public class ORMapEventUpdate extends ORMapEvent implements RMapEventUpdate {
 	public Statement getDerivationStmt (){
 		return this.derivationStatement;
 	}
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.RMapEventUpdate#deriveFromTarget(info.rmapproject.core.model.RMapUri)
-	 */
-	public void deriveFromTarget(RMapUri derivedObject) throws RMapException {
-		if (this.targetObjectStatement==null){
-			throw new RMapException ("Target object id is null");
-		}
-		if (derivedObject==null){
-			throw new RMapException("Derived object id is null");
-		}
-		Statement stmt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_NEW_OBJECT_DERIVATION_SOURCE,
-				this.targetObjectStatement.getObject(), this.context);
-		this.derivationStatement = stmt;
-	}
-
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.RMapEventUpdate#inactivateTarget()
-	 */
-	public void inactivateTarget() throws RMapException {
-			URI targetUri = (URI)this.targetObjectStatement.getObject();
-			Statement stmt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_TARGET_INACTIVATED,
-					targetUri, this.context);
-			this.inactivatedObjectStatement = stmt;
-	}
-
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.RMapEventUpdate#isTargetInactivated()
-	 */
-	public boolean isTargetInactivated() throws RMapException {
-		return (this.inactivatedObjectStatement!=null);
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public Statement getInactivatedObjectStmt() {
-		return this.inactivatedObjectStatement;
-	}
 	
+	@Override
+	public void setDerivedObjectId(RMapUri uri) throws RMapException {
+		URI derivedURI = ORAdapter.rMapUri2OpenRdfUri(uri);
+		this.setDerivationStmt(derivedURI);
+	}
 	/**
 	 * 
-	 * @param inactivatedObject
+	 * @param derivedObject
 	 * @throws RMapException
 	 */
-	protected void setTargetObjectStmt(URI targetObject) throws RMapException {
-		if (targetObject != null){
-			Statement stmt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_TARGET,
-					targetObject, this.context);
-			this.targetObjectStatement = stmt;
+	protected void setDerivationStmt(URI derivedObject) throws RMapException {
+		if (derivedObject != null){
+			Statement stmt = this.getValueFactory().createStatement(this.context, 
+					RMAP.EVENT_DERIVED_OBJECT,
+					derivedObject, this.context);
+			this.derivationStatement = stmt;
 		}
 	}
 

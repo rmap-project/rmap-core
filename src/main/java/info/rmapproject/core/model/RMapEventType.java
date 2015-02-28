@@ -11,7 +11,9 @@ import info.rmapproject.core.exception.RMapException;
  */
 public enum RMapEventType {
 	CREATION ("creation"),
+	INACTIVATION("inactivation"),
 	UPDATE("update"),
+	DERIVATION("derivation"),
 	TOMBSTONE("tombstone"),
 	DELETION("deletion");
 	
@@ -34,6 +36,12 @@ public enum RMapEventType {
 		}
 		else if (et.equals(UPDATE.getTypeString())){
 			return UPDATE;
+		}
+		else if (et.equals(INACTIVATION.getTypeString())){
+			return INACTIVATION;
+		}
+		else if (et.equals(DERIVATION.getTypeString())){
+			return DERIVATION;
 		}
 		else if (et.equals(TOMBSTONE.getTypeString())){
 			return TOMBSTONE;

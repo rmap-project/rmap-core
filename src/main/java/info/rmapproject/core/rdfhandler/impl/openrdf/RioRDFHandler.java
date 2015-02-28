@@ -10,7 +10,7 @@ import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
-import info.rmapproject.core.model.impl.openrdf.ORMapEventDelete;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventDeletion;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
 import info.rmapproject.core.model.impl.openrdf.ORMapStatement;
@@ -165,8 +165,8 @@ public class RioRDFHandler implements RDFHandler {
 		else if (orEvent instanceof ORMapEventTombstone){
 			model =((ORMapEventTombstone)orEvent).getAsModel();
 		}
-		else if (orEvent instanceof ORMapEventDelete){
-			model =((ORMapEventDelete)orEvent).getAsModel();
+		else if (orEvent instanceof ORMapEventDeletion){
+			model =((ORMapEventDeletion)orEvent).getAsModel();
 		}
 		else {
 			throw new RMapException("Unrecognized event type");
