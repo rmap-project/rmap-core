@@ -142,11 +142,6 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 		if (derivationStatement != null){
 			model.add(derivationStatement);
 		}
-		if (createdObjects != null){
-			for (Statement stmt: createdObjects){
-				model.add(stmt);
-			}
-		}
 		return model;
 	}
 
