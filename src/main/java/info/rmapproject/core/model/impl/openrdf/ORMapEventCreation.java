@@ -21,7 +21,6 @@ import info.rmapproject.core.model.RMapUri;
  */
 public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMapEventCreation {
 
-//	List<Statement> createdObjects;
 	/**
 	 * @throws RMapException
 	 */
@@ -87,7 +86,14 @@ public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMap
 		super(associatedAgent, targetType, desc);
 		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.CREATION);
 	}
-
+	/**
+	 * 
+	 * @param associatedAgent
+	 * @param targetType
+	 * @param desc
+	 * @param createdObjIds
+	 * @throws RMapException
+	 */
 	public ORMapEventCreation(RMapUri associatedAgent,
 			RMapEventTargetType targetType, RMapValue desc, List<RMapUri> createdObjIds)
 		throws RMapException{

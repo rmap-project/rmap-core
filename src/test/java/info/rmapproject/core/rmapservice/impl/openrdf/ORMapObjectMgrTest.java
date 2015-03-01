@@ -5,17 +5,25 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import static org.junit.Assert.*;
 
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdServiceFactoryIOC;
+import info.rmapproject.core.model.RMapEventTargetType;
+import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
+import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -180,7 +188,39 @@ public class ORMapObjectMgrTest {
 	 */
 	@Test
 	public void testIsEventId() {
-		fail("Not yet implemented");
+		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
+		try {
+		    URI creatorUri = vf.createURI("http://orcid.org/0000-0003-2069-1219");
+			resourceList.add(new java.net.URI("http://rmap-info.org"));
+			resourceList.add(new java.net.URI
+					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
+			RMapUri associatedAgent = ORAdapter.openRdfUri2RMapUri(creatorUri);
+			ORMapDiSCO disco = new ORMapDiSCO(associatedAgent, resourceList);
+			// Make list of created objects
+			List<URI> uris = new ArrayList<URI>();
+			URI discoContext = disco.getDiscoContext();
+			uris.add(discoContext);
+			Model model = disco.getAsModel();
+			ORMapStatementMgr stmtMgr = new ORMapStatementMgr();
+			for (Statement stmt:model){
+				URI stmtUri = stmtMgr.createReifiedStatement(stmt, ts);
+				uris.add(stmtUri);
+			}
+			List<RMapUri> createdObjIds = new ArrayList<RMapUri>();
+			for (URI uri:uris){
+				createdObjIds.add(ORAdapter.openRdfUri2RMapUri(uri));
+			}
+			ORMapEventCreation event = new ORMapEventCreation(associatedAgent, 
+					RMapEventTargetType.DISCO, null, createdObjIds);
+			Date end = new Date();
+			event.setEndTime(end);
+			ORMapEventMgr eventMgr = new ORMapEventMgr();
+			URI crEventId = eventMgr.createEvent(event, ts);
+			assertTrue(eventMgr.isEventId(crEventId, ts));
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
 	}
 
 	/**

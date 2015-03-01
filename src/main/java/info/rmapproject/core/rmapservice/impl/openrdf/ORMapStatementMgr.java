@@ -88,7 +88,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	 * @return URI that is identifier for reified statements
 	 * @throws Exception
 	 */
-	protected URI createReifiedStatement (Statement rmapStatement, SesameTriplestore ts ) 
+	public URI createReifiedStatement (Statement rmapStatement, SesameTriplestore ts ) 
 			throws RMapException {
 		String contextString = this.createContextURIString(rmapStatement);
 		URI context = ORAdapter.getValueFactory().createURI(contextString);	

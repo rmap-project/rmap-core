@@ -45,7 +45,13 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 			Statement startTimeStmt,  Statement endTimeStmt, URI context, 
 			Statement typeStatement) throws RMapException {
 		super();
-		this.context = context;
+		if (context != null){
+			this.context = context;
+			this.id = ORAdapter.openRdfUri2URI(context);
+		}
+		else {
+			this.context = ORAdapter.uri2OpenRdfUri(this.getId());
+		}
 		this.id = ORAdapter.openRdfUri2URI(this.context);
 		this.eventTypeStmt = eventTypeStmt;
 		this.eventTargetTypeStmt = eventTargetTypeStmt;
@@ -262,14 +268,14 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @see info.rmapproject.core.model.RMapEvent#setEndTime(java.util.Date)
 	 */
 	public void setEndTime(Date endTime) throws RMapException {
-		String dateString = null;
-		Literal dateLiteral = this.getValueFactory().createLiteral(dateString);
+		String dateString = null;	
 		try {
 			dateString = DateUtils.getIsoStringDate(endTime);
 		}
 		catch (Exception e){
 			throw new RMapException(e);
 		}
+		Literal dateLiteral = this.getValueFactory().createLiteral(dateString);
 		Statement endTimeStmt = this.getValueFactory().createStatement(this.context, PROV.ENDEDATTIME, 
 				dateLiteral, this.context);
 		this.endTimeStmt = endTimeStmt;

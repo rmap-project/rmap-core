@@ -47,7 +47,7 @@ public abstract class ORMapObjectMgr {
 		boolean isCorrectType = false;
 		try {
 			List<Statement> stmts = ts.getStatementsAnyContext(id, RDF.TYPE, typeURI, false);
-			if (stmts != null){
+			if (stmts != null && stmts.size()>0){
 				isCorrectType = true;
 			}
 		} catch (Exception e) {
