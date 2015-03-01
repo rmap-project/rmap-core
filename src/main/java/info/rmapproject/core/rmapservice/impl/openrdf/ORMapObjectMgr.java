@@ -5,8 +5,10 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import java.util.List;
 
+import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.RDF;
 
 import info.rmapproject.core.exception.RMapException;
@@ -46,8 +48,8 @@ public abstract class ORMapObjectMgr {
 		}
 		boolean isCorrectType = false;
 		try {
-			Statement stmt = ts.getStatement(id, RDF.TYPE, typeURI, null);
-			if (stmt != null){
+			List<Statement> stmts = ts.getStatementsAnyContext(id, RDF.TYPE, typeURI, false);
+			if (stmts != null){
 				isCorrectType = true;
 			}
 		} catch (Exception e) {

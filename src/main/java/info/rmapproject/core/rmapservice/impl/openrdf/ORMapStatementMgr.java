@@ -32,8 +32,8 @@ import org.openrdf.model.vocabulary.RDF;
 public class ORMapStatementMgr extends ORMapObjectMgr {
 
 	public static final String SCHEME = "http";
-	public static final String AUTHORITY = "http://rmap-project.org/";
-	public static final String PATH = "statementContextPrefix/";
+	public static final String AUTHORITY = "http://rmap-project.org";
+	public static final String PATH = "/statementContextPrefix/";
 	private final Logger log = LogManager.getLogger(this.getClass());
 	/**
 	 * 
@@ -127,14 +127,15 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	 * @return
 	 * @throws RMapException
 	 */
-	protected String createContextURIString(Statement rmapStatement) throws RMapException {
+	public String createContextURIString(Statement rmapStatement) throws RMapException {
 		if (rmapStatement == null){
 			throw new RMapException("Null RMapStatement");
 		}
-		// Construct the context by concatenating subject, predicate, object		
+		// Construct the context by concatenating subject, predicate, object	
 		return this.createContextURIString(rmapStatement.getSubject().toString(), 
 				rmapStatement.getPredicate().toString(), rmapStatement.getObject().stringValue());
 	}
+			
 	/**
 	 * 
 	 * @param subject
@@ -143,15 +144,15 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	 * @return
 	 * @throws RMapException
 	 */
-	protected String createContextURIString(String subject, String predicate, String object) throws RMapException {		
+	public String createContextURIString(String subject, String predicate, String object) throws RMapException {		
 		StringBuffer sb = new StringBuffer();
 		sb.append(subject);
 		sb.append(predicate);
 		sb.append(object);
 		java.net.URI uri = null;
-		String contextString = sb.toString();
+		String contextString = sb.toString();	
 		try {
-			uri = new java.net.URI(SCHEME, AUTHORITY, PATH, null, contextString);
+			uri = new java.net.URI(SCHEME, AUTHORITY, PATH, contextString, null);
 		} catch (URISyntaxException e) {
 			throw new RMapException("Unable to create URI string from " + contextString, e);
 		}
@@ -224,15 +225,15 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 		Statement objectStmt = null;
 		try {
 			do {
-				subjectStmt = ts.getStatement(stmtId, RDF.SUBJECT, null, null);
+				subjectStmt = ts.getStatementAnyContext(stmtId, RDF.SUBJECT, null);
 				if (subjectStmt==null){
 					break;
 				}
-				predicateStmt = ts.getStatement(stmtId, RDF.PREDICATE, null, null);
+				predicateStmt = ts.getStatementAnyContext(stmtId, RDF.PREDICATE, null);
 				if (predicateStmt==null){
 					break;
 				}
-				objectStmt = ts.getStatement(stmtId, RDF.OBJECT, null, null);
+				objectStmt = ts.getStatementAnyContext(stmtId, RDF.OBJECT, null);
 				if (objectStmt==null){
 					break;
 				}			

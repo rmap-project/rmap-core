@@ -415,12 +415,13 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 			if (this.relatedStatements==null || this.relatedStatements.isEmpty()){
 				break;
 			}
+			bag = new RMapStatementBag();
 			for (Statement stmt:this.relatedStatements){
 				Resource subject = stmt.getSubject();
 				URI predicate = stmt.getPredicate();
 				Value object = stmt.getObject();
 				java.net.URI uri;
-				RMapStatement rStmt = null;;
+				RMapStatement rStmt = null;
 				try {
 					 uri = this.getService().getStatementID(
 							ORAdapter.openRdfResource2NonLiteral(subject), ORAdapter.openRdfUri2RMapUri(predicate), 

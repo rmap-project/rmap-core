@@ -4,6 +4,7 @@
 package info.rmapproject.core.model;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.collections4.Predicate;
@@ -66,6 +67,7 @@ public class RMapStatementBag{
 	public RMapStatementBag() {
 		super();
 		bag = PredicatedBag.predicatedBag(new HashBag<Object>(), statementPredicate());
+		uris = new ArrayList<URI>();
 	}
 	/**
 	 * Add object to bag.  Object will be validated as either RMapStatment or RMapStatement id

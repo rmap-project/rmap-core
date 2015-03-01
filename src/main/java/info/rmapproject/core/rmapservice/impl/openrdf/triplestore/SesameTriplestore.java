@@ -122,7 +122,30 @@ public abstract class SesameTriplestore  {
 	public List<Statement> getStatements(Resource subj, URI pred, Value obj,Resource context) throws Exception{
 		return this.getStatements(subj, pred, obj, false, context);
 	}
+	
+	public List<Statement> getStatementsAnyContext(Resource subj, URI pred, Value obj, boolean includeInferred) 
+			throws Exception {
+		RepositoryResult<Statement> resultset = null;
+		List <Statement> stmts = new ArrayList <Statement>();
+		resultset = getConnection().getStatements(subj, pred, obj, includeInferred);
+		while (resultset.hasNext()) {
+		Statement stmt = resultset.next();
+		stmts.add(stmt);
+		}		
+		return stmts;
+	}
+	
+	public Statement getStatementAnyContext (Resource subj, URI pred, Value obj) throws Exception {
+		RepositoryResult<Statement> resultset = null;
+		Statement stmt = null;
+		resultset = getConnection().getStatements(subj, pred, obj, false);// I think we want true here
+		if (resultset.hasNext()) {
+			stmt = resultset.next();
+		}		
+		return stmt;
+	}
 
+	//TODO  does this make sense?  you are looking for a single statement
 	public Statement getStatement(Resource subj, URI pred, Value obj, Resource context) throws Exception {
 		RepositoryResult<Statement> resultset = null;
 		Statement stmt = null;
@@ -136,6 +159,7 @@ public abstract class SesameTriplestore  {
 	public Statement getStatement(Resource subj, URI pred, Value obj) throws Exception {
 		return getStatement(subj,pred,obj,null);
 	}
+	
 	
 	
 	public BNode getBNode() throws Exception {
