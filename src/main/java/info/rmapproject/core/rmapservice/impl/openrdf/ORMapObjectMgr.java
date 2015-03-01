@@ -5,10 +5,8 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import java.util.List;
 
-import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
-import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.RDF;
 
 import info.rmapproject.core.exception.RMapException;

@@ -125,7 +125,7 @@ public interface RMapService {
 	 * @throws RMapException
 	 */
 	public RMapEvent createDiSCO(RMapAgent systemAgent, List<URI> aggregatedResources,
-			RMapValue creator, RMapStatementBag relatedStatements, RMapValue desc)  throws RMapException;
+			RMapResource creator, RMapStatementBag relatedStatements, RMapValue desc)  throws RMapException;
 	/**
 	 * 
 	 * @param discoId
@@ -145,7 +145,7 @@ public interface RMapService {
 	 */
 	
 	public RMapEvent updateDiSCO (RMapAgent systemAgent, URI oldDiscoId, 
-			List<URI> aggregatedResources,RMapStatementBag relatedStatements, RMapValue creator, 
+			List<URI> aggregatedResources,RMapStatementBag relatedStatements, RMapResource creator, 
 			RMapValue desc) throws RMapException;
 	/**
 	 * Soft delete (tombstone) of a DiSCO

@@ -211,7 +211,7 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#createDisco(java.util.List, info.rmapproject.core.model.RMapStatementBag, info.rmapproject.core.model.RMapResource, info.rmapproject.core.model.RMapResource)
 	 */
 	public RMapEvent createDiSCO(RMapAgent systemAgent,
-			List<URI> aggregatedResources, RMapValue creator,
+			List<URI> aggregatedResources, RMapResource creator,
 			RMapStatementBag relatedStatements, RMapValue desc) 
 			throws RMapException {
 		ORMapDiSCO disco = new ORMapDiSCO(creator, aggregatedResources, desc, relatedStatements);
@@ -251,7 +251,7 @@ public class ORMapService implements RMapService {
 	 */
 	public RMapEvent updateDiSCO(RMapAgent systemAgent, URI oldDiscoId,
 			List<URI> aggregatedResources, RMapStatementBag relatedStatements,
-			RMapValue creator, RMapValue desc) 
+			RMapResource creator, RMapValue desc) 
 			throws RMapException {
 		ORMapDiSCO disco = new ORMapDiSCO(creator, aggregatedResources, desc, 
 				relatedStatements);		
