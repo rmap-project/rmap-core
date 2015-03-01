@@ -61,10 +61,6 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 */
 	protected Statement description;
 	/**
-	 * Statement declaring type of DiSCO
-	 */
-	protected Statement typeStatement;
-	/**
 	 * ID used by provider of DiSCO on their own system
 	 */
 	protected Statement providerIdStmt;
@@ -611,13 +607,6 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 			events.add(event);
 		}
 		return events;
-	}
-	/**
-	 * Return RDF type statement as ORMapStatement object
-	 * @return the typeStatement
-	 */
-	public Statement getTypeStatement() {
-		return typeStatement;
 	}
 
 	/**

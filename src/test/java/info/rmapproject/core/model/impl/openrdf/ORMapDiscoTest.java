@@ -336,21 +336,6 @@ public class ORMapDiscoTest {
 			fail(e.getMessage());
 		}	}
 
-	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#getStatus()}.
-	 */
-	@Test
-	public void testGetStatus() {
-		fail("Not yet implemented");
-	}
-
-	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#getRelatedEvents()}.
-	 */
-	@Test
-	public void testGetRelatedEvents() {
-		fail("Not yet implemented");
-	}
 
 	/**
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#getTypeStatement()}.

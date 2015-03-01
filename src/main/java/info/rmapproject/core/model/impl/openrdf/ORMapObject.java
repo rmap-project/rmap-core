@@ -5,6 +5,9 @@ package info.rmapproject.core.model.impl.openrdf;
 
 
 import org.openrdf.model.Model;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryException;
 
@@ -27,6 +30,8 @@ public abstract class ORMapObject implements RMapObject  {
 	
 	private ORMapService service = null;
 	private ValueFactory valueFactory=null;
+	
+	protected Statement typeStatement;
 	
 	protected ORMapService getService() throws RMapException {
 		if (service==null){
@@ -82,4 +87,23 @@ public abstract class ORMapObject implements RMapObject  {
 	
 	public abstract Model getAsModel() throws RMapException;
 
+	/**
+	 * @return the typeStatement
+	 */
+	public Statement getTypeStatement() {
+		return typeStatement;
+	}
+
+	public java.net.URI getType() throws RMapException {
+		Value v = this.getTypeStatement().getObject();
+		java.net.URI uri = null;
+		if (v instanceof URI){
+			URI vUri = (URI)v;
+			uri = ORAdapter.openRdfUri2URI(vUri);
+		}
+		else {
+			throw new RMapException("Type statement object is not a URI: " + v.stringValue());
+		}
+		return uri;
+	}
 }

@@ -30,7 +30,6 @@ import org.openrdf.model.vocabulary.RDF;
  */
 public class ORMapStatement extends ORMapObject implements RMapStatement {
 
-	protected Statement typeStatement;
 	protected Statement subjectStatement;
 	protected Statement predicateStatement;
 	protected Statement objectStatement;
@@ -58,6 +57,15 @@ public class ORMapStatement extends ORMapObject implements RMapStatement {
 		if (!(subject.getSubject().equals(predicate.getSubject()) &&
 				predicate.getSubject().equals(object.getSubject()))){
 			throw new RMapException("Statements do not have same ID");
+		}
+		if (subject.getContext()== null){
+			throw new RMapException("Null subject context");
+		}
+		if (predicate.getContext()== null){
+			throw new RMapException("Null subject context");
+		}
+		if (object.getContext()== null){
+			throw new RMapException("Null subject context");
 		}
 		if (!(subject.getContext().equals(predicate.getContext()) &&
 				predicate.getContext().equals(object.getContext()))){
@@ -171,5 +179,6 @@ public class ORMapStatement extends ORMapObject implements RMapStatement {
 	public Statement getObjectStatement() {
 		return objectStatement;
 	}
+
 
 }

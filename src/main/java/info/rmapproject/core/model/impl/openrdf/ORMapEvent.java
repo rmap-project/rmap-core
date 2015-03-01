@@ -38,7 +38,6 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	protected Statement startTimeStmt;  // set by constructor
 	protected Statement endTimeStmt;
 	protected URI context;
-	protected Statement typeStatement;
    
 	protected  ORMapEvent(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
 			Statement associatedAgentStmt,  Statement descriptionStmt, 
@@ -280,13 +279,6 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 				dateLiteral, this.context);
 		this.endTimeStmt = endTimeStmt;
 	}
-	/**
-	 * @return the typeStatement
-	 */
-	public Statement getTypeStatement() {
-		return typeStatement;
-	}
-
 	/**
 	 * @return the context
 	 */
