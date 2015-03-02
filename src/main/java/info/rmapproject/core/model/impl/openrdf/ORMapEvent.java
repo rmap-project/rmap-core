@@ -39,6 +39,19 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	protected Statement endTimeStmt;
 	protected URI context;
    
+	/**
+	 *Most likely use is to construct Event for read() method in RMapService from statements
+	 * in Triplestore
+	 * @param eventTypeStmt
+	 * @param eventTargetTypeStmt
+	 * @param associatedAgentStmt
+	 * @param descriptionStmt
+	 * @param startTimeStmt
+	 * @param endTimeStmt
+	 * @param context
+	 * @param typeStatement
+	 * @throws RMapException
+	 */
 	protected  ORMapEvent(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
 			Statement associatedAgentStmt,  Statement descriptionStmt, 
 			Statement startTimeStmt,  Statement endTimeStmt, URI context, 
@@ -58,6 +71,8 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		this.descriptionStmt = descriptionStmt;
 		this.startTimeStmt = startTimeStmt;
 		this.endTimeStmt = endTimeStmt;
+		this.typeStatement = 
+				this.getValueFactory().createStatement(this.context,RDF.TYPE,RMAP.EVENT,this.context);
 			
 	}
 	/**

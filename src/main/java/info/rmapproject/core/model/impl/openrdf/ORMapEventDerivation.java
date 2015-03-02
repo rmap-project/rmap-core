@@ -46,7 +46,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 		super(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,
 				descriptionStmt, startTimeStmt, endTimeStmt, context,
 				typeStatement);
-		this.makeEventTypeStatement(RMapEventType.DERIVATION);
+		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.DERIVATION);
 	}
 
 	/**
@@ -54,7 +54,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	 */
 	protected ORMapEventDerivation() throws RMapException {
 		super();
-		this.makeEventTypeStatement(RMapEventType.DERIVATION);
+		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.DERIVATION);
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	public ORMapEventDerivation(RMapUri associatedAgent,
 			RMapEventTargetType targetType) throws RMapException {
 		super(associatedAgent, targetType);
-		this.makeEventTypeStatement(RMapEventType.DERIVATION);
+		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.DERIVATION);
 	}
 
 	/**
@@ -78,7 +78,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 			RMapEventTargetType targetType, RMapValue desc)
 			throws RMapException {
 		super(associatedAgent, targetType, desc);
-		this.makeEventTypeStatement(RMapEventType.DERIVATION);
+		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.DERIVATION);
 	}
 
 	/**
@@ -90,7 +90,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 			RMapEventTargetType targetType, URI sourceObject, URI derivedObject) 
 	throws RMapException {
 		super(associatedAgent, targetType);
-		this.makeEventTypeStatement(RMapEventType.DERIVATION);
+		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.DERIVATION);
 		this.setSourceObjectStmt(sourceObject);
 		this.setDerivationStmt(derivedObject);
 	}
@@ -117,7 +117,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	throws RMapException {
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
 				startTimeStmt, endTimeStmt,context,typeStatement);
-		this.makeEventTypeStatement(RMapEventType.DERIVATION);
+		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.DERIVATION);
 		
 		if (createdObjects==null || createdObjects.size()==0){
 			throw new RMapException ("Null or empty list of created object in Update");

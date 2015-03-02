@@ -55,7 +55,7 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	throws RMapException {
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
 				startTimeStmt, endTimeStmt,context,typeStatement);
-		this.makeEventTypeStatement(RMapEventType.UPDATE);
+		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.UPDATE);
 		if (createdObjects==null || createdObjects.size()==0){
 			throw new RMapException ("Null or empty list of created object in Update");
 		}		
@@ -82,7 +82,7 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 			RMapEventTargetType targetType, URI intactivatedObject, URI derivedObject) 
 	throws RMapException {
 		super(associatedAgent, targetType);
-		this.makeEventTypeStatement(RMapEventType.UPDATE);
+		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.UPDATE);
 		this.setInactivatedObjectStmt(intactivatedObject);
 		this.setDerivationStmt(derivedObject);
 	}
@@ -118,7 +118,7 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 			List<RMapUri> createdObjects, RMapValue desc)
 			throws RMapException {
 		super(associatedAgent, targetType, desc);
-		this.makeEventTypeStatement(RMapEventType.UPDATE);
+		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.UPDATE);
 		this.setInactivatedObjectStmt(ORAdapter.rMapUri2OpenRdfUri(inactivatedObject));
 		this.setDerivationStmt(ORAdapter.rMapUri2OpenRdfUri(derivedObject));
 		this.setCreatedObjectIds(createdObjects);

@@ -32,7 +32,20 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 		super();
 		this.makeEventTypeStatement(RMapEventType.DELETION);
 	}
-
+	/**
+	 * Most likely use is to construct Event for read() method in RMapService from statements
+	 * in Triplestore
+	 * @param eventTypeStmt
+	 * @param eventTargetTypeStmt
+	 * @param associatedAgentStmt
+	 * @param descriptionStmt
+	 * @param startTimeStmt
+	 * @param endTimeStmt
+	 * @param context
+	 * @param typeStatement
+	 * @param deletedObjects
+	 * @throws RMapException
+	 */
 	public ORMapEventDeletion(Statement eventTypeStmt, 
 			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
 			Statement descriptionStmt, Statement startTimeStmt,  
@@ -52,7 +65,7 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	public ORMapEventDeletion(RMapUri associatedAgent,
 			RMapEventTargetType targetType) throws RMapException {
 		super(associatedAgent, targetType);
-		this.makeEventTypeStatement(RMapEventType.DELETION);
+		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.DELETION);
 	}
 
 	/**
@@ -65,7 +78,7 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 			RMapEventTargetType targetType, RMapValue desc)
 			throws RMapException {
 		super(associatedAgent, targetType, desc);
-		this.makeEventTypeStatement(RMapEventType.DELETION);
+		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.DELETION);
 	}
 	
 	@Override

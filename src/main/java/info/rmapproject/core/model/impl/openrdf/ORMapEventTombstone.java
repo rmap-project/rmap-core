@@ -29,7 +29,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	 */
 	protected ORMapEventTombstone() throws RMapException {
 		super();
-		this.makeEventTypeStatement(RMapEventType.TOMBSTONE);
+		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.TOMBSTONE);
 	}
 	
 	public ORMapEventTombstone(Statement eventTypeStmt, 
@@ -52,7 +52,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	public ORMapEventTombstone(RMapUri associatedAgent,
 			RMapEventTargetType targetType, RMapUri tombstonedResource) throws RMapException {
 		super(associatedAgent, targetType);
-		this.makeEventTypeStatement(RMapEventType.TOMBSTONE);
+		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.TOMBSTONE);
 		this.setTombstonedResourceId(tombstonedResource);
 	}
 	/**
@@ -64,7 +64,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	public ORMapEventTombstone(URI associatedAgent,
 			RMapEventTargetType targetType, URI tombstonedResource) throws RMapException {
 		super(associatedAgent, targetType);
-		this.makeEventTypeStatement(RMapEventType.TOMBSTONE);
+		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.TOMBSTONE);
 		this.setTombstonedResourceIdStmt(tombstonedResource);
 	}
 
@@ -80,7 +80,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 			throws RMapException {
 		super(associatedAgent, targetType, desc);
 		this.setTombstonedResourceId(tombstonedResource);
-		this.makeEventTypeStatement(RMapEventType.TOMBSTONE);
+		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.TOMBSTONE);
 	}
 
 	@Override
