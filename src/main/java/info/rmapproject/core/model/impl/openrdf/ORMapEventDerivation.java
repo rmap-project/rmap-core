@@ -26,28 +26,6 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 
 	protected Statement sourceObjectStatement;
 	protected Statement derivationStatement;
-		
-	/**
-	 * @param eventTypeStmt
-	 * @param eventTargetTypeStmt
-	 * @param associatedAgentStmt
-	 * @param descriptionStmt
-	 * @param startTimeStmt
-	 * @param endTimeStmt
-	 * @param context
-	 * @param typeStatement
-	 * @throws RMapException
-	 */
-	public ORMapEventDerivation(Statement eventTypeStmt,
-			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
-			Statement descriptionStmt, Statement startTimeStmt,
-			Statement endTimeStmt, URI context, Statement typeStatement)
-			throws RMapException {
-		super(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,
-				descriptionStmt, startTimeStmt, endTimeStmt, context,
-				typeStatement);
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.DERIVATION);
-	}
 
 	/**
 	 * @throws RMapException

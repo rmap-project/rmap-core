@@ -62,29 +62,40 @@ public class ORMapEventDeletionTest {
 			fail("unable to create id");
 		} 
 		URI context = ORAdapter.uri2OpenRdfUri(id1);
+		
 		Date start = new Date();
 		String startTime = DateUtils.getIsoStringDate(start);
+		
 		Literal litStart = vf.createLiteral(startTime);
 		Statement startTimeStmt = vf.createStatement(context, PROV.STARTEDATTIME, litStart, context);		
+		
 		Literal eType = vf.createLiteral(RMapEventType.DELETION.getTypeString());
 		Statement eventTypeStmt = vf.createStatement(context, RMAP.EVENT_TYPE, eType,context); 
+		
 		Literal eTType = vf.createLiteral(RMapEventTargetType.DISCO.toString());
 		Statement eventTargetTypeStmt = vf.createStatement(context,
 				RMAP.EVENT_TARGET_TYPE, eTType,context);
+		
 		URI creatorUri = vf.createURI("http://orcid.org/0000-0000-0000-0000");
 		Statement associatedAgentStmt= vf.createStatement(context,
 				PROV.WASASSOCIATEDWITH, creatorUri,context);
+		
 		Literal desc = vf.createLiteral("This is a delete event");
 		Statement descriptionStmt = vf.createStatement(context, DC.DESCRIPTION, desc, context);		
+		
 		Statement typeStatement = vf.createStatement(context, RDF.TYPE, RMAP.EVENT, context);
+		
 		List<Statement> deletedObjects= new ArrayList<Statement>();
 		URI dId = ORAdapter.uri2OpenRdfUri(id2);
+		
 		Statement delStmt = vf.createStatement(context, RMAP.EVENT_TARGET_DELETED, dId, context);
 		deletedObjects.add(delStmt);
+		
 		Date end = new Date();
 		String endTime = DateUtils.getIsoStringDate(end);
 		Literal litEnd = vf.createLiteral(endTime);
 		Statement endTimeStmt = vf.createStatement(context, PROV.ENDEDATTIME, litEnd, context);
+		
 		ORMapEvent event = new ORMapEventDeletion(eventTypeStmt,eventTargetTypeStmt, 
 				associatedAgentStmt,descriptionStmt, startTimeStmt,endTimeStmt, context, 
 				typeStatement, deletedObjects);

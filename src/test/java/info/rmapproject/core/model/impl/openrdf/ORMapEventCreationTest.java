@@ -102,6 +102,7 @@ public class ORMapEventCreationTest {
 			e.printStackTrace();
 			fail(e.getMessage());
 		}
+		
 	}
 
 
