@@ -8,7 +8,9 @@ import static org.junit.Assert.*;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdServiceFactoryIOC;
@@ -53,8 +55,53 @@ public class ORMapEventDerivationTest {
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation#ORMapEventDerivation(org.openrdf.model.URI, info.rmapproject.core.model.RMapEventTargetType, org.openrdf.model.URI, org.openrdf.model.URI)}.
 	 */
 	@Test
-	public void testORMapEventDerivationURIRMapEventTargetTypeURIURI() {
-		fail("Not yet implemented");
+	public void testORMapEventDerivationURIRMapEventTargetTypeURIURI() { 
+		URI associatedAgent = vf.createURI("http://orcid.org/0000-0000-0000-0000");
+		java.net.URI id1 = null;
+		try {
+			// id for old disco (source object)
+			id1 = IdServiceFactoryIOC.getFactory().createService().createId();
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("unable to create id");
+		} 
+		URI sourceObject = ORAdapter.uri2OpenRdfUri(id1);
+		
+		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
+		try {
+			resourceList.add(new java.net.URI("http://rmap-info.org"));
+			resourceList.add(new java.net.URI
+					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+			fail("unable to create resources");
+		}	
+		ORMapDiSCO newDisco = new ORMapDiSCO(ORAdapter.openRdfUri2RMapUri(associatedAgent), resourceList);
+		URI derivedObject = newDisco.getDiscoContext();
+		
+		ORMapEventDerivation event = new ORMapEventDerivation(associatedAgent, RMapEventTargetType.DISCO,
+				sourceObject, derivedObject);
+		Model model = event.getAsModel();
+		assertEquals(6,model.size());
+		
+		// Make list of created objects
+		Set<URI> uris = new LinkedHashSet<URI>();
+		URI newDiscoContext = newDisco.getDiscoContext();
+		uris.add(newDiscoContext);
+		ORMapStatementMgr stmtMgr = new ORMapStatementMgr();
+		// add URI of each created Reified statement
+		for (Statement stmt:newDisco.getAsModel()){
+			URI stmtUri = stmtMgr.createReifiedStatement(stmt, ts);
+			uris.add(stmtUri);
+		}	
+		event.setCreatedObjectIdsFromURI(uris);
+		model = event.getAsModel();
+		assertEquals(11,model.size());
+		Date end = new Date();
+		event.setEndTime(end);
+		model = event.getAsModel();
+		assertEquals(12,model.size());
+		
 	}
 
 	/**

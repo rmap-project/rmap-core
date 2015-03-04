@@ -309,7 +309,9 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		eventModel.add(eventTypeStmt);
 		eventModel.add(eventTargetTypeStmt);
 		eventModel.add(startTimeStmt);
-		eventModel.add(endTimeStmt);
+		if (endTimeStmt != null){
+			eventModel.add(endTimeStmt);
+		}
 		if (descriptionStmt != null){
 			eventModel.add(descriptionStmt);
 		}
