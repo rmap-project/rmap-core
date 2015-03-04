@@ -101,7 +101,8 @@ public class ORMapEventDerivationTest {
 		event.setEndTime(end);
 		model = event.getAsModel();
 		assertEquals(12,model.size());
-		
+		assertEquals(RMapEventType.DERIVATION, event.getEventType());
+		assertEquals(RMapEventTargetType.DISCO, event.getEventTargetType());
 	}
 
 	/**
@@ -159,8 +160,8 @@ public class ORMapEventDerivationTest {
 		Literal litStart = vf.createLiteral(startTime);
 		Statement startTimeStmt = vf.createStatement(context, PROV.STARTEDATTIME, litStart, context);		
 	
-		Literal eType = vf.createLiteral(RMapEventType.DELETION.getTypeString());
-		Statement eventTypeStmt = vf.createStatement(context, RMAP.EVENT_TYPE, eType,context); 
+		Literal eType = vf.createLiteral(RMapEventType.DERIVATION.getTypeString());
+		Statement eventTypeStmt = vf.createStatement(context, RMAP.EVENT_TYPE_DERIVATION, eType,context); 
 		
 		Literal eTType = vf.createLiteral(RMapEventTargetType.DISCO.uriString());
 		Statement eventTargetTypeStmt = vf.createStatement(context,

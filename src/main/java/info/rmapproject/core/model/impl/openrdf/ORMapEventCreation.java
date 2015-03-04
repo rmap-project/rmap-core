@@ -98,7 +98,7 @@ public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMap
 			RMapEventTargetType targetType, RMapValue desc, List<RMapUri> createdObjIds)
 		throws RMapException{
 		this(associatedAgent, targetType, desc);
-		this.setCreatedObjectIds(createdObjIds);
+		this.setCreatedObjectIds(createdObjIds);	
 	}
 
 

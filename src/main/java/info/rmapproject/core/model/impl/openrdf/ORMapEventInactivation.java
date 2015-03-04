@@ -44,7 +44,6 @@ public class ORMapEventInactivation extends ORMapEvent implements
 	throws RMapException {
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
 				startTimeStmt, endTimeStmt,context,typeStatement);
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.INACTIVATION);
 		if (inactivatedObjectStatement==null){
 			throw new RMapException("Null inactivated object statement");
 		}

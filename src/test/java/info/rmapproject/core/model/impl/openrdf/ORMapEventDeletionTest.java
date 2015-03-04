@@ -72,7 +72,7 @@ public class ORMapEventDeletionTest {
 		Literal eType = vf.createLiteral(RMapEventType.DELETION.getTypeString());
 		Statement eventTypeStmt = vf.createStatement(context, RMAP.EVENT_TYPE, eType,context); 
 		
-		Literal eTType = vf.createLiteral(RMapEventTargetType.DISCO.toString());
+		Literal eTType = vf.createLiteral(RMapEventTargetType.DISCO.uriString());
 		Statement eventTargetTypeStmt = vf.createStatement(context,
 				RMAP.EVENT_TARGET_TYPE, eTType,context);
 		
@@ -105,6 +105,10 @@ public class ORMapEventDeletionTest {
 		for (Statement stmt:eventModel){
 			assertEquals(econtext,stmt.getContext());
 		}
+		assertEquals(RMapEventType.DELETION, event.getEventType());
+		assertEquals(RMapEventTargetType.DISCO, event.getEventTargetType());
+		Statement tStmt = event.getTypeStatement();
+		assertEquals(RMAP.EVENT, tStmt.getObject());
 	}
 
 	/**
@@ -135,6 +139,8 @@ public class ORMapEventDeletionTest {
 			for (Statement stmt:eventModel){
 				assertEquals(context,stmt.getContext());
 			}
+			assertEquals(RMapEventType.DELETION, event.getEventType());
+			assertEquals(RMapEventTargetType.DISCO, event.getEventTargetType());
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 			fail(e.getMessage());

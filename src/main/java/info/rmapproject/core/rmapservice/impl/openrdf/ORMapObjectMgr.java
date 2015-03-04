@@ -83,8 +83,10 @@ public abstract class ORMapObjectMgr {
 	 * @throws RMapException
 	 */
 	public boolean isEventId (URI id, SesameTriplestore ts) throws RMapException {	
-		return this.isRMapType(ts, id, RMAP.EVENT);		
+		return this.isRMapType(ts, id, RMAP.EVENT);
 	}
+	/**
+
 	/**
 	 * 
 	 * @param id

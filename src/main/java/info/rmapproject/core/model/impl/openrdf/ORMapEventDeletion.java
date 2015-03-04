@@ -54,7 +54,6 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 		
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
 				startTimeStmt, endTimeStmt,context,typeStatement);
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.DELETION);
 		this.deletedObjects = deletedObjects;
 	}
 	/**
