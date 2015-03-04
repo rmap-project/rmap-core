@@ -27,6 +27,7 @@ import info.rmapproject.core.model.RMapStatementBag;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
+import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
@@ -43,6 +44,7 @@ public class ORMapService implements RMapService {
 	protected ORMapStatementMgr stmtmgr = new ORMapStatementMgr();
 	protected ORMapDiSCOMgr discomgr = new ORMapDiSCOMgr();
 	protected ORMapEventMgr eventmgr = new ORMapEventMgr();
+	protected ORMapAgentMgr agentgmr = new ORMapAgentMgr();
 	protected SesameTriplestore ts = null;
 	/**
 	 * 
@@ -459,8 +461,8 @@ public class ORMapService implements RMapService {
 	}
 
 	public RMapAgent readAgent(URI agentID) throws RMapException {
-		// TODO Auto-generated method stub
-		return null;
+		ORMapAgent agent = agentgmr.readAgent(ORAdapter.uri2OpenRdfUri(agentID), ts);
+		return agent;
 	}
 
 	/**

@@ -155,9 +155,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		} catch (Exception e) {
 			throw new RMapException ("Unable to validate DiSCO id " + 
 					discoIncomingId, e);
-		}			
-		List<Statement> aggResources = new ArrayList<Statement>();
-		List<Statement> relStatements = new ArrayList<Statement>();		
+		}				
 		if (isRmapId){
 			// use incoming id
 			try {
@@ -170,7 +168,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 			}			
 		}
 		else {
-			// create a statement saying what original id was
+			// create a statement saying what original id was, and use existing type statement
 			Statement idStmt = this.getValueFactory().createStatement(this.discoContext, RMAP.PROVIDERID,
 					incomingIdValue, this.discoContext);
 			this.providerIdStmt = idStmt;
@@ -178,56 +176,59 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		// sort out statements into type statement, aggregate resource statement,
 		// creator statement, related statements, desc statement
 		// replacing DiSCO id with new one if necessary
-
+		
+		List<Statement> aggResources = new ArrayList<Statement>();
+		List<Statement> relStatements = new ArrayList<Statement>();
+		
 		for (Statement stmt:stmts){
 			Resource subject = stmt.getSubject();
 			URI predicate = stmt.getPredicate();
 			Value object = stmt.getObject();
-			Resource context = stmt.getContext();
+			// see if disco is subject of statement
+			boolean subjectIsDisco = subject.stringValue().equals(discoIncomingId);
 			if (!isRmapId){
-				if (subject.stringValue().equals(discoIncomingId)){
+				// convert incoming id to RMap id in subject and boject
+				if (subjectIsDisco){
 					subject = this.discoContext;
 				}
 				if (object.stringValue().equals(discoIncomingId)){
 					object = this.discoContext;
 				}
-			}
-			context = this.discoContext;
-			boolean subjectIsDisco = subject.equals(context);
+			}			
 			if (predicate.equals(RDF.TYPE)){
 				if (!subjectIsDisco){
 					// we automatically created a type statement for disco					
 					relStatements.add(this.getValueFactory().createStatement
-							(subject, predicate, object, context));
+							(subject, predicate, object, this.discoContext));
 				}
 			}
 			else if (predicate.equals(DCTERMS.CREATOR)){
 				if (subjectIsDisco){
 					this.creator = this.getValueFactory().createStatement
-							(subject, predicate, object, context);
+							(subject, predicate, object, this.discoContext);
 				}
 				else {
 					relStatements.add(this.getValueFactory().createStatement
-							(subject, predicate, object, context));
+							(subject, predicate, object, this.discoContext));
 				}
 			}
 			else if (predicate.equals(RMAP.AGGREGATES)){
 				aggResources.add(this.getValueFactory().createStatement
-						(subject, predicate, object, context));
+						(subject, predicate, object, this.discoContext));
 			}
 			else if (predicate.equals(DC.DESCRIPTION)){
 				if (subjectIsDisco){
 					this.description= this.getValueFactory().createStatement
-							(subject, predicate, object, context);
+							(subject, predicate, object, this.discoContext);
 				}
 				else {
 					relStatements.add(this.getValueFactory().createStatement
-							(subject, predicate, object, context));
+							(subject, predicate, object, this.discoContext));
 				}
 			}
 			else {
 				relStatements.add(this.getValueFactory().createStatement
-						(subject, predicate, object, context));
+						(subject, predicate, object, this.discoContext));
 			}
 		}
 		this.aggregatedResources = aggResources;
