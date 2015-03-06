@@ -188,6 +188,9 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		if (providerIdStmt != null){
 			model.add(providerIdStmt);
 		}
+		for (Statement stmt:profileStmts){
+			model.add(stmt);
+		}
 		return model;
 	}
 
