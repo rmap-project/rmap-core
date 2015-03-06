@@ -107,6 +107,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		}
 		else {
 			// create a statement saying what original id was; carry on with RMap id and context from constructor
+			//TODO is a provider ID an ID we would want to make part of a profile
 			Statement idStmt = this.getValueFactory().createStatement(this.context, RMAP.PROVIDERID,
 					incomingIdValue, this.context);
 			this.providerIdStmt = idStmt;
@@ -195,7 +196,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	}
 
 	@Override
-	public List<RMapUri> getAgentProfileIds() throws RMapException {
+	public List<RMapUri> getProfileIds() throws RMapException {
 		List<RMapUri> uris = new ArrayList<RMapUri>();
 		for (Statement stmt:this.profileStmts){
 			URI profile = (URI)stmt.getObject();
@@ -205,7 +206,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	}
 
 	@Override
-	public void setAgentProfileIds(List<RMapUri> profileIds)
+	public void setProfileIds(List<RMapUri> profileIds)
 			throws RMapException {
 		if (profileIds==null){
 			throw new RMapException("Null profileIds");

@@ -15,11 +15,23 @@ import java.util.Map;
  * @author smorrissey
  *
  */
-public interface RMapAgentProfile extends RMapObject {
-
+public interface RMapProfile extends RMapObject {
+	/**
+	 * 
+	 * @return
+	 * @throws RMapException
+	 */
 	public Map<RMapUri, RMapValue> getProperties() throws RMapException;
-	
+	/**
+	 * 
+	 * @return
+	 * @throws RMapException
+	 */
 	public List<RMapIdentity> getIdentities() throws RMapException;
-	
+	/**
+	 * 
+	 * @return
+	 * @throws RMapException
+	 */
 	public RMapIdentity getPreferredIdentity() throws RMapException;
 }

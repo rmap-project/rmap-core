@@ -9,6 +9,6 @@ import info.rmapproject.core.model.RMapObject;
  * @author smorrissey
  *
  */
-public interface RMapIdentityProvider extends RMapObject {
+public interface RMapIdentityProviderConfig extends RMapObject {
 
 }

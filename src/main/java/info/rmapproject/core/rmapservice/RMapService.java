@@ -12,6 +12,7 @@ import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.agent.RMapAgent;
+import info.rmapproject.core.model.agent.RMapProfile;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.statement.RMapStatement;
@@ -249,5 +250,38 @@ public interface RMapService {
 	 * @throws RMapException
 	 */
 	public RMapAgent readAgent (URI agentID) throws RMapException;
+	/**
+	 * 
+	 * @param agentId
+	 * @return
+	 * @throws RMapException
+	 */
+	public List<URI> getRelatedProfiles (URI agentId) throws RMapException;
+	
+	// Agent profile services
+	
+	/**
+	 * 
+	 * @param profileId
+	 * @return
+	 * @throws RMapException
+	 */
+	public RMapProfile readProfile (URI profileId)  throws RMapException;
+	/**
+	 * 
+	 * @param profileId
+	 * @return
+	 * @throws RMapException
+	 */
+	public List<URI> getRelatedIdentities (URI profileId) throws RMapException;
+	/**
+	 * 
+	 * @param profileId
+	 * @return
+	 * @throws RMapException
+	 */
+	public URI getPreferredIdentity (URI profileId) throws RMapException;
+	
+	
 
 }

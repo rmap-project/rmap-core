@@ -22,6 +22,7 @@ import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.agent.RMapAgent;
+import info.rmapproject.core.model.agent.RMapProfile;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
@@ -503,6 +504,30 @@ public class ORMapService implements RMapService {
 	 */
 	public SesameTriplestore getTriplestore() {
 		return ts;
+	}
+
+	@Override
+	public List<URI> getRelatedProfiles(URI agentId) throws RMapException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public RMapProfile readProfile(URI profileId) throws RMapException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<URI> getRelatedIdentities(URI profileId) throws RMapException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public URI getPreferredIdentity(URI profileId) throws RMapException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

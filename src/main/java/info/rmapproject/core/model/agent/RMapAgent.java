@@ -20,12 +20,12 @@ public interface RMapAgent extends RMapObject {
 	 * @return
 	 * @throws RMapException
 	 */
-	public List<RMapUri> getAgentProfileIds() throws RMapException;
+	public List<RMapUri> getProfileIds() throws RMapException;
 	/**
 	 * 
 	 * @param profileIds
 	 * @throws RMapException
 	 */
-	public void setAgentProfileIds(List<RMapUri> profileIds) throws RMapException;
+	public void setProfileIds(List<RMapUri> profileIds) throws RMapException;
 
 }
