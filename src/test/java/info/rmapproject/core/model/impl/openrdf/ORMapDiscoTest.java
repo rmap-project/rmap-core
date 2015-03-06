@@ -8,9 +8,9 @@ import static org.junit.Assert.*;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdServiceFactoryIOC;
 import info.rmapproject.core.model.RMapResource;
-import info.rmapproject.core.model.RMapStatementBag;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
+import info.rmapproject.core.model.statement.RMapStatementBag;
 import info.rmapproject.core.rmapservice.impl.openrdf.ORMapStatementMgr;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
@@ -177,13 +177,6 @@ public class ORMapDiscoTest {
 		assertTrue (isConnected);
 	}
 
-	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#getAggregratedResources()}.
-	 */
-	@Test
-	public void testGetAggregratedResources() {
-		
-	}
 
 	/**
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#getAggregatedResourceStatements()}.
@@ -220,7 +213,7 @@ public class ORMapDiscoTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#setRelatedStatements(info.rmapproject.core.model.RMapStatementBag)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#setRelatedStatements(info.rmapproject.core.model.statement.RMapStatementBag)}.
 	 */
 	@Test
 	public void testSetRelatedStatements() {

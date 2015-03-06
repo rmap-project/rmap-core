@@ -1,7 +1,7 @@
 /**
  * 
  */
-package info.rmapproject.core.model;
+package info.rmapproject.core.model.event;
 
 import info.rmapproject.core.exception.RMapException;
 

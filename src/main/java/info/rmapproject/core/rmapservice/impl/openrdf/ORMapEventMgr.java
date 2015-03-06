@@ -15,8 +15,8 @@ import java.util.TreeSet;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
-import info.rmapproject.core.model.RMapEventTargetType;
-import info.rmapproject.core.model.RMapEventType;
+import info.rmapproject.core.model.event.RMapEventTargetType;
+import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventDeletion;

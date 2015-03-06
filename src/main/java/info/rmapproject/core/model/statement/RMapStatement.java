@@ -1,7 +1,13 @@
 /**
  * 
  */
-package info.rmapproject.core.model;
+package info.rmapproject.core.model.statement;
+
+import info.rmapproject.core.model.RMapObject;
+import info.rmapproject.core.model.RMapResource;
+import info.rmapproject.core.model.RMapStatus;
+import info.rmapproject.core.model.RMapUri;
+import info.rmapproject.core.model.RMapValue;
 
 import java.net.URI;
 import java.util.List;

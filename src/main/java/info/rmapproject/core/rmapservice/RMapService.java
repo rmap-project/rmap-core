@@ -7,15 +7,15 @@ import java.net.URI;
 import java.util.List;
 
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapAgent;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapResource;
-import info.rmapproject.core.model.RMapDiSCO;
-import info.rmapproject.core.model.RMapEvent;
-import info.rmapproject.core.model.RMapStatement;
-import info.rmapproject.core.model.RMapStatementBag;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.RMapValue;
+import info.rmapproject.core.model.agent.RMapAgent;
+import info.rmapproject.core.model.disco.RMapDiSCO;
+import info.rmapproject.core.model.event.RMapEvent;
+import info.rmapproject.core.model.statement.RMapStatement;
+import info.rmapproject.core.model.statement.RMapStatementBag;
 
 /**
  *
@@ -124,6 +124,7 @@ public interface RMapService {
 	 * @return
 	 * @throws RMapException
 	 */
+	//TODO refactor to URI agentId instead of RMapAgent
 	public RMapEvent createDiSCO(RMapAgent systemAgent, List<URI> aggregatedResources,
 			RMapResource creator, RMapStatementBag relatedStatements, RMapValue desc)  throws RMapException;
 	/**
@@ -143,7 +144,7 @@ public interface RMapService {
 	 * @return
 	 * @throws RMapException
 	 */
-	
+	//TODO refactor to URI agentId instead of RMapAgent
 	public RMapEvent updateDiSCO (RMapAgent systemAgent, URI oldDiscoId, 
 			List<URI> aggregatedResources,RMapStatementBag relatedStatements, RMapResource creator, 
 			RMapValue desc) throws RMapException;
@@ -153,6 +154,7 @@ public interface RMapService {
 	 * @return
 	 * @throws RMapException
 	 */
+	//TODO refactor to URI agentId instead of RMapAgent
 	public RMapEvent deleteDiSCO (URI discoID, RMapAgent systemAgent) throws RMapException;
 	/**
 	 * Get all versions of a DiSCO whether created by original creator of DiSCO or by some

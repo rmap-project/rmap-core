@@ -12,10 +12,10 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapEventTargetType;
-import info.rmapproject.core.model.RMapEventWithNewObjects;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
+import info.rmapproject.core.model.event.RMapEventTargetType;
+import info.rmapproject.core.model.event.RMapEventWithNewObjects;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 
 /**

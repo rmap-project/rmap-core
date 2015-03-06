@@ -1,7 +1,7 @@
 /**
  * 
  */
-package info.rmapproject.core.model;
+package info.rmapproject.core.model.statement;
 
 import java.net.URI;
 import java.util.ArrayList;

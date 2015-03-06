@@ -14,9 +14,9 @@ import java.util.Set;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdServiceFactoryIOC;
-import info.rmapproject.core.model.RMapEventTargetType;
-import info.rmapproject.core.model.RMapEventType;
 import info.rmapproject.core.model.RMapUri;
+import info.rmapproject.core.model.event.RMapEventTargetType;
+import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.rmapservice.impl.openrdf.ORMapStatementMgr;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
@@ -52,7 +52,7 @@ public class ORMapEventDerivationTest {
 
 
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation#ORMapEventDerivation(org.openrdf.model.URI, info.rmapproject.core.model.RMapEventTargetType, org.openrdf.model.URI, org.openrdf.model.URI)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation#ORMapEventDerivation(org.openrdf.model.URI, info.rmapproject.core.model.event.RMapEventTargetType, org.openrdf.model.URI, org.openrdf.model.URI)}.
 	 */
 	@Test
 	public void testORMapEventDerivationURIRMapEventTargetTypeURIURI() { 

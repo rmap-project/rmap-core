@@ -12,8 +12,8 @@ import java.util.List;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdServiceFactoryIOC;
-import info.rmapproject.core.model.RMapEventTargetType;
 import info.rmapproject.core.model.RMapUri;
+import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;

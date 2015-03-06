@@ -8,11 +8,11 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapEventInactivation;
-import info.rmapproject.core.model.RMapEventTargetType;
-import info.rmapproject.core.model.RMapEventType;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
+import info.rmapproject.core.model.event.RMapEventInactivation;
+import info.rmapproject.core.model.event.RMapEventTargetType;
+import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 /**

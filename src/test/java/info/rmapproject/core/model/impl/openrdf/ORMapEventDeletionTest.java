@@ -11,10 +11,10 @@ import java.util.Date;
 import java.util.List;
 
 import info.rmapproject.core.idservice.IdServiceFactoryIOC;
-import info.rmapproject.core.model.RMapEventTargetType;
-import info.rmapproject.core.model.RMapEventType;
 import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.RMapUri;
+import info.rmapproject.core.model.event.RMapEventTargetType;
+import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
@@ -112,7 +112,7 @@ public class ORMapEventDeletionTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventDeletion#ORMapEventDeletion(info.rmapproject.core.model.RMapUri, info.rmapproject.core.model.RMapEventTargetType, info.rmapproject.core.model.RMapValue)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventDeletion#ORMapEventDeletion(info.rmapproject.core.model.RMapUri, info.rmapproject.core.model.event.RMapEventTargetType, info.rmapproject.core.model.RMapValue)}.
 	 */
 	@Test
 	public void testORMapEventDeletionRMapUriRMapEventTargetTypeRMapValue() {

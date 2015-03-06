@@ -18,19 +18,6 @@ public class RMAP {
 	 * RMapProject elements namespace: http://rmap-project.org/terms/
 	 */
 	public static final String NAMESPACE = "http://rmap-project.org/rmap/terms/";
-
-  //*****************************LETS TALK ***********************************************
-	/**
-	 * RMapProject ID urls: http://rmap-project.org/data?%
-	 */
-//	public static final String API_NS = "http://rmapdns.ddns.net:8080/api/";
-//	public static final String DATA_NS = "http://rmapdns.ddns.net:8080/data/";
-//	public static final String STATEMENT_DATA_NS = "http://rmapdns.ddns.net:8080/data/stmtid/";
-	//TODO  why separate namespace for Agent?
-	public static final String AGENT_DATA_NS = "http://rmapdns.ddns.net:8080/data/agentid/";
-//	public static final String PROFILE_DATA_NS = "http://rmapdns.ddns.net:8080/data/profileid/";
-//	public static final String DISCO_DATA_NS = "http://rmapdns.ddns.net:8080/data/discoid/";
-//	public static final String EVENT_DATA_NS = "http://rmapdns.ddns.net:8080/data/eventid/";
 	
 		
 	/**
@@ -188,7 +175,7 @@ public class RMAP {
 		EVENT_TARGET_DELETED = f.createURI(NAMESPACE, "deletedObject");
 		EVENT = f.createURI(NAMESPACE, "Event");
 		AGGREGATES = f.createURI(NAMESPACE, "aggregates");   
-		RMAP_AGENT_ID = f.createURI(AGENT_DATA_NS,"RMap");
+		RMAP_AGENT_ID = f.createURI(NAMESPACE,"agentId");
 		HAS_STATUS = f.createURI(NAMESPACE, "hasStatus");
 		ACTIVE = f.createURI(NAMESPACE, "active"); 
 		INACTIVE = f.createURI(NAMESPACE, "inactive");

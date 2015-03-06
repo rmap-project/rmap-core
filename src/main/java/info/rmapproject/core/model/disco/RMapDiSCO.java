@@ -1,9 +1,15 @@
 /**
  * 
  */
-package info.rmapproject.core.model;
+package info.rmapproject.core.model.disco;
 
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.RMapObject;
+import info.rmapproject.core.model.RMapResource;
+import info.rmapproject.core.model.RMapStatus;
+import info.rmapproject.core.model.RMapValue;
+import info.rmapproject.core.model.event.RMapEvent;
+import info.rmapproject.core.model.statement.RMapStatementBag;
 
 import java.net.URI;
 import java.util.List;

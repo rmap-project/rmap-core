@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.collections4.Predicate;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -20,14 +21,14 @@ import org.openrdf.model.vocabulary.RDF;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
-import info.rmapproject.core.idservice.IdServiceFactoryIOC;
-import info.rmapproject.core.model.RMapDiSCO;
-import info.rmapproject.core.model.RMapEvent;
+import info.rmapproject.core.idvalidator.RMapIdPredicate;
 import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapValue;
-import info.rmapproject.core.model.RMapStatement;
-import info.rmapproject.core.model.RMapStatementBag;
 import info.rmapproject.core.model.RMapStatus;
+import info.rmapproject.core.model.disco.RMapDiSCO;
+import info.rmapproject.core.model.event.RMapEvent;
+import info.rmapproject.core.model.statement.RMapStatement;
+import info.rmapproject.core.model.statement.RMapStatementBag;
 
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.RMapServiceFactoryIOC;
@@ -149,9 +150,11 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		}
 		// check to make sure DiSCO has an RMAP id not a local one
 		try {
-			isRmapId  = 
-					IdServiceFactoryIOC.getFactory().createService().isValidId(
-							new java.net.URI(discoIncomingId));
+			Predicate<Object> predicate = RMapIdPredicate.rmapIdPredicate();
+			isRmapId  = predicate.evaluate(new java.net.URI(discoIncomingId));
+//					
+//					IdServiceFactoryIOC.getFactory().createService().isValidId(
+//							new java.net.URI(discoIncomingId));
 		} catch (Exception e) {
 			throw new RMapException ("Unable to validate DiSCO id " + 
 					discoIncomingId, e);

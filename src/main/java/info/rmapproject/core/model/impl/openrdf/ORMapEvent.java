@@ -17,11 +17,11 @@ import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.RDF;
 
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapEvent;
-import info.rmapproject.core.model.RMapEventTargetType;
-import info.rmapproject.core.model.RMapEventType;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.RMapUri;
+import info.rmapproject.core.model.event.RMapEvent;
+import info.rmapproject.core.model.event.RMapEventTargetType;
+import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 import info.rmapproject.core.utils.DateUtils;

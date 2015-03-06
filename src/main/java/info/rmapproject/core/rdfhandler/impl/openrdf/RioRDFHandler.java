@@ -2,10 +2,9 @@ package info.rmapproject.core.rdfhandler.impl.openrdf;
 
 
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapAgent;
-import info.rmapproject.core.model.RMapDiSCO;
-import info.rmapproject.core.model.RMapEvent;
-import info.rmapproject.core.model.RMapStatement;
+import info.rmapproject.core.model.agent.RMapAgent;
+import info.rmapproject.core.model.disco.RMapDiSCO;
+import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
@@ -14,6 +13,7 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEventDeletion;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
 import info.rmapproject.core.model.impl.openrdf.ORMapStatement;
+import info.rmapproject.core.model.statement.RMapStatement;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 
 import java.io.ByteArrayOutputStream;

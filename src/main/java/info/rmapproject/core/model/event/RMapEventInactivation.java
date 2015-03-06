@@ -1,9 +1,10 @@
 /**
  * 
  */
-package info.rmapproject.core.model;
+package info.rmapproject.core.model.event;
 
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.RMapUri;
 
 /**
  * @author smorrissey

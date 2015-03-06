@@ -4,9 +4,9 @@
 package info.rmapproject.core.model.impl.openrdf;
 
 import static org.junit.Assert.*;
-import info.rmapproject.core.model.RMapEventTargetType;
-import info.rmapproject.core.model.RMapEventType;
 import info.rmapproject.core.model.RMapUri;
+import info.rmapproject.core.model.event.RMapEventTargetType;
+import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.rmapservice.impl.openrdf.ORMapEventMgr;
 import info.rmapproject.core.rmapservice.impl.openrdf.ORMapStatementMgr;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
@@ -50,7 +50,7 @@ public class ORMapEventCreationTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventCreation#ORMapEventCreation(info.rmapproject.core.model.RMapUri, info.rmapproject.core.model.RMapEventTargetType, info.rmapproject.core.model.RMapValue, java.util.List)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventCreation#ORMapEventCreation(info.rmapproject.core.model.RMapUri, info.rmapproject.core.model.event.RMapEventTargetType, info.rmapproject.core.model.RMapValue, java.util.List)}.
 	 */
 	@Test
 	public void testORMapEventCreationRMapUriRMapEventTargetTypeRMapValueListOfRMapUri() {
