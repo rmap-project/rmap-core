@@ -24,14 +24,32 @@ public interface RMapProfile extends RMapObject {
 	public Map<RMapUri, RMapValue> getProperties() throws RMapException;
 	/**
 	 * 
-	 * @return
+	 * @param propertyMap
 	 * @throws RMapException
 	 */
-	public List<RMapIdentity> getIdentities() throws RMapException;
+	public void setProperties(Map<RMapUri, RMapValue> propertyMap) throws RMapException;
 	/**
 	 * 
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapIdentity getPreferredIdentity() throws RMapException;
+	public List<RMapUri> getIdentities() throws RMapException;
+	/**
+	 * 
+	 * @param idents
+	 * @throws RMapException
+	 */
+	public void setIdentities (List<RMapUri> idents)  throws RMapException;
+	/**
+	 * 
+	 * @return
+	 * @throws RMapException
+	 */
+	public RMapUri getPreferredIdentity() throws RMapException;
+	/**
+	 * 
+	 * @param ident
+	 * @throws RMapException
+	 */
+	public void setPreferredIdentity (RMapUri ident) throws RMapException;
 }

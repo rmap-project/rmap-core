@@ -57,6 +57,22 @@ public class RMAP {
 	/**
 	 * 
 	 */
+	public static final URI PROFILE;
+	/**
+	 * 
+	 */
+	public static final URI PROFILE_ID_BY;
+	/**
+	 * 
+	 */
+	public static final URI PROFILE_PREFERRED_ID;
+	/**
+	 * 
+	 */
+	public static final URI IDENTITY;
+	/**
+	 * 
+	 */
 	public static final URI EVENT;
 	/**
 	 * 
@@ -160,6 +176,11 @@ public class RMAP {
 		AGENT = f.createURI(NAMESPACE, "Agent");
 		SYSTEM_AGENT = f.createURI(NAMESPACE, "SystemAgent");
 		SCHOLARLY_AGENT = f.createURI(NAMESPACE, "ScholarlyAgent");
+		PROFILE = f.createURI(NAMESPACE, "Profile");
+		PROFILE_ID_BY = f.createURI(NAMESPACE,"identifiedBy");
+		PROFILE_PREFERRED_ID = f.createURI(NAMESPACE, "preferredId");
+		IDENTITY = f.createURI(NAMESPACE, "Identity");
+		EVENT = f.createURI(NAMESPACE, "Event");
 		EVENT_TYPE = f.createURI(NAMESPACE, "eventType");
 		EVENT_TYPE_CREATION = f.createURI(NAMESPACE, "creation");
 		EVENT_TYPE_UPDATE = f.createURI(NAMESPACE, "update");
@@ -172,8 +193,7 @@ public class RMAP {
 		EVENT_INACTIVATED_OBJECT = f.createURI(NAMESPACE, "inactivatedObject");
 		EVENT_DERIVED_OBJECT = f.createURI(NAMESPACE, "derivedObject");
 		EVENT_TARGET_TOMBSTONED = f.createURI(NAMESPACE, "tombstonedObject");
-		EVENT_TARGET_DELETED = f.createURI(NAMESPACE, "deletedObject");
-		EVENT = f.createURI(NAMESPACE, "Event");
+		EVENT_TARGET_DELETED = f.createURI(NAMESPACE, "deletedObject");		
 		AGGREGATES = f.createURI(NAMESPACE, "aggregates");   
 		RMAP_AGENT_ID = f.createURI(NAMESPACE,"agentId");
 		HAS_STATUS = f.createURI(NAMESPACE, "hasStatus");
