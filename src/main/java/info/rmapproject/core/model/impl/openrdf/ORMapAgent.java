@@ -29,6 +29,7 @@ import info.rmapproject.core.utils.ConfigUtils;
 public class ORMapAgent extends ORMapObject implements RMapAgent {
 	protected URI context;
 	protected Statement providerIdStmt;
+	//TODO  remove this and use service to get ProfileIds
 	protected List<Statement> profileStmts = new ArrayList<Statement>();
 	
 	private static String PROPERTIES_FN = "idValidator";
@@ -36,6 +37,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	private static String separator = ",";
 	protected static List<Predicate<Object>> idValidators;	
 		
+	// initialize list of agent id validators (to detect RMap-acceptable ids)
 	static {
 		idValidators = new ArrayList<Predicate<Object>>();
 		List<String> classKeys = ConfigUtils.getPropertyValueList(PROPERTIES_FN, 
@@ -59,6 +61,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	protected ORMapAgent() throws RMapException {
 		super();	
 		this.context = ORAdapter.uri2OpenRdfUri(getId());	
+		this.profileStmts = new ArrayList<Statement>();
 		this.typeStatement = 
 				this.getValueFactory().createStatement(this.context,RDF.TYPE,RMAP.AGENT,this.context);
 	}
@@ -220,7 +223,24 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		}
 		this.profileStmts = stmts;
 	}
-
+	@Override
+	public void addProfileId(RMapUri profileId) throws RMapException {
+		if (profileId==null){
+			throw new RMapException("null profileID");
+		}
+		URI uri = ORAdapter.rMapUri2OpenRdfUri(profileId);
+		this.addProfileURI(uri);
+	}
+	/**
+	 * 
+	 * @param uri
+	 * @throws RMapException
+	 */
+	public void addProfileURI (URI uri) throws RMapException{
+		Statement stmt = this.getValueFactory().createStatement(this.context, 
+				DCTERMS.DESCRIPTION, uri, this.context);
+		this.profileStmts.add(stmt);
+	}
 	
 
 }

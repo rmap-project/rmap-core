@@ -61,6 +61,10 @@ public class RMAP {
 	/**
 	 * 
 	 */
+	public static final URI DESCRIBES_AGENT;
+	/**
+	 * 
+	 */
 	public static final URI PROFILE_ID_BY;
 	/**
 	 * 
@@ -202,5 +206,6 @@ public class RMAP {
 		DELETED = f.createURI(NAMESPACE, "deleted");
 		TOMBSTONED = f.createURI(NAMESPACE, "tombstoned");
 		PROVIDERID = f.createURI(NAMESPACE, "providerId");
+		DESCRIBES_AGENT = f.createURI(NAMESPACE, "describes");
 	}
 }

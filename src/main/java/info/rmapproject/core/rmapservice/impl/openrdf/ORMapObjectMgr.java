@@ -97,6 +97,16 @@ public abstract class ORMapObjectMgr {
 	public boolean isAgentId(URI id, SesameTriplestore ts) throws RMapException {	
 		return this.isRMapType(ts, id, RMAP.AGENT);		
 	}
+	/**
+	 * 
+	 * @param id
+	 * @param ts
+	 * @return
+	 * @throws RMapException
+	 */
+	public boolean isProfileId(URI id, SesameTriplestore ts) throws RMapException {	
+		return this.isRMapType(ts, id, RMAP.PROFILE);		
+	}
 	
 	/**
 	 * 

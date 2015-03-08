@@ -27,5 +27,11 @@ public interface RMapAgent extends RMapObject {
 	 * @throws RMapException
 	 */
 	public void setProfileIds(List<RMapUri> profileIds) throws RMapException;
+	/**
+	 * 
+	 * @param profileId
+	 * @throws RMapException
+	 */
+	public void addProfileId(RMapUri profileId) throws RMapException;
 
 }

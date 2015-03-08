@@ -7,6 +7,7 @@ import java.net.URI;
 import java.util.List;
 
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapStatus;
@@ -24,7 +25,7 @@ import info.rmapproject.core.model.statement.RMapStatementBag;
  *
  */
 public interface RMapService {
-
+//TODO  be more explicit about exceptions thrown
 	// Resource services
 	/**
 	 * Get URI of all RMap object types with a specified status code related to a Resource URI 
@@ -74,7 +75,7 @@ public interface RMapService {
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapStatement readStatement (URI id) throws RMapException;
+	public RMapStatement readStatement (URI id) throws RMapObjectNotFoundException, RMapException;
 	/**
 	 * Get the URI for the RMapStatement matching the supplied subject, predicate and objectc
 	 * @param subject
@@ -115,7 +116,7 @@ public interface RMapService {
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapDiSCO readDiSCO(URI discoID) throws RMapException;
+	public RMapDiSCO readDiSCO(URI discoID) throws RMapObjectNotFoundException, RMapException;
 	/**
 	 * 
 	 * @param aggregatedResources
@@ -210,7 +211,7 @@ public interface RMapService {
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapEvent readEvent(URI eventId) throws RMapException;
+	public RMapEvent readEvent(URI eventId)  throws RMapObjectNotFoundException, RMapException;
 	/**
 	 * 
 	 * @param eventID
@@ -249,14 +250,14 @@ public interface RMapService {
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapAgent readAgent (URI agentID) throws RMapException;
+	public RMapAgent readAgent (URI agentID) throws RMapObjectNotFoundException, RMapException;
 	/**
 	 * 
 	 * @param agentId
 	 * @return
 	 * @throws RMapException
 	 */
-	public List<URI> getRelatedProfiles (URI agentId) throws RMapException;
+	public List<URI> getAgentRelatedProfiles (URI agentId) throws RMapException;
 	
 	// Agent profile services
 	
@@ -266,21 +267,21 @@ public interface RMapService {
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapProfile readProfile (URI profileId)  throws RMapException;
+	public RMapProfile readProfile (URI profileId)  throws RMapObjectNotFoundException, RMapException;
 	/**
 	 * 
 	 * @param profileId
 	 * @return
 	 * @throws RMapException
 	 */
-	public List<URI> getRelatedIdentities (URI profileId) throws RMapException;
+	public List<URI> getProfileRelatedIdentities (URI profileId) throws RMapException;
 	/**
 	 * 
 	 * @param profileId
 	 * @return
 	 * @throws RMapException
 	 */
-	public URI getPreferredIdentity (URI profileId) throws RMapException;
+	public URI getProfilePreferredIdentity (URI profileId) throws RMapException;
 	
 	
 

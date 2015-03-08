@@ -31,15 +31,26 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 	protected List<Statement> identityStmts;
 	protected List<Statement> propertyStmts;
 	protected Statement preferredIdentityStmt;
+	protected Statement parentAgentStmt;
 	protected URI context;
 	/**
 	 * @throws RMapException
 	 */
-	public ORMapProfile() throws RMapException {
+	protected ORMapProfile() throws RMapException {
 		super();
 		this.context = ORAdapter.uri2OpenRdfUri(getId());
 		this.typeStatement = this.getValueFactory().createStatement(this.context,
 				RDF.TYPE, RMAP.PROFILE, this.context);
+	}
+	
+	public ORMapProfile(URI parentAgentId) throws RMapException{
+		this();
+		if (parentAgentId==null) {
+			throw new RMapException("Null parent agent id");
+		}
+		Statement stmt = this.getValueFactory().createStatement(this.context, 
+				RMAP.DESCRIBES_AGENT, parentAgentId, this.context);
+		this.parentAgentStmt = stmt;
 	}
 	
 	public ORMapProfile(List<Statement> stmts)throws RMapException {
@@ -114,6 +125,7 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 	public Model getAsModel() throws RMapException {
 		Model model = new LinkedHashModel();
 		model.add(this.typeStatement);
+		model.add(this.parentAgentStmt);
 		if (this.preferredIdentityStmt!= null){
 			model.add(this.preferredIdentityStmt);
 		}
@@ -174,6 +186,21 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 		this.preferredIdentityStmt = idStmt;
 	}
 
+	@Override
+	public RMapUri getParentAgentId() throws RMapException {
+		RMapUri parentId = null;
+		if (this.parentAgentStmt==null){
+			throw new RMapException("Null parent agent id in agent profile");
+		}
+		Value id = parentAgentStmt.getObject();
+		if (!(id instanceof URI)){
+			throw new RMapException("Parent agent id not URI");
+		}
+		URI uri = ((URI)id);
+		parentId = ORAdapter.openRdfUri2RMapUri(uri);
+		return parentId;
+	}
+
 	/**
 	 * @return the identityStmts
 	 */
@@ -215,5 +242,20 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 	public void setPreferredIdentityStmt(Statement preferredIdentityStmt) {
 		this.preferredIdentityStmt = preferredIdentityStmt;
 	}
+
+	/**
+	 * @return the parentAgentStmt
+	 */
+	public Statement getParentAgentStmt() {
+		return parentAgentStmt;
+	}
+
+	/**
+	 * @param parentAgentStmt the parentAgentStmt to set
+	 */
+	public void setParentAgentStmt(Statement parentAgentStmt) {
+		this.parentAgentStmt = parentAgentStmt;
+	}
+
 
 }

@@ -52,4 +52,11 @@ public interface RMapProfile extends RMapObject {
 	 * @throws RMapException
 	 */
 	public void setPreferredIdentity (RMapUri ident) throws RMapException;
+	/**
+	 * 
+	 * @return
+	 * @throws RMapException
+	 */
+	public RMapUri getParentAgentId ()  throws RMapException;
+
 }
