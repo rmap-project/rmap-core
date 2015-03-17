@@ -43,44 +43,6 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	}
 	
 	/**
-	 * Create a new RMapStatement in the repository. 
-	 * 
-	 * A Statement is always created in the context of DiSCO. If context is null, raise an exception
-	 * 
-	 * This method does NOT create the triples in a DiSCO.  That is done directly in createDisco() method.
-	 *  
-	 * If this is the first time the triple is seen create a reified RMapStatement 
-	 * (with rdf:type, rdf:subject, rdf:object, 
-	 * rdf:predicate), whose Resource identifier will be used going forward as
-	 * the "id" for all occurrences of this statement (when service queries by statement ID)
-	 *   
-	 * Context for all statements in the reified statement will be the concatenation of
-	 * subject, predicate, object (with RMAP namespace prefix)
-	 *
-	 * @param rmapStatement
-	 * @param ts 
-	 * @return Resource URi of the reified statement corresponding to this triple
-	 * @throws Exception
-	 */
-	public URI createStatement(Statement rmapStatement, SesameTriplestore ts) 
-			throws RMapException {	
-		if (rmapStatement == null){
-			throw new RMapException("Null RMapStatement");
-		}
-		Resource context = rmapStatement.getContext();
-		if (context==null){
-			// Statements should be coming in here with DiSCO id as context
-			throw new RMapException("Null Context in ORMapStatement");
-		}
-		URI stmtId = this.getStatementID(rmapStatement.getSubject(), 
-				rmapStatement.getPredicate(), rmapStatement.getObject(), ts);
-		if (stmtId==null){
-			// first time we are seeing this triple:  create reified statement before adding simple triple
-			stmtId = this.createReifiedStatement(rmapStatement, ts);
-		}						
-		return stmtId;
-	}
-	/**
 	 * Create triples that comprise reified version of statement
 	 * Context of triples for each statement will be concatenation of subject, predicate, object
 	 * @param rmapStatement Statement to be reified

@@ -152,9 +152,6 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		try {
 			Predicate<Object> predicate = RMapIdPredicate.rmapIdPredicate();
 			isRmapId  = predicate.evaluate(new java.net.URI(discoIncomingId));
-//					
-//					IdServiceFactoryIOC.getFactory().createService().isValidId(
-//							new java.net.URI(discoIncomingId));
 		} catch (Exception e) {
 			throw new RMapException ("Unable to validate DiSCO id " + 
 					discoIncomingId, e);

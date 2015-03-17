@@ -4,7 +4,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.collections4.Predicate;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -15,11 +14,10 @@ import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.idvalidator.IdValidator;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
-import info.rmapproject.core.utils.ConfigUtils;
-
 /**
  * 
  *  @author khansen, smorrissey
@@ -29,35 +27,9 @@ import info.rmapproject.core.utils.ConfigUtils;
 public class ORMapAgent extends ORMapObject implements RMapAgent {
 	protected URI context;
 	protected Statement providerIdStmt;
-	//TODO  remove this and use service to get ProfileIds
 	protected List<Statement> profileStmts = new ArrayList<Statement>();
-	
-	private static String PROPERTIES_FN = "idValidator";
-	private static String agentValidatorPropName = "agentIdValidatorKeys";
-	private static String separator = ",";
-	protected static List<Predicate<Object>> idValidators;	
-		
-	// initialize list of agent id validators (to detect RMap-acceptable ids)
-	static {
-		idValidators = new ArrayList<Predicate<Object>>();
-		List<String> classKeys = ConfigUtils.getPropertyValueList(PROPERTIES_FN, 
-				agentValidatorPropName, separator);
-		if (classKeys != null){
-			for (String classKey:classKeys){
-				String className = ConfigUtils.getPropertyValue(PROPERTIES_FN, classKey);
-				try {
-					@SuppressWarnings("unchecked")
-					Predicate<Object> predicate = (Predicate<Object>) 
-							Class.forName(className).newInstance();
-					idValidators.add(predicate);
-				} catch (InstantiationException | IllegalAccessException
-						| ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
 
+	
 	protected ORMapAgent() throws RMapException {
 		super();	
 		this.context = ORAdapter.uri2OpenRdfUri(getId());	
@@ -98,7 +70,11 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 			throw new RMapException ("null or empty agent identifier");
 		}
 		// check to make sure Agent has an RMAP-accepted id
-		boolean isValidId = this.isValidAgentId(agentIncomingIdResource);
+		
+		boolean isValidId = false;
+		if (agentIncomingIdResource instanceof URI){
+			isValidId = IdValidator.isValidAgentId(ORAdapter.openRdfUri2URI((URI)agentIncomingIdResource));
+		}		
 		if (isValidId){
 			// use incoming id
 			try {
@@ -109,7 +85,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 			}			
 		}
 		else {
-			// create a statement saying what original id was; carry on with RMap id and context from constructor
+			// move the provider ID into the profile
 			//TODO is a provider ID an ID we would want to make part of a profile
 			Statement idStmt = this.getValueFactory().createStatement(this.context, RMAP.PROVIDERID,
 					incomingIdValue, this.context);
@@ -154,37 +130,18 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	public ORMapAgent (RMapUri agentId)throws RMapException {
 		this();
 		URI agentURI = ORAdapter.rMapUri2OpenRdfUri(agentId);
-		if (isValidAgentId(agentId)){
+		if (IdValidator.isValidAgentId(agentId.getIri())){
 			// use provided id as identifier instead of generated RMapId
 			this.context = agentURI;
 		}
 		else{
 			// consider this provider id, and keep RMap id as identifier
+//			TODO  do we need to create a Profile here
 			this.typeStatement= this.getValueFactory().createStatement(
 					this.context, RMAP.PROVIDERID, agentURI, this.context);
-		}
-		
+		}		
 	}
-	/**
-	 * Check agent id against known agent id validators
-	 * @param uri
-	 * @return true if validates against one of id validators, else false
-	 */
-	protected boolean isValidAgentId (Object uri){
-		boolean isValid = false;
-		Object idObject = uri;
-		if (idObject instanceof URI){
-			// validators work on  java.net.URI and RMapUri
-			idObject = ORAdapter.openRdfUri2URI((URI)idObject);
-		}
-		for (Predicate<Object> idValidator:idValidators){
-			isValid = idValidator.evaluate(idObject);
-			if (isValid){
-				break;
-			}
-		}
-		return isValid;
-	}
+	
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model model = new LinkedHashModel();

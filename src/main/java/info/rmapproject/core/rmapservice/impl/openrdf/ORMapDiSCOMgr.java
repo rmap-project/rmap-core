@@ -92,7 +92,6 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			break;		
 		}
 		List<Statement> discoStmts = this.getNamedGraph(discoID, ts);		
-		//TODO  Do we want to create a "non=validating" DiSCO create for DiSCOs created from triplestore (as opposed to incoming stmts?)
 		disco = new ORMapDiSCO(discoStmts);
 		return disco;
 	}
@@ -167,47 +166,68 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		Set<URI> created = new HashSet<URI>();
 		// add the DiSCO id as an event-created Resource
 		created.add(disco.getDiscoContext());
+		
 		// Create reified statment for type statement if necessary, and add the triple
-		URI typeId = stmtMgr.createStatement(disco.getTypeStatement(), ts);
-		if (typeId != null){
+		URI typeId = stmtMgr.getStatementID(disco.getTypeStatement().getSubject(),
+				disco.getTypeStatement().getPredicate(), disco.getTypeStatement().getObject(), ts);		
+		if (typeId == null){
+			typeId = stmtMgr.createReifiedStatement(disco.getTypeStatement(), ts);
 			created.add(typeId);
 		}
 		this.createTriple(ts, disco.getTypeStatement());
+		
 		// Create reified statement for discoCreater if necessary, and add the triple
-		URI discoCreator = stmtMgr.createStatement(disco.getCreatorStmt(), ts);
-		if (discoCreator != null){
+		URI discoCreator = stmtMgr.getStatementID(disco.getCreatorStmt().getSubject(),
+				disco.getCreatorStmt().getPredicate(), disco.getCreatorStmt().getObject(), ts);	
+		if (discoCreator == null){
+			discoCreator = stmtMgr.createReifiedStatement(disco.getCreatorStmt(), ts);
 			created.add(discoCreator);
 		}
 		this.createTriple(ts, disco.getCreatorStmt());
+		
 		// TODO Create new Agent for discoCreater if necessary, and add the triple(s)
 
 		// Create reified statement for description if necessary, and add the triple
-		URI desc = stmtMgr.createStatement(disco.getDescriptonStatement(), ts);
-		if (desc != null){
-			created.add(desc);
+		if (disco.getDescriptonStatement() != null){
+			URI desc = stmtMgr.getStatementID(disco.getDescriptonStatement().getSubject(),
+					disco.getDescriptonStatement().getPredicate(), disco.getDescriptonStatement().getObject(), ts);
+			if (desc == null){
+				desc = stmtMgr.createReifiedStatement(disco.getDescriptonStatement(), ts);
+				created.add(desc);
+			}
+			this.createTriple(ts, disco.getDescriptonStatement());
 		}
-		this.createTriple(ts, disco.getDescriptonStatement());
+		
 		// create reified statement for disco id the provider used
 		if (disco.getProviderIdStmt()!= null){
-			URI providerId = stmtMgr.createStatement(disco.getProviderIdStmt(),ts);
-			if (providerId != null){
+			URI providerId = stmtMgr.getStatementID(disco.getProviderIdStmt().getSubject(),
+					disco.getProviderIdStmt().getPredicate(), disco.getProviderIdStmt().getObject(), ts);
+			if (providerId == null){
+				providerId= stmtMgr.createReifiedStatement(disco.getProviderIdStmt(),ts);
 				created.add(providerId);
 			}
+			this.createTriple(ts,disco.getProviderIdStmt());
 		}
+		
 		// for each aggregated resource, create reified statement if necessary, create triples
 		for (Statement stmt:aggResources){
-			URI aggResource = stmtMgr.createStatement(stmt, ts);
-			if (aggResource != null){
+			URI aggResource = stmtMgr.getStatementID(stmt.getSubject(),
+					stmt.getPredicate(), stmt.getObject(), ts);
+			if (aggResource == null){
+				aggResource = stmtMgr.createReifiedStatement(stmt, ts);
 				created.add(aggResource);
 			}
 			this.createTriple(ts, stmt);
 		}
+		
 		// for each statement in relatedStatements
 		//   create reified statement if necessary, and add the triple
 		//   if dct:create or dc:creator create agent, agent profile as needed,and add the triple
 		for (Statement stmt:disco.getRelatedStatementsAsList()){
-			URI relStmt = stmtMgr.createStatement(stmt, ts);
-			if (relStmt != null){
+			URI relStmt = stmtMgr.getStatementID(stmt.getSubject(),
+					stmt.getPredicate(), stmt.getObject(), ts);
+			if (relStmt == null){
+				relStmt = stmtMgr.createReifiedStatement(stmt, ts);
 				created.add(relStmt);
 			}
 			this.createTriple(ts, stmt);
@@ -308,48 +328,68 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			Set<URI> created = new HashSet<URI>();			
 			// add the DiSCO id as an event-created Resource
 			created.add(disco.getDiscoContext());
+			
 			// Create reified statment for type statement if necessary, and add the triple
-			URI typeId = stmtMgr.createStatement(disco.getTypeStatement(), ts);
-			if (typeId != null){
+			URI typeId = stmtMgr.getStatementID(disco.getTypeStatement().getSubject(),
+					disco.getTypeStatement().getPredicate(), disco.getTypeStatement().getObject(), ts);		
+			if (typeId == null){
+				typeId = stmtMgr.createReifiedStatement(disco.getTypeStatement(), ts);
 				created.add(typeId);
 			}
 			this.createTriple(ts, disco.getTypeStatement());
+			
 			// Create reified statement for discoCreater if necessary, and add the triple
-			URI discoCreator = stmtMgr.createStatement(disco.getCreatorStmt(), ts);
-			if (discoCreator != null){
+			URI discoCreator = stmtMgr.getStatementID(disco.getCreatorStmt().getSubject(),
+					disco.getCreatorStmt().getPredicate(), disco.getCreatorStmt().getObject(), ts);	
+			if (discoCreator == null){
+				discoCreator = stmtMgr.createReifiedStatement(disco.getCreatorStmt(), ts);
 				created.add(discoCreator);
 			}
 			this.createTriple(ts, disco.getCreatorStmt());
 			// TODO Create new Agent for discoCreater if necessary, and add the triple(s)
 
 			// Create reified statement for description if necessary, and add the triple
-			URI desc = stmtMgr.createStatement(disco.getDescriptonStatement(), ts);
-			if (desc != null){
-				created.add(desc);
+			if (disco.getDescriptonStatement()!= null){
+				URI desc = stmtMgr.getStatementID(disco.getDescriptonStatement().getSubject(),
+						disco.getDescriptonStatement().getPredicate(), disco.getDescriptonStatement().getObject(), ts);
+				if (desc == null){
+					desc = stmtMgr.createReifiedStatement(disco.getDescriptonStatement(), ts);
+					created.add(desc);
+				}
+				this.createTriple(ts, disco.getDescriptonStatement());
 			}
-			this.createTriple(ts, disco.getDescriptonStatement());
+			
 			// create reified statement for disco id the provider used
 			if (disco.getProviderIdStmt()!= null){
-				URI providerId = stmtMgr.createStatement(disco.getProviderIdStmt(),ts);
-				if (providerId != null){
+				URI providerId = stmtMgr.getStatementID(disco.getProviderIdStmt().getSubject(),
+						disco.getProviderIdStmt().getPredicate(), disco.getProviderIdStmt().getObject(), ts);
+				if (providerId == null){
+					providerId= stmtMgr.createReifiedStatement(disco.getProviderIdStmt(),ts);
 					created.add(providerId);
 				}
+				this.createTriple(ts,disco.getProviderIdStmt());
 			}
+			
 			// for each aggregated resource, create reified statement if necessary, create triples
 			List<Statement> aggResources = disco.getAggregatedResourceStatements();
 			for (Statement stmt:aggResources){
-				URI aggResource = stmtMgr.createStatement(stmt, ts);
-				if (aggResource != null){
+				URI aggResource = stmtMgr.getStatementID(stmt.getSubject(),
+						stmt.getPredicate(), stmt.getObject(), ts);
+				if (aggResource == null){
+					aggResource = stmtMgr.createReifiedStatement(stmt, ts);
 					created.add(aggResource);
 				}
 				this.createTriple(ts, stmt);
 			}
+			
 			// for each statement in relatedStatements
 			//   create reified statement if necessary, and add the triple
 			//   if dct:create or dc:creator create agent, agent profile as needed,and add the triple
 			for (Statement stmt:disco.getRelatedStatementsAsList()){
-				URI relStmt = stmtMgr.createStatement(stmt, ts);
-				if (relStmt != null){
+				URI relStmt = stmtMgr.getStatementID(stmt.getSubject(),
+						stmt.getPredicate(), stmt.getObject(), ts);
+				if (relStmt == null){
+					relStmt = stmtMgr.createReifiedStatement(stmt, ts);
 					created.add(relStmt);
 				}
 				this.createTriple(ts, stmt);

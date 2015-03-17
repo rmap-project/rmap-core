@@ -15,7 +15,7 @@ import info.rmapproject.core.utils.ConfigUtils;
 public class RDFHandlerFactoryIOC {
 
 
-	private static final String FACTORY_PROPERTIES = "rdfHandlerFactory";  // Name of properties file with concrete factory class name
+	private static final String FACTORY_PROPERTIES = "rdfhandlerFactory";  // Name of properties file with concrete factory class name
 	private static final String FACTORY_KEY = "rdfHandlerFactoryClass";
 	private static String factoryClassName = null;
 	private static RDFHandlerFactory factory = null;
