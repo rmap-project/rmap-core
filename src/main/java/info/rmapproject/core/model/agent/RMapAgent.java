@@ -33,5 +33,11 @@ public interface RMapAgent extends RMapObject {
 	 * @throws RMapException
 	 */
 	public void addProfileId(RMapUri profileId) throws RMapException;
+	/**
+	 * Get URI of agent that created this Agent
+	 * @return
+	 * @throws RMapException
+	 */
+	public RMapUri getCreator() throws RMapException;
 
 }

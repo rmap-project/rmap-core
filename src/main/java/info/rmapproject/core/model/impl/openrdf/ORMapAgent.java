@@ -28,6 +28,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	protected URI context;
 	protected Statement providerIdStmt;
 	protected List<Statement> profileStmts = new ArrayList<Statement>();
+	protected Statement creatorStmt;
 
 	
 	protected ORMapAgent() throws RMapException {
@@ -149,6 +150,9 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		if (providerIdStmt != null){
 			model.add(providerIdStmt);
 		}
+		if (creatorStmt != null){
+			model.add(creatorStmt);
+		}
 		for (Statement stmt:profileStmts){
 			model.add(stmt);
 		}
@@ -197,6 +201,17 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		Statement stmt = this.getValueFactory().createStatement(this.context, 
 				DCTERMS.DESCRIPTION, uri, this.context);
 		this.profileStmts.add(stmt);
+	}
+	@Override
+	public RMapUri getCreator() throws RMapException {
+		RMapUri cUri = null;
+		if (this.creatorStmt!= null){
+			Value value = this.creatorStmt.getObject();
+			if (value instanceof URI){
+				cUri = ORAdapter.openRdfUri2RMapUri((URI)value);
+			}
+		}
+		return cUri;
 	}
 	
 
