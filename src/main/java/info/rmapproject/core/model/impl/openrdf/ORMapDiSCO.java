@@ -76,6 +76,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 				this.getValueFactory().createStatement(this.discoContext, RDF.TYPE,
 						RMAP.DISCO,this.discoContext);
 	}	
+	
 	/**
 	 * Constructor
 	 * Constructs statement triples aggregating resources in DiSCO
@@ -89,24 +90,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		this.setCreator(creator);
 		this.setAggregratedResources(aggregatedResources);
 	}
-	/**
-	 * Constructor
-	 * Constructs statement triples aggregating resources in DiSCO
-	 * @param creator Author of DiSCO
-	 * @param aggregatedResources Resources comprising compound object
-	 * @param description Optional description of DiSCO
-	 * @param relatedStatements Optional statements related to aggregated resources.
-	 *           Related Statements must reference at least one aggregated resource, 
-	 *           and must not comprise a disjoint graph
-	 * @throws RMapException if related statements do not reference at least one resource, or
-	 *            comprise a disjoint graph, or if cannot create Statements from parameters
-	 */
-	public ORMapDiSCO(RMapResource creator, List<java.net.URI> aggregatedResources, RMapValue description,
-			List<RMapTriple> relatedStatements) throws RMapException {		
-		this(creator, aggregatedResources);
-		this.setDescription(description);
-		this.setRelatedStatements(relatedStatements);
-	}
+	
 	/**
 	 * Constructs DiSCO from List of triples
 	 * @param stmts Statements to be structured into DiSCO

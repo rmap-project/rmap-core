@@ -30,27 +30,6 @@ public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMap
 	}
 	
 	/**
-	 * @param associatedAgent
-	 * @param targetType
-	 * @throws RMapException
-	 */
-	public ORMapEventCreation(RMapUri associatedAgent,
-			RMapEventTargetType targetType) throws RMapException {
-		super(associatedAgent, targetType);
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.CREATION);
-	}
-	
-	/**
-	 * @param associatedAgent
-	 * @param targetType
-	 * @throws RMapException
-	 */
-	public ORMapEventCreation(URI associatedAgent,
-			RMapEventTargetType targetType) throws RMapException {
-		super(associatedAgent, targetType);
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.CREATION);
-	}
-	/**
 	 * 
 	 * @param eventTypeStmt
 	 * @param eventTargetTypeStmt
@@ -73,6 +52,29 @@ public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMap
 		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.CREATION);
 		this.createdObjects = createdObjects;
 	}
+	
+	/**
+	 * @param associatedAgent
+	 * @param targetType
+	 * @throws RMapException
+	 */
+	public ORMapEventCreation(RMapUri associatedAgent,
+			RMapEventTargetType targetType) throws RMapException {
+		super(associatedAgent, targetType);
+		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.CREATION);
+	}
+	
+	/**
+	 * @param associatedAgent
+	 * @param targetType
+	 * @throws RMapException
+	 */
+	public ORMapEventCreation(URI associatedAgent,
+			RMapEventTargetType targetType) throws RMapException {
+		super(associatedAgent, targetType);
+		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.CREATION);
+	}
+
 
 	/**
 	 * @param associatedAgent

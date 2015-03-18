@@ -49,28 +49,7 @@ public class ORMapEventInactivation extends ORMapEvent implements
 		}
 		this.inactivatedObjectStatement = inactivatedObjectStatement;
 	}
-	
-	/**
-	 * @param eventTypeStmt
-	 * @param eventTargetTypeStmt
-	 * @param associatedAgentStmt
-	 * @param descriptionStmt
-	 * @param startTimeStmt
-	 * @param endTimeStmt
-	 * @param context
-	 * @param typeStatement
-	 * @throws RMapException
-	 */
-	public ORMapEventInactivation(Statement eventTypeStmt,
-			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
-			Statement descriptionStmt, Statement startTimeStmt,
-			Statement endTimeStmt, URI context, Statement typeStatement)
-			throws RMapException {
-		super(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,
-				descriptionStmt, startTimeStmt, endTimeStmt, context,
-				typeStatement);
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.INACTIVATION);
-	}
+
 
 	/**
 	 * @throws RMapException
@@ -79,18 +58,6 @@ public class ORMapEventInactivation extends ORMapEvent implements
 		super();
 		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.INACTIVATION);
 	}
-
-	/**
-	 * @param associatedAgent
-	 * @param targetType
-	 * @throws RMapException
-	 */
-	public ORMapEventInactivation(RMapUri associatedAgent,
-			RMapEventTargetType targetType) throws RMapException {
-		super(associatedAgent, targetType);
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.INACTIVATION);
-	}
-
 	/**
 	 * @param associatedAgent
 	 * @param targetType

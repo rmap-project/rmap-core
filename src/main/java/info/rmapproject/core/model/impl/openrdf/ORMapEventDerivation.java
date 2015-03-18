@@ -11,7 +11,6 @@ import org.openrdf.model.URI;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapUri;
-import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.event.RMapEventDerivation;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
@@ -35,29 +34,6 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.DERIVATION);
 	}
 
-	/**
-	 * @param associatedAgent
-	 * @param targetType
-	 * @throws RMapException
-	 */
-	public ORMapEventDerivation(RMapUri associatedAgent,
-			RMapEventTargetType targetType) throws RMapException {
-		super(associatedAgent, targetType);
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.DERIVATION);
-	}
-
-	/**
-	 * @param associatedAgent
-	 * @param targetType
-	 * @param desc
-	 * @throws RMapException
-	 */
-	public ORMapEventDerivation(RMapUri associatedAgent,
-			RMapEventTargetType targetType, RMapValue desc)
-			throws RMapException {
-		super(associatedAgent, targetType, desc);
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.DERIVATION);
-	}
 
 	/**
 	 * @param associatedAgent

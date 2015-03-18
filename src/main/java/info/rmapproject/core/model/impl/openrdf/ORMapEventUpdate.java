@@ -10,7 +10,6 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
@@ -86,44 +85,7 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 		this.setInactivatedObjectStmt(intactivatedObject);
 		this.setDerivationStmt(derivedObject);
 	}
-	/**
-	 * 
-	 * @param associatedAgent
-	 * @param targetType
-	 * @param intactivatedObject
-	 * @param derivedObject
-	 * @param createdObjects
-	 * @throws RMapException
-	 */
-	public ORMapEventUpdate(URI associatedAgent,
-			RMapEventTargetType targetType, URI intactivatedObject, URI derivedObject,
-			List<Statement> createdObjects) 
-	throws RMapException {
-		this(associatedAgent, targetType, intactivatedObject, derivedObject);
-		this.createdObjects = createdObjects;
-	}
 
-	/**
-	 * 
-	 * @param associatedAgent
-	 * @param targetType
-	 * @param inactivatedObject
-	 * @param derivedObject
-	 * @param createdObjects
-	 * @param desc
-	 * @throws RMapException
-	 */
-	public ORMapEventUpdate(RMapUri associatedAgent,
-			RMapEventTargetType targetType, RMapUri inactivatedObject, RMapUri derivedObject,
-			List<RMapUri> createdObjects, RMapValue desc)
-			throws RMapException {
-		super(associatedAgent, targetType, desc);
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.UPDATE);
-		this.setInactivatedObjectStmt(ORAdapter.rMapUri2OpenRdfUri(inactivatedObject));
-		this.setDerivationStmt(ORAdapter.rMapUri2OpenRdfUri(derivedObject));
-		this.setCreatedObjectIds(createdObjects);
-		
-	}
 	
 	@Override
 	public Model getAsModel() throws RMapException {
