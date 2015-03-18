@@ -188,9 +188,12 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}
 		this.createTriple(ts, disco.getCreatorStmt());
 		// if necessary, create new Agent, and add its id to list of objects created by event
-		URI newAgentId = this.createAgentCreator(disco.getCreatorStmt().getObject(), agentMgr, ts);
-		if (newAgentId != null){
-			created.add(newAgentId);
+		boolean isNewAgent = false;
+		URI creatorAgentId = this.createAgentCreator(disco.getCreatorStmt().getObject(), systemAgentId,
+				agentMgr, ts);
+		if (creatorAgentId != null){
+			isNewAgent = true;
+			created.add(creatorAgentId);
 		}
 		
 		// Create reified statement for description if necessary, and add the triple
@@ -354,7 +357,8 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			}
 			this.createTriple(ts, disco.getCreatorStmt());
 			// if necessary, create new Agent, and add its id to list of objects created by event
-			URI newAgentId = this.createAgentCreator(disco.getCreatorStmt().getObject(), agentMgr, ts);
+			URI newAgentId = this.createAgentCreator(disco.getCreatorStmt().getObject(), systemAgentId,
+					agentMgr, ts);
 			if (newAgentId != null){
 				created.add(newAgentId);
 			}
@@ -435,15 +439,19 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @return ID of new Agent, or null if agent already exisits
 	 * @throws RMapException
 	 */
-	protected URI createAgentCreator(Value agent, ORMapAgentMgr agentMgr, SesameTriplestore ts) 
+	protected URI createAgentCreator(Value agent, URI systemAgentId,
+			ORMapAgentMgr agentMgr, SesameTriplestore ts) 
 			throws RMapException{
 		URI newAgentId = null;
 		if (!(agent instanceof URI)){
 			throw new RMapException ("Agent not a URI: " + agent.stringValue());
 		}
+		if (systemAgentId==null){
+			throw new RMapException("Null systemAgentId");
+		}
 		URI agentUri = (URI)agent;
 		if (!(this.isAgentId(agentUri, ts))){
-			newAgentId = agentMgr.createAgent(agentUri, ts);
+			newAgentId = agentMgr.createAgent(agentUri, systemAgentId, ts);
 		}			
 		return newAgentId;
 	}

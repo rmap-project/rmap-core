@@ -52,7 +52,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}
 
 		List<Statement> agentStmts = this.getNamedGraph(agentId, ts);	
-		ORMapAgent agent = new ORMapAgent(agentStmts);
+		ORMapAgent agent = new ORMapAgent(agentStmts, null);
 		return agent;
 	}
 	/**
@@ -81,13 +81,13 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		return uri;
 	}
 	/**
-	 * 
+	 * Create a bare Agent, with nothing more than ID and creator
 	 * @param agentId
 	 * @param ts
 	 * @return
 	 */
-	public URI createAgent(URI agentId, SesameTriplestore ts){
-		ORMapAgent agent = new ORMapAgent(agentId);		
+	public URI createAgent(URI agentId, URI creator, SesameTriplestore ts){
+		ORMapAgent agent = new ORMapAgent(agentId, creator);		
 		return this.createAgent(agent, ts);
 	}
 }

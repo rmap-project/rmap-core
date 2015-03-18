@@ -43,8 +43,12 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	 * @param stmts
 	 * @throws RMapException
 	 */
-	public ORMapAgent(List<Statement> stmts)throws RMapException {
+	public ORMapAgent(List<Statement> stmts, URI creator)throws RMapException {
 		this();
+		if (stmts==null){
+			throw new RMapException("Null statement list");
+		}
+	
 		boolean agentFound = false;
 		Value incomingIdValue = null;
 		String agentIncomingIdStr = null;
@@ -59,6 +63,11 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 					incomingIdValue = subject;
 					agentIncomingIdResource = subject;
 					agentIncomingIdStr = ((Resource)subject).stringValue();
+					// use incoming context if there is one
+					Resource context = stmt.getContext();
+					if (context != null && context instanceof URI){
+						this.context = (URI)context;
+					}
 					break;
 				}
 			}
@@ -70,8 +79,14 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		if (agentIncomingIdStr==null || agentIncomingIdStr.length()==0){
 			throw new RMapException ("null or empty agent identifier");
 		}
-		// check to make sure Agent has an RMAP-accepted id
-		
+		// creator will should not be null if method invoked from service,
+		// can be null when creating ORMapAgent from triplestore statements,
+		// so we have to check at the end and make sure there is a non-null creator
+		if (creator!=null){
+			this.setCreatorStmt(creator);
+		}
+			
+		// check to make sure Agent has an RMAP-accepted id		
 		boolean isValidId = false;
 		if (agentIncomingIdResource instanceof URI){
 			isValidId = IdValidator.isValidAgentId(ORAdapter.openRdfUri2URI((URI)agentIncomingIdResource));
@@ -120,16 +135,28 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 				this.profileStmts.add(profileStmt);
 				continue;
 			}
+			if (predicate.equals(DCTERMS.CREATOR)){
+				Statement creatorStmt = this.getValueFactory().createStatement(
+						subject, predicate, object, this.context);
+				this.creatorStmt = creatorStmt;
+			}
 			throw new RMapException ("Unrecognized predicate in Agent: " + predicate.stringValue());
+		}
+		if (this.creatorStmt==null){
+			throw new RMapException ("Null creator for Agent");
 		}
 	}
 	
-	public ORMapAgent (URI agentId)throws RMapException {
-		this(ORAdapter.openRdfUri2RMapUri(agentId));		
+	public ORMapAgent (URI agentId,  URI creator)throws RMapException {
+		this(ORAdapter.openRdfUri2RMapUri(agentId), ORAdapter.openRdfUri2RMapUri(creator));		
 	}
 	
-	public ORMapAgent (RMapUri agentId)throws RMapException {
+	public ORMapAgent (RMapUri agentId, RMapUri creator)throws RMapException {
 		this();
+		if (creator==null){
+			throw new RMapException ("Null creator");
+		}
+		this.setCreatorStmt(ORAdapter.rMapUri2OpenRdfUri(creator));
 		URI agentURI = ORAdapter.rMapUri2OpenRdfUri(agentId);
 		if (IdValidator.isValidAgentId(agentId.getIri())){
 			// use provided id as identifier instead of generated RMapId
@@ -212,6 +239,14 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 			}
 		}
 		return cUri;
+	}
+	/**
+	 * 
+	 */
+	protected void setCreatorStmt (URI creator){
+		Statement stmt = this.getValueFactory().createStatement(this.context, 
+				DCTERMS.CREATOR, creator, this.context);
+		this.creatorStmt = stmt;
 	}
 	
 

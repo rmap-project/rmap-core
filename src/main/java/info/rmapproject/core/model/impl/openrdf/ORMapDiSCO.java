@@ -209,6 +209,12 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 						(subject, predicate, object, this.discoContext));
 			}
 		}
+		if (this.creator==null){
+			throw new RMapException("No disco creator statement found");
+		}
+		if (aggResources.isEmpty()){
+			throw new RMapException("No aggregated resource statements found");
+		}
 		this.aggregatedResources = aggResources;
 		if (!this.referencesAggregate(relStatements)){
 			throw new RMapException("related statements do no reference aggregated resources");
