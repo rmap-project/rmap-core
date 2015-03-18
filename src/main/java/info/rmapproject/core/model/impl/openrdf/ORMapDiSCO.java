@@ -25,12 +25,7 @@ import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
-import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.disco.RMapDiSCO;
-import info.rmapproject.core.model.event.RMapEvent;
-
-import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.RMapServiceFactoryIOC;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 /**
@@ -490,27 +485,6 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 			}			
 		}
 		this.description = stmt;
-	}
-
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.RMapDiSCO#getStatus()
-	 */
-	public RMapStatus getStatus() throws RMapException {
-		RMapService service = RMapServiceFactoryIOC.getFactory().createService();
-		return service.getDiSCOStatus(getId());
-	}
-
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.RMapDiSCO#getRelatedEvents()
-	 */
-	public List<RMapEvent> getRelatedEvents() throws RMapException {
-		List<java.net.URI> uris = this.getService().getDiSCOEvents(getId());
-		List<RMapEvent> events = new ArrayList<RMapEvent>();
-		for (java.net.URI uri:uris){
-			RMapEvent event = this.getService().readEvent(uri);
-			events.add(event);
-		}
-		return events;
 	}
 
 	/**

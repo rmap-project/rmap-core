@@ -6,10 +6,8 @@ package info.rmapproject.core.model.disco;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapObject;
 import info.rmapproject.core.model.RMapResource;
-import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapValue;
-import info.rmapproject.core.model.event.RMapEvent;
 
 import java.net.URI;
 import java.util.List;
@@ -75,19 +73,6 @@ public interface RMapDiSCO extends RMapObject  {
 	 */
 	public void setDescription(RMapValue description) throws RMapException ;
 
-	/**
-	 * 
-	 * @return
-	 * @throws RMapException
-	 */
-	public RMapStatus getStatus() throws RMapException;
-	
-	/**
-	 * 
-	 * @return
-	 * @throws RMapException
-	 */
-	public List<RMapEvent> getRelatedEvents() throws RMapException;
 	/**
 	 * 
 	 * @return

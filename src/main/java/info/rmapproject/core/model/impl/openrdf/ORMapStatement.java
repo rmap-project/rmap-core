@@ -4,16 +4,12 @@
 package info.rmapproject.core.model.impl.openrdf;
 
 import java.net.URISyntaxException;
-import java.util.List;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapResource;
-import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.statement.RMapStatement;
-import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.RMapServiceFactoryIOC;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 import org.openrdf.model.Model;
@@ -129,25 +125,6 @@ public class ORMapStatement extends ORMapObject implements RMapStatement {
 		}
 		return object;
 	}
-
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.RMapStatement#getStatus()
-	 */
-	public RMapStatus getStatus() throws Exception {
-		RMapService service = RMapServiceFactoryIOC.getFactory().createService();
-		RMapStatus status = service.getStatementStatus(this.getId());
-		return status;
-	}
-
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.RMapStatement#getRelatedEvents()
-	 */
-	public List<java.net.URI> getRelatedEvents() throws Exception {
-		RMapService service = RMapServiceFactoryIOC.getFactory().createService();
-		List<java.net.URI> eventids = service.getStatementEvents(this.getId());
-		return eventids;
-	}
-	
 
 	@Override
 	public Model getAsModel() throws RMapException {
