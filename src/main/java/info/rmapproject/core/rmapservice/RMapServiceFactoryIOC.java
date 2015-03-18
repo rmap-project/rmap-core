@@ -20,13 +20,13 @@ public class RMapServiceFactoryIOC {
 	private static String factoryClassName = null;
 	private static RMapServiceFactory factory = null;
 	
-	static{
+	protected static void init () throws Exception{
 		try {
 			factoryClassName = ConfigUtils.getPropertyValue(FACTORY_PROPERTIES, FACTORY_KEY);
 			factory = (RMapServiceFactory) Class.forName(factoryClassName).newInstance();
 		}
-		catch(MissingResourceException me){}
-		catch (Exception e){}
+		catch(MissingResourceException me){throw me;}
+		catch (Exception e){throw e;}
 	}
 	/**
 	 * 
@@ -36,7 +36,10 @@ public class RMapServiceFactoryIOC {
 	
 	public static RMapServiceFactory getFactory() throws RMapException {
 		if (factory==null){
-			throw new RMapException("Factory not available");
+			try {
+				init();
+			}
+			catch (Exception e) {throw new RMapException (e);}
 		}
 		return factory;
 	}

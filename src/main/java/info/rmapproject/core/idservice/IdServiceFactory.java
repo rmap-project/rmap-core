@@ -9,5 +9,5 @@ package info.rmapproject.core.idservice;
  */
 public interface IdServiceFactory {
 	
-	IdService createService() throws Exception;
+	public IdService createService() throws Exception;
 }

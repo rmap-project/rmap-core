@@ -16,7 +16,7 @@ public class RioRDFHandlerFactory implements RDFHandlerFactory {
 	/**
 	 * 
 	 */
-	private RioRDFHandlerFactory() {}
+	public RioRDFHandlerFactory() {}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rdfhandler.RDFHandlerFactory#createRDFHandler()

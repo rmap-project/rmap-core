@@ -19,13 +19,13 @@ public class IdServiceFactoryIOC {
 	private static String factoryClassName = null;
 	private static IdServiceFactory idserviceFactory = null;
 	
-	static{
+	protected static void init () throws Exception{
 		try {
 			factoryClassName = ConfigUtils.getPropertyValue(FACTORY_PROPERTIES, FACTORY_KEY);
 			idserviceFactory = (IdServiceFactory) Class.forName(factoryClassName).newInstance();
 		}
-		catch(MissingResourceException me){}
-		catch (Exception e){}
+		catch(MissingResourceException me){throw me;}
+		catch (Exception e){throw e;}
 	}
 	/**
 	 * 
@@ -35,7 +35,7 @@ public class IdServiceFactoryIOC {
 	
 	public static IdServiceFactory getFactory() throws Exception {
 		if (idserviceFactory==null){
-			throw new Exception("No idservicefactory configured");
+			init();
 		}
 		return idserviceFactory;
 	}

@@ -18,27 +18,33 @@ public class RDFHandlerFactoryIOC {
 	private static final String FACTORY_PROPERTIES = "rdfhandlerFactory";  // Name of properties file with concrete factory class name
 	private static final String FACTORY_KEY = "rdfHandlerFactoryClass";
 	private static String factoryClassName = null;
-	private static RDFHandlerFactory factory = null;
+	protected static RDFHandlerFactory factory = null;
 
-	static{
+	/**
+	 * 
+	 */
+	protected RDFHandlerFactoryIOC() {}
+	
+	protected static void init() throws Exception{
 		try {
 			factoryClassName = ConfigUtils.getPropertyValue(FACTORY_PROPERTIES, FACTORY_KEY);
 			factory = (RDFHandlerFactory) Class.forName(factoryClassName).newInstance();
 		}
-		catch(MissingResourceException me){}
-		catch (Exception e){}
+		catch(MissingResourceException me){throw me;}
+		catch (Exception e){throw e;}
 	}
-	/**
-	 * 
-	 */
-	private RDFHandlerFactoryIOC() {}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rdfhandler.RDFHandlerFactory#createRDFHandler()
 	 */
 	public static RDFHandlerFactory getFactory() throws RMapException {
 		if (factory==null){
-			throw new RMapException("Factory not available");
+			try {
+				init();
+			}
+			catch (Exception e){
+				throw new RMapException (e);
+			}
 		}
 		return factory;
 	}
