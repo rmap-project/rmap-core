@@ -30,7 +30,6 @@ import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.statement.RMapStatement;
-import info.rmapproject.core.model.statement.RMapStatementBag;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
@@ -213,20 +212,32 @@ public class ORMapService implements RMapService {
 		return this.discomgr.readDiSCO(ORAdapter.uri2OpenRdfUri(discoID), ts);
 	}
 
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#createDisco(java.util.List, info.rmapproject.core.model.RMapStatementBag, info.rmapproject.core.model.RMapResource, info.rmapproject.core.model.RMapResource)
-	 */
-	//TODO refactor to URI agentId instead of RMapAgent
-	public RMapEvent createDiSCO(RMapAgent systemAgent,
-			List<URI> aggregatedResources, RMapResource creator,
-			RMapStatementBag relatedStatements, RMapValue desc) 
+//	/* (non-Javadoc)
+//	 * @see info.rmapproject.core.rmapservice.RMapService#createDisco(java.util.List, info.rmapproject.core.model.RMapStatementBag, info.rmapproject.core.model.RMapResource, info.rmapproject.core.model.RMapResource)
+//	 */
+//	public RMapEvent createDiSCO(RMapAgent systemAgent,
+//			List<URI> aggregatedResources, RMapResource creator,
+//			RMapStatementBag relatedStatements, RMapValue desc) 
+//			throws RMapException {
+//		ORMapDiSCO disco = new ORMapDiSCO(creator, aggregatedResources, desc, relatedStatements);
+//		RMapEvent createEvent = 
+//				this.discomgr.createDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent.getId()),
+//				disco, this.eventmgr, this.agentgmr, ts);
+//		return createEvent;
+//	}
+
+	@Override
+	public RMapEvent createDiSCO(RMapUri systemAgent, RMapDiSCO disco)
 			throws RMapException {
-		ORMapDiSCO disco = new ORMapDiSCO(creator, aggregatedResources, desc, relatedStatements);
+		if (!(disco instanceof ORMapDiSCO)){
+			throw new RMapException("disco not instance of ORMapDiSCO");
+		}
 		RMapEvent createEvent = 
-				this.discomgr.createDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent.getId()),
-				disco, this.eventmgr, ts);
+				this.discomgr.createDiSCO(ORAdapter.rMapUri2OpenRdfUri(systemAgent),
+				(ORMapDiSCO)disco, this.eventmgr, this.agentgmr, ts);
 		return createEvent;
 	}
+
 	/**
 	 * Create DiSCO from list of OpenRdf Statements
 	 * @param systemAgent Agent creating DiSCO
@@ -241,7 +252,7 @@ public class ORMapService implements RMapService {
 		ORMapDiSCO disco = new ORMapDiSCO(stmts);
 		RMapEvent createEvent = 
 				this.discomgr.createDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent.getId()),
-				disco, this.eventmgr, ts);
+				disco, this.eventmgr, this.agentgmr, ts);
 		return createEvent;
 	}
 
@@ -254,21 +265,41 @@ public class ORMapService implements RMapService {
 		return status;
 	}
 
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#updateDiSCO(java.net.URI, java.util.List, info.rmapproject.core.model.RMapStatementBag, info.rmapproject.core.model.RMapResource, info.rmapproject.core.model.RMapResource)
-	 */
-	//TODO refactor to URI agentId instead of RMapAgent
-	public RMapEvent updateDiSCO(RMapAgent systemAgent, URI oldDiscoId,
-			List<URI> aggregatedResources, RMapStatementBag relatedStatements,
-			RMapResource creator, RMapValue desc) 
+//	/* (non-Javadoc)
+//	 * @see info.rmapproject.core.rmapservice.RMapService#updateDiSCO(java.net.URI, java.util.List, info.rmapproject.core.model.RMapStatementBag, info.rmapproject.core.model.RMapResource, info.rmapproject.core.model.RMapResource)
+//	 */
+//	//TODO refactor to URI agentId instead of RMapAgent
+//	public RMapEvent updateDiSCO(RMapAgent systemAgent, URI oldDiscoId,
+//			List<URI> aggregatedResources, RMapStatementBag relatedStatements,
+//			RMapResource creator, RMapValue desc) 
+//			throws RMapException {
+//		ORMapDiSCO disco = new ORMapDiSCO(creator, aggregatedResources, desc, 
+//				relatedStatements);		
+//		RMapEvent updateEvent = 
+//				this.discomgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent.getId()),
+//					ORAdapter.uri2OpenRdfUri(oldDiscoId), disco, this.eventmgr, this.agentgmr, ts);
+//		return updateEvent;
+//	}
+
+	@Override
+	public RMapEvent updateDiSCO(RMapUri systemAgent, URI oldDiscoId, RMapDiSCO disco)
 			throws RMapException {
-		ORMapDiSCO disco = new ORMapDiSCO(creator, aggregatedResources, desc, 
-				relatedStatements);		
+		if (systemAgent==null){
+			throw new RMapException ("null system agent");
+		}
+		if (disco==null){
+			throw new RMapException ("null disco");
+		}
+		if (!(disco instanceof ORMapDiSCO)){
+			throw new RMapException ("disco not instance of ORMapDISCO");
+		}
+		org.openrdf.model.URI agentUri = ORAdapter.rMapUri2OpenRdfUri(systemAgent);
 		RMapEvent updateEvent = 
-				this.discomgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent.getId()),
-					ORAdapter.uri2OpenRdfUri(oldDiscoId), disco, this.eventmgr, ts);
+				this.discomgr.updateDiSCO(agentUri,
+					ORAdapter.uri2OpenRdfUri(oldDiscoId), (ORMapDiSCO)disco, this.eventmgr, this.agentgmr, ts);
 		return updateEvent;
 	}
+
 	/**
 	 * Update DiSCO with new DiSCO provided as list of OpenRdf Statements.
 	 * If list of Statements is null, then just inactivate old DiSCO.
@@ -288,16 +319,16 @@ public class ORMapService implements RMapService {
 		}
 		RMapEvent updateEvent = 
 				this.discomgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent.getId()),
-					ORAdapter.uri2OpenRdfUri(oldDiscoId), disco, this.eventmgr, ts);
+					ORAdapter.uri2OpenRdfUri(oldDiscoId), disco, this.eventmgr, this.agentgmr, ts);
 		return updateEvent;
 	}
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#deleteDiSCO(java.net.URI)
 	 */
 	//TODO refactor to URI agentId instead of RMapAgent
-	public RMapEvent deleteDiSCO(URI discoID, RMapAgent systemAgent) throws RMapException {
+	public RMapEvent deleteDiSCO(URI discoID, RMapUri systemAgent) throws RMapException {
 		RMapEvent tombstoneEvent = 
-				this.discomgr.tombstoneDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent.getId()),
+				this.discomgr.tombstoneDiSCO(ORAdapter.rMapUri2OpenRdfUri(systemAgent),
 						ORAdapter.uri2OpenRdfUri(discoID), this.eventmgr, ts);
 		return tombstoneEvent;
 	}

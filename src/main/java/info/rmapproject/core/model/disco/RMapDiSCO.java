@@ -7,9 +7,9 @@ import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapObject;
 import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapStatus;
+import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.event.RMapEvent;
-import info.rmapproject.core.model.statement.RMapStatementBag;
 
 import java.net.URI;
 import java.util.List;
@@ -35,17 +35,19 @@ public interface RMapDiSCO extends RMapObject  {
 	 */
 	public void setAggregratedResources(List<URI> aggregratedResources) 
 			throws RMapException;
+
 	/**
-	 * @return the relatedResources
-	 * @throws RMapException 
+	 * 
+	 * @return
+	 * @throws RMapException
 	 */
-	public RMapStatementBag getRelatedStatements() throws RMapException ;
+	public List<RMapTriple> getRelatedStatements() throws RMapException;
 
 	/**
 	 * @param relatedStatements the relatedResources to set
 	 * @throws RMapException 
 	 */
-	public void setRelatedStatements(RMapStatementBag relatedStatements) throws RMapException;
+	public void setRelatedStatements(List<RMapTriple> relatedStatements) throws RMapException;
 	/**
 	 * 
 	 * @return

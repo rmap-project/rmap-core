@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.DCTERMS;
 
@@ -100,12 +101,13 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 *
 	 * @param systemAgentId
 	 * @param stmts
+	 * @param agentMgr 
 	 * @param ts
 	 * @return
 	 * @throws RMapException
 	 */
 	public RMapEvent createDiSCO(org.openrdf.model.URI systemAgentId,
-			List<Statement> stmts, ORMapEventMgr eventMgr, SesameTriplestore ts) 
+			List<Statement> stmts, ORMapAgentMgr agentMgr, ORMapEventMgr eventMgr, SesameTriplestore ts) 
 					throws RMapException {
 		if (systemAgentId==null){
 			throw new RMapException ("Null system agent id");			
@@ -117,19 +119,20 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			throw new RMapException ("null value for triplestore");
 		}
 		ORMapDiSCO disco = new ORMapDiSCO(stmts);		
-		return this.createDiSCO(systemAgentId, disco, eventMgr, ts);
+		return this.createDiSCO(systemAgentId, disco, eventMgr, agentMgr, ts);
 	}
 	
 	/**
 	 * Create a new DiSCO
 	 * @param systemAgentId
 	 * @param disco
+	 * @param agentMgr 
 	 * @param ts 
 	 * @return
 	 * @throws RMapException
 	 */
 	public ORMapEvent createDiSCO(URI systemAgentId, ORMapDiSCO disco, 
-			ORMapEventMgr eventMgr, SesameTriplestore ts) 
+			ORMapEventMgr eventMgr, ORMapAgentMgr agentMgr, SesameTriplestore ts) 
 			throws RMapException{		
 		// confirm non-null disco
 		if (disco==null){
@@ -184,9 +187,12 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			created.add(discoCreator);
 		}
 		this.createTriple(ts, disco.getCreatorStmt());
+		// if necessary, create new Agent, and add its id to list of objects created by event
+		URI newAgentId = this.createAgentCreator(disco.getCreatorStmt().getObject(), agentMgr, ts);
+		if (newAgentId != null){
+			created.add(newAgentId);
+		}
 		
-		// TODO Create new Agent for discoCreater if necessary, and add the triple(s)
-
 		// Create reified statement for description if necessary, and add the triple
 		if (disco.getDescriptonStatement() != null){
 			URI desc = stmtMgr.getStatementID(disco.getDescriptonStatement().getSubject(),
@@ -259,12 +265,13 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @param oldDiscoId
 	 * @param disco
 	 * @param eventMgr
+	 * @param agentMgr 
 	 * @param ts
 	 * @return
 	 */
 	public RMapEvent updateDiSCO(URI systemAgentId,
 			URI oldDiscoId, ORMapDiSCO disco, ORMapEventMgr eventMgr,
-			SesameTriplestore ts) {
+			ORMapAgentMgr agentMgr, SesameTriplestore ts) {
 		// confirm non-null old disco
 		if (oldDiscoId==null){
 			throw new RMapException ("Null value for id of target DiSCO");
@@ -346,7 +353,11 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				created.add(discoCreator);
 			}
 			this.createTriple(ts, disco.getCreatorStmt());
-			// TODO Create new Agent for discoCreater if necessary, and add the triple(s)
+			// if necessary, create new Agent, and add its id to list of objects created by event
+			URI newAgentId = this.createAgentCreator(disco.getCreatorStmt().getObject(), agentMgr, ts);
+			if (newAgentId != null){
+				created.add(newAgentId);
+			}
 
 			// Create reified statement for description if necessary, and add the triple
 			if (disco.getDescriptonStatement()!= null){
@@ -415,6 +426,26 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			}
 		}
 		return event;
+	}
+	/**
+	 * See if agent already exists.  If not, create Agent triples in triplestore
+	 * @param agent
+	 * @param agentMgr 
+	 * @param ts
+	 * @return ID of new Agent, or null if agent already exisits
+	 * @throws RMapException
+	 */
+	protected URI createAgentCreator(Value agent, ORMapAgentMgr agentMgr, SesameTriplestore ts) 
+			throws RMapException{
+		URI newAgentId = null;
+		if (!(agent instanceof URI)){
+			throw new RMapException ("Agent not a URI: " + agent.stringValue());
+		}
+		URI agentUri = (URI)agent;
+		if (!(this.isAgentId(agentUri, ts))){
+			newAgentId = agentMgr.createAgent(agentUri, ts);
+		}			
+		return newAgentId;
 	}
 	/**
 	 * Soft-delete a DiSCO

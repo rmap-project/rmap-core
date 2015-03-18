@@ -17,8 +17,6 @@ import info.rmapproject.core.model.agent.RMapProfile;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.statement.RMapStatement;
-import info.rmapproject.core.model.statement.RMapStatementBag;
-
 /**
  *
  *  @author khansen, smorrissey
@@ -119,16 +117,12 @@ public interface RMapService {
 	public RMapDiSCO readDiSCO(URI discoID) throws RMapObjectNotFoundException, RMapException;
 	/**
 	 * 
-	 * @param aggregatedResources
-	 * @param creator
-	 * @param relatedStatements
-	 * @param desc
+	 * @param systemAgent
+	 * @param disco
 	 * @return
 	 * @throws RMapException
 	 */
-	//TODO refactor to URI agentId instead of RMapAgent
-	public RMapEvent createDiSCO(RMapAgent systemAgent, List<URI> aggregatedResources,
-			RMapResource creator, RMapStatementBag relatedStatements, RMapValue desc)  throws RMapException;
+	public RMapEvent createDiSCO(RMapUri systemAgent, RMapDiSCO disco)  throws RMapException;
 	/**
 	 * 
 	 * @param discoId
@@ -137,27 +131,21 @@ public interface RMapService {
 	 */
 	public RMapStatus getDiSCOStatus(URI discoId) throws RMapException;
 	/**
-	 *@param systemAgent
+	 * 
+	 * @param systemAgent
 	 * @param oldDiscoId
-	 * @param aggregatedResources
-	 * @param relatedStatements
-	 * @param creator
-	 * @param desc
+	 * @param disco
 	 * @return
 	 * @throws RMapException
 	 */
-	//TODO refactor to URI agentId instead of RMapAgent
-	public RMapEvent updateDiSCO (RMapAgent systemAgent, URI oldDiscoId, 
-			List<URI> aggregatedResources,RMapStatementBag relatedStatements, RMapResource creator, 
-			RMapValue desc) throws RMapException;
+	public RMapEvent updateDiSCO(RMapUri systemAgent, URI oldDiscoId, RMapDiSCO disco) throws RMapException;
 	/**
 	 * Soft delete (tombstone) of a DiSCO
 	 * @param discoID
 	 * @return
 	 * @throws RMapException
 	 */
-	//TODO refactor to URI agentId instead of RMapAgent
-	public RMapEvent deleteDiSCO (URI discoID, RMapAgent systemAgent) throws RMapException;
+	public RMapEvent deleteDiSCO (URI discoID, RMapUri systemAgent) throws RMapException;
 	/**
 	 * Get all versions of a DiSCO whether created by original creator of DiSCO or by some
 	 * other agent

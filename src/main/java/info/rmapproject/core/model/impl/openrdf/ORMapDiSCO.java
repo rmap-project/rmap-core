@@ -20,15 +20,14 @@ import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.idvalidator.RMapIdPredicate;
 import info.rmapproject.core.model.RMapResource;
+import info.rmapproject.core.model.RMapTriple;
+import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
-import info.rmapproject.core.model.statement.RMapStatement;
-import info.rmapproject.core.model.statement.RMapStatementBag;
 
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.RMapServiceFactoryIOC;
@@ -108,7 +107,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 *            comprise a disjoint graph, or if cannot create Statements from parameters
 	 */
 	public ORMapDiSCO(RMapResource creator, List<java.net.URI> aggregatedResources, RMapValue description,
-			RMapStatementBag relatedStatements) throws RMapException {		
+			List<RMapTriple> relatedStatements) throws RMapException {		
 		this(creator, aggregatedResources);
 		this.setDescription(description);
 		this.setRelatedStatements(relatedStatements);
@@ -404,103 +403,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		}
 		this.aggregatedResources = aggResources;
 	}
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.RMapDiSCO#getRelatedStatements()
-	 */
-	public RMapStatementBag getRelatedStatements() throws RMapException {
-		RMapStatementBag bag = null;
-		do {
-			if (this.relatedStatements==null || this.relatedStatements.isEmpty()){
-				break;
-			}
-			bag = new RMapStatementBag();
-			for (Statement stmt:this.relatedStatements){
-				Resource subject = stmt.getSubject();
-				URI predicate = stmt.getPredicate();
-				Value object = stmt.getObject();
-				java.net.URI uri;
-				RMapStatement rStmt = null;
-				try {
-					 uri = this.getService().getStatementID(
-							ORAdapter.openRdfResource2NonLiteral(subject), ORAdapter.openRdfUri2RMapUri(predicate), 
-							ORAdapter.openRdfValue2RMapValue(object));
-					 rStmt = this.getService().readStatement(uri);
-				} catch (IllegalArgumentException | URISyntaxException e) {
-					throw new RMapException(e);
-				}
-				bag.add(rStmt);
-			}
-		}while (false);		
-		return bag;
-	}
-	/**
-	 * Return related statement triples as list of ORMapStatement objects
-	 * @return ist of ORMapStatement objects
-	 */
-	public List<Statement> getRelatedStatementsAsList (){
-		return this.relatedStatements;
-	}
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.RMapDiSCO#setRelatedStatements(info.rmapproject.core.model.RMapStatementBag)
-	 */
-	public void setRelatedStatements(RMapStatementBag relatedStatements) 
-			throws RMapObjectNotFoundException, RMapException {
-		// make sure that at least one statement relatedResources references at least one aggregated resource,
-		// and that aggregated resources and related resources comprise a connected graph
-		if (relatedStatements==null){
-			this.relatedStatements = null;
-			return;
-		}
-		if (this.aggregatedResources==null || this.aggregatedResources.isEmpty()){
-			throw new RMapException("Null or empty aggregated resources in DiSCO");
-		}
-		List<Statement> orStmts = new ArrayList<Statement>();
-		do {	
-			Object[] objects = relatedStatements.getContents();
-			for (Object object:objects){
-				if (object instanceof RMapStatement){
-					RMapStatement stmt = (RMapStatement)object;
-					Resource subject = ORAdapter.rMapNonLiteral2OpenRdfResource(stmt.getSubject());
-					URI predicate = ORAdapter.rMapUri2OpenRdfUri(stmt.getPredicate());
-					Value vObject = ORAdapter.rMapValue2OpenRdfValue(stmt.getObject());
-					Statement rStmt = this.getValueFactory().createStatement
-							(subject, predicate, vObject,this.discoContext);
-					orStmts.add(rStmt);
-				}
-				else if (object instanceof java.net.URI){
-					java.net.URI uri = (java.net.URI)object;;
-					RMapStatement stmt = this.getService().readStatement(uri);
-					if (stmt==null){
-						throw new RMapObjectNotFoundException(
-								"List of related statements includes id of non-existent RMapStatement: " 
-						+ object.toString());
-						
-					}
-					else {
-						Resource subject = ORAdapter.rMapNonLiteral2OpenRdfResource(stmt.getSubject());
-						URI predicate = ORAdapter.rMapUri2OpenRdfUri(stmt.getPredicate());
-						Value vObject = ORAdapter.rMapValue2OpenRdfValue(stmt.getObject());
-						Statement rStmt = this.getValueFactory().createStatement
-								(subject, predicate, vObject,this.discoContext);
-						orStmts.add(rStmt);
-					}					
-				}
-				else {
-					// should not happen					
-					throw new RMapException ("RMapStatementBag contains object of illegal class:  " + 
-							object.getClass().toString());
-				}
-			}
-			if (!this.referencesAggregate(orStmts)){
-				throw new RMapException("related statements do no reference aggregated resources");
-			}
-			if (!this.isConnectedGraph(orStmts)){
-				throw new RMapException ("related statements do not form a connected graph");
-			}
-		}while (false);
-		this.relatedStatements = orStmts;
-		return;
-	}
+
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapDiSCO#getCreators()
 	 */
@@ -654,7 +557,54 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 				discoModel.add(stmt);
 			}
 		}
-		//TODO  expand any statements with AgentIds as objects to return complete agent info
 		return discoModel;
 	}
+	@Override
+	public List<RMapTriple> getRelatedStatements() throws RMapException {
+		List<RMapTriple> triples = new ArrayList<RMapTriple>();
+		if (this.relatedStatements!= null){
+			for (Statement stmt:relatedStatements){
+				RMapResource subject = null;
+				try {
+					subject = ORAdapter.openRdfResource2NonLiteral(stmt.getSubject());
+				} catch (IllegalArgumentException | URISyntaxException e) {
+					throw new RMapException(e);
+				}
+				RMapUri predicate = ORAdapter.openRdfUri2RMapUri(stmt.getPredicate());
+				RMapValue object = null;
+				try {
+					object = ORAdapter.openRdfValue2RMapValue(stmt.getObject());
+				} catch (IllegalArgumentException | URISyntaxException e) {
+					throw new RMapException(e);
+				}
+				RMapTriple triple = new RMapTriple(subject, predicate, object);
+				triples.add(triple);
+			}
+		}
+		return triples;
+	}
+	/**
+	 * Return related statement triples as list of ORMapStatement objects
+	 * @return ist of ORMapStatement objects
+	 */
+	public List<Statement> getRelatedStatementsAsList (){
+		return this.relatedStatements;
+	}
+	@Override
+	public void setRelatedStatements(List<RMapTriple> relatedStatements)
+			throws RMapException {
+		if (relatedStatements==null){
+			throw new RMapException("null list of related statements");
+		}
+		List<Statement>stmts = new ArrayList<Statement>();
+		for (RMapTriple triple:relatedStatements){
+			Resource subject = ORAdapter.rMapNonLiteral2OpenRdfResource(triple.getSubject());
+			URI predicate = ORAdapter.rMapUri2OpenRdfUri(triple.getPredicate());
+			Value object = ORAdapter.rMapValue2OpenRdfValue(triple.getObject());
+			Statement stmt = this.getValueFactory().createStatement(subject, predicate, object, this.discoContext);
+			stmts.add(stmt);
+		}
+		this.relatedStatements = stmts;
+	}
+
 }
