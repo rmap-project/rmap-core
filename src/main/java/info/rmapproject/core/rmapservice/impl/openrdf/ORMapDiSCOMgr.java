@@ -107,7 +107,8 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapException
 	 */
 	public RMapEvent createDiSCO(org.openrdf.model.URI systemAgentId,
-			List<Statement> stmts, ORMapAgentMgr agentMgr, ORMapEventMgr eventMgr, SesameTriplestore ts) 
+			List<Statement> stmts, ORMapAgentMgr agentMgr, ORMapProfileMgr profilemgr,
+			ORMapEventMgr eventMgr, SesameTriplestore ts) 
 					throws RMapException {
 		if (systemAgentId==null){
 			throw new RMapException ("Null system agent id");			
@@ -119,7 +120,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			throw new RMapException ("null value for triplestore");
 		}
 		ORMapDiSCO disco = new ORMapDiSCO(stmts);		
-		return this.createDiSCO(systemAgentId, disco, eventMgr, agentMgr, ts);
+		return this.createDiSCO(systemAgentId, disco, eventMgr, agentMgr, profilemgr, ts);
 	}
 	
 	/**
@@ -127,12 +128,14 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @param systemAgentId
 	 * @param disco
 	 * @param agentMgr 
+	 * @param profilemgr TODO
 	 * @param ts 
 	 * @return
 	 * @throws RMapException
 	 */
 	public ORMapEvent createDiSCO(URI systemAgentId, ORMapDiSCO disco, 
-			ORMapEventMgr eventMgr, ORMapAgentMgr agentMgr, SesameTriplestore ts) 
+			ORMapEventMgr eventMgr, ORMapAgentMgr agentMgr, ORMapProfileMgr profilemgr, 
+			SesameTriplestore ts) 
 			throws RMapException{		
 		// confirm non-null disco
 		if (disco==null){
@@ -188,12 +191,10 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}
 		this.createTriple(ts, disco.getCreatorStmt());
 		// if necessary, create new Agent, and add its id to list of objects created by event
-		boolean isNewAgent = false;
-		URI creatorAgentId = this.createAgentCreator(disco.getCreatorStmt().getObject(), systemAgentId,
-				agentMgr, ts);
-		if (creatorAgentId != null){
-			isNewAgent = true;
-			created.add(creatorAgentId);
+		List<URI> newCreatorObjects = this.createAgentCreator(disco.getCreatorStmt().getObject(), systemAgentId,
+				agentMgr, profilemgr, ts);
+		if (newCreatorObjects != null){
+			created.addAll(newCreatorObjects);
 		}
 		
 		// Create reified statement for description if necessary, and add the triple
@@ -274,7 +275,8 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 */
 	public RMapEvent updateDiSCO(URI systemAgentId,
 			URI oldDiscoId, ORMapDiSCO disco, ORMapEventMgr eventMgr,
-			ORMapAgentMgr agentMgr, SesameTriplestore ts) {
+			ORMapAgentMgr agentMgr, ORMapProfileMgr profilemgr,
+			SesameTriplestore ts) {
 		// confirm non-null old disco
 		if (oldDiscoId==null){
 			throw new RMapException ("Null value for id of target DiSCO");
@@ -357,10 +359,10 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			}
 			this.createTriple(ts, disco.getCreatorStmt());
 			// if necessary, create new Agent, and add its id to list of objects created by event
-			URI newAgentId = this.createAgentCreator(disco.getCreatorStmt().getObject(), systemAgentId,
-					agentMgr, ts);
-			if (newAgentId != null){
-				created.add(newAgentId);
+			List<URI> newAgentObjects = this.createAgentCreator(disco.getCreatorStmt().getObject(),
+					systemAgentId, agentMgr, profilemgr, ts);
+			if (newAgentObjects != null){
+				created.addAll(newAgentObjects);
 			}
 
 			// Create reified statement for description if necessary, and add the triple
@@ -435,14 +437,14 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * See if agent already exists.  If not, create Agent triples in triplestore
 	 * @param agent
 	 * @param agentMgr 
+	 * @param profilemgr 
 	 * @param ts
 	 * @return ID of new Agent, or null if agent already exisits
 	 * @throws RMapException
 	 */
-	protected URI createAgentCreator(Value agent, URI systemAgentId,
-			ORMapAgentMgr agentMgr, SesameTriplestore ts) 
+	protected List<URI> createAgentCreator(Value agent, URI systemAgentId,
+			ORMapAgentMgr agentMgr, ORMapProfileMgr profilemgr, SesameTriplestore ts) 
 			throws RMapException{
-		URI newAgentId = null;
 		if (!(agent instanceof URI)){
 			throw new RMapException ("Agent not a URI: " + agent.stringValue());
 		}
@@ -450,10 +452,12 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			throw new RMapException("Null systemAgentId");
 		}
 		URI agentUri = (URI)agent;
+		List<URI>newObjects = null;
 		if (!(this.isAgentId(agentUri, ts))){
-			newAgentId = agentMgr.createAgent(agentUri, systemAgentId, ts);
+			newObjects = agentMgr.createAgentAndProfiles(agentUri, 
+					systemAgentId, profilemgr, ts);
 		}			
-		return newAgentId;
+		return newObjects;
 	}
 	/**
 	 * Soft-delete a DiSCO

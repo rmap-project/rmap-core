@@ -3,6 +3,7 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -59,35 +60,53 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * 
 	 * @param agent
 	 * @param ts
-	 * @return
 	 * @throws RMapException
 	 */
-	public URI createAgent (ORMapAgent agent, SesameTriplestore ts) 
+	public void createAgentTriples (ORMapAgent agent, SesameTriplestore ts) 
 	throws RMapException {
-		URI uri = null;
-		if (agent == null){
-			throw new RMapException ("null agent");
-		}
-		if (ts == null){
-			throw new RMapException ("null triplestore");
-		}
 		Model model = agent.getAsModel();
 		Iterator<Statement> iterator = model.iterator();
 		while (iterator.hasNext()){
 			Statement stmt = iterator.next();
 			this.createTriple(ts, stmt);
 		}
-		uri = ORAdapter.rMapUri2OpenRdfUri(agent.getCreator());
-		return uri;
+		return;
 	}
 	/**
-	 * Create a bare Agent, with nothing more than ID and creator
+	 * Create a bare Agent, with nothing more than ID and creator 
 	 * @param agentId
 	 * @param ts
-	 * @return
+	 * @return ORMapAgent new agent object
 	 */
-	public URI createAgent(URI agentId, URI creator, SesameTriplestore ts){
+	protected ORMapAgent createAgent(URI agentId, URI creator, SesameTriplestore ts) throws RMapException {
 		ORMapAgent agent = new ORMapAgent(agentId, creator);		
-		return this.createAgent(agent, ts);
+		this.createAgentTriples(agent, ts);
+		return agent;
+	}
+	
+	public List<URI> createAgentAndProfiles(URI agentId, URI creator, 
+			ORMapProfileMgr profilemgr, SesameTriplestore ts)
+	throws RMapException {
+		if (agentId == null){
+			throw new RMapException ("Null agentID");
+		}
+		if (creator==null){
+			throw new RMapException ("Null creator");
+		}
+		if (ts==null){
+			throw new RMapException ("Null tripleStore");
+		}
+		List<URI> newObjects = new ArrayList<URI>();
+		ORMapAgent agent = this.createAgent(agentId, creator, ts);
+		URI agentUri = ORAdapter.uri2OpenRdfUri(agent.getId());
+		newObjects.add(agentUri);
+		// if agent ID not same as agentId, need to create Profile with agentID as providerID
+		if (!(agentId.equals(agentUri))){
+			URI profileUri = profilemgr.createSuppliedIdProfile(agentId, agentUri, 
+					creator, ts);
+			newObjects.add(profileUri);
+		}
+		
+		return newObjects;
 	}
 }

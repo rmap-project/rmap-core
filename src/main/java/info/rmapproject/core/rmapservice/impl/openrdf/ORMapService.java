@@ -221,7 +221,7 @@ public class ORMapService implements RMapService {
 		}
 		RMapEvent createEvent = 
 				this.discomgr.createDiSCO(ORAdapter.rMapUri2OpenRdfUri(systemAgent),
-				(ORMapDiSCO)disco, this.eventmgr, this.agentgmr, ts);
+				(ORMapDiSCO)disco, this.eventmgr, this.agentgmr, this.profilemgr, ts);
 		return createEvent;
 	}
 
@@ -238,7 +238,7 @@ public class ORMapService implements RMapService {
 		ORMapDiSCO disco = new ORMapDiSCO(stmts);
 		RMapEvent createEvent = 
 				this.discomgr.createDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent),
-				disco, this.eventmgr, this.agentgmr, ts);
+				disco, this.eventmgr, this.agentgmr, this.profilemgr, ts);
 		return createEvent;
 	}
 
@@ -266,7 +266,8 @@ public class ORMapService implements RMapService {
 		org.openrdf.model.URI agentUri = ORAdapter.rMapUri2OpenRdfUri(systemAgent);
 		RMapEvent updateEvent = 
 				this.discomgr.updateDiSCO(agentUri,
-					ORAdapter.uri2OpenRdfUri(oldDiscoId), (ORMapDiSCO)disco, this.eventmgr, this.agentgmr, ts);
+					ORAdapter.uri2OpenRdfUri(oldDiscoId), (ORMapDiSCO)disco, this.eventmgr, 
+					this.agentgmr, this.profilemgr, ts);
 		return updateEvent;
 	}
 
@@ -288,7 +289,8 @@ public class ORMapService implements RMapService {
 		}
 		RMapEvent updateEvent = 
 				this.discomgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent),
-					ORAdapter.uri2OpenRdfUri(oldDiscoId), disco, this.eventmgr, this.agentgmr, ts);
+					ORAdapter.uri2OpenRdfUri(oldDiscoId), disco, this.eventmgr, 
+					this.agentgmr, this.profilemgr, ts);
 		return updateEvent;
 	}
 	/* (non-Javadoc)

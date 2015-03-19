@@ -26,7 +26,6 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
  */
 public class ORMapAgent extends ORMapObject implements RMapAgent {
 	protected URI context;
-	protected Statement providerIdStmt;
 	protected List<Statement> profileStmts = new ArrayList<Statement>();
 	protected Statement creatorStmt;
 
@@ -100,13 +99,6 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 				throw new RMapException ("Cannot convert incoming ID to URI: " + agentIncomingIdStr,e);
 			}			
 		}
-		else {
-			// move the provider ID into the profile
-			//TODO is a provider ID an ID we would want to make part of a profile
-			Statement idStmt = this.getValueFactory().createStatement(this.context, RMAP.PROVIDERID,
-					incomingIdValue, this.context);
-			this.providerIdStmt = idStmt;
-		}
 		for (Statement stmt:stmts){
 			Resource subject = stmt.getSubject();
 			URI predicate = stmt.getPredicate();
@@ -145,6 +137,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		if (this.creatorStmt==null){
 			throw new RMapException ("Null creator for Agent");
 		}
+
 	}
 	
 	public ORMapAgent (URI agentId,  URI creator)throws RMapException {
@@ -155,28 +148,20 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		this();
 		if (creator==null){
 			throw new RMapException ("Null creator");
-		}
-		this.setCreatorStmt(ORAdapter.rMapUri2OpenRdfUri(creator));
+		}		
 		URI agentURI = ORAdapter.rMapUri2OpenRdfUri(agentId);
 		if (IdValidator.isValidAgentId(agentId.getIri())){
 			// use provided id as identifier instead of generated RMapId
 			this.context = agentURI;
-		}
-		else{
-			// consider this provider id, and keep RMap id as identifier
-//			TODO  do we need to create a Profile here
-			this.typeStatement= this.getValueFactory().createStatement(
-					this.context, RMAP.PROVIDERID, agentURI, this.context);
-		}		
+		}	
+		this.setCreatorStmt(ORAdapter.rMapUri2OpenRdfUri(creator));
 	}
+
 	
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model model = new LinkedHashModel();
 		model.add(typeStatement);
-		if (providerIdStmt != null){
-			model.add(providerIdStmt);
-		}
 		if (creatorStmt != null){
 			model.add(creatorStmt);
 		}
@@ -229,6 +214,9 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 				DCTERMS.DESCRIPTION, uri, this.context);
 		this.profileStmts.add(stmt);
 	}
+	
+
+	
 	@Override
 	public RMapUri getCreator() throws RMapException {
 		RMapUri cUri = null;
@@ -242,6 +230,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	}
 	/**
 	 * 
+	 * @param creator
 	 */
 	protected void setCreatorStmt (URI creator){
 		Statement stmt = this.getValueFactory().createStatement(this.context, 

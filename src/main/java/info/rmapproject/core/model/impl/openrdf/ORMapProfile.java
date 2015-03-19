@@ -14,6 +14,7 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.impl.LinkedHashModel;
+import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 
 import info.rmapproject.core.exception.RMapException;
@@ -32,6 +33,7 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 	protected List<Statement> propertyStmts;
 	protected Statement preferredIdentityStmt;
 	protected Statement parentAgentStmt;
+	protected Statement creatorStmt;
 	protected URI context;
 	/**
 	 * @throws RMapException
@@ -43,7 +45,7 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 				RDF.TYPE, RMAP.PROFILE, this.context);
 	}
 	
-	public ORMapProfile(URI parentAgentId) throws RMapException{
+	public ORMapProfile(URI parentAgentId, URI creatorId) throws RMapException{
 		this();
 		if (parentAgentId==null) {
 			throw new RMapException("Null parent agent id");
@@ -51,6 +53,7 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 		Statement stmt = this.getValueFactory().createStatement(this.context, 
 				RMAP.DESCRIBES_AGENT, parentAgentId, this.context);
 		this.parentAgentStmt = stmt;
+		this.setCreatorStmt(creatorId);
 	}
 	
 	public ORMapProfile(List<Statement> stmts)throws RMapException {
@@ -126,6 +129,9 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 		Model model = new LinkedHashModel();
 		model.add(this.typeStatement);
 		model.add(this.parentAgentStmt);
+		if (this.creatorStmt!= null){
+			model.add(this.creatorStmt);
+		}
 		if (this.preferredIdentityStmt!= null){
 			model.add(this.preferredIdentityStmt);
 		}
@@ -257,5 +263,32 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 		this.parentAgentStmt = parentAgentStmt;
 	}
 
+	public void addIdentity(URI id){
+		Statement idStmt = this.getValueFactory().createStatement(this.context,
+				RMAP.PROFILE_ID_BY, id, this.context);
+		this.identityStmts.add(idStmt);
+	}
 
+	/**
+	 * 
+	 * @param creator
+	 */
+	protected void setCreatorStmt (URI creator){
+		Statement stmt = this.getValueFactory().createStatement(this.context, 
+				DCTERMS.CREATOR, creator, this.context);
+		this.creatorStmt = stmt;
+	}
+
+	@Override
+	public RMapUri getCreator() throws RMapException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @return the creatorStmt
+	 */
+	public Statement getCreatorStmt() {
+		return creatorStmt;
+	}
 }
