@@ -98,10 +98,12 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	}
 	
 	/**
-	 *
+	 * 
 	 * @param systemAgentId
 	 * @param stmts
-	 * @param agentMgr 
+	 * @param agentMgr
+	 * @param profilemgr
+	 * @param eventMgr
 	 * @param ts
 	 * @return
 	 * @throws RMapException
@@ -124,12 +126,13 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	}
 	
 	/**
-	 * Create a new DiSCO
+	 * 
 	 * @param systemAgentId
 	 * @param disco
-	 * @param agentMgr 
-	 * @param profilemgr TODO
-	 * @param ts 
+	 * @param eventMgr
+	 * @param agentMgr
+	 * @param profilemgr
+	 * @param ts
 	 * @return
 	 * @throws RMapException
 	 */
@@ -263,13 +266,13 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	}
 
 	/**
-	 * Update: inactivate an existing DiSCO (same agent); derive from existing disco (same or different agent)
-	 * by creating new DiSCO
+	 * 
 	 * @param systemAgentId
 	 * @param oldDiscoId
 	 * @param disco
 	 * @param eventMgr
-	 * @param agentMgr 
+	 * @param agentMgr
+	 * @param profilemgr
 	 * @param ts
 	 * @return
 	 */

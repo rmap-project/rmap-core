@@ -108,28 +108,28 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 	/**
 	 * 
 	 * @param suppliedId
-	 * @param agentId
+	 * @param parentAgentId
 	 * @param creator
 	 * @param ts
 	 * @return
 	 * @throws RMapException
 	 */
-	public URI createSuppliedIdProfile(URI suppliedId, URI agentId, URI creator, 
+	public URI createSuppliedIdProfile(URI suppliedId, URI parentAgentId, URI systemAgent, 
 			SesameTriplestore ts) 
 	throws RMapException {
 		if (suppliedId == null){
 			throw new RMapException ("null suppliedId");
 		}
-		if (agentId==null){
+		if (parentAgentId==null){
 			throw new RMapException ("Null agentId");
 		}
-		if (creator==null){
-			throw new RMapException ("null creator");
+		if (systemAgent==null){
+			throw new RMapException ("null systemAgent");
 		}
 		if (ts == null){
 			throw new RMapException ("Null triplestore");
 		}
-		ORMapProfile profile = new ORMapProfile(agentId, creator);
+		ORMapProfile profile = new ORMapProfile(parentAgentId, systemAgent);
 		profile.addIdentity(suppliedId);
 		this.createProfileTriples(profile, ts);
 		URI uri = ORAdapter.uri2OpenRdfUri(profile.getId());

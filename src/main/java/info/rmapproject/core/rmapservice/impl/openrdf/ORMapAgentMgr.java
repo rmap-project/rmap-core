@@ -78,35 +78,41 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @param ts
 	 * @return ORMapAgent new agent object
 	 */
-	protected ORMapAgent createAgent(URI agentId, URI creator, SesameTriplestore ts) throws RMapException {
-		ORMapAgent agent = new ORMapAgent(agentId, creator);		
+	protected ORMapAgent createAgent(URI agentId, URI systemAgent,
+			SesameTriplestore ts) 
+	throws RMapException {
+		ORMapAgent agent = new ORMapAgent(agentId, systemAgent);		
 		this.createAgentTriples(agent, ts);
 		return agent;
 	}
 	
-	public List<URI> createAgentAndProfiles(URI agentId, URI creator, 
+	public List<URI> createAgentAndProfiles(URI creator, URI systemAgent, 
 			ORMapProfileMgr profilemgr, SesameTriplestore ts)
 	throws RMapException {
-		if (agentId == null){
-			throw new RMapException ("Null agentID");
-		}
-		if (creator==null){
+		if (creator == null){
 			throw new RMapException ("Null creator");
+		}
+		if (systemAgent==null){
+			throw new RMapException ("Null systemAgent");
 		}
 		if (ts==null){
 			throw new RMapException ("Null tripleStore");
 		}
 		List<URI> newObjects = new ArrayList<URI>();
-		ORMapAgent agent = this.createAgent(agentId, creator, ts);
+		ORMapAgent agent = this.createAgent(creator, systemAgent, ts);
 		URI agentUri = ORAdapter.uri2OpenRdfUri(agent.getId());
 		newObjects.add(agentUri);
 		// if agent ID not same as agentId, need to create Profile with agentID as providerID
-		if (!(agentId.equals(agentUri))){
-			URI profileUri = profilemgr.createSuppliedIdProfile(agentId, agentUri, 
-					creator, ts);
+		if (!(creator.equals(agentUri))){
+			URI profileUri = profilemgr.createSuppliedIdProfile(creator, agentUri, 
+					systemAgent, ts);
 			newObjects.add(profileUri);
-		}
-		
+		}		
 		return newObjects;
+	}
+	
+	public List<URI> createRelatedStatementsAgents (List<Statement> relatedStmts){
+		
+		return null;
 	}
 }
