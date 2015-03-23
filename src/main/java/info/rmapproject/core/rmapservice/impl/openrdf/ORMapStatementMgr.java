@@ -54,32 +54,40 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 			throws RMapException {
 		String contextString = this.createContextURIString(rmapStatement);
 		URI context = ORAdapter.getValueFactory().createURI(contextString);	
-		java.net.URI stmtURI;
-		try {
-			stmtURI = IdServiceFactoryIOC.getFactory().createService().createId();
-		} catch (Exception e1) {
-			throw new RMapException("failed to create new ID",e1);
+		java.net.URI stmtURI = null;
+		URI stmtId = null;
+		try{
+			stmtId = this.getStatementId(context, ts);
+			// do nothing; reified statement already exists
 		}
-		URI stmtId = ORAdapter.uri2OpenRdfUri(stmtURI);
-		try {
-			URI predicate = RDF.TYPE;
-			Value object = RMAP.STATEMENT;
-			ts.addStatement(stmtId, predicate,object,context);	
-			
-			predicate = RDF.SUBJECT;
-			object = rmapStatement.getSubject();
-			ts.addStatement(stmtId, predicate,object,context);	
-			
-			predicate = RDF.PREDICATE;
-			object = rmapStatement.getPredicate();
-			ts.addStatement(stmtId, predicate,object,context);	
-			
-			predicate = RDF.OBJECT;
-			object = rmapStatement.getObject();
-			ts.addStatement(stmtId, predicate,object,context);	
-		} catch (Exception e){
-			throw new RMapException("Exception creating reified statement", e);
-		}		
+		catch (RMapObjectNotFoundException e){
+			try {
+				stmtURI = IdServiceFactoryIOC.getFactory().createService().createId();
+			} catch (Exception e1) {
+				throw new RMapException("failed to create new ID",e1);
+			}
+			stmtId = ORAdapter.uri2OpenRdfUri(stmtURI);
+			try {
+				URI predicate = RDF.TYPE;
+				Value object = RMAP.STATEMENT;
+				ts.addStatement(stmtId, predicate,object,context);	
+				
+				predicate = RDF.SUBJECT;
+				object = rmapStatement.getSubject();
+				ts.addStatement(stmtId, predicate,object,context);	
+				
+				predicate = RDF.PREDICATE;
+				object = rmapStatement.getPredicate();
+				ts.addStatement(stmtId, predicate,object,context);	
+				
+				predicate = RDF.OBJECT;
+				object = rmapStatement.getObject();
+				ts.addStatement(stmtId, predicate,object,context);	
+			} catch (Exception ex){
+				throw new RMapException("Exception creating reified statement", ex);
+			}	
+		}
+		catch (RMapException re) {throw re;}
 		return stmtId;
 	}
 
@@ -139,16 +147,26 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 				this.createContextURIString(subject.stringValue(), predicate.stringValue(), 
 						object.stringValue());
 		URI context = ORAdapter.getValueFactory().createURI(contextString);	
+		return this.getStatementId(context, ts);
+	}
+	/**
+	 * 
+	 * @param context
+	 * @param ts
+	 * @return
+	 * @throws RMapObjectNotFoundException
+	 * @throws RMapException
+	 */
+	public URI getStatementId (URI context, SesameTriplestore ts)throws RMapObjectNotFoundException, RMapException {
 		// get statements whose context matches concatenated subject/object/predicate
 		List <Statement> matchingTriples = null;
 		try {
-			matchingTriples = ts.getStatements(null, null, null, false, context);
+			matchingTriples = ts.getStatements(null, null, null, true, context);
 		} catch (Exception e) {
 			throw new RMapException (e);
 		}
 		if (matchingTriples.size()==0){
-			throw new RMapObjectNotFoundException("No Statement found with subject " + subject.stringValue() +
-					"  predicate " + predicate.stringValue() + " object " + object.stringValue());
+			throw new RMapObjectNotFoundException("No Statement found with context " + context.stringValue());
 		}
 		Statement stmt = matchingTriples.get(0);		
 		Resource rSubject = stmt.getSubject();

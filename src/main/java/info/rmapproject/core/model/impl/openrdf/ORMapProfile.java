@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -18,6 +19,7 @@ import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.idvalidator.IdValidator;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.agent.RMapProfile;
@@ -44,7 +46,12 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 		this.typeStatement = this.getValueFactory().createStatement(this.context,
 				RDF.TYPE, RMAP.PROFILE, this.context);
 	}
-	
+	/**
+	 * 
+	 * @param parentAgentId
+	 * @param creatorId
+	 * @throws RMapException
+	 */
 	public ORMapProfile(URI parentAgentId, URI creatorId) throws RMapException{
 		this();
 		if (parentAgentId==null) {
@@ -55,9 +62,56 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 		this.parentAgentStmt = stmt;
 		this.setCreatorStmt(creatorId);
 	}
-	
-	public ORMapProfile(List<Statement> stmts)throws RMapException {
+	/**
+	 * 
+	 * @param stmts
+	 * @param creatorId System agent who creates profile; can be null if constructor is using statements in triplestore;
+	 * should NOT be null if service is creating statements from RDF and has not yet put statements in triplestore
+	 * @throws RMapException
+	 */
+	public ORMapProfile(List<Statement> stmts, URI creatorId)throws RMapException {
 		this();
+		if (stmts==null){
+			throw new RMapException("Null statement list");
+		}
+		boolean typeFound = false;
+		Value incomingIdValue = null;
+		String agentIncomingIdStr = null;
+		Resource agentIncomingIdResource = null;
+		for (Statement stmt:stmts){
+			Resource subject = stmt.getSubject();
+			URI predicate = stmt.getPredicate();
+			Value object = stmt.getObject();
+			if (predicate.equals(RDF.TYPE)){
+				if (object.equals(RMAP.PROFILE)){
+					typeFound = true;
+					incomingIdValue = subject;
+					agentIncomingIdResource = subject;
+					agentIncomingIdStr = ((Resource)subject).stringValue();
+					// use incoming context if there is one
+					Resource context = stmt.getContext();
+					if (context != null && context instanceof URI){
+						this.context = (URI)context;
+					}
+					break;
+				}
+				continue;
+			}
+		}
+		if (!typeFound){
+			throw new RMapException ("no profile type statement found in statement list");
+		}
+		// creator should not be null if method invoked from service,
+				// can be null when creating ORMapAgent from triplestore statements,
+				// so we have to check at the end and make sure there is a non-null creator
+		if (creatorId!=null){
+			this.setCreatorStmt(creatorId);
+		}	
+		boolean isValidId = false;
+		if (agentIncomingIdResource instanceof URI){
+			isValidId = IdValidator.isValidAgentId(ORAdapter.openRdfUri2URI((URI)agentIncomingIdResource));
+		}
+		
 		//TODO complete body
 	}
 

@@ -14,8 +14,6 @@ import java.util.Set;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
-import org.openrdf.model.vocabulary.DC;
-import org.openrdf.model.vocabulary.DCTERMS;
 
 import info.rmapproject.core.exception.RMapDeletedObjectException;
 import info.rmapproject.core.exception.RMapException;
@@ -45,18 +43,6 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
  *
  */
 public class ORMapDiSCOMgr extends ORMapObjectMgr {
-
-	public static List<URI> agentRelations;
-
-	static {
-		agentRelations = new ArrayList<URI>();
-		agentRelations.add(DC.CREATOR);
-		agentRelations.add(DC.CONTRIBUTOR);
-		agentRelations.add(DCTERMS.CONTRIBUTOR);
-		agentRelations.add(DCTERMS.CREATOR);
-		agentRelations.add(DCTERMS.AGENT);
-		agentRelations.add(DCTERMS.PUBLISHER);
-	}
 
 	/**
 	 * 
@@ -177,18 +163,24 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		created.add(disco.getDiscoContext());
 		
 		// Create reified statment for type statement if necessary, and add the triple
-		URI typeId = stmtMgr.getStatementID(disco.getTypeStatement().getSubject(),
-				disco.getTypeStatement().getPredicate(), disco.getTypeStatement().getObject(), ts);		
-		if (typeId == null){
+		URI typeId = null;
+		try {
+			typeId=stmtMgr.getStatementID(disco.getTypeStatement().getSubject(),
+					disco.getTypeStatement().getPredicate(), disco.getTypeStatement().getObject(), ts);	
+		}					
+		catch (Exception e){
 			typeId = stmtMgr.createReifiedStatement(disco.getTypeStatement(), ts);
 			created.add(typeId);
 		}
 		this.createTriple(ts, disco.getTypeStatement());
 		
 		// Create reified statement for discoCreater if necessary, and add the triple
-		URI discoCreator = stmtMgr.getStatementID(disco.getCreatorStmt().getSubject(),
+		URI discoCreator = null;
+		try {
+			stmtMgr.getStatementID(disco.getCreatorStmt().getSubject(),
 				disco.getCreatorStmt().getPredicate(), disco.getCreatorStmt().getObject(), ts);	
-		if (discoCreator == null){
+		}
+		catch (Exception e){
 			discoCreator = stmtMgr.createReifiedStatement(disco.getCreatorStmt(), ts);
 			created.add(discoCreator);
 		}
@@ -202,9 +194,12 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		
 		// Create reified statement for description if necessary, and add the triple
 		if (disco.getDescriptonStatement() != null){
-			URI desc = stmtMgr.getStatementID(disco.getDescriptonStatement().getSubject(),
+			URI desc = null;
+			try {
+				desc = stmtMgr.getStatementID(disco.getDescriptonStatement().getSubject(),
 					disco.getDescriptonStatement().getPredicate(), disco.getDescriptonStatement().getObject(), ts);
-			if (desc == null){
+			}
+			catch (Exception e){
 				desc = stmtMgr.createReifiedStatement(disco.getDescriptonStatement(), ts);
 				created.add(desc);
 			}
@@ -213,9 +208,12 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		
 		// create reified statement for disco id the provider used
 		if (disco.getProviderIdStmt()!= null){
-			URI providerId = stmtMgr.getStatementID(disco.getProviderIdStmt().getSubject(),
+			URI providerId = null;
+			try {
+				providerId = stmtMgr.getStatementID(disco.getProviderIdStmt().getSubject(),
 					disco.getProviderIdStmt().getPredicate(), disco.getProviderIdStmt().getObject(), ts);
-			if (providerId == null){
+			}
+			catch (Exception e){
 				providerId= stmtMgr.createReifiedStatement(disco.getProviderIdStmt(),ts);
 				created.add(providerId);
 			}
@@ -224,9 +222,12 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		
 		// for each aggregated resource, create reified statement if necessary, create triples
 		for (Statement stmt:aggResources){
-			URI aggResource = stmtMgr.getStatementID(stmt.getSubject(),
+			URI aggResource = null;
+			try {
+				aggResource = stmtMgr.getStatementID(stmt.getSubject(),
 					stmt.getPredicate(), stmt.getObject(), ts);
-			if (aggResource == null){
+			}
+			catch (Exception e){
 				aggResource = stmtMgr.createReifiedStatement(stmt, ts);
 				created.add(aggResource);
 			}
@@ -237,18 +238,24 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		//   create reified statement if necessary, and add the triple
 		//   if dct:create or dc:creator create agent, agent profile as needed,and add the triple
 		for (Statement stmt:disco.getRelatedStatementsAsList()){
-			URI relStmt = stmtMgr.getStatementID(stmt.getSubject(),
+			URI relStmt = null;
+			try { 
+				relStmt =stmtMgr.getStatementID(stmt.getSubject(),
 					stmt.getPredicate(), stmt.getObject(), ts);
-			if (relStmt == null){
+			}
+			catch (Exception e){
 				relStmt = stmtMgr.createReifiedStatement(stmt, ts);
 				created.add(relStmt);
 			}
 			this.createTriple(ts, stmt);
-			URI predicate = stmt.getPredicate();
-			if (agentRelations.contains(predicate)){
-				//TODO see if you need to create or update Agent here
-			}
-		}		
+		}	
+		// If any "agents" appear in relatedStatements, create necessary
+		// agents, profiles, and add their ids to list of created objects
+		List<URI> relatedAgents = agentMgr.createRelatedStatementsAgents(
+				disco.getRelatedStatementsAsList(), systemAgentId, profilemgr, ts);
+		if (relatedAgents != null){
+			created.addAll(relatedAgents);
+		}
 		// update the event with created object IDS
 		event.setCreatedObjectIdsFromURI(created);		
 		// end the event, write the event triples, and commit everything
@@ -345,18 +352,24 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			created.add(disco.getDiscoContext());
 			
 			// Create reified statment for type statement if necessary, and add the triple
-			URI typeId = stmtMgr.getStatementID(disco.getTypeStatement().getSubject(),
-					disco.getTypeStatement().getPredicate(), disco.getTypeStatement().getObject(), ts);		
-			if (typeId == null){
+			URI typeId = null;
+			try {
+				typeId=stmtMgr.getStatementID(disco.getTypeStatement().getSubject(),
+						disco.getTypeStatement().getPredicate(), disco.getTypeStatement().getObject(), ts);	
+			}					
+			catch (Exception e){
 				typeId = stmtMgr.createReifiedStatement(disco.getTypeStatement(), ts);
 				created.add(typeId);
 			}
 			this.createTriple(ts, disco.getTypeStatement());
 			
 			// Create reified statement for discoCreater if necessary, and add the triple
-			URI discoCreator = stmtMgr.getStatementID(disco.getCreatorStmt().getSubject(),
+			URI discoCreator = null;
+			try{
+				discoCreator= stmtMgr.getStatementID(disco.getCreatorStmt().getSubject(),
 					disco.getCreatorStmt().getPredicate(), disco.getCreatorStmt().getObject(), ts);	
-			if (discoCreator == null){
+			}
+			catch (Exception e){
 				discoCreator = stmtMgr.createReifiedStatement(disco.getCreatorStmt(), ts);
 				created.add(discoCreator);
 			}
@@ -370,9 +383,12 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 
 			// Create reified statement for description if necessary, and add the triple
 			if (disco.getDescriptonStatement()!= null){
-				URI desc = stmtMgr.getStatementID(disco.getDescriptonStatement().getSubject(),
+				URI desc = null;
+				try {
+					stmtMgr.getStatementID(disco.getDescriptonStatement().getSubject(),
 						disco.getDescriptonStatement().getPredicate(), disco.getDescriptonStatement().getObject(), ts);
-				if (desc == null){
+				}
+				catch (Exception e){
 					desc = stmtMgr.createReifiedStatement(disco.getDescriptonStatement(), ts);
 					created.add(desc);
 				}
@@ -381,9 +397,12 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			
 			// create reified statement for disco id the provider used
 			if (disco.getProviderIdStmt()!= null){
-				URI providerId = stmtMgr.getStatementID(disco.getProviderIdStmt().getSubject(),
+				URI providerId = null;
+				try{
+					providerId = stmtMgr.getStatementID(disco.getProviderIdStmt().getSubject(),
 						disco.getProviderIdStmt().getPredicate(), disco.getProviderIdStmt().getObject(), ts);
-				if (providerId == null){
+				}
+				catch (Exception e){
 					providerId= stmtMgr.createReifiedStatement(disco.getProviderIdStmt(),ts);
 					created.add(providerId);
 				}
@@ -393,9 +412,12 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			// for each aggregated resource, create reified statement if necessary, create triples
 			List<Statement> aggResources = disco.getAggregatedResourceStatements();
 			for (Statement stmt:aggResources){
-				URI aggResource = stmtMgr.getStatementID(stmt.getSubject(),
+				URI aggResource = null;
+				try{
+					aggResource = stmtMgr.getStatementID(stmt.getSubject(),
 						stmt.getPredicate(), stmt.getObject(), ts);
-				if (aggResource == null){
+				}
+				catch (Exception e){
 					aggResource = stmtMgr.createReifiedStatement(stmt, ts);
 					created.add(aggResource);
 				}
@@ -406,18 +428,24 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			//   create reified statement if necessary, and add the triple
 			//   if dct:create or dc:creator create agent, agent profile as needed,and add the triple
 			for (Statement stmt:disco.getRelatedStatementsAsList()){
-				URI relStmt = stmtMgr.getStatementID(stmt.getSubject(),
+				URI relStmt = null;
+				try {
+					relStmt = stmtMgr.getStatementID(stmt.getSubject(),
 						stmt.getPredicate(), stmt.getObject(), ts);
-				if (relStmt == null){
+				}
+				catch (Exception e){
 					relStmt = stmtMgr.createReifiedStatement(stmt, ts);
 					created.add(relStmt);
 				}
 				this.createTriple(ts, stmt);
-				URI predicate = stmt.getPredicate();
-				if (agentRelations.contains(predicate)){
-					//TODO see if you need to create or update Agent here
-				}
-			}		
+			}	
+			// If any "agents" appear in relatedStatements, create necessary
+			// agents, profiles, and add their ids to list of created objects
+			List<URI> relatedAgents = agentMgr.createRelatedStatementsAgents(
+					disco.getRelatedStatementsAsList(), systemAgentId, profilemgr, ts);
+			if (relatedAgents != null){
+				created.addAll(relatedAgents);
+			}
 			// update the event with created object IDS for update and derivation events
 			if (event instanceof ORMapEventWithNewObjects){
 				((ORMapEventWithNewObjects)event).setCreatedObjectIdsFromURI(created);

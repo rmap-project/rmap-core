@@ -53,7 +53,7 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 		}
 
 		List<Statement> stmts = this.getNamedGraph(profileId, ts);	
-		ORMapProfile profile = new ORMapProfile(stmts);
+		ORMapProfile profile = new ORMapProfile(stmts,null);
 		return profile;
 	}
 	

@@ -16,6 +16,8 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.vocabulary.DC;
+import org.openrdf.model.vocabulary.DCTERMS;
 
 /**
  * @author smorrissey
@@ -23,6 +25,17 @@ import org.openrdf.model.URI;
  */
 public class ORMapAgentMgr extends ORMapObjectMgr {
 
+	public static List<URI> agentRelations;
+
+	static {
+		agentRelations = new ArrayList<URI>();
+		agentRelations.add(DC.CREATOR);
+		agentRelations.add(DC.CONTRIBUTOR);
+		agentRelations.add(DCTERMS.CONTRIBUTOR);
+		agentRelations.add(DCTERMS.CREATOR);
+		agentRelations.add(DCTERMS.AGENT);
+		agentRelations.add(DCTERMS.PUBLISHER);
+	}
 	/**
 	 * 
 	 */
@@ -111,8 +124,10 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		return newObjects;
 	}
 	
-	public List<URI> createRelatedStatementsAgents (List<Statement> relatedStmts){
-		
+	public List<URI> createRelatedStatementsAgents (List<Statement> relatedStmts,
+			URI systemAgent, ORMapProfileMgr profilemgr, SesameTriplestore ts)
+	throws RMapException {
+		//TODO complete
 		return null;
 	}
 }

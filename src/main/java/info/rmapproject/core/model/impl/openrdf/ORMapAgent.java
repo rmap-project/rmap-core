@@ -40,6 +40,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	/**
 	 * 
 	 * @param stmts
+	 * @param creator
 	 * @throws RMapException
 	 */
 	public ORMapAgent(List<Statement> stmts, URI creator)throws RMapException {
@@ -48,7 +49,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 			throw new RMapException("Null statement list");
 		}
 	
-		boolean agentFound = false;
+		boolean typeFound = false;
 		Value incomingIdValue = null;
 		String agentIncomingIdStr = null;
 		Resource agentIncomingIdResource = null;
@@ -58,7 +59,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 			Value object = stmt.getObject();
 			if (predicate.equals(RDF.TYPE)){
 				if (object.equals(RMAP.AGENT)){
-					agentFound = true;
+					typeFound = true;
 					incomingIdValue = subject;
 					agentIncomingIdResource = subject;
 					agentIncomingIdStr = ((Resource)subject).stringValue();
@@ -72,13 +73,13 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 			}
 			continue;
 		} 
-		if (!agentFound){
+		if (!typeFound){
 			throw new RMapException ("No type statement found indicating AGENT");
 		}
 		if (agentIncomingIdStr==null || agentIncomingIdStr.length()==0){
 			throw new RMapException ("null or empty agent identifier");
 		}
-		// creator will should not be null if method invoked from service,
+		// creator should not be null if method invoked from service,
 		// can be null when creating ORMapAgent from triplestore statements,
 		// so we have to check at the end and make sure there is a non-null creator
 		if (creator!=null){
@@ -139,11 +140,21 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		}
 
 	}
-	
+	/**
+	 * 
+	 * @param agentId
+	 * @param creator
+	 * @throws RMapException
+	 */
 	public ORMapAgent (URI agentId,  URI creator)throws RMapException {
 		this(ORAdapter.openRdfUri2RMapUri(agentId), ORAdapter.openRdfUri2RMapUri(creator));		
 	}
-	
+	/**
+	 * 
+	 * @param agentId
+	 * @param creator
+	 * @throws RMapException
+	 */
 	public ORMapAgent (RMapUri agentId, RMapUri creator)throws RMapException {
 		this();
 		if (creator==null){
@@ -156,7 +167,6 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		}	
 		this.setCreatorStmt(ORAdapter.rMapUri2OpenRdfUri(creator));
 	}
-
 	
 	@Override
 	public Model getAsModel() throws RMapException {
@@ -214,9 +224,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 				DCTERMS.DESCRIPTION, uri, this.context);
 		this.profileStmts.add(stmt);
 	}
-	
-
-	
+		
 	@Override
 	public RMapUri getCreator() throws RMapException {
 		RMapUri cUri = null;
