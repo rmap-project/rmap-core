@@ -96,5 +96,35 @@ public class ConfigUtils {
 		}
 		return valueList;
 	}
+	/**
+	 * 
+	 * @param propFileName
+	 * @param separator
+	 * @return
+	 * @throws NullPointerException
+	 * @throws MissingResourceException
+	 * @throws PatternSyntaxException
+	 */
+	public static Map<String,List<String>> getPropertyValuesList (String propFileName,  String separator) 
+	throws NullPointerException, MissingResourceException, PatternSyntaxException  {
+		Map<String,List<String>>valueMap = new HashMap<String, List<String>>();
+		ResourceBundle resources = ResourceBundle.getBundle(propFileName, Locale.getDefault());
+		for (String key:resources.keySet()){		
+			String valueString = resources.getString(key);	
+			if (valueString !=null){
+				String sep = separator;
+				if (sep == null){
+					sep = DEFAULT_PROP_SEPARATOR;
+				}
+				String[] values = valueString.split(sep);
+				List<String> strList = new ArrayList<String>(values.length);
+				for (String value:values){
+					strList.add(value);
+				}
+				valueMap.put(key, strList);
+			}
+		}
+		return valueMap;
+	}
 
 }

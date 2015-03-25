@@ -18,6 +18,7 @@ import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 
+import info.rmapproject.core.controlledlist.IdPredicate;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idvalidator.IdValidator;
 import info.rmapproject.core.model.RMapUri;
@@ -31,8 +32,8 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
  */
 public class ORMapProfile extends ORMapObject implements RMapProfile {
 
-	protected List<Statement> identityStmts;
-	protected List<Statement> propertyStmts;
+	protected List<Statement> identityStmts = new ArrayList<Statement>();
+	protected List<Statement> propertyStmts= new ArrayList<Statement>();
 	protected Statement preferredIdentityStmt;
 	protected Statement parentAgentStmt;
 	protected Statement creatorStmt;
@@ -108,11 +109,76 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 			this.setCreatorStmt(creatorId);
 		}	
 		boolean isValidId = false;
+		boolean isBNode = false;
 		if (agentIncomingIdResource instanceof URI){
 			isValidId = IdValidator.isValidAgentId(ORAdapter.openRdfUri2URI((URI)agentIncomingIdResource));
 		}
-		
-		//TODO complete body
+		else {
+			isBNode = true;
+		}
+		if (isValidId){
+			// use incoming id
+			try {
+				this.id = new java.net.URI(agentIncomingIdStr);
+				this.context = ORAdapter.uri2OpenRdfUri(this.getId()); 
+			} catch (URISyntaxException e) {
+				throw new RMapException ("Cannot convert incoming ID to URI: " + agentIncomingIdStr,e);
+				}	
+		}
+		else {
+			// if bNode, we don't care what the value is; if it's some other (non-RMap) identifier, keep it as an identity
+			if (!isBNode){
+				Statement idStmt = this.getValueFactory().createStatement(
+						this.context, RMAP.PROFILE_ID_BY, agentIncomingIdResource, this.context);
+				this.identityStmts.add(idStmt);
+			}
+		}
+		for (Statement stmt:stmts){
+			Resource subject = stmt.getSubject();
+			URI predicate = stmt.getPredicate();
+			Value object = stmt.getObject();
+			if (!isValidId){
+				if (subject.stringValue().equals(incomingIdValue.stringValue())){
+					subject = this.context;
+				}
+				if (object.stringValue().equals(incomingIdValue.stringValue())){
+					object = this.context;
+				}
+			}
+			if (predicate.equals(RDF.TYPE)){
+				if (object.equals(RMAP.AGENT)){
+					this.typeStatement= this.getValueFactory().createStatement(
+							subject, predicate, object, this.context);
+					continue;
+				}
+				else {
+					throw new RMapException("Unrecognized RDF TYPE for Agent: " + object.stringValue());
+				}
+			}
+			if (predicate.equals(DCTERMS.CREATOR)){
+				Statement creatorStmt = this.getValueFactory().createStatement(
+						subject, predicate, object, this.context);
+				this.creatorStmt = creatorStmt;
+			}
+			if (predicate.equals(RMAP.PROFILE_ID_BY)){
+				Statement idStmt = this.getValueFactory().createStatement(
+						subject, predicate, object, this.context);
+				this.identityStmts.add(idStmt);
+			}
+			java.net.URI predUri = ORAdapter.openRdfUri2URI(predicate);
+			if (IdPredicate.isAgentIdPredicate(predUri)){
+				Statement idStmt = this.getValueFactory().createStatement(
+						subject, predicate, object, this.context);
+				this.identityStmts.add(idStmt);
+			}
+			// all other predicates presumed to be ok, and more descriptive info about agent
+			Statement propStmt = this.getValueFactory().createStatement(
+					subject, predicate, object, this.context);
+			propertyStmts.add(propStmt);
+		}
+		if (this.creatorStmt==null){
+			throw new RMapException ("Null creator for Profile");
+		}		
 	}
 
 	/* (non-Javadoc)
@@ -335,8 +401,15 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 
 	@Override
 	public RMapUri getCreator() throws RMapException {
-		// TODO Auto-generated method stub
-		return null;
+		Value value = this.creatorStmt.getObject();
+		RMapUri rUri = null;
+		if (value instanceof URI){
+			rUri = ORAdapter.openRdfUri2RMapUri((URI)value);
+		}
+		else {
+			throw new RMapException ("Creator is not a URI: " + value.stringValue());
+		}
+		return rUri;
 	}
 
 	/**
