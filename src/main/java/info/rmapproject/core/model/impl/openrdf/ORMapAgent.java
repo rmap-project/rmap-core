@@ -164,7 +164,10 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		if (IdValidator.isValidAgentId(agentId.getIri())){
 			// use provided id as identifier instead of generated RMapId
 			this.context = agentURI;
-		}	
+			this.id = agentId.getIri();
+		}
+		this.typeStatement = 
+				this.getValueFactory().createStatement(this.context,RDF.TYPE,RMAP.AGENT,this.context);
 		this.setCreatorStmt(ORAdapter.rMapUri2OpenRdfUri(creator));
 	}
 	

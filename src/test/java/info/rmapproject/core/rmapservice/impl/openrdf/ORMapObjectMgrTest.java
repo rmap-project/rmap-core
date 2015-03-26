@@ -15,6 +15,7 @@ import info.rmapproject.core.idservice.IdServiceFactoryIOC;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
+import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
@@ -228,7 +229,33 @@ public class ORMapObjectMgrTest {
 	 */
 	@Test
 	public void testIsAgentId() {
-		fail("Not yet implemented");
+		java.net.URI SYSAGENT_URI = null;
+		try {
+			SYSAGENT_URI = new java.net.URI("http://orcid.org/0000-0003-2069-1219");
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+			fail("cant create URI");
+		}
+		//yep, agent creates itself… just for now.
+		URI agentURI = ORAdapter.uri2OpenRdfUri(SYSAGENT_URI);
+		ORMapAgent agent = new ORMapAgent(agentURI, agentURI);
+		//create through ORMapAgentMgr
+		SesameTriplestore ts = null;
+		try {
+			ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("cant create triplestore");
+		}
+		ORMapAgentMgr agentMgr = new ORMapAgentMgr();
+		agentMgr.createAgentTriples (agent, ts);
+		try {
+			ts.commitTransaction();
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("cant commit");
+		}
+		assertTrue(agentMgr.isAgentId(agentURI, ts));
 	}
 
 	/**
