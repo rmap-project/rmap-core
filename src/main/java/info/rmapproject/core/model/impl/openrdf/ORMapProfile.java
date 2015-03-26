@@ -89,11 +89,6 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 					incomingIdValue = subject;
 					agentIncomingIdResource = subject;
 					agentIncomingIdStr = ((Resource)subject).stringValue();
-					// use incoming context if there is one
-					Resource context = stmt.getContext();
-					if (context != null && context instanceof URI){
-						this.context = (URI)context;
-					}
 					break;
 				}
 				continue;
@@ -122,8 +117,9 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 				this.id = new java.net.URI(agentIncomingIdStr);
 				this.context = ORAdapter.uri2OpenRdfUri(this.getId()); 
 			} catch (URISyntaxException e) {
-				throw new RMapException ("Cannot convert incoming ID to URI: " + agentIncomingIdStr,e);
-				}	
+				throw new RMapException 
+				("Cannot convert incoming ID to URI: " + agentIncomingIdStr,e);
+			}	
 		}
 		else {
 			// if bNode, we don't care what the value is; if it's some other (non-RMap) identifier, keep it as an identity
@@ -141,44 +137,54 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 				if (subject.stringValue().equals(incomingIdValue.stringValue())){
 					subject = this.context;
 				}
-				if (object.stringValue().equals(incomingIdValue.stringValue())){
-					object = this.context;
+				// ONLY accepting properties with Profile id as subject
+				else {
+					throw new RMapException 
+					("Profile property subject is not equal to supplied Profile id: " +
+					  subject.stringValue());
 				}
 			}
 			if (predicate.equals(RDF.TYPE)){
-				if (object.equals(RMAP.AGENT)){
+				if (object.equals(RMAP.PROFILE)){
 					this.typeStatement= this.getValueFactory().createStatement(
 							subject, predicate, object, this.context);
 					continue;
 				}
 				else {
-					throw new RMapException("Unrecognized RDF TYPE for Agent: " + object.stringValue());
+					throw new RMapException("Unrecognized RDF TYPE for PROFILE: " + object.stringValue());
 				}
 			}
 			if (predicate.equals(DCTERMS.CREATOR)){
 				Statement creatorStmt = this.getValueFactory().createStatement(
 						subject, predicate, object, this.context);
 				this.creatorStmt = creatorStmt;
+				continue;
 			}
 			if (predicate.equals(RMAP.PROFILE_ID_BY)){
 				Statement idStmt = this.getValueFactory().createStatement(
 						subject, predicate, object, this.context);
 				this.identityStmts.add(idStmt);
+				continue;
 			}
 			java.net.URI predUri = ORAdapter.openRdfUri2URI(predicate);
 			if (IdPredicate.isAgentIdPredicate(predUri)){
 				Statement idStmt = this.getValueFactory().createStatement(
 						subject, predicate, object, this.context);
 				this.identityStmts.add(idStmt);
+				continue;
 			}
 			// all other predicates presumed to be ok, and more descriptive info about agent
 			Statement propStmt = this.getValueFactory().createStatement(
 					subject, predicate, object, this.context);
 			propertyStmts.add(propStmt);
+			continue;
 		}
 		if (this.creatorStmt==null){
 			throw new RMapException ("Null creator for Profile");
-		}		
+		}	
+		if (this.parentAgentStmt == null){
+			throw new RMapException ("Null parent agent statement for profile");
+		}
 	}
 
 	/* (non-Javadoc)

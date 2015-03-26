@@ -132,6 +132,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 				Statement creatorStmt = this.getValueFactory().createStatement(
 						subject, predicate, object, this.context);
 				this.creatorStmt = creatorStmt;
+				continue;
 			}
 			throw new RMapException ("Unrecognized predicate in Agent: " + predicate.stringValue());
 		}
