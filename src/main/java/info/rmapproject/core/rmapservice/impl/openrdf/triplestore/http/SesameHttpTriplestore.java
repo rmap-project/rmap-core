@@ -30,9 +30,9 @@ public class SesameHttpTriplestore  extends SesameTriplestore{
 	static{
 		properties = ConfigUtils.getPropertyValues(PROPERTIES_FN);
 		SESAME_URL = properties.get("SESAME_URL");
-		SESAME_REPOS_ID = properties.get(SESAME_REPOS_ID);
-		SESAME_USER = properties.get(SESAME_USER);
-		SESAME_PASSWORD = properties.get(SESAME_PASSWORD);
+		SESAME_REPOS_ID = properties.get("SESAME_REPOS_ID");
+		SESAME_USER = properties.get("SESAME_USER");
+		SESAME_PASSWORD = properties.get("SESAME_PASSWORD");
 	}
 	 
 	
