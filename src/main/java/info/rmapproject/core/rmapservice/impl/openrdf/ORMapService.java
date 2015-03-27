@@ -221,7 +221,7 @@ public class ORMapService implements RMapService {
 		}
 		RMapEvent createEvent = 
 				this.discomgr.createDiSCO(ORAdapter.rMapUri2OpenRdfUri(systemAgent),
-				(ORMapDiSCO)disco, this.eventmgr, this.agentgmr, this.profilemgr, ts);
+				(ORMapDiSCO)disco, this.eventmgr, this.stmtmgr, this.agentgmr, this.profilemgr, ts);
 		return createEvent;
 	}
 
@@ -238,7 +238,7 @@ public class ORMapService implements RMapService {
 		ORMapDiSCO disco = new ORMapDiSCO(stmts);
 		RMapEvent createEvent = 
 				this.discomgr.createDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent),
-				disco, this.eventmgr, this.agentgmr, this.profilemgr, ts);
+				disco, this.eventmgr, this.stmtmgr, this.agentgmr, this.profilemgr, ts);
 		return createEvent;
 	}
 
@@ -266,8 +266,8 @@ public class ORMapService implements RMapService {
 		org.openrdf.model.URI agentUri = ORAdapter.rMapUri2OpenRdfUri(systemAgent);
 		RMapEvent updateEvent = 
 				this.discomgr.updateDiSCO(agentUri,
-					ORAdapter.uri2OpenRdfUri(oldDiscoId), (ORMapDiSCO)disco, this.eventmgr, 
-					this.agentgmr, this.profilemgr, ts);
+					ORAdapter.uri2OpenRdfUri(oldDiscoId), (ORMapDiSCO)disco, this.stmtmgr, 
+					this.eventmgr, this.agentgmr, this.profilemgr, ts);
 		return updateEvent;
 	}
 
@@ -289,8 +289,8 @@ public class ORMapService implements RMapService {
 		}
 		RMapEvent updateEvent = 
 				this.discomgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent),
-					ORAdapter.uri2OpenRdfUri(oldDiscoId), disco, this.eventmgr, 
-					this.agentgmr, this.profilemgr, ts);
+					ORAdapter.uri2OpenRdfUri(oldDiscoId), disco, this.stmtmgr, 
+					this.eventmgr, this.agentgmr, this.profilemgr, ts);
 		return updateEvent;
 	}
 	/* (non-Javadoc)
@@ -355,7 +355,7 @@ public class ORMapService implements RMapService {
 						true,this.eventmgr,ts);
 		Map<org.openrdf.model.URI,org.openrdf.model.URI> disco2event = 
 				Utils.invertMap(event2disco);
-		org.openrdf.model.URI discoEventId = disco2event.get(discoID);
+		org.openrdf.model.URI discoEventId = disco2event.get(ORAdapter.uri2OpenRdfUri(discoID));
 		Map <Date, org.openrdf.model.URI> date2event = 
 				this.eventmgr.getDate2EventMap(event2disco.keySet(),ts);
 		Map<org.openrdf.model.URI,Date> event2date = Utils.invertMap(date2event);

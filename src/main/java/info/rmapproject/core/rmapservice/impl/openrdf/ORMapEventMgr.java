@@ -880,7 +880,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	throws RMapException {
 		Statement stmt = null;
 		try {
-			stmt = ts.getStatement(null, PROV.GENERATED, disco);
+			stmt = ts.getStatementAnyContext(null, PROV.GENERATED, disco);
 			// make sure this is an event
 			if (stmt != null && stmt.getSubject().equals(stmt.getContext())){
 				Statement typeStmt = ts.getStatement(stmt.getSubject(), RDF.TYPE, 

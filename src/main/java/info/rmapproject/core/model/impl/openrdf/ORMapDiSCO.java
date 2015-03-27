@@ -190,6 +190,16 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 							(subject, predicate, object, this.discoContext));
 				}
 			}
+			else if (predicate.equals(RMAP.PROVIDERID)){
+				if (subjectIsDisco){
+					this.providerIdStmt = this.getValueFactory().createStatement
+							(subject, predicate, object,this.discoContext);
+				}
+				else {
+					relStatements.add(this.getValueFactory().createStatement
+							(subject, predicate, object, this.discoContext));
+				}
+			}
 			else if (predicate.equals(RMAP.AGGREGATES)){
 				aggResources.add(this.getValueFactory().createStatement
 						(subject, predicate, object, this.discoContext));
