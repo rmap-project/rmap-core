@@ -30,7 +30,6 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventInactivation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
-import info.rmapproject.core.model.impl.openrdf.ORMapEventWithNewObjects;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
@@ -237,29 +236,20 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		// If any "agents" appear in relatedStatements, create necessary
 		// agents, profiles, and add their ids and reified statements associated
 		// with them to list of created objects
+		// then create (DiSCO) statements with, if necessary, URIs for submitted bnodes, etc
 		do {
 			List<Statement> relatedStmts = disco.getRelatedStatementsAsList();
 			if (relatedStmts == null){
 				break;
 			}
-			Map<Statement, Boolean> stmt2related = new HashMap<Statement, Boolean>();
-			for (Statement stmt:relatedStmts){
-				stmt2related.put(stmt, Boolean.valueOf(false));
-			}
 			List<URI> relatedAgents = agentMgr.createRelatedStatementsAgents(
-					stmt2related, systemAgentId, profilemgr, ts);
+					relatedStmts, systemAgentId, profilemgr, ts);
 			if (relatedAgents != null){
 				created.addAll(relatedAgents);
 			}
-			// make sure you don't duplicate statements created via related agents
 			// for each statement in relatedStatements
 			//   create reified statement if necessary, and add the triple
-			//   if dct:create or dc:creator create agent, agent profile as needed,and add the triple
-			for (Statement stmt:stmt2related.keySet()){
-				boolean isAgentRelated = stmt2related.get(stmt).booleanValue();
-				if (isAgentRelated){
-					continue;
-				}
+			for (Statement stmt:relatedStmts){
 				URI relStmt = null;
 				try { 
 					relStmt =stmtMgr.getStatementID(stmt.getSubject(),

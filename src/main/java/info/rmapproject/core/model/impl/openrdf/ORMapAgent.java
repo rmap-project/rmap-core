@@ -1,7 +1,6 @@
 package info.rmapproject.core.model.impl.openrdf;
 
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.openrdf.model.Model;
@@ -26,14 +25,12 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
  */
 public class ORMapAgent extends ORMapObject implements RMapAgent {
 	protected URI context;
-	protected List<Statement> profileStmts = new ArrayList<Statement>();
 	protected Statement creatorStmt;
 
 	
 	protected ORMapAgent() throws RMapException {
 		super();	
 		this.context = ORAdapter.uri2OpenRdfUri(getId());	
-		this.profileStmts = new ArrayList<Statement>();
 		this.typeStatement = 
 				this.getValueFactory().createStatement(this.context,RDF.TYPE,RMAP.AGENT,this.context);
 	}
@@ -84,8 +81,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		// so we have to check at the end and make sure there is a non-null creator
 		if (creator!=null){
 			this.setCreatorStmt(creator);
-		}
-			
+		}			
 		// check to make sure Agent has an RMAP-accepted id		
 		boolean isValidId = false;
 		if (agentIncomingIdResource instanceof URI){
@@ -122,12 +118,6 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 					throw new RMapException("Unrecognized RDF TYPE for Agent: " + object.stringValue());
 				}
 			}
-			if (predicate.equals(DCTERMS.DESCRIPTION)){
-				Statement profileStmt = this.getValueFactory().createStatement(
-						subject, predicate, object, this.context);
-				this.profileStmts.add(profileStmt);
-				continue;
-			}
 			if (predicate.equals(DCTERMS.CREATOR)){
 				Statement creatorStmt = this.getValueFactory().createStatement(
 						subject, predicate, object, this.context);
@@ -140,6 +130,20 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 			throw new RMapException ("Null creator for Agent");
 		}
 
+	}
+	/**
+	 * 
+	 * @param creator
+	 * @throws RMapException
+	 */
+	public ORMapAgent (URI creator) throws RMapException {
+		this();
+		if (creator==null){
+			throw new RMapException ("Null creator");
+		}
+		this.typeStatement = 
+				this.getValueFactory().createStatement(this.context,RDF.TYPE,RMAP.AGENT,this.context);
+		this.setCreatorStmt(creator);
 	}
 	/**
 	 * 
@@ -179,56 +183,9 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		if (creatorStmt != null){
 			model.add(creatorStmt);
 		}
-		for (Statement stmt:profileStmts){
-			model.add(stmt);
-		}
 		return model;
 	}
-
-	@Override
-	public List<RMapUri> getProfileIds() throws RMapException {
-		List<RMapUri> uris = new ArrayList<RMapUri>();
-		for (Statement stmt:this.profileStmts){
-			URI profile = (URI)stmt.getObject();
-			uris.add(ORAdapter.openRdfUri2RMapUri(profile));
-		}
-		return uris;
-	}
-
-	@Override
-	public void setProfileIds(List<RMapUri> profileIds)
-			throws RMapException {
-		if (profileIds==null){
-			throw new RMapException("Null profileIds");
-		}
-		List<Statement>stmts = new ArrayList<Statement>();
-		for (RMapUri id:profileIds){
-			URI uri = ORAdapter.rMapUri2OpenRdfUri(id);
-			Statement stmt = this.getValueFactory().createStatement(context, 
-					DCTERMS.DESCRIPTION, uri, context);
-			stmts.add(stmt);
-		}
-		this.profileStmts = stmts;
-	}
-	@Override
-	public void addProfileId(RMapUri profileId) throws RMapException {
-		if (profileId==null){
-			throw new RMapException("null profileID");
-		}
-		URI uri = ORAdapter.rMapUri2OpenRdfUri(profileId);
-		this.addProfileURI(uri);
-	}
-	/**
-	 * 
-	 * @param uri
-	 * @throws RMapException
-	 */
-	public void addProfileURI (URI uri) throws RMapException{
-		Statement stmt = this.getValueFactory().createStatement(this.context, 
-				DCTERMS.DESCRIPTION, uri, this.context);
-		this.profileStmts.add(stmt);
-	}
-		
+	
 	@Override
 	public RMapUri getCreator() throws RMapException {
 		RMapUri cUri = null;

@@ -18,6 +18,7 @@ import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.repository.RepositoryException;
 
 /**
  * @author smorrissey
@@ -26,17 +27,17 @@ import org.openrdf.model.URI;
 public class ORMapProfileMgr extends ORMapObjectMgr {
 
 	/**
-	 * 
+	 * Constructor
 	 */
 	public ORMapProfileMgr() {
 		super();
 	}
 	/**
-	 * 
-	 * @param profileId
+	 * Retrieve Profile from triplestore
+	 * @param profileId ID of profile in triplestore
 	 * @param ts
-	 * @return
-	 * @throws RMapObjectNotFoundException
+	 * @return Profile instantiated from triplestore
+	 * @throws RMapObjectNotFoundException if no named graph corresponding to id exists in triplestore
 	 * @throws RMapException
 	 */
 	public ORMapProfile readProfile(URI profileId, SesameTriplestore ts)
@@ -58,10 +59,10 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 	}
 	
 	/**
-	 * 
-	 * @param agentId
+	 * Get ids of all profiles related to an Agent id
+	 * @param agentId URI of Agent
 	 * @param ts
-	 * @return
+	 * @return (Possibly emtpy) list of IDS of all profiles whose parent agent has id agentId
 	 * @throws RMapException
 	 */
 	public List<URI> getRelatedProfiles(URI agentId, SesameTriplestore ts) throws RMapException {
@@ -89,7 +90,7 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 	} 
 	
 	/**
-	 * 
+	 * Create triple statements that represent a profile and insert into triplestore
 	 * @param profile
 	 * @param ts
 	 * @throws RMapException
@@ -106,12 +107,12 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 	}
 	
 	/**
-	 * 
-	 * @param suppliedId
-	 * @param parentAgentId
-	 * @param creator
+	 * Create new Profile in triplestore
+	 * @param suppliedId ID to be added to new Profile's identities
+	 * @param parentAgentId id of new Profile's parent Agent
+	 * @param creator id of Agent who is creating this profile
 	 * @param ts
-	 * @return
+	 * @return id of new Profile
 	 * @throws RMapException
 	 */
 	public URI createSuppliedIdProfile(URI suppliedId, URI parentAgentId, URI systemAgent, 
@@ -134,5 +135,109 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 		this.createProfileTriples(profile, ts);
 		URI uri = ORAdapter.uri2OpenRdfUri(profile.getId());
 		return uri;
+	}
+	/**
+	 * Instantiate a new ORMapProfile object (but not its triplestore statements)
+	 * @param suppliedId URI that will be one of new Profile's identities
+	 * @param parentAgentId URI of Agent that is new Profile's parent Agent
+	 * @param systemAgent URI of Agent that is new Profile's creator
+	 * @param ts
+	 * @return new ORMapProfile
+	 * @throws RMapException
+	 */
+	public ORMapProfile createProfile (URI suppliedId, URI parentAgentId, URI systemAgent, 
+			SesameTriplestore ts) throws RMapException {
+		if (suppliedId == null){
+			throw new RMapException ("null suppliedId");
+		}
+		if (parentAgentId==null){
+			throw new RMapException ("Null agentId");
+		}
+		if (systemAgent==null){
+			throw new RMapException ("null systemAgent");
+		}
+		if (ts == null){
+			throw new RMapException ("Null triplestore");
+		}
+		ORMapProfile profile = new ORMapProfile(parentAgentId, systemAgent);
+		profile.addIdentity(suppliedId);
+		return profile;
+	}
+	/**
+	 * Create list of statements (without a context) for profile-related statements in DiSCO's related statements
+	 * @param profile Profile whose representation as statements we are creating
+	 * @param ts
+	 * @return List of Statements without context representing Pofile
+	 * @throws RMapException
+	 */
+	public List<Statement> makeProfileStatments (ORMapProfile profile, SesameTriplestore ts) throws RMapException {
+		List<Statement> stmts = new ArrayList<Statement>();
+		Model profileModel = profile.getAsModel();
+		// add the new profile statements (NOT including context, which will need to be DiSCO context) to new related statements
+		for (Statement pstmt:profileModel){
+			Statement dpstmt;
+			try {
+				dpstmt = ts.getValueFactory().createStatement(pstmt.getSubject(), pstmt.getPredicate(), pstmt.getObject());
+				stmts.add(dpstmt);
+			} catch (RepositoryException e) {
+				e.printStackTrace();
+				throw new RMapException (e);
+			}							
+		}	
+		return stmts;
+	}
+	/**
+	 * Determine if URI is one of the local identities of any profile
+	 * @param idUri
+	 * @param ts
+	 * @return true if ID is among identities of any profile; otherwise false
+	 */
+	public boolean isProfileIdentity(URI idUri, SesameTriplestore ts) throws RMapException {
+		boolean isPid = false;
+		Statement idStmt = null;
+		try {
+			idStmt = ts.getStatementAnyContext(null, RMAP.PROFILE_ID_BY, idUri);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RMapException (e);
+		}
+		if (idStmt != null){
+			Resource subject = idStmt.getSubject();
+			if (subject instanceof URI){
+				URI profileId = (URI)subject;
+				isPid = this.isProfileId(profileId, ts);
+			}
+		}
+		return isPid;
+	}
+	public ORMapProfile createProfile(
+			URI agentUri, Model profileStmtsModel, URI systemAgent,
+			SesameTriplestore ts) {
+		// TODO Auto-generated method stub
+		// TODO be sure to create profile triples
+		// TODO be sure to create identity triples
+		return null;
+	}
+	/**
+	 * Get identifier of a Profile's parent Agent
+	 * @param profileId ID of Profile
+	 * @param ts
+	 * @return ID of parent Agent
+	 * @throws RMapObjectNotFoundException
+	 * @throws RMapException
+	 */
+	public URI getParentAgent(URI profileId, SesameTriplestore ts) 
+			throws RMapObjectNotFoundException, RMapException {
+		URI agentId = null;
+		ORMapProfile profile = null;
+		profile = this.readProfile(profileId, ts);
+		agentId = ORAdapter.rMapUri2OpenRdfUri(profile.getParentAgentId());
+		return agentId;
+	}
+	
+	public ORMapProfile getProfileFromIdentity(URI crURI, SesameTriplestore ts) {
+		ORMapProfile profile = null;
+		//TODO finish
+		return profile;
 	}
 }

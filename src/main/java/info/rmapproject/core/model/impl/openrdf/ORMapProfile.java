@@ -21,6 +21,7 @@ import org.openrdf.model.vocabulary.RDF;
 import info.rmapproject.core.controlledlist.IdPredicate;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idvalidator.IdValidator;
+import info.rmapproject.core.idvalidator.PreferredIdValidator;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.agent.RMapProfile;
@@ -151,7 +152,10 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 					continue;
 				}
 				else {
-					throw new RMapException("Unrecognized RDF TYPE for PROFILE: " + object.stringValue());
+					// just add this to list of other predicates (eg <ID> RDF:TYPE foaf:Person)
+					Statement propStmt = this.getValueFactory().createStatement(
+							subject, predicate, object, this.context);
+					propertyStmts.add(propStmt);
 				}
 			}
 			if (predicate.equals(DCTERMS.CREATOR)){
@@ -171,6 +175,13 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 				Statement idStmt = this.getValueFactory().createStatement(
 						subject, predicate, object, this.context);
 				this.identityStmts.add(idStmt);
+				// see if identity is a preferred id
+				if (object instanceof URI){
+					URI idUri = (URI)object;
+					if (PreferredIdValidator.isPreferredAgentId(ORAdapter.openRdfUri2URI(idUri))){
+						this.setPreferredIdentity(ORAdapter.openRdfUri2RMapUri(idUri));
+					}
+				}
 				continue;
 			}
 			// all other predicates presumed to be ok, and more descriptive info about agent

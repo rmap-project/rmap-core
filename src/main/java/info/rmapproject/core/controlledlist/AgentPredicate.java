@@ -57,5 +57,14 @@ public class AgentPredicate {
 		isAP = agentPredicates.contains(predicate);
 		return isAP;
 	}
+	
+	public static List<URI> getAgentPredicates(){
+		if (agentPredicates==null){
+			initAgentPredicates();
+		}
+		List<URI> copy= new ArrayList<URI>();
+		copy.addAll(agentPredicates);
+		return copy;
+	}
 
 }
