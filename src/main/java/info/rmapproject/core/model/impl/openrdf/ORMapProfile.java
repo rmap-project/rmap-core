@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openrdf.model.BNode;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -20,7 +21,6 @@ import org.openrdf.model.vocabulary.RDF;
 
 import info.rmapproject.core.controlledlist.IdPredicate;
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.idvalidator.IdValidator;
 import info.rmapproject.core.idvalidator.PreferredIdValidator;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
@@ -67,8 +67,9 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 	/**
 	 * 
 	 * @param stmts
-	 * @param creatorId System agent who creates profile; can be null if constructor is using statements in triplestore;
-	 * should NOT be null if service is creating statements from RDF and has not yet put statements in triplestore
+	 * @param creatorId System agent who creates profile; can be null if constructor is using statements
+	 *  in triplestore;should NOT be null if service is creating statements from RDF and has not yet put
+	 *  statements in triplestore
 	 * @throws RMapException
 	 */
 	public ORMapProfile(List<Statement> stmts, URI creatorId)throws RMapException {
@@ -78,7 +79,6 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 		}
 		boolean typeFound = false;
 		Value incomingIdValue = null;
-		String agentIncomingIdStr = null;
 		Resource agentIncomingIdResource = null;
 		for (Statement stmt:stmts){
 			Resource subject = stmt.getSubject();
@@ -89,7 +89,6 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 					typeFound = true;
 					incomingIdValue = subject;
 					agentIncomingIdResource = subject;
-					agentIncomingIdStr = ((Resource)subject).stringValue();
 					break;
 				}
 				continue;
@@ -104,46 +103,25 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 		if (creatorId!=null){
 			this.setCreatorStmt(creatorId);
 		}	
-		boolean isValidId = false;
-		boolean isBNode = false;
-		if (agentIncomingIdResource instanceof URI){
-			isValidId = IdValidator.isValidAgentId(ORAdapter.openRdfUri2URI((URI)agentIncomingIdResource));
-		}
-		else {
-			isBNode = true;
-		}
-		if (isValidId){
-			// use incoming id
-			try {
-				this.id = new java.net.URI(agentIncomingIdStr);
-				this.context = ORAdapter.uri2OpenRdfUri(this.getId()); 
-			} catch (URISyntaxException e) {
-				throw new RMapException 
-				("Cannot convert incoming ID to URI: " + agentIncomingIdStr,e);
-			}	
-		}
-		else {
-			// if bNode, we don't care what the value is; if it's some other (non-RMap) identifier, keep it as an identity
-			if (!isBNode){
-				Statement idStmt = this.getValueFactory().createStatement(
-						this.context, RMAP.PROFILE_ID_BY, agentIncomingIdResource, this.context);
-				this.identityStmts.add(idStmt);
-			}
+		boolean isBNode = (agentIncomingIdResource instanceof BNode);
+		// if bNode, we don't care what the value is; if it's some other (non-RMap) identifier, keep it as an identity
+		if (!isBNode){
+			Statement idStmt = this.getValueFactory().createStatement(
+					this.context, RMAP.PROFILE_ID_BY, agentIncomingIdResource, this.context);
+			this.identityStmts.add(idStmt);
 		}
 		for (Statement stmt:stmts){
 			Resource subject = stmt.getSubject();
 			URI predicate = stmt.getPredicate();
 			Value object = stmt.getObject();
-			if (!isValidId){
-				if (subject.stringValue().equals(incomingIdValue.stringValue())){
-					subject = this.context;
-				}
-				// ONLY accepting properties with Profile id as subject
-				else {
-					throw new RMapException 
-					("Profile property subject is not equal to supplied Profile id: " +
-					  subject.stringValue());
-				}
+			if (subject.stringValue().equals(incomingIdValue.stringValue())){
+				subject = this.context;
+			}
+			// ONLY accepting properties with Profile id as subject
+			else {
+				throw new RMapException 
+				("Profile property subject is not equal to supplied Profile id: " +
+				  subject.stringValue());
 			}
 			if (predicate.equals(RDF.TYPE)){
 				if (object.equals(RMAP.PROFILE)){
@@ -171,9 +149,9 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 				continue;
 			}
 			java.net.URI predUri = ORAdapter.openRdfUri2URI(predicate);
-			if (IdPredicate.isAgentIdPredicate(predUri)){
+			if (IdPredicate.isIdPredicate(predUri)){
 				Statement idStmt = this.getValueFactory().createStatement(
-						subject, predicate, object, this.context);
+						subject, RMAP.PROFILE_ID_BY, object, this.context);
 				this.identityStmts.add(idStmt);
 				// see if identity is a preferred id
 				if (object instanceof URI){
@@ -181,6 +159,16 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 					if (PreferredIdValidator.isPreferredAgentId(ORAdapter.openRdfUri2URI(idUri))){
 						this.setPreferredIdentity(ORAdapter.openRdfUri2RMapUri(idUri));
 					}
+				}
+				else {
+					// some predicates have literals as values; see if they can be made into URI
+					try {
+						java.net.URI litUri = new java.net.URI(object.stringValue());
+						if (PreferredIdValidator.isPreferredAgentId(litUri)){
+							this.setPreferredIdentity(new RMapUri(litUri));
+						}
+					}
+					catch (Exception e){}
 				}
 				continue;
 			}
@@ -223,21 +211,22 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 	 * @see info.rmapproject.core.model.agent.RMapProfile#getIdentities()
 	 */
 	@Override
-	public List<RMapUri> getIdentities() throws RMapException {
-		List<RMapUri>uris = new ArrayList<RMapUri>();
+	public List<RMapValue> getIdentities() throws RMapException {
+		List<RMapValue>ids = new ArrayList<RMapValue>();
 		if (identityStmts != null){
 			for (Statement stmt:identityStmts){
 				Value object = stmt.getObject();
-				if (object instanceof URI){
-					URI uri = (URI)object;
-					uris.add(ORAdapter.openRdfUri2RMapUri(uri));
+				RMapValue rValue;
+				try {
+					rValue = ORAdapter.openRdfValue2RMapValue(object);
+				} catch (IllegalArgumentException | URISyntaxException e) {
+					e.printStackTrace();
+					throw new RMapException (e);
 				}
-				else {
-					throw new RMapException("non-uri identity: " + object.stringValue());
-				}
+				ids.add(rValue);
 			}
 		}
-		return uris;
+		return ids;
 	}
 
 	/* (non-Javadoc)
@@ -304,13 +293,13 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 	}
 
 	@Override
-	public void setIdentities(List<RMapUri> idents) throws RMapException {
+	public void setIdentities(List<RMapValue> idents) throws RMapException {
 		if (idents==null){
 			return;
 		}
 		List<Statement> idStmts = new ArrayList<Statement>();
-		for (RMapUri ident:idents){
-			URI id = ORAdapter.rMapUri2OpenRdfUri(ident);
+		for (RMapValue ident:idents){
+			Value id = ORAdapter.rMapValue2OpenRdfValue(ident);
 			Statement idStmt = this.getValueFactory().createStatement(this.context,
 					RMAP.PROFILE_ID_BY, id, this.context);
 			idStmts.add(idStmt);

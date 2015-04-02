@@ -17,6 +17,7 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
 
 import org.openrdf.model.BNode;
 import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -182,6 +183,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 						// add the new profile statements (NOT including context, which will need to be DiSCO context) to new related statements
 						toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));	
 						for (Statement idStmt:profile.getIdentityStmts()){
+							//TODO create the Identity OJBECT
 							URI id = (URI)idStmt.getObject();
 							newObjects.add(id);
 						}
@@ -197,13 +199,15 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 					toBeAddedStmts.addAll(this.makeAgentStatements(agent, ts));
 					if (!filterProfileModel.isEmpty()) { 
 						//  create new profile	
-						profile = profilemgr.createProfile(crURI, filterProfileModel, systemAgent, ts);						
+						Model replacedIdModel = this.replaceIdInModel(filterProfileModel, crURI, ts);
+						profile = profilemgr.createProfile(parentURI, replacedIdModel, systemAgent, ts);						
 						// add the old profile statements to list of statements to be deleted from related statements list
 						toBeDeletedStmts.addAll(filterProfileModel);
 						newObjects.add(ORAdapter.uri2OpenRdfUri(profile.getId()));
 					}
 					toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));	
 					for (Statement idStmt:profile.getIdentityStmts()){
+						//TODO create the Identity OJBECT
 						URI id = (URI)idStmt.getObject();
 						newObjects.add(id);
 					}
@@ -220,7 +224,8 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 					ORMapProfile profile = null;
 					//   create new profile with parent agent, system-agent = creator, identity
 					if (!filterProfileModel.isEmpty()){
-						profile = profilemgr.createProfile(crURI, filterProfileModel, systemAgent, ts);						
+						Model replacedIdModel = this.replaceIdInModel(filterProfileModel, crURI, ts);
+						profile = profilemgr.createProfile(parentURI, replacedIdModel, systemAgent, ts);						
 						// add the old profile statements to list of statements to be deleted from related statements list
 						toBeDeletedStmts.addAll(filterProfileModel);
 					}
@@ -231,6 +236,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 					// add the new profile statements (NOT including context, which will need to be DiSCO context) to new related statements
 					toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));	
 					for (Statement idStmt:profile.getIdentityStmts()){
+						//TODO create the Identity OJBECT
 						URI id = (URI)idStmt.getObject();
 						newObjects.add(id);
 					}
@@ -254,7 +260,8 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 					boolean isSameAgentId = crURI.equals(agentID);
 					ORMapProfile profile = null;
 					if (!filterProfileModel.isEmpty()){
-						profile = profilemgr.createProfile(agentID, filterProfileModel, systemAgent, ts);						
+						Model replacedIdModel = this.replaceIdInModel(filterProfileModel, crURI, ts);
+						profile = profilemgr.createProfile(agentID, replacedIdModel, systemAgent, ts);						
 						// add the old profile statements to list of statements to be deleted from related statements list
 						toBeDeletedStmts.addAll(filterProfileModel);
 					}
@@ -266,6 +273,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 					// add the new profile statements (NOT including context, which will need to be DiSCO context) to new related statements
 					toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));	
 					for (Statement idStmt:profile.getIdentityStmts()){
+						//TODO create the Identity OJBECT
 						URI id = (URI)idStmt.getObject();
 						newObjects.add(id);
 					}
@@ -362,5 +370,37 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		return stmts;
 	}
 
+	protected Model replaceIdInModel(Model filterProfileModel, URI crURI, SesameTriplestore ts) 
+	throws RMapException {
+		List<Statement> newStmts = new ArrayList<Statement>();
+		BNode bnode = null;
+		try {
+			bnode = ts.getValueFactory().createBNode();
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+			throw new RMapException (e);
+		}
+		for (Statement oldStmt:filterProfileModel){
+			Resource subject = oldStmt.getSubject();
+			if (subject.equals(crURI)){
+				subject = bnode;
+			}
+			URI predicate = oldStmt.getPredicate();
+			Value object = oldStmt.getObject();
+			if (object.equals(crURI)){
+				object = bnode;
+			}
+			Statement newStmt = null;
+			try {
+				newStmt = ts.getValueFactory().createStatement(subject, predicate, object);
+			} catch (RepositoryException e) {
+				e.printStackTrace();
+				throw new RMapException (e);
+			}
+			newStmts.add(newStmt);
+		}
+		Model model = new LinkedHashModel(newStmts);
+		return model;
+	}
 
 }

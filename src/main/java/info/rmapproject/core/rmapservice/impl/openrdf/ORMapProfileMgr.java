@@ -234,10 +234,32 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 		agentId = ORAdapter.rMapUri2OpenRdfUri(profile.getParentAgentId());
 		return agentId;
 	}
-	
-	public ORMapProfile getProfileFromIdentity(URI crURI, SesameTriplestore ts) {
+	/**
+	 * Retrieve Profile from triplestore that contains URI in its identities
+	 * @param idUri identity URI to be matched
+	 * @param ts
+	 * @return Profile with URI in identity, or null if none found
+	 * @throws RMapObjectNotFoundException
+	 * @throws RMapException 
+	 */
+	public ORMapProfile getProfileFromIdentity(URI idUri, SesameTriplestore ts)
+	throws RMapObjectNotFoundException, RMapException {
 		ORMapProfile profile = null;
-		//TODO finish
+		Statement idStmt = null;
+		try {
+			idStmt = ts.getStatementAnyContext(null, RMAP.PROFILE_ID_BY, idUri);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RMapException (e);
+		}
+		if (idStmt == null){
+			throw new RMapObjectNotFoundException ("no profile with identity " + idUri.stringValue());
+		}
+		Resource subject = idStmt.getSubject();
+		if (subject instanceof URI){
+			URI profileId = (URI)subject;
+			profile = this.readProfile(profileId, ts);
+		}
 		return profile;
 	}
 }

@@ -77,6 +77,26 @@ public class RMAP {
 	/**
 	 * 
 	 */
+	public static final URI IDLOCALPART;
+	/**
+	 *
+	 */
+	public static final URI IDPROVIDERID;
+	/**
+	 * 
+	 */
+	public static final URI IDENTITYPROVIDER;
+	/**
+	 * 
+	 */
+	public static final URI IDENTITYCONFIGID;
+	/**
+	 * 
+	 */
+	public static final URI IDENTITYCONFIG;
+	/**
+	 * 
+	 */
 	public static final URI EVENT;
 	/**
 	 * 
@@ -184,6 +204,11 @@ public class RMAP {
 		PROFILE_ID_BY = f.createURI(NAMESPACE,"identifiedBy");
 		PROFILE_PREFERRED_ID = f.createURI(NAMESPACE, "preferredId");
 		IDENTITY = f.createURI(NAMESPACE, "Identity");
+		IDLOCALPART = f.createURI(NAMESPACE, "identityLocalPart");
+		IDPROVIDERID = f.createURI(NAMESPACE, "identityProviderId");
+		IDENTITYPROVIDER = f.createURI(NAMESPACE, "IdentityProvider");
+		IDENTITYCONFIGID = f.createURI(NAMESPACE, "identityConfigurationId");
+		IDENTITYCONFIG = f.createURI(NAMESPACE, "IdentityConfiguration");
 		EVENT = f.createURI(NAMESPACE, "Event");
 		EVENT_TYPE = f.createURI(NAMESPACE, "eventType");
 		EVENT_TYPE_CREATION = f.createURI(NAMESPACE, "creation");

@@ -50,7 +50,7 @@ public class IdPredicate {
 	 * @param predicate
 	 * @return
 	 */
-	public static boolean isAgentIdPredicate(URI predicate){
+	public static boolean isIdPredicate(URI predicate){
 		boolean isAP = false;
 		if (idPredicates==null){
 			initIdPredicates();

@@ -33,13 +33,13 @@ public interface RMapProfile extends RMapObject {
 	 * @return
 	 * @throws RMapException
 	 */
-	public List<RMapUri> getIdentities() throws RMapException;
+	public List<RMapValue> getIdentities() throws RMapException;
 	/**
 	 * 
 	 * @param idents
 	 * @throws RMapException
 	 */
-	public void setIdentities (List<RMapUri> idents)  throws RMapException;
+	public void setIdentities (List<RMapValue> idents)  throws RMapException;
 	/**
 	 * 
 	 * @return
