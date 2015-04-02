@@ -14,6 +14,7 @@ import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapProfile;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 import org.openrdf.model.BNode;
 import org.openrdf.model.Model;
@@ -176,9 +177,11 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 					// add the Agent statements (NOT INCLUDING CONTEXT) to the new related statements
 					ORMapAgent agent = this.readAgent(crURI, ts);
 					toBeAddedStmts.addAll(this.makeAgentStatements(agent, ts));
-					//create profile, uri = parentAgent, systemAgent = creator
+					//create profile, crURI = parentAgent, systemAgent = creator
 					if (!filterProfileModel.isEmpty()){
-						ORMapProfile profile = profilemgr.createProfile(crURI, filterProfileModel, systemAgent, ts);
+						// TODO what is the profile ID
+	//					Model replacedIdModel = this.replaceIdInModel(filterProfileModel, crURI, ts);
+						ORMapProfile profile = profilemgr.createProfileFromRelatedStmts(crURI, filterProfileModel, systemAgent, ts, crURI);
 						newObjects.add(ORAdapter.uri2OpenRdfUri(profile.getId()));
 						// add the new profile statements (NOT including context, which will need to be DiSCO context) to new related statements
 						toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));	
@@ -199,8 +202,9 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 					toBeAddedStmts.addAll(this.makeAgentStatements(agent, ts));
 					if (!filterProfileModel.isEmpty()) { 
 						//  create new profile	
-						Model replacedIdModel = this.replaceIdInModel(filterProfileModel, crURI, ts);
-						profile = profilemgr.createProfile(parentURI, replacedIdModel, systemAgent, ts);						
+	//					Model replacedIdModel = this.replaceIdInModel(filterProfileModel, crURI, ts);
+						//TODO whatis the profileID
+						profile = profilemgr.createProfileFromRelatedStmts(parentURI, filterProfileModel, systemAgent, ts, crURI);						
 						// add the old profile statements to list of statements to be deleted from related statements list
 						toBeDeletedStmts.addAll(filterProfileModel);
 						newObjects.add(ORAdapter.uri2OpenRdfUri(profile.getId()));
@@ -224,8 +228,9 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 					ORMapProfile profile = null;
 					//   create new profile with parent agent, system-agent = creator, identity
 					if (!filterProfileModel.isEmpty()){
-						Model replacedIdModel = this.replaceIdInModel(filterProfileModel, crURI, ts);
-						profile = profilemgr.createProfile(parentURI, replacedIdModel, systemAgent, ts);						
+	//					Model replacedIdModel = this.replaceIdInModel(filterProfileModel, crURI, ts);
+						//TODO what is the profileID
+						profile = profilemgr.createProfileFromRelatedStmts(parentURI, filterProfileModel, systemAgent, ts, crURI);						
 						// add the old profile statements to list of statements to be deleted from related statements list
 						toBeDeletedStmts.addAll(filterProfileModel);
 					}
@@ -260,8 +265,9 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 					boolean isSameAgentId = crURI.equals(agentID);
 					ORMapProfile profile = null;
 					if (!filterProfileModel.isEmpty()){
-						Model replacedIdModel = this.replaceIdInModel(filterProfileModel, crURI, ts);
-						profile = profilemgr.createProfile(agentID, replacedIdModel, systemAgent, ts);						
+	//					Model replacedIdModel = this.replaceIdInModel(filterProfileModel, crURI, ts);
+						//TODO what is the profileID
+						profile = profilemgr.createProfileFromRelatedStmts(agentID, filterProfileModel, systemAgent, ts, crURI);						
 						// add the old profile statements to list of statements to be deleted from related statements list
 						toBeDeletedStmts.addAll(filterProfileModel);
 					}
@@ -311,7 +317,8 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 				ORMapProfile profile = null;
 				Model filterProfileModel = model.filter(crBnode, null, null);
 				if (!filterProfileModel.isEmpty()){
-					profile = profilemgr.createProfile(agentId, filterProfileModel, systemAgent, ts);						
+					//TODO bnode is profileID
+					profile = profilemgr.createProfileFromRelatedStmts(agentId, filterProfileModel, systemAgent, ts, crBnode);						
 					// add the old profile statements to list of statements to be deleted from related statements list
 					toBeDeletedStmts.addAll(filterProfileModel);
 				}
@@ -370,37 +377,5 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		return stmts;
 	}
 
-	protected Model replaceIdInModel(Model filterProfileModel, URI crURI, SesameTriplestore ts) 
-	throws RMapException {
-		List<Statement> newStmts = new ArrayList<Statement>();
-		BNode bnode = null;
-		try {
-			bnode = ts.getValueFactory().createBNode();
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-			throw new RMapException (e);
-		}
-		for (Statement oldStmt:filterProfileModel){
-			Resource subject = oldStmt.getSubject();
-			if (subject.equals(crURI)){
-				subject = bnode;
-			}
-			URI predicate = oldStmt.getPredicate();
-			Value object = oldStmt.getObject();
-			if (object.equals(crURI)){
-				object = bnode;
-			}
-			Statement newStmt = null;
-			try {
-				newStmt = ts.getValueFactory().createStatement(subject, predicate, object);
-			} catch (RepositoryException e) {
-				e.printStackTrace();
-				throw new RMapException (e);
-			}
-			newStmts.add(newStmt);
-		}
-		Model model = new LinkedHashModel(newStmts);
-		return model;
-	}
 
 }

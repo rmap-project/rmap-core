@@ -14,10 +14,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.openrdf.model.BNode;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.openrdf.model.impl.LinkedHashModel;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.RepositoryException;
 
 /**
@@ -210,14 +214,109 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 		}
 		return isPid;
 	}
-	public ORMapProfile createProfile(
-			URI agentUri, Model profileStmtsModel, URI systemAgent,
-			SesameTriplestore ts) {
-		// TODO Auto-generated method stub
-		// TODO be sure to create profile triples
-		// TODO be sure to create identity triples
-		return null;
+	/**
+	 * Filter related statements from DiSCO to create statement set and use to create new Profile
+	 * @param agentUri URI of parent Agent
+	 * @param relatedStmtsModel Statements from DiSCO's related statement pertaining to Profile
+	 * @param systemAgent creator of Agent
+	 * @param ts TripleStore
+	 * @param crURI URI or Bnode in related statements to be replaced with Profile id
+	 * @return new Profile
+	 * @throws RMapException
+	 */
+	public ORMapProfile createProfileFromRelatedStmts( URI agentUri, Model relatedStmtsModel, URI systemAgent,
+			SesameTriplestore ts, Resource crURI)
+	throws RMapException {
+		List<Statement> replacedIdStmts= this.replaceIdInModel(relatedStmtsModel, crURI, null, ts);
+		ORMapProfile profile = new ORMapProfile(replacedIdStmts, systemAgent);
+		return profile;
 	}
+	
+	/**
+	 * Filters statements to replace bnode or URI with bnode value to be passed to Profile constructor
+	 * Creates rdf:type and rmap:describes statements if needes
+	 * @param filterProfileModel Model created from DiSCO related Statements pertaining to profile
+	 * @param crURI URI or bnode in original statements to be filtered
+	 * @param agentURI URI of profiles parent agent
+	 * @param ts
+	 * @return List of filtered Statements
+	 * @throws RMapException
+	 */
+	protected List<Statement> replaceIdInModel(Model filterProfileModel, Resource crURI, URI agentURI, SesameTriplestore ts) 
+	throws RMapException {
+		//TODO determine if need to filter for IDENTITY, IDPROVIDER, IDCONFIG statements
+		List<Statement> newStmts = new ArrayList<Statement>();
+		BNode bnode = null;
+		boolean typeStmtFound = false;
+		boolean parentAgentStmtFound = false;
+		try {
+			bnode = ts.getValueFactory().createBNode();
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+			throw new RMapException (e);
+		}
+		for (Statement oldStmt:filterProfileModel){
+			Resource newSubject = null;
+			Value newObject = null;
+			Resource subject = oldStmt.getSubject();
+			URI predicate = oldStmt.getPredicate();
+			Value object = oldStmt.getObject();
+			if (subject.equals(crURI)){
+				newSubject = bnode;
+				if (predicate.equals(RDF.TYPE)){
+					if (object.equals(RMAP.PROFILE)){
+						typeStmtFound = true;
+					}
+				}
+				else if (predicate.equals(RMAP.DESCRIBES_AGENT)){
+					if (object.equals(agentURI)){
+						parentAgentStmtFound = true;
+					}
+					else {
+						//bypass this statement - we are creating new profile
+						continue;
+					}
+				}
+			}
+			else {
+				newSubject = subject;
+			}			
+			if (object.equals(crURI)){
+				newObject = bnode;
+			}
+			else {
+				newObject = object;
+			}
+			Statement newStmt = null;
+			try {
+				newStmt = ts.getValueFactory().createStatement(newSubject, predicate, newObject);
+			} catch (RepositoryException e) {
+				e.printStackTrace();
+				throw new RMapException (e);
+			}
+			newStmts.add(newStmt);			
+		}
+		if (!typeStmtFound){
+			try {
+				Statement typeStmt = ts.getValueFactory().createStatement(bnode, RDF.TYPE, RMAP.PROFILE);
+				newStmts.add(typeStmt);
+			} catch (RepositoryException e) {
+				e.printStackTrace();
+				throw new RMapException (e);
+			}
+		}
+		if (!parentAgentStmtFound){
+			try {
+				Statement parentStmt = ts.getValueFactory().createStatement(bnode, RMAP.DESCRIBES_AGENT, agentURI);
+				newStmts.add(parentStmt);
+			} catch (RepositoryException e) {
+				e.printStackTrace();
+				throw new RMapException (e);
+			}
+		}
+		return newStmts;
+	}
+	
 	/**
 	 * Get identifier of a Profile's parent Agent
 	 * @param profileId ID of Profile
