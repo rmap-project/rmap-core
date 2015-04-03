@@ -12,9 +12,9 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -336,7 +336,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 		} catch (Exception e) {
 			throw new RMapException("Exception thrown matching triples for " + uri.stringValue(), e);
 		}
-		Set<URI>discoIds = new TreeSet<URI>();
+		Set<URI>discoIds = new HashSet<URI>();
 		for (Statement triple:triples){
 			Resource context = triple.getContext();
 			if (context instanceof URI){

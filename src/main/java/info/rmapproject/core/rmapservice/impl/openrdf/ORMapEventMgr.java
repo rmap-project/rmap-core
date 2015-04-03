@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -678,13 +679,13 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 */
 	public List<URI> getRelatedResources (URI eventId, ORMapDiSCOMgr discomgr,
 			ORMapStatementMgr stmtmgr, SesameTriplestore ts){
-		Set<URI> resources = new TreeSet<URI>();
+		Set<URI> resources = new HashSet<URI>();
 		// get DiSCO resources
-		Set<URI> relatedDiSCOs = new TreeSet<URI>();
+		Set<URI> relatedDiSCOs = new HashSet<URI>();
 		relatedDiSCOs.addAll(this.getRelatedDiSCOs(eventId, ts));;
 		resources.addAll(relatedDiSCOs);
 		// get Statement resources
-		Set<URI>stmtIds = new TreeSet<URI>();
+		Set<URI>stmtIds = new HashSet<URI>();
 		if (this.isCreationEvent(eventId, ts) || this.isUpdateEvent(eventId, ts)){			
 			for (URI disco:relatedDiSCOs){
 				stmtIds.addAll(discomgr.getDiSCOStatements(disco, stmtmgr, ts));

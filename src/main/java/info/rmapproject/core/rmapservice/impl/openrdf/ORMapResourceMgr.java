@@ -5,9 +5,9 @@ import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -78,7 +78,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			}
 		}
 		// now get the ids of the statements
-		Set<URI> relatedStmtIds = new TreeSet<URI>();
+		Set<URI> relatedStmtIds = new HashSet<URI>();
 		for (Statement stmt:statusStmts){
 			try{
 				URI stmId = stmtmgr.getStatementID(stmt.getSubject(),
@@ -103,7 +103,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			throws RMapException {
 		// get all Statements with uri in subject or object
 		List<Statement>stmts = this.getRelatedTriples(uri, ts);
-		Set<URI> discos = new TreeSet<URI>();
+		Set<URI> discos = new HashSet<URI>();
 		// make sure DiSCO in which statement appears matches statusCode
 		for (Statement stmt:stmts){
 			URI context = (URI)stmt.getContext();
@@ -130,7 +130,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 */
 	public Set<URI> getRelatedEvents(URI resource,ORMapStatementMgr stmtmgr, 
 			ORMapDiSCOMgr discomgr, ORMapEventMgr eventMgr, SesameTriplestore ts) {
-		Set<URI>events = new TreeSet<URI>();
+		Set<URI>events = new HashSet<URI>();
 		do {
 			if (this.isDiscoId(resource, ts)){
 				events.addAll(eventMgr.getDiscoRelatedEventIds(resource, ts));
