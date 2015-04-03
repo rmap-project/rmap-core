@@ -20,7 +20,6 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
-import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.RepositoryException;
 
@@ -201,6 +200,12 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 		Statement idStmt = null;
 		try {
 			idStmt = ts.getStatementAnyContext(null, RMAP.PROFILE_ID_BY, idUri);
+			if (idStmt==null){
+				//see if identity expressed as literal
+				String uriStr = idUri.stringValue();
+				Value uriStrValue = ts.getValueFactory().createLiteral(uriStr);
+				idStmt = ts.getStatementAnyContext(null, RMAP.PROFILE_ID_BY, uriStrValue);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RMapException (e);
@@ -347,6 +352,12 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 		Statement idStmt = null;
 		try {
 			idStmt = ts.getStatementAnyContext(null, RMAP.PROFILE_ID_BY, idUri);
+			if (idStmt==null){
+				//see if identity expressed as literal
+				String uriStr = idUri.stringValue();
+				Value uriStrValue = ts.getValueFactory().createLiteral(uriStr);
+				idStmt = ts.getStatementAnyContext(null, RMAP.PROFILE_ID_BY, uriStrValue);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RMapException (e);

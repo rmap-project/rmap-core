@@ -388,11 +388,28 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 	public void setParentAgentStmt(Statement parentAgentStmt) {
 		this.parentAgentStmt = parentAgentStmt;
 	}
-
-	public void addIdentity(URI id){
+	/**
+	 * Add identity to profile
+	 * @param id
+	 */
+	public void addIdentity(URI id) throws RMapException {
+		if (id==null){
+			throw new RMapException ("Null id value");
+		}
 		Statement idStmt = this.getValueFactory().createStatement(this.context,
 				RMAP.PROFILE_ID_BY, id, this.context);
 		this.identityStmts.add(idStmt);
+	}
+	/**
+	 * 
+	 * @param stmt
+	 * @throws RMapException
+	 */
+	public void addPropertyStmt (Statement stmt) throws RMapException {
+		if (stmt==null){
+			throw new RMapException ("null statement");
+		}
+		this.propertyStmts.add(stmt);
 	}
 
 	/**
