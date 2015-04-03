@@ -1,7 +1,9 @@
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
+import info.rmapproject.core.exception.RMapDiSCONotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
+import info.rmapproject.core.exception.RMapStatementNotFoundException;
 import info.rmapproject.core.idservice.IdServiceFactoryIOC;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
@@ -138,7 +140,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	 * @throws RMapException
 	 */
 	public URI getStatementID (Resource subject, URI predicate, Value object, 
-			SesameTriplestore ts) throws RMapObjectNotFoundException, RMapException {
+			SesameTriplestore ts) throws RMapStatementNotFoundException, RMapException {
 		// get statements whose context matches concatenated subject/object/predicate
 		if (subject==null || predicate==null || object==null){
 			throw new RMapException ("Null subject or predicate or object");
@@ -154,10 +156,10 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	 * @param context
 	 * @param ts
 	 * @return
-	 * @throws RMapObjectNotFoundException
+	 * @throws RMapStatementNotFoundException
 	 * @throws RMapException
 	 */
-	public URI getStatementId (URI context, SesameTriplestore ts)throws RMapObjectNotFoundException, RMapException {
+	public URI getStatementId (URI context, SesameTriplestore ts)throws RMapStatementNotFoundException, RMapException {
 		// get statements whose context matches concatenated subject/object/predicate
 		List <Statement> matchingTriples = null;
 		try {
@@ -166,7 +168,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 			throw new RMapException (e);
 		}
 		if (matchingTriples.size()==0){
-			throw new RMapObjectNotFoundException("No Statement found with context " + context.stringValue());
+			throw new RMapStatementNotFoundException("No Statement found with context " + context.stringValue());
 		}
 		Statement stmt = matchingTriples.get(0);		
 		Resource rSubject = stmt.getSubject();
@@ -188,17 +190,18 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
      * @param stmtId
      * @param ts 
      * @return
-     * @throws RMapExceptions
+     * @throws RMapException
+     * @throws RMapStatementNotFoundException
      */
 	public ORMapStatement getRMapStatement(URI stmtId, SesameTriplestore ts) 
-	throws RMapObjectNotFoundException, RMapException {
+	throws RMapStatementNotFoundException, RMapException {
 		ORMapStatement rmapStatement = null;		
 		if ((stmtId==null) || (stmtId.toString().length()==0)){
 			log.info("Invalid parameters for getMatchingRMapStmts, cannot pass null or empty values.");
 			throw new RMapException ("Null or empty stmtId");
 		}
 		if (! this.isStatementId(stmtId, ts)){
-			throw new RMapObjectNotFoundException("No Statement found with ID " + stmtId.stringValue());
+			throw new RMapStatementNotFoundException("No Statement found with ID " + stmtId.stringValue());
 		}
 		Statement subjectStmt  = null;
 		Statement predicateStmt = null;
@@ -294,10 +297,11 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	 * @param ts 
 	 * @return
 	 * @throws RMapException
+	 * @throws RMapDiSCONotFoundException
 	 */
 	public List<URI> getRelatedEvents(URI uri, ORMapEventMgr eventmgr,
 			SesameTriplestore ts) 
-			throws RMapObjectNotFoundException, RMapException {
+			throws RMapDiSCONotFoundException, RMapException {
 
 		Set<URI>discoIds = this.getRelatedDiSCOs(uri, ts);
 		List<URI> events = new ArrayList<URI>();
@@ -313,17 +317,17 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	 * @param uri
 	 * @param ts
 	 * @return
-	 * @throws RMapObjectNotFoundException
+	 * @throws RMapStatementNotFoundException
 	 * @throws RMapException
 	 */
 	public Set<URI> getRelatedDiSCOs(URI uri, SesameTriplestore ts)
-	throws RMapObjectNotFoundException, RMapException {
+	throws RMapStatementNotFoundException, RMapException {
 		if ((uri==null) || (uri.toString().length()==0)){
 			throw new RMapException ("Null or empty URI for statement ID");
 		}
 		// confirm this is a valid Statement ID
 		if (! this.isStatementId(uri, ts)){
-			throw new RMapObjectNotFoundException("No Statement found with ID " + uri.stringValue());
+			throw new RMapStatementNotFoundException("No Statement found with ID " + uri.stringValue());
 		}	
 		// get the triples for this Statement
 		ORMapStatement stmt = this.getRMapStatement(uri, ts);

@@ -15,7 +15,10 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 
+import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDeletedObjectException;
+import info.rmapproject.core.exception.RMapDiSCONotFoundException;
+import info.rmapproject.core.exception.RMapEventNotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.exception.RMapTombstonedObjectException;
@@ -54,10 +57,11 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @param discoID
 	 * @param ts
 	 * @return
-	 * @throws RMapObjectNotFoundException, RMapTombstonedObjectException, RMapDeletedObjectException
+	 * @throws RMapDiSCONotFoundException
+	 * @throws RMapTombstonedObjectException
 	 */
 	public ORMapDiSCO readDiSCO(URI discoID, SesameTriplestore ts) 
-	throws RMapObjectNotFoundException, RMapTombstonedObjectException {
+	throws RMapDiSCONotFoundException, RMapTombstonedObjectException {
 		ORMapDiSCO disco = null;
 		if (discoID ==null){
 			throw new RMapException ("null discoID");
@@ -66,7 +70,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			throw new RMapException("null triplestore");
 		}
 		if (! (this.isDiscoId(discoID, ts))){
-			throw new RMapObjectNotFoundException("No DiSCO with id " + discoID.stringValue());
+			throw new RMapDiSCONotFoundException("No DiSCO with id " + discoID.stringValue());
 		}
 		RMapStatus status = this.getDiSCOStatus(discoID, ts);
 		switch (status){
@@ -77,7 +81,13 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		default:
 			break;		
 		}
-		List<Statement> discoStmts = this.getNamedGraph(discoID, ts);		
+		List<Statement> discoStmts = null;
+		try {
+			this.getNamedGraph(discoID, ts);		
+		}
+		catch (RMapObjectNotFoundException e){
+			throw new RMapDiSCONotFoundException("No DiSCO found with id " + discoID.stringValue(), e);
+		}
 		disco = new ORMapDiSCO(discoStmts);
 		return disco;
 	}
@@ -136,7 +146,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}
 		// Confirm systemAgentId (not null, is Agent)
 		if (! this.isAgentId(systemAgentId, ts)){
-			throw new RMapObjectNotFoundException("No agent with id " + systemAgentId.stringValue());
+			throw new RMapAgentNotFoundException("No agent with id " + systemAgentId.stringValue());
 		}
 		// get the event started
 		ORMapEventCreation event = new ORMapEventCreation(systemAgentId, RMapEventTargetType.DISCO);
@@ -303,7 +313,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			throw new RMapException("System Agent ID required: was null");
 		}		
 		if (! this.isAgentId(systemAgentId, ts)){
-			throw new RMapObjectNotFoundException("No agent with id " + systemAgentId.stringValue());
+			throw new RMapAgentNotFoundException("No agent with id " + systemAgentId.stringValue());
 		}			
 		// get the event started
 		ORMapEvent event = null;	
@@ -517,7 +527,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}
 		// Confirm systemAgentId (not null, is Agent)
 		if (!(this.isAgentId(systemAgentId, ts))){
-			throw new RMapObjectNotFoundException("No agent with id " + systemAgentId.stringValue());
+			throw new RMapAgentNotFoundException("No agent with id " + systemAgentId.stringValue());
 		}
 		// make sure same Agent created the DiSCO now being inactivated
 		if (! this.isSameDiscoAgent(oldDiscoId, systemAgentId, eventMgr, ts)){
@@ -561,18 +571,18 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @param discoId
 	 * @param ts
 	 * @return
-	 * @throws RMapObjectNotFoundException
+	 * @throws RMapDiSCONotFoundException
 	 * @throws RMapException
 	 */
 	public RMapStatus getDiSCOStatus(URI discoId, SesameTriplestore ts) 
-			throws RMapObjectNotFoundException, RMapException {
+			throws RMapDiSCONotFoundException, RMapException {
 		RMapStatus status = null;
 		if (discoId==null){
 			throw new RMapException ("Null disco");
 		}
 		// first ensure Exists statement URI rdf:TYPE rmap:DISO  if not: raise NOTFOUND exception
 		if (! this.isDiscoId(discoId, ts)){
-			throw new RMapObjectNotFoundException ("No DisCO found with id " + discoId.stringValue());
+			throw new RMapDiSCONotFoundException ("No DisCO found with id " + discoId.stringValue());
 		}
 		do {
 			List<Statement> eventStmts = null;
@@ -618,9 +628,10 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @param ts
 	 * @return
 	 * @throws RMapException
+	 * @throws RMapObjectNotFoundException
 	 */
 	public List<URI> getDiSCOStatements(URI discoId, ORMapStatementMgr stmtmgr,
-			SesameTriplestore ts) throws RMapException {
+			SesameTriplestore ts) throws RMapDiSCONotFoundException, RMapException {
 		if (discoId==null){
 			throw new RMapException("Null discoID");
 		}
@@ -631,7 +642,9 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		try {
 			stmts.addAll(this.getNamedGraph(discoId, ts));
 		}
-		catch (RMapObjectNotFoundException e){}
+		catch (RMapObjectNotFoundException e){
+			throw new RMapDiSCONotFoundException("No DiSCO found with id " + discoId.stringValue(), e);
+		}
 		catch (RMapException e) {throw e;}
 		List<URI>uris = new ArrayList<URI>();
 		for (Statement stmt:stmts){
@@ -651,6 +664,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @param ts triplestore
 	 * @return List of DiSCO ids, or null if none found
 	 * @throws RMapException
+	 * @throws RMapObjectNotFoundException
 	 */
 	public Map<URI,URI> getAllDiSCOVersions(URI discoId, boolean matchAgent, 
 			ORMapEventMgr eventmgr, SesameTriplestore ts) 
@@ -659,7 +673,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			throw new RMapException ("Null disco");
 		}
 		if (! this.isDiscoId(discoId, ts)){
-			throw new RMapObjectNotFoundException("No disco found with identifer " + 
+			throw new RMapDiSCONotFoundException("No disco found with identifer " + 
 					discoId.stringValue());
 		}
 		Map<URI,URI> event2Disco = lookBack(discoId, null, true, matchAgent, eventmgr, ts);		
@@ -673,13 +687,14 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @param matchAgent
 	 * @param ts
 	 * @return
+	 * @throws RMapObjectNotFoundException 
 	 */
 	protected Map<URI,URI> lookBack(URI discoId, URI agentId, boolean lookFoward, 
 			boolean matchAgent, ORMapEventMgr eventmgr, SesameTriplestore ts) 
 					throws RMapObjectNotFoundException, RMapException {
 		Statement eventStmt = eventmgr.getDiSCOCreateEventStatement(discoId, ts);
 		if (eventStmt==null){
-			throw new RMapObjectNotFoundException("No creating event found for DiSCO id " +
+			throw new RMapEventNotFoundException("No creating event found for DiSCO id " +
 		             discoId.stringValue());
 		}
 		Map<URI,URI> event2Disco = new HashMap<URI,URI>();
@@ -706,6 +721,10 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			if ((eventmgr.isUpdateEvent(eventId, ts)) || (eventmgr.isDerivationEvent(eventId, ts))){
 				// get id of old DiSCO
 				URI oldDiscoID = eventmgr.getIdOfOldDisco(eventId, ts);
+				if (oldDiscoID==null){
+					throw new RMapDiSCONotFoundException("Event " + eventId.stringValue() + 
+							" does not have Derived Object DiSCO for DISCO " + discoId.stringValue());
+				}
 				// look back recursively on create/updates for oldDiscoID
 				// DONT look forward on the backward search - you'll already have stuff
 				 event2Disco.putAll(this.lookBack(oldDiscoID, agentId, false, 
@@ -724,6 +743,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @param matchAgent
 	 * @param ts
 	 * @return
+	 * @throws RMapObjectNotFoundException
 	 */
 	protected Map<URI,URI> lookFoward(URI discoId, URI agentId, boolean matchAgent, 
 			ORMapEventMgr eventmgr, SesameTriplestore ts) throws RMapObjectNotFoundException{

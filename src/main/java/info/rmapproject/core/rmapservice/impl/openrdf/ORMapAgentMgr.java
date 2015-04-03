@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import info.rmapproject.core.controlledlist.AgentPredicate;
+import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
@@ -52,11 +53,11 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @param agentId
 	 * @param ts
 	 * @return
-	 * @throws RMapObjectNotFoundException
+	 * @throws RMapAgentNotFoundException
 	 * @throws RMapException
 	 */
 	public ORMapAgent readAgent(URI agentId, SesameTriplestore ts)
-	throws RMapObjectNotFoundException, RMapException {		
+	throws RMapAgentNotFoundException, RMapException {		
 		if (agentId == null){
 			throw new RMapException("null agentId");
 		}
@@ -65,10 +66,15 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}
 		
 		if (!(this.isAgentId(agentId, ts))){
-			throw new RMapObjectNotFoundException("Not an agentID: " + agentId.stringValue());
+			throw new RMapAgentNotFoundException("Not an agentID: " + agentId.stringValue());
 		}
-
-		List<Statement> agentStmts = this.getNamedGraph(agentId, ts);	
+		List<Statement> agentStmts = null;
+		try {
+			agentStmts = this.getNamedGraph(agentId, ts);	
+		}
+		catch (RMapObjectNotFoundException e) {
+			throw new RMapAgentNotFoundException ("No agent found with id " + agentId.toString(), e);
+		}
 		ORMapAgent agent = new ORMapAgent(agentStmts, null);
 		return agent;
 	}

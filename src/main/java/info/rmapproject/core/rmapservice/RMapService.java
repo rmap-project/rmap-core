@@ -6,8 +6,13 @@ package info.rmapproject.core.rmapservice;
 import java.net.URI;
 import java.util.List;
 
+import info.rmapproject.core.exception.RMapAgentNotFoundException;
+import info.rmapproject.core.exception.RMapDiSCONotFoundException;
+import info.rmapproject.core.exception.RMapEventNotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
+import info.rmapproject.core.exception.RMapProfileNotFoundException;
+import info.rmapproject.core.exception.RMapStatementNotFoundException;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapStatus;
@@ -72,8 +77,9 @@ public interface RMapService {
 	 * @param id
 	 * @return
 	 * @throws RMapException
+	 * @throws RMapStatementNotFoundException 
 	 */
-	public RMapStatement readStatement (URI id) throws RMapObjectNotFoundException, RMapException;
+	public RMapStatement readStatement (URI id) throws RMapException, RMapStatementNotFoundException;
 	/**
 	 * Get the URI for the RMapStatement matching the supplied subject, predicate and objectc
 	 * @param subject
@@ -88,9 +94,10 @@ public interface RMapService {
 	 * @param ids
 	 * @return
 	 * @throws RMapException
+	 * @throws RMapStatementNotFoundException TODO
 	 */
 	//TODO  add status as parameter, and only allow Active, Inactive
-	public List<RMapStatement> readStatements (List<URI> ids) throws RMapException;
+	public List<RMapStatement> readStatements (List<URI> ids) throws RMapException, RMapStatementNotFoundException;
 	/**
 	 * Get the status of the RMapStatement identified by the provided URI
 	 * @param stmtId
@@ -113,8 +120,9 @@ public interface RMapService {
 	 * @param discoID
 	 * @return
 	 * @throws RMapException
+	 * @throws RMapDiSCONotFoundException 
 	 */
-	public RMapDiSCO readDiSCO(URI discoID) throws RMapObjectNotFoundException, RMapException;
+	public RMapDiSCO readDiSCO(URI discoID) throws RMapException, RMapDiSCONotFoundException;
 	/**
 	 * 
 	 * @param systemAgent
@@ -152,37 +160,42 @@ public interface RMapService {
 	 * @param discoID
 	 * @return
 	 * @throws RMapException
+	 * @throws RMapObjectNotFoundException 
 	 */
-	public List<URI> getDiSCOAllVersions(URI discoID) throws RMapException;
+	public List<URI> getDiSCOAllVersions(URI discoID) throws RMapException, RMapObjectNotFoundException;
 	/**
 	 * Get all versions of a DiSCO whose creator is the same as the creator
 	 * of that DiSCO
 	 * @param discoID
 	 * @return
 	 * @throws RMapException
+	 * @throws RMapObjectNotFoundException 
 	 */
-	public List<URI> getDiSCOAllAgentVersions(URI discoID) throws RMapException;
+	public List<URI> getDiSCOAllAgentVersions(URI discoID) throws RMapException, RMapObjectNotFoundException;
 	/**
 	 * Get latest version of DiSCO (same agent as creator of DiSCO)
 	 * @param discoID
 	 * @return
 	 * @throws RMapException
+	 * @throws RMapObjectNotFoundException 
 	 */
-	public RMapDiSCO getDiSCOLatestVersion (URI discoID) throws RMapException;
+	public RMapDiSCO getDiSCOLatestVersion (URI discoID) throws RMapException, RMapObjectNotFoundException;
 	/**
 	 * Get previous version created by same system agent, if any, of this DiSCO
 	 * @param discoID
 	 * @return
 	 * @throws RMapException
+	 * @throws RMapObjectNotFoundException 
 	 */
-	public RMapDiSCO getDiSCOPreviousVersion (URI discoID) throws RMapException;
+	public RMapDiSCO getDiSCOPreviousVersion (URI discoID) throws RMapException, RMapObjectNotFoundException;
 	/**
 	 * Get next version created by same system agent, if any, of this DiSCO
 	 * @param discoID
 	 * @return
 	 * @throws RMapException
+	 * @throws RMapObjectNotFoundException 
 	 */
-	public RMapDiSCO getDiSCONextVersion (URI discoID)throws RMapException;
+	public RMapDiSCO getDiSCONextVersion (URI discoID)throws RMapException, RMapObjectNotFoundException;
 	/**
 	 * Get all events associated with a DiSCO
 	 * @param discoID
@@ -198,8 +211,9 @@ public interface RMapService {
 	 * @param eventId
 	 * @return
 	 * @throws RMapException
+	 * @throws RMapEventNotFoundException 
 	 */
-	public RMapEvent readEvent(URI eventId)  throws RMapObjectNotFoundException, RMapException;
+	public RMapEvent readEvent(URI eventId)  throws RMapException, RMapEventNotFoundException;
 	/**
 	 * 
 	 * @param eventID
@@ -237,8 +251,9 @@ public interface RMapService {
 	 * @param agentID
 	 * @return
 	 * @throws RMapException
+	 * @throws RMapAgentNotFoundException 
 	 */
-	public RMapAgent readAgent (URI agentID) throws RMapObjectNotFoundException, RMapException;
+	public RMapAgent readAgent (URI agentID) throws RMapException, RMapAgentNotFoundException;
 	/**
 	 * 
 	 * @param agentId
@@ -254,8 +269,9 @@ public interface RMapService {
 	 * @param profileId
 	 * @return
 	 * @throws RMapException
+	 * @throws RMapProfileNotFoundException 
 	 */
-	public RMapProfile readProfile (URI profileId)  throws RMapObjectNotFoundException, RMapException;
+	public RMapProfile readProfile (URI profileId)  throws RMapException, RMapProfileNotFoundException;
 	/**
 	 * 
 	 * @param profileId

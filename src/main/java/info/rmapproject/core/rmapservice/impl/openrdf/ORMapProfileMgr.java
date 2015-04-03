@@ -5,6 +5,7 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
+import info.rmapproject.core.exception.RMapProfileNotFoundException;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapProfile;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
@@ -40,11 +41,11 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 	 * @param profileId ID of profile in triplestore
 	 * @param ts
 	 * @return Profile instantiated from triplestore
-	 * @throws RMapObjectNotFoundException if no named graph corresponding to id exists in triplestore
+	 * @throws RMapProfileNotFoundException if no named graph corresponding to id exists in triplestore
 	 * @throws RMapException
 	 */
 	public ORMapProfile readProfile(URI profileId, SesameTriplestore ts)
-	throws RMapObjectNotFoundException, RMapException {				
+	throws RMapProfileNotFoundException, RMapException {				
 		if (profileId == null){
 			throw new RMapException("null profileId");
 		}
@@ -53,10 +54,16 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 		}
 		
 		if (!(this.isProfileId(profileId, ts))){
-			throw new RMapObjectNotFoundException("Not a profile ID: " + profileId.stringValue());
+			throw new RMapProfileNotFoundException("Not a profile ID: " + profileId.stringValue());
 		}
 
-		List<Statement> stmts = this.getNamedGraph(profileId, ts);	
+		List<Statement> stmts = null;
+		try {
+			stmts = this.getNamedGraph(profileId, ts);	
+		}
+		catch (RMapObjectNotFoundException e) {
+			throw new RMapProfileNotFoundException("No profile found with id " + profileId.stringValue(),e);
+		}
 		ORMapProfile profile = new ORMapProfile(stmts,null);
 		return profile;
 	}
@@ -327,11 +334,11 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 	 * @param profileId ID of Profile
 	 * @param ts
 	 * @return ID of parent Agent
-	 * @throws RMapObjectNotFoundException
+	 * @throws RMapProfileNotFoundException
 	 * @throws RMapException
 	 */
 	public URI getParentAgent(URI profileId, SesameTriplestore ts) 
-			throws RMapObjectNotFoundException, RMapException {
+			throws RMapProfileNotFoundException, RMapException {
 		URI agentId = null;
 		ORMapProfile profile = null;
 		profile = this.readProfile(profileId, ts);
@@ -343,11 +350,11 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 	 * @param idUri identity URI to be matched
 	 * @param ts
 	 * @return Profile with URI in identity, or null if none found
-	 * @throws RMapObjectNotFoundException
+	 * @throws RMapProfileNotFoundException
 	 * @throws RMapException 
 	 */
 	public ORMapProfile getProfileFromIdentity(URI idUri, SesameTriplestore ts)
-	throws RMapObjectNotFoundException, RMapException {
+	throws RMapProfileNotFoundException, RMapException {
 		ORMapProfile profile = null;
 		Statement idStmt = null;
 		try {
@@ -363,7 +370,7 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 			throw new RMapException (e);
 		}
 		if (idStmt == null){
-			throw new RMapObjectNotFoundException ("no profile with identity " + idUri.stringValue());
+			throw new RMapProfileNotFoundException ("no profile with identity " + idUri.stringValue());
 		}
 		Resource subject = idStmt.getSubject();
 		if (subject instanceof URI){

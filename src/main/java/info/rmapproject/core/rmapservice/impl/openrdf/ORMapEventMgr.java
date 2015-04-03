@@ -14,6 +14,9 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import info.rmapproject.core.exception.RMapAgentNotFoundException;
+import info.rmapproject.core.exception.RMapDiSCONotFoundException;
+import info.rmapproject.core.exception.RMapEventNotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.event.RMapEventTargetType;
@@ -143,10 +146,10 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param eventId
 	 * @param ts
 	 * @return
-	 * @throws RMapObjectNotFoundException
+	 * @throws RMapEventNotFoundException
 	 */
 	public ORMapEvent readEvent(URI eventId, SesameTriplestore ts) 
-	throws RMapObjectNotFoundException {
+	throws RMapEventNotFoundException {
 		ORMapEvent event = null;
 		if (eventId ==null){
 			throw new RMapException ("null eventId");
@@ -154,8 +157,13 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		if (ts==null){
 			throw new RMapException("null triplestore");
 		}
-		List<Statement> eventStmts = this.getNamedGraph(eventId, ts);
-		
+		List<Statement> eventStmts = null;
+		try {
+			eventStmts=this.getNamedGraph(eventId, ts);
+		}
+		catch (RMapObjectNotFoundException e){
+			throw new RMapEventNotFoundException ("No event found for id " + eventId.stringValue(), e);
+		}		
 		event = createORMapEventFromStmts(eventStmts, ts);
 		return event;
 	}
@@ -605,18 +613,18 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param id
 	 * @param ts
 	 * @return
-	 * @throws RMapObjectNotFoundException
+	 * @throws RMapDiSCONotFoundException
 	 * @throws RMapException
 	 */
 	public List<URI> getDiscoRelatedEventIds(URI id, SesameTriplestore ts) 
-			throws RMapObjectNotFoundException, RMapException {
+			throws RMapDiSCONotFoundException, RMapException {
 		List<URI> events = null;
 		if (id==null){
 			throw new RMapException ("Null disco");
 		}
 		// first ensure Exists statement URI rdf:TYPE rmap:DISO  if not: raise NOTFOUND exception
 		if (! this.isDiscoId(id, ts)){
-			throw new RMapObjectNotFoundException ("No object found with id " + id.stringValue());
+			throw new RMapDiSCONotFoundException ("No object found with id " + id.stringValue());
 		}
 		do {
 			List<Statement> eventStmts = new ArrayList<Statement>();
@@ -721,7 +729,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapException
 	 */
 	public RMapEventType getEventType (URI eventId, SesameTriplestore ts) 
-	throws RMapObjectNotFoundException, RMapException{
+	throws RMapEventNotFoundException, RMapException{
 		if (eventId == null){
 			throw new RMapException("null eventID");
 		}
@@ -737,7 +745,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 					+ eventId.stringValue(), e);
 		}
 		if (stmt == null){
-			throw new RMapObjectNotFoundException("No event type statement found for ID " +
+			throw new RMapEventNotFoundException("No event type statement found for ID " +
 		            eventId.stringValue());
 		}
 		else {
@@ -751,11 +759,11 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param eventId
 	 * @param ts
 	 * @return
-	 * @throws RMapObjectNotFoundException
+	 * @throws RMapEventNotFoundException
 	 * @throws RMapException
 	 */
 	public RMapEventTargetType getEventTargetType (URI eventId, SesameTriplestore ts) 
-	throws RMapObjectNotFoundException, RMapException{
+	throws RMapEventNotFoundException, RMapException{
 		if (eventId == null){
 			throw new RMapException("null eventID");
 		}
@@ -771,7 +779,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 					+ eventId.stringValue(), e);
 		}
 		if (stmt == null){
-			throw new RMapObjectNotFoundException("No event type statement found for ID " +
+			throw new RMapEventNotFoundException("No event type statement found for ID " +
 		            eventId.stringValue());
 		}
 		else {
@@ -847,6 +855,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts
 	 * @return
 	 * @throws RMapException
+	 * @throws RMapAgentNotFoundException
 	 */
 	protected URI getEventAssocAgent (URI event, SesameTriplestore ts) throws RMapException {
 		URI agent = null;
@@ -866,7 +875,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			}
 		}
 		else {
-			throw new RMapException ("No system agent associated with event " + event.toString());
+			throw new RMapAgentNotFoundException ("No system agent associated with event " + event.toString());
 		}
 		return agent;
 	}

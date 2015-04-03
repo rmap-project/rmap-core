@@ -114,8 +114,9 @@ public abstract class ORMapObjectMgr {
 	 * @param ts 
 	 * @return
 	 * @throws RMapException
+	 * @throws RMapObjectNotFoundException
 	 */
-	protected List<Statement> getNamedGraph(URI id, SesameTriplestore ts) throws RMapException {
+	protected List<Statement> getNamedGraph(URI id, SesameTriplestore ts) throws RMapObjectNotFoundException, RMapException {
 		List<Statement> matchingTriples = null;
 		try {
 			matchingTriples = ts.getStatements(null, null, null, false, id);     
