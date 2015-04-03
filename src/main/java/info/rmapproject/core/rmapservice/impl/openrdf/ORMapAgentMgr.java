@@ -33,7 +33,7 @@ import org.openrdf.repository.RepositoryException;
  */
 public class ORMapAgentMgr extends ORMapObjectMgr {
 
-	static List<URI> agentPredicates = null;
+	static List<URI> agentPredicates = new ArrayList<URI>();
 	static {
 		List<java.net.URI>preds = AgentPredicate.getAgentPredicates();
 		for (java.net.URI uri:preds){

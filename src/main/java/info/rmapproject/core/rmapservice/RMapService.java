@@ -94,7 +94,7 @@ public interface RMapService {
 	 * @param ids
 	 * @return
 	 * @throws RMapException
-	 * @throws RMapStatementNotFoundException TODO
+	 * @throws RMapStatementNotFoundException 
 	 */
 	//TODO  add status as parameter, and only allow Active, Inactive
 	public List<RMapStatement> readStatements (List<URI> ids) throws RMapException, RMapStatementNotFoundException;
