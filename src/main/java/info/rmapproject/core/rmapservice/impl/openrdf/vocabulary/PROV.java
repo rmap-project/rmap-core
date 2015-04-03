@@ -67,6 +67,8 @@ public class PROV {
 	 * prov:wasAttributedTo
 	 */
 	public static final URI WASATTRIBUTEDTO;
+	
+	public static final URI HAS_PROVENANCE;
 
 	static {
 		final ValueFactory f = ValueFactoryImpl.getInstance();
@@ -76,10 +78,11 @@ public class PROV {
 		ENDEDATTIME = f.createURI(NAMESPACE, "endedAtTime");
 		WASASSOCIATEDWITH = f.createURI(NAMESPACE, "wasAssociatedWith");
 		WASGENERATEDBY = f.createURI(NAMESPACE, "wasGeneratedBy");
-		WASDERIVEDFROM = f.createURI(NAMESPACE, "prov:wasDerivedFrom");
+		WASDERIVEDFROM = f.createURI(NAMESPACE, "wasDerivedFrom");
 		GENERATED = f.createURI(NAMESPACE, "generated");
 		HADACTIVITY = f.createURI(NAMESPACE, "hadActivity");
 		WASATTRIBUTEDTO = f.createURI(NAMESPACE, "wasAttributedTo");
+		HAS_PROVENANCE = f.createURI(NAMESPACE, "has_provenance");
 	}
 	
 	
