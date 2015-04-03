@@ -105,6 +105,9 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#getRelatedEvents(java.net.URI)
 	 */
 	public List<URI> getResourceRelatedEvents(URI uri) throws RMapException {
+		if (uri==null){
+			throw new RMapException("null uri");
+		}
 		org.openrdf.model.URI mUri = ORAdapter.uri2OpenRdfUri(uri);
 		Set<org.openrdf.model.URI> orEvents =
 				this.resourcemgr.getRelatedEvents(mUri, stmtmgr, discomgr, eventmgr, ts);
@@ -121,6 +124,9 @@ public class ORMapService implements RMapService {
 	 */
 	public List<URI> getResourceRelatedDiSCOs(URI uri, RMapStatus statusCode)
 			throws RMapException {
+		if (uri==null){
+			throw new RMapException("null uri");
+		}
 		org.openrdf.model.URI mUri = ORAdapter.uri2OpenRdfUri(uri);
 		Set<org.openrdf.model.URI> orDiscos = 
 				this.resourcemgr.getRelatedDiSCOS(mUri, statusCode, discomgr, ts);
@@ -161,6 +167,15 @@ public class ORMapService implements RMapService {
 	 */
 	public URI getStatementID(RMapResource subject, RMapUri predicate,
 			RMapValue object) throws RMapException {
+		if (subject==null){
+			throw new RMapException("Null subject provided");
+		}
+		if (predicate ==null){
+			throw new RMapException("Null predicate provided");
+		}
+		if (object==null){
+			throw new RMapException("Null object provided");
+		}
 		Resource orSubject = ORAdapter.rMapNonLiteral2OpenRdfResource(subject);
 		org.openrdf.model.URI orPredicate = ORAdapter.rMapUri2OpenRdfUri(predicate);
 		Value orValue = ORAdapter.rMapValue2OpenRdfValue(object);
@@ -214,6 +229,9 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#readDiSCO(java.net.URI)
 	 */
 	public RMapDiSCO readDiSCO(URI discoID) throws RMapException, RMapDiSCONotFoundException {
+		if (discoID == null){
+			throw new RMapException("Null DiSCO id provided");
+		}
 		return this.discomgr.readDiSCO(ORAdapter.uri2OpenRdfUri(discoID), ts);
 	}
 
@@ -221,6 +239,12 @@ public class ORMapService implements RMapService {
 	@Override
 	public RMapEvent createDiSCO(RMapUri systemAgent, RMapDiSCO disco)
 			throws RMapException {
+		if (systemAgent==null){
+			throw new RMapException("Null Agent id provided");
+		}
+		if (disco==null){
+			throw new RMapException("Null DiSCO provided");
+		}
 		if (!(disco instanceof ORMapDiSCO)){
 			throw new RMapException("disco not instance of ORMapDiSCO");
 		}
@@ -240,6 +264,12 @@ public class ORMapService implements RMapService {
 	 */
 	public RMapEvent createDisco(URI systemAgent, List<Statement> stmts )
 	throws RMapException{
+		if (systemAgent==null){
+			throw new RMapException("Null Agent id provided");
+		}
+		if (stmts==null || stmts.size()==0){
+			throw new RMapException("Null or empty Statement List provided");
+		}
 		ORMapDiSCO disco = new ORMapDiSCO(stmts);
 		RMapEvent createEvent = 
 				this.discomgr.createDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent),
@@ -251,6 +281,9 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCOStatus(java.net.URI)
 	 */
 	public RMapStatus getDiSCOStatus(URI discoId) throws RMapException {
+		if (discoId ==null){
+			throw new RMapException("Null DiSCO id provided");
+		}
 		RMapStatus status = null;
 		status = this.discomgr.getDiSCOStatus(ORAdapter.uri2OpenRdfUri(discoId), ts);
 		return status;
@@ -261,6 +294,9 @@ public class ORMapService implements RMapService {
 			throws RMapException {
 		if (systemAgent==null){
 			throw new RMapException ("null system agent");
+		}
+		if (oldDiscoId==null){
+			throw new RMapException ("null id for old DiSCO");
 		}
 		if (disco==null){
 			throw new RMapException ("null disco");
@@ -288,10 +324,16 @@ public class ORMapService implements RMapService {
 	public RMapEvent updateDiSCO(URI systemAgent, URI oldDiscoId, 
 			List<Statement> stmts)
 	throws RMapException {
-		ORMapDiSCO disco = null;
-		if (stmts != null){
-			disco = new ORMapDiSCO(stmts);
+		if (systemAgent==null){
+			throw new RMapException ("null system agent");
 		}
+		if (oldDiscoId==null){
+			throw new RMapException ("null id for old DiSCO");
+		}
+		if (stmts==null || stmts.size()==0){
+			throw new RMapException("Null or empty Statement List provided");
+		}
+		ORMapDiSCO disco = new ORMapDiSCO(stmts);
 		RMapEvent updateEvent = 
 				this.discomgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent),
 					ORAdapter.uri2OpenRdfUri(oldDiscoId), disco, this.stmtmgr, 
@@ -302,6 +344,12 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#deleteDiSCO(java.net.URI)
 	 */
 	public RMapEvent deleteDiSCO(URI discoID, RMapUri systemAgent) throws RMapException {
+		if (discoID ==null){
+			throw new RMapException ("null DiSCO id");
+		}
+		if (systemAgent==null){
+			throw new RMapException ("null system agent");
+		}
 		RMapEvent tombstoneEvent = 
 				this.discomgr.tombstoneDiSCO(ORAdapter.rMapUri2OpenRdfUri(systemAgent),
 						ORAdapter.uri2OpenRdfUri(discoID), this.eventmgr, ts);
@@ -312,6 +360,9 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#getAllDiSCOVersions(java.net.URI)
 	 */
 	public List<URI> getDiSCOAllVersions(URI discoID) throws RMapException, RMapObjectNotFoundException {
+		if (discoID ==null){
+			throw new RMapException ("null DiSCO id");
+		}
 		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
 				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),
 						false,this.eventmgr, ts);
@@ -327,6 +378,9 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#getAllAgentDiSCOVersions(java.net.URI)
 	 */
 	public List<URI> getDiSCOAllAgentVersions(URI discoID) throws RMapException, RMapObjectNotFoundException {
+		if (discoID ==null){
+			throw new RMapException ("null DiSCO id");
+		}
 		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
 				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID), 
 						true,this.eventmgr, ts);
@@ -342,6 +396,9 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#getLatestVersionDiSCO(java.net.URI)
 	 */
 	public RMapDiSCO getDiSCOLatestVersion(URI discoID) throws RMapException, RMapObjectNotFoundException {
+		if (discoID ==null){
+			throw new RMapException ("null DiSCO id");
+		}
 		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
 				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),
 						true,this.eventmgr,ts);
@@ -354,6 +411,9 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#getPreviousVersionDiSCO(java.net.URI)
 	 */
 	public RMapDiSCO getDiSCOPreviousVersion(URI discoID) throws RMapException, RMapObjectNotFoundException {
+		if (discoID ==null){
+			throw new RMapException ("null DiSCO id");
+		}
 		RMapDiSCO nextDisco = null;
 		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
 				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),
@@ -380,6 +440,9 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#getNextVersionDiSCO(java.net.URI)
 	 */
 	public RMapDiSCO getDiSCONextVersion(URI discoID) throws RMapException, RMapObjectNotFoundException {
+		if (discoID ==null){
+			throw new RMapException ("null DiSCO id");
+		}
 		RMapDiSCO nextDisco = null;
 		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
 				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),
@@ -406,6 +469,9 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCOEvents(java.net.URI)
 	 */
 	public List<URI> getDiSCOEvents(URI discoID) throws RMapException {
+		if (discoID ==null){
+			throw new RMapException ("null DiSCO id");
+		}
 		List<org.openrdf.model.URI> events = 
 				this.eventmgr.getDiscoRelatedEventIds(ORAdapter.uri2OpenRdfUri(discoID), ts);
 		List<URI> uris = new ArrayList<URI>();
@@ -419,6 +485,9 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#readEvent(java.net.URI)
 	 */
 	public RMapEvent readEvent(URI eventId) throws RMapException, RMapEventNotFoundException {
+		if (eventId ==null){
+			throw new RMapException ("null event id");
+		}
 		return this.eventmgr.readEvent(ORAdapter.uri2OpenRdfUri(eventId), ts);
 	}
 
@@ -427,6 +496,9 @@ public class ORMapService implements RMapService {
 	 */
 	public List<URI> getEventRelatedStatements(URI eventID)
 			throws RMapException {
+		if (eventID ==null){
+			throw new RMapException ("null event id");
+		}
 		List<org.openrdf.model.URI> stmts = this.eventmgr.getRelatedStatements(
 				ORAdapter.uri2OpenRdfUri(eventID), this.discomgr, this.stmtmgr,ts);
 		List<URI>stmtIds = new ArrayList<URI>();
@@ -440,6 +512,9 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#getEventRelatedResources(java.net.URI)
 	 */
 	public List<URI> getEventRelatedResources(URI eventID) throws RMapException {
+		if (eventID ==null){
+			throw new RMapException ("null event id");
+		}
 		List<org.openrdf.model.URI> resources = this.eventmgr.getRelatedResources(
 				ORAdapter.uri2OpenRdfUri(eventID),this.discomgr, this.stmtmgr, ts);
 		List<URI> resourceIds = new ArrayList<URI>();
@@ -453,6 +528,9 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#getEventRelatedDiSCOS(java.net.URI)
 	 */
 	public List<URI> getEventRelatedDiSCOS(URI eventID) throws RMapException {
+		if (eventID ==null){
+			throw new RMapException ("null event id");
+		}
 		List<org.openrdf.model.URI> discos = this.eventmgr.getRelatedDiSCOs(
 				ORAdapter.uri2OpenRdfUri(eventID), ts);
 		List<URI> discoIds = new ArrayList<URI>();
@@ -466,6 +544,9 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#getEventRelatedAgents(java.net.URI)
 	 */
 	public List<URI> getEventRelatedAgents(URI eventID) throws RMapException {
+		if (eventID ==null){
+			throw new RMapException ("null event id");
+		}
 		List<org.openrdf.model.URI> agents = this.eventmgr.getRelatedAgents(
 				ORAdapter.uri2OpenRdfUri(eventID), ts);
 		List<URI> agentIds = new ArrayList<URI>();
