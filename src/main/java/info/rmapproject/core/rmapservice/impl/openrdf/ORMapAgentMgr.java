@@ -199,7 +199,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			else {
 				Literal crLiteral = (Literal)crObject;
 				this.createAgentandProfileFromLiteral(crLiteral, crStmt, toBeAddedStmts, 
-						toBeDeletedStmts, newObjects, model, systemAgent, profilemgr, ts);						
+						toBeDeletedStmts, newObjects, systemAgent, profilemgr, ts);						
 			}
 		}
 		relatedStmts.removeAll(toBeDeletedStmts);
@@ -446,7 +446,14 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			SesameTriplestore ts)
 	throws RMapException {
 	    // create new agent, agent profile as with URI
-		ORMapAgent agent = new ORMapAgent(systemAgent);
+		URI preferredId = profilemgr.getPreferredIdInRelatedStatements(model);
+		ORMapAgent agent = null;
+		if (preferredId==null){
+			agent = new ORMapAgent(systemAgent);
+		}
+		else {
+			agent = new ORMapAgent(preferredId,systemAgent);
+		}
 		URI agentId = ORAdapter.uri2OpenRdfUri(agent.getId());
 		Statement newCreateStmt= null;
 		// replace bnode predicate in create statement with agentId
@@ -476,6 +483,11 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		newObjects.add(ORAdapter.uri2OpenRdfUri(profile.getId()));
 		// add the new profile statements (NOT including context, which will need to be DiSCO context) to new related statements
 		toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));
+		for (Statement idStmt:profile.getIdentityStmts()){
+			//TODO create the Identity OJBECT
+			URI id = (URI)idStmt.getObject();
+			newObjects.add(id);
+		}
 		return;
 	}
 	/**
@@ -485,7 +497,6 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @param toBeAddedStmts
 	 * @param toBeDeletedStmts
 	 * @param newObjects
-	 * @param model
 	 * @param systemAgent
 	 * @param profilemgr
 	 * @param ts
@@ -493,7 +504,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 */
 	protected void createAgentandProfileFromLiteral(Literal crLiteral, Statement crStmt,
 			List<Statement> toBeAddedStmts, List<Statement> toBeDeletedStmts,
-			List<URI> newObjects, Model model, URI systemAgent, ORMapProfileMgr profilemgr, 
+			List<URI> newObjects, URI systemAgent, ORMapProfileMgr profilemgr, 
 			SesameTriplestore ts)
 	throws RMapException {
 		// create new agent, agent profile

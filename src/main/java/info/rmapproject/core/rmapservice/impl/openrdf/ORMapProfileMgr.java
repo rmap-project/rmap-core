@@ -3,9 +3,11 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
+import info.rmapproject.core.controlledlist.IdPredicate;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.exception.RMapProfileNotFoundException;
+import info.rmapproject.core.idvalidator.PreferredIdValidator;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapProfile;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
@@ -239,7 +241,7 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 	public ORMapProfile createProfileFromRelatedStmts( URI agentUri, Model relatedStmtsModel, URI systemAgent,
 			SesameTriplestore ts, Resource crURI)
 	throws RMapException {
-		List<Statement> replacedIdStmts= this.replaceIdInModel(relatedStmtsModel, crURI, null, ts);
+		List<Statement> replacedIdStmts= this.replaceIdInModel(relatedStmtsModel, crURI, systemAgent, ts);
 		ORMapProfile profile = new ORMapProfile(replacedIdStmts, systemAgent);
 		return profile;
 	}
@@ -378,5 +380,42 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 			profile = this.readProfile(profileId, ts);
 		}
 		return profile;
+	}
+	/**
+	 * See if related statements for profile contain a preferred id
+	 * @param relStmts
+	 * @return URI of first preferred ID found, or null if none found
+	 * @throws RMapException
+	 */
+	public URI getPreferredIdInRelatedStatements (Model relStmts) throws RMapException {
+		URI id = null;
+		List<Statement> idStmts = new ArrayList<Statement>();
+		for (Statement stmt:relStmts){
+			URI predicate = stmt.getPredicate();
+			if (IdPredicate.isIdPredicate(ORAdapter.openRdfUri2URI(predicate))){
+				idStmts.add(stmt);
+			}
+		}
+		for (Statement stmt:idStmts){
+			Value object = stmt.getObject();
+			java.net.URI objectUri = null;
+			if (object instanceof URI){
+				objectUri = ORAdapter.openRdfUri2URI((URI)object);
+			}
+			else {
+				try {
+					objectUri = new java.net.URI(object.stringValue());
+				}
+				catch (Exception e){}
+			}
+			if (objectUri==null){
+				continue;
+			}
+			if (PreferredIdValidator.isPreferredAgentId(objectUri)){
+				id = ORAdapter.uri2OpenRdfUri(objectUri);
+				break;
+			}
+		}
+		return id;
 	}
 }

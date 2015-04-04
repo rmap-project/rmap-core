@@ -142,6 +142,11 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 				this.creatorStmt = creatorStmt;
 				continue;
 			}
+			if (predicate.equals(RMAP.DESCRIBES_AGENT)){
+				Statement parentStmt = this.getValueFactory().createStatement(
+						subject, predicate, object, this.context);
+				this.parentAgentStmt = parentStmt;
+			}
 			if (predicate.equals(RMAP.PROFILE_ID_BY)){
 				Statement idStmt = this.getValueFactory().createStatement(
 						subject, predicate, object, this.context);
