@@ -7,7 +7,6 @@ import info.rmapproject.core.controlledlist.IdPredicate;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.exception.RMapProfileNotFoundException;
-import info.rmapproject.core.idvalidator.PreferredIdValidator;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapProfile;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
@@ -355,6 +354,7 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 	 * @throws RMapProfileNotFoundException
 	 * @throws RMapException 
 	 */
+	//TODO change this to look at local part of identity
 	public ORMapProfile getProfileFromIdentity(URI idUri, SesameTriplestore ts)
 	throws RMapProfileNotFoundException, RMapException {
 		ORMapProfile profile = null;
@@ -382,13 +382,12 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 		return profile;
 	}
 	/**
-	 * See if related statements for profile contain a preferred id
+	 * 
 	 * @param relStmts
-	 * @return URI of first preferred ID found, or null if none found
+	 * @return
 	 * @throws RMapException
 	 */
-	public URI getPreferredIdInRelatedStatements (Model relStmts) throws RMapException {
-		URI id = null;
+	public List<Statement> getIdStmtsInRelatedStatments (Model relStmts) throws RMapException{
 		List<Statement> idStmts = new ArrayList<Statement>();
 		for (Statement stmt:relStmts){
 			URI predicate = stmt.getPredicate();
@@ -396,26 +395,9 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 				idStmts.add(stmt);
 			}
 		}
-		for (Statement stmt:idStmts){
-			Value object = stmt.getObject();
-			java.net.URI objectUri = null;
-			if (object instanceof URI){
-				objectUri = ORAdapter.openRdfUri2URI((URI)object);
-			}
-			else {
-				try {
-					objectUri = new java.net.URI(object.stringValue());
-				}
-				catch (Exception e){}
-			}
-			if (objectUri==null){
-				continue;
-			}
-			if (PreferredIdValidator.isPreferredAgentId(objectUri)){
-				id = ORAdapter.uri2OpenRdfUri(objectUri);
-				break;
-			}
-		}
-		return id;
+		return idStmts;
 	}
+	
+
+
 }

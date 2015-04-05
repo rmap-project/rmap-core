@@ -7,7 +7,6 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapException;
@@ -39,6 +38,7 @@ public class ORMapAgentMgrTest {
 	protected String systemAgentId = "http://orcid.org/0000-0003-2069-1219";
 	protected ORMapAgentMgr agentMgr;
 	protected ORMapProfileMgr profilemgr;
+	protected ORMapIdentityMgr identitymgr;
 	protected SesameTriplestore ts;
 	protected URI systemAgentURI;
 	protected String doi = "DOI:10.1080/13614576.2014.883935";
@@ -63,6 +63,7 @@ public class ORMapAgentMgrTest {
 	public void setUp() throws Exception {
 		agentMgr = new ORMapAgentMgr();
 		profilemgr = new ORMapProfileMgr();
+		identitymgr = new ORMapIdentityMgr();
 		ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
 		systemAgentURI = ts.getValueFactory().createURI(systemAgentId);
 		doiURI = ts.getValueFactory().createURI(doi);
@@ -107,7 +108,7 @@ public class ORMapAgentMgrTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createRelatedStatementsAgents(java.util.List, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createRelatedStatementsAgents(java.util.List, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, ORMapIdentityMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
 	 */
 	@Test
 	public void testCreateRelatedStatementsAgents() {
@@ -155,7 +156,7 @@ public class ORMapAgentMgrTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromBnode(org.openrdf.model.BNode, org.openrdf.model.Statement, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromBnode(org.openrdf.model.BNode, org.openrdf.model.Statement, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, ORMapIdentityMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
 	 */
 	@Test
 	public void testCreateAgentandProfileFromBnode() {
@@ -188,7 +189,7 @@ public class ORMapAgentMgrTest {
 		}
 		agentMgr.createAgentandProfileFromBnode(bnode, crStmt, 
 				toBeAddedStmts, toBeDeletedStmts, newObjects, 
-				model, systemAgentURI, profilemgr, ts);
+				model, systemAgentURI, profilemgr, identitymgr, ts);
 	}
 
 	/**

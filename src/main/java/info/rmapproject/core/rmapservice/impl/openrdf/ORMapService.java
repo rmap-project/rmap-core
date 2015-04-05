@@ -53,6 +53,7 @@ public class ORMapService implements RMapService {
 	protected ORMapEventMgr eventmgr = new ORMapEventMgr();
 	protected ORMapAgentMgr agentgmr = new ORMapAgentMgr();
 	protected ORMapProfileMgr profilemgr = new ORMapProfileMgr();
+	protected ORMapIdentityMgr identitymgr = new ORMapIdentityMgr();
 	
 	protected SesameTriplestore ts = null;
 	/**
@@ -253,7 +254,8 @@ public class ORMapService implements RMapService {
 		}
 		RMapEvent createEvent = 
 				this.discomgr.createDiSCO(ORAdapter.rMapUri2OpenRdfUri(systemAgent),
-				(ORMapDiSCO)disco, this.eventmgr, this.stmtmgr, this.agentgmr, this.profilemgr, ts);
+				(ORMapDiSCO)disco, this.eventmgr, this.stmtmgr, this.agentgmr, 
+				this.profilemgr, this.identitymgr, ts);
 		return createEvent;
 	}
 
@@ -277,7 +279,8 @@ public class ORMapService implements RMapService {
 		ORMapDiSCO disco = new ORMapDiSCO(stmts);
 		RMapEvent createEvent = 
 				this.discomgr.createDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent),
-				disco, this.eventmgr, this.stmtmgr, this.agentgmr, this.profilemgr, ts);
+				disco, this.eventmgr, this.stmtmgr, this.agentgmr, this.profilemgr, 
+				this.identitymgr, ts);
 		return createEvent;
 	}
 

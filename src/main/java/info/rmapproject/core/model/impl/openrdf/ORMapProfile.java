@@ -19,9 +19,7 @@ import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 
-import info.rmapproject.core.controlledlist.IdPredicate;
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.idvalidator.PreferredIdValidator;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.agent.RMapProfile;
@@ -151,30 +149,6 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 				Statement idStmt = this.getValueFactory().createStatement(
 						subject, predicate, object, this.context);
 				this.identityStmts.add(idStmt);
-				continue;
-			}
-			java.net.URI predUri = ORAdapter.openRdfUri2URI(predicate);
-			if (IdPredicate.isIdPredicate(predUri)){
-				Statement idStmt = this.getValueFactory().createStatement(
-						subject, RMAP.PROFILE_ID_BY, object, this.context);
-				this.identityStmts.add(idStmt);
-				// see if identity is a preferred id
-				if (object instanceof URI){
-					URI idUri = (URI)object;
-					if (PreferredIdValidator.isPreferredAgentId(ORAdapter.openRdfUri2URI(idUri))){
-						this.setPreferredIdentity(ORAdapter.openRdfUri2RMapUri(idUri));
-					}
-				}
-				else {
-					// some predicates have literals as values; see if they can be made into URI
-					try {
-						java.net.URI litUri = new java.net.URI(object.stringValue());
-						if (PreferredIdValidator.isPreferredAgentId(litUri)){
-							this.setPreferredIdentity(new RMapUri(litUri));
-						}
-					}
-					catch (Exception e){}
-				}
 				continue;
 			}
 			// all other predicates presumed to be ok, and more descriptive info about agent

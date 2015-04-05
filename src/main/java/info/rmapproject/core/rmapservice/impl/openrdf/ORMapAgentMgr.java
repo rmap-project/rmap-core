@@ -13,6 +13,7 @@ import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
+import info.rmapproject.core.model.impl.openrdf.ORMapIdentity;
 import info.rmapproject.core.model.impl.openrdf.ORMapProfile;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 
@@ -146,13 +147,15 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @param relatedStmts
 	 * @param systemAgent DiSCO creator UIR
 	 * @param profilemgr
+	 * @param identitymgr 
 	 * @param ts
 	 * @return List of URIs of new Agent, Profile objects created from related statements
 	 * Could modify list of relatedStatements in DiSCO to reflect new objects and their ids
 	 * @throws RMapException
 	 */
 	public List<URI> createRelatedStatementsAgents (List<Statement> relatedStmts,
-			URI systemAgent, ORMapProfileMgr profilemgr, SesameTriplestore ts)
+			URI systemAgent, ORMapProfileMgr profilemgr, ORMapIdentityMgr identitymgr,
+			SesameTriplestore ts)
 	throws RMapException {
 		//TODO what about checking creator on any of these
 		if (relatedStmts ==null){
@@ -194,7 +197,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 				BNode crBnode = (BNode)crObject;
 				this.createAgentandProfileFromBnode(crBnode, crStmt, 
 						toBeAddedStmts, toBeDeletedStmts, newObjects, model, systemAgent, 
-						profilemgr, ts);				
+						profilemgr, identitymgr, ts);				
 			}	
 			else {
 				Literal crLiteral = (Literal)crObject;
@@ -437,23 +440,18 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @param model
 	 * @param systemAgent
 	 * @param profilemgr
+	 * @param identitymgr TODO
 	 * @param ts
 	 * @throws RMapException
 	 */
 	protected void createAgentandProfileFromBnode(BNode crBnode, Statement crStmt,
 			List<Statement> toBeAddedStmts, List<Statement> toBeDeletedStmts,
 			List<URI> newObjects, Model model, URI systemAgent, ORMapProfileMgr profilemgr, 
-			SesameTriplestore ts)
+			ORMapIdentityMgr identitymgr, SesameTriplestore ts)
 	throws RMapException {
 	    // create new agent, agent profile as with URI
-		URI preferredId = profilemgr.getPreferredIdInRelatedStatements(model);
 		ORMapAgent agent = null;
-		if (preferredId==null){
-			agent = new ORMapAgent(systemAgent);
-		}
-		else {
-			agent = new ORMapAgent(preferredId,systemAgent);
-		}
+		agent = new ORMapAgent(systemAgent);
 		URI agentId = ORAdapter.uri2OpenRdfUri(agent.getId());
 		Statement newCreateStmt= null;
 		// replace bnode predicate in create statement with agentId
@@ -475,6 +473,25 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 					systemAgent, ts, crBnode);						
 			// add the old profile statements to list of statements to be deleted from related statements list
 			toBeDeletedStmts.addAll(filterProfileModel);
+			// create any Identities needed
+			List<Statement>idStmts = profilemgr.getIdStmtsInRelatedStatments(filterProfileModel);
+			if (idStmts.size()>0){							
+				List<ORMapIdentity> identities = 
+						identitymgr.createIdentitiesFromRelatedStmts(
+								idStmts, systemAgent);
+				// add identities to Profile
+				for (ORMapIdentity identity:identities){
+					identitymgr.addIdToProfile(identity,profile);
+					// add Identities to new objects, identity statements to added statements
+					newObjects.add(ORAdapter.uri2OpenRdfUri(identity.getId()));
+					toBeAddedStmts.addAll(identitymgr.makeIdentityStatements(identity, ts));
+				}
+				// if there is a preferred Identity, add preferred id to Profile
+				URI preferredId = identitymgr.getPreferredIdInRelatedStatements(idStmts);
+				if (preferredId != null){
+					identitymgr.addPreferredIdToProfile(preferredId, profile);
+				}
+			}
 		}
 		else {
 			// unlikely
@@ -483,11 +500,6 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		newObjects.add(ORAdapter.uri2OpenRdfUri(profile.getId()));
 		// add the new profile statements (NOT including context, which will need to be DiSCO context) to new related statements
 		toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));
-		for (Statement idStmt:profile.getIdentityStmts()){
-			//TODO create the Identity OJBECT
-			URI id = (URI)idStmt.getObject();
-			newObjects.add(id);
-		}
 		return;
 	}
 	/**

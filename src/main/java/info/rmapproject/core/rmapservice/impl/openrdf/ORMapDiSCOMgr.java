@@ -100,13 +100,14 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @param agentMgr
 	 * @param profilemgr
 	 * @param eventMgr
+	 * @param identitymgr 
 	 * @param ts
 	 * @return
 	 * @throws RMapException
 	 */
 	public RMapEvent createDiSCO(org.openrdf.model.URI systemAgentId,
 			List<Statement> stmts, ORMapStatementMgr stmtMgr, ORMapAgentMgr agentMgr,
-			ORMapProfileMgr profilemgr, ORMapEventMgr eventMgr, SesameTriplestore ts) 
+			ORMapProfileMgr profilemgr, ORMapEventMgr eventMgr, ORMapIdentityMgr identitymgr, SesameTriplestore ts) 
 					throws RMapException {
 		if (systemAgentId==null){
 			throw new RMapException ("Null system agent id");			
@@ -118,7 +119,8 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			throw new RMapException ("null value for triplestore");
 		}
 		ORMapDiSCO disco = new ORMapDiSCO(stmts);		
-		return this.createDiSCO(systemAgentId, disco, eventMgr, stmtMgr, agentMgr, profilemgr, ts);
+		return this.createDiSCO(systemAgentId, disco, eventMgr, stmtMgr, 
+				agentMgr, profilemgr, identitymgr, ts);
 	}
 	
 	/**
@@ -129,13 +131,14 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @param stmtMgr 
 	 * @param agentMgr
 	 * @param profilemgr
+	 * @param identitymgr 
 	 * @param ts
 	 * @return
 	 * @throws RMapException
 	 */
 	public ORMapEvent createDiSCO(URI systemAgentId, ORMapDiSCO disco, 
 			ORMapEventMgr eventMgr, ORMapStatementMgr stmtMgr, ORMapAgentMgr agentMgr, 
-			ORMapProfileMgr profilemgr, SesameTriplestore ts) 
+			ORMapProfileMgr profilemgr, ORMapIdentityMgr identitymgr, SesameTriplestore ts) 
 			throws RMapException{		
 		// confirm non-null disco
 		if (disco==null){
@@ -253,7 +256,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				break;
 			}
 			List<URI> relatedAgents = agentMgr.createRelatedStatementsAgents(
-					relatedStmts, systemAgentId, profilemgr, ts);
+					relatedStmts, systemAgentId, profilemgr, identitymgr, ts);
 			if (relatedAgents != null){
 				created.addAll(relatedAgents);
 			}
