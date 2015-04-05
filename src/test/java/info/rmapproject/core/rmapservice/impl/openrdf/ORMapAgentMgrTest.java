@@ -116,7 +116,7 @@ public class ORMapAgentMgrTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromURI(org.openrdf.model.URI, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromURI(org.openrdf.model.URI, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, ORMapIdentityMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
 	 */
 	@Test
 	public void testCreateAgentandProfileFromURI() {
@@ -124,7 +124,7 @@ public class ORMapAgentMgrTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromAgentURI(org.openrdf.model.URI, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromAgentURI(org.openrdf.model.URI, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, ORMapIdentityMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
 	 */
 	@Test
 	public void testCreateAgentandProfileFromAgentURI() {
@@ -132,7 +132,7 @@ public class ORMapAgentMgrTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromProfileURI(org.openrdf.model.URI, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromProfileURI(org.openrdf.model.URI, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, ORMapIdentityMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
 	 */
 	@Test
 	public void testCreateAgentandProfileFromProfileURI() {
@@ -140,7 +140,7 @@ public class ORMapAgentMgrTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromProfileIdentityURI(org.openrdf.model.URI, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromProfileIdentityURI(org.openrdf.model.URI, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, ORMapIdentityMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
 	 */
 	@Test
 	public void testCreateAgentandProfileFromProfileIdentityURI() {
@@ -148,7 +148,7 @@ public class ORMapAgentMgrTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromNewURI(org.openrdf.model.URI, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromNewURI(org.openrdf.model.URI, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, ORMapIdentityMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
 	 */
 	@Test
 	public void testCreateAgentandProfileFromNewURI() {
@@ -190,6 +190,9 @@ public class ORMapAgentMgrTest {
 		agentMgr.createAgentandProfileFromBnode(bnode, crStmt, 
 				toBeAddedStmts, toBeDeletedStmts, newObjects, 
 				model, systemAgentURI, profilemgr, identitymgr, ts);
+		assertEquals(4,newObjects.size());
+		assertEquals(20, toBeAddedStmts.size());
+		assertEquals(6, toBeDeletedStmts.size());
 	}
 
 	/**
