@@ -242,8 +242,6 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 					toBeDeletedStmts, newObjects, filterProfileModel, systemAgent, 
 					profilemgr, identitymgr, ts);			
 		}
-		//TODO handle case if URI is identity local part
-		//TODO how to handle if same URI is identity local part for more than one profile
 		else {	
 			this.createAgentandProfileFromNewURI(crURI, toBeAddedStmts, toBeDeletedStmts, 
 					newObjects, filterProfileModel, systemAgent, profilemgr, identitymgr, ts);			
@@ -351,6 +349,11 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			// create any Identities needed
 			this.createIdentities(profilemgr, filterProfileModel, identitymgr, profile, 
 				systemAgent, newObjects, toBeAddedStmts, ts);
+			List<Statement>idStmts = profilemgr.getIdStmtsInRelatedStatments(filterProfileModel);
+			if (idStmts.size()>0){
+				URI preferredId = identitymgr.getPreferredIdInRelatedStatements(idStmts);
+				identitymgr.addPreferredIdToProfile(preferredId, profile);
+			}
 		}
 		// add profile (whether old or new) statements to DiSCO
 		toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));
@@ -391,6 +394,11 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			// create any Identities needed
 			this.createIdentities(profilemgr, filterProfileModel, identitymgr, profile, 
 				systemAgent, newObjects, toBeAddedStmts, ts);
+			List<Statement>idStmts = profilemgr.getIdStmtsInRelatedStatments(filterProfileModel);
+			if (idStmts.size()>0){
+				URI preferredId = identitymgr.getPreferredIdInRelatedStatements(idStmts);
+				identitymgr.addPreferredIdToProfile(preferredId, profile);
+			}
 		}
 		else {
 			profile = profilemgr.createProfile(crURI, parentURI, systemAgent, ts);
