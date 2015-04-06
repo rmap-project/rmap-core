@@ -152,7 +152,9 @@ public class ORMapAgentMgrTest {
 	 */
 	@Test
 	public void testCreateAgentandProfileFromNewURI() {
-		fail("Not yet implemented");
+		assertFalse(agentMgr.isAgentId(authorOrcURI, ts));
+		assertFalse(agentMgr.isProfileId(authorOrcURI, ts));
+		assertFalse(agentMgr.isIdentityId(authorOrcURI, ts));
 	}
 
 	/**
@@ -223,14 +225,6 @@ public class ORMapAgentMgrTest {
 			Value object = stmt.getObject();
 			assertEquals(authorNameLiteral.stringValue(), object.stringValue());
 		}
-	}
-
-	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#makeAgentStatements(info.rmapproject.core.model.impl.openrdf.ORMapAgent, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
-	 */
-	@Test
-	public void testMakeAgentStatements() {
-		fail("Not yet implemented");
 	}
 
 }

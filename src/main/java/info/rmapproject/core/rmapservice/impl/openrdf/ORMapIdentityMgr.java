@@ -22,6 +22,7 @@ import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapIdentity;
 import info.rmapproject.core.model.impl.openrdf.ORMapProfile;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 /**
  * @author smorrissey
@@ -102,6 +103,7 @@ public class ORMapIdentityMgr extends ORMapObjectMgr {
 		List<ORMapIdentity>identities = new ArrayList<ORMapIdentity>();
 		for (Statement stmt:idStmts){
 			Value localPart = stmt.getObject();
+			//TODO check to see if ID already exists with URI as local part; if so, reuse
 			ORMapIdentity identity = new ORMapIdentity(localPart,systemAgent);
 			identities.add(identity);
 		}
@@ -162,6 +164,26 @@ public class ORMapIdentityMgr extends ORMapObjectMgr {
 		return id;
 	}
 
-
+	public ORMapIdentity getIdentityWithLocalPartUri(URI localpart, SesameTriplestore ts)
+	throws RMapException {
+		ORMapIdentity identity = null;
+		if (localpart == null){
+			throw new RMapException ("Null localpart uri");
+		}
+		if (ts ==null){
+			throw new RMapException("null triplestore");
+		}
+		try {
+			Statement stmt = ts.getStatementAnyContext(null, RMAP.IDLOCALPART, localpart);
+			if (stmt != null){
+				identity = this.read((URI)stmt.getSubject(), ts);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RMapException(e);
+		}
+		return identity;
+	}
+	
 
 }
