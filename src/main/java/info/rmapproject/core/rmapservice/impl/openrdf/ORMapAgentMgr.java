@@ -6,6 +6,7 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import info.rmapproject.core.controlledlist.AgentPredicate;
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
@@ -267,14 +268,17 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	throws RMapException  {
 		List<Statement>idStmts = profilemgr.getIdStmtsInRelatedStatments(filterProfileModel);
 		if (idStmts.size()>0){							
-			List<ORMapIdentity> identities = 
+			Map<ORMapIdentity,Boolean> identities = 
 					identitymgr.createIdentitiesFromRelatedStmts(
-							idStmts, systemAgent);
+							idStmts, systemAgent, ts);
 			// add identities to Profile
-			for (ORMapIdentity identity:identities){
+			for (ORMapIdentity identity:identities.keySet()){
 				identitymgr.addIdToProfile(identity,profile);
-				// add Identities to new objects, identity statements to added statements
-				newObjects.add(ORAdapter.uri2OpenRdfUri(identity.getId()));
+				// add (new) Identities to new objects, all identity statements to added statements
+				boolean isNewId = identities.get(identity).booleanValue();
+				if (isNewId){
+					newObjects.add(ORAdapter.uri2OpenRdfUri(identity.getId()));
+				}
 				toBeAddedStmts.addAll(identitymgr.makeIdentityStatements(identity, ts));
 			}
 		}

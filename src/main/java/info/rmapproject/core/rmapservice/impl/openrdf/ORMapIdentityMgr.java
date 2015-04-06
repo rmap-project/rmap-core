@@ -4,7 +4,9 @@
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
@@ -91,23 +93,35 @@ public class ORMapIdentityMgr extends ORMapObjectMgr {
 
 
 	
-	public List<ORMapIdentity> createIdentitiesFromRelatedStmts(List<Statement> idStmts, URI systemAgent)
+	public Map<ORMapIdentity, Boolean> createIdentitiesFromRelatedStmts(List<Statement> idStmts, 
+			URI systemAgent, SesameTriplestore ts)
 	throws RMapException {
-		// for each identifier,  create identity(localpart, systemAgent)
+		// for each identifier,  create identity (localpart, systemAgent)
 		if (idStmts==null){
 			throw new RMapException ("null idStmts");
 		}
 		if (systemAgent==null){
 			throw new RMapException ("null system agent id");
 		}
-		List<ORMapIdentity>identities = new ArrayList<ORMapIdentity>();
+		Map<ORMapIdentity, Boolean>identitiesMap = new HashMap<ORMapIdentity,Boolean>();
 		for (Statement stmt:idStmts){
 			Value localPart = stmt.getObject();
-			//TODO check to see if ID already exists with URI as local part; if so, reuse
-			ORMapIdentity identity = new ORMapIdentity(localPart,systemAgent);
-			identities.add(identity);
+			//check to see if ID already exists with URI as local part; if so, reuse
+			ORMapIdentity identity = null;
+			if (localPart instanceof URI){
+				URI localUri = (URI)localPart;
+				identity = this.getIdentityWithLocalPartUri(localUri, ts);
+			}
+			if (identity==null){
+				identity = new ORMapIdentity(localPart,systemAgent);
+				identitiesMap.put(identity,Boolean.TRUE);
+			}
+			else {
+				identitiesMap.put(identity,Boolean.FALSE);
+			}
+			
 		}
-		return identities;
+		return identitiesMap;
 	}
 	/**
 	 * 
