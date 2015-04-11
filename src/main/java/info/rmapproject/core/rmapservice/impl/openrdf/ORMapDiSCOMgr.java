@@ -83,7 +83,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}
 		List<Statement> discoStmts = null;
 		try {
-			this.getNamedGraph(discoID, ts);		
+			discoStmts = this.getNamedGraph(discoID, ts);		
 		}
 		catch (RMapObjectNotFoundException e){
 			throw new RMapDiSCONotFoundException("No DiSCO found with id " + discoID.stringValue(), e);
