@@ -242,12 +242,68 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 					toBeDeletedStmts, newObjects, filterProfileModel, systemAgent, 
 					profilemgr, identitymgr, ts);			
 		}
+		else if (identitymgr.isLocalPartUri(crURI, ts)){
+			this.createAgentandProfileFromIdLocalUri(crURI, toBeAddedStmts, toBeDeletedStmts,
+					newObjects, filterProfileModel, systemAgent, profilemgr, identitymgr, ts);
+		}
 		else {	
 			this.createAgentandProfileFromNewURI(crURI, toBeAddedStmts, toBeDeletedStmts, 
 					newObjects, filterProfileModel, systemAgent, profilemgr, identitymgr, ts);			
 		}
 		return;
 	}	
+	
+	protected void createAgentandProfileFromIdLocalUri(URI crURI,
+			List<Statement> toBeAddedStmts, List<Statement> toBeDeletedStmts,
+			List<URI> newObjects, Model filterProfileModel, URI systemAgent,
+			ORMapProfileMgr profilemgr, ORMapIdentityMgr identitymgr,
+			SesameTriplestore ts) {
+		// get the agentId and agent
+		URI agentUri = identitymgr.getParentAgentOfLocalPartUri(crURI, profilemgr, ts);
+		if (agentUri==null){
+			throw new RMapException("Parent agent of localPartURI " + crURI.stringValue() + " not found");
+		}
+		ORMapAgent agent = this.readAgent(agentUri, ts);
+		// TODO if ID is an RMap preferred ID, and NOT same as agentId, do we need to create a new agent with preferred ID as ID;create sameAs relation????????? in what context???????? 
+		toBeAddedStmts.addAll(this.makeAgentStatements(agent, ts));
+		//create profile, crURI = parentAgent, systemAgent = creator
+		if (!filterProfileModel.isEmpty()){
+			ORMapProfile profile = profilemgr.createProfileFromRelatedStmts(crURI, filterProfileModel, 
+					systemAgent, ts, crURI);
+			// create any Identities needed
+			this.createIdentities(profilemgr, filterProfileModel, identitymgr, profile, 
+				systemAgent, newObjects, toBeAddedStmts, ts);
+			// add identity for crURI (local part of an id)
+			ORMapIdentity uriIdentity = identitymgr.getIdentityWithLocalPartUri(crURI, ts);
+			profile.addIdentity(ORAdapter.uri2OpenRdfUri(uriIdentity.getId()));			
+			newObjects.add(ORAdapter.uri2OpenRdfUri(profile.getId()));
+			// add the new profile statements (NOT including context, which will need to be DiSCO context) to new related statements
+			toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));
+			toBeAddedStmts.addAll(this.getIdentitiesStmts(profile,identitymgr, ts));
+			// add the old profile statements to list of statements to be deleted from related statements list
+			toBeDeletedStmts.addAll(filterProfileModel);
+		}
+		return;
+	}
+
+	protected List<Statement> getIdentitiesStmts(ORMapProfile profile, ORMapIdentityMgr identityMgr, 
+			SesameTriplestore ts) 
+	throws RMapException {
+		if (profile ==null){
+			throw new RMapException ("null profile");
+		}
+		List<Statement>stmts = new ArrayList<Statement>();
+		for (Statement idStmt: profile.getIdentityStmts()){
+			URI idId = (URI)idStmt.getObject();
+			ORMapIdentity identity = identityMgr.getIdentityWithLocalPartUri(idId, ts);
+			//TODO this might not work -- Identities might not be created yet	CHECK!
+			if (identity != null){
+				stmts.addAll(identity.getAsModel());
+			}
+		}
+		return stmts;
+	}
+
 	/**
 	 * 
 	 * @param profilemgr
@@ -336,7 +392,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	throws RMapException {
 		ORMapProfile profile = profilemgr.readProfile(crURI, ts);
 		URI profileId = ORAdapter.uri2OpenRdfUri(profile.getId());
-		URI parentURI = profilemgr.getParentAgent(profileId, ts);
+		URI parentURI = profilemgr.getParentAgentUri(profileId, ts);
 		ORMapAgent agent = this.readAgent(parentURI, ts);
 		toBeAddedStmts.addAll(this.makeAgentStatements(agent, ts));
 		if (!filterProfileModel.isEmpty()) { 
@@ -382,7 +438,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		//	get parent agent,
 		ORMapProfile idProfile = profilemgr.getProfileFromIdentity(crURI, ts);
 		URI profileId = ORAdapter.uri2OpenRdfUri(idProfile.getId());
-		URI parentURI = profilemgr.getParentAgent(profileId, ts);
+		URI parentURI = profilemgr.getParentAgentUri(profileId, ts);
 		ORMapAgent agent = this.readAgent(parentURI, ts);
 		toBeAddedStmts.addAll(this.makeAgentStatements(agent, ts));
 		ORMapProfile profile = null;

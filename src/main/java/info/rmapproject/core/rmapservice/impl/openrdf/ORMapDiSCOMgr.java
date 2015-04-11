@@ -296,17 +296,18 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @param systemAgentId
 	 * @param oldDiscoId
 	 * @param disco
-	 * @param stmtMgr 
+	 * @param stmtMgr
 	 * @param eventMgr
 	 * @param agentMgr
 	 * @param profilemgr
+	 * @param identitymgr 
 	 * @param ts
 	 * @return
 	 */
 	public RMapEvent updateDiSCO(URI systemAgentId,
 			URI oldDiscoId, ORMapDiSCO disco, ORMapStatementMgr stmtMgr,
 			ORMapEventMgr eventMgr, ORMapAgentMgr agentMgr,
-			ORMapProfileMgr profilemgr, SesameTriplestore ts) {
+			ORMapProfileMgr profilemgr, ORMapIdentityMgr identitymgr, SesameTriplestore ts) {
 		// confirm non-null old disco
 		if (oldDiscoId==null){
 			throw new RMapException ("Null value for id of target DiSCO");
@@ -443,33 +444,35 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				this.createTriple(ts, stmt);
 			}
 			
-			// for each statement in relatedStatements
-			//   create reified statement if necessary, and add the triple
-			//   if dct:create or dc:creator create agent, agent profile as needed,and add the triple
-			for (Statement stmt:disco.getRelatedStatementsAsList()){
-				URI relStmt = null;
-				try {
-					relStmt = stmtMgr.getStatementID(stmt.getSubject(),
-						stmt.getPredicate(), stmt.getObject(), ts);
-				}
-				catch (Exception e){
-					relStmt = stmtMgr.createReifiedStatement(stmt, ts);
-					created.add(relStmt);
-				}
-				this.createTriple(ts, stmt);
-			}	
 			// If any "agents" appear in relatedStatements, create necessary
-			// agents, profiles, and add their ids to list of created objects
-			
-//			List<URI> relatedAgents = agentMgr.createRelatedStatementsAgents(
-//					disco.getRelatedStatementsAsList(), systemAgentId, profilemgr, ts);
-//			if (relatedAgents != null){
-//				created.addAll(relatedAgents);
-//			}
-//			// update the event with created object IDS for update and derivation events
-//			if (event instanceof ORMapEventWithNewObjects){
-//				((ORMapEventWithNewObjects)event).setCreatedObjectIdsFromURI(created);
-//			}
+			// agents, profiles, and add their ids and reified statements associated
+			// with them to list of created objects
+			// then create (DiSCO) statements with, if necessary, URIs for submitted bnodes, etc
+			do {
+				List<Statement> relatedStmts = disco.getRelatedStatementsAsList();
+				if (relatedStmts == null){
+					break;
+				}
+				List<URI> relatedAgents = agentMgr.createRelatedStatementsAgents(
+						relatedStmts, systemAgentId, profilemgr, identitymgr, ts);
+				if (relatedAgents != null){
+					created.addAll(relatedAgents);
+				}
+				// for each statement in relatedStatements
+				//   create reified statement if necessary, and add the triple
+				for (Statement stmt:relatedStmts){
+					URI relStmt = null;
+					try { 
+						relStmt =stmtMgr.getStatementID(stmt.getSubject(),
+							stmt.getPredicate(), stmt.getObject(), ts);
+					}
+					catch (Exception e){
+						relStmt = stmtMgr.createReifiedStatement(stmt, ts);
+						created.add(relStmt);
+					}
+					this.createTriple(ts, stmt);
+				}	
+			} while (false);
 					
 		} while (false);
 		// end the event, write the event triples, and commit everything

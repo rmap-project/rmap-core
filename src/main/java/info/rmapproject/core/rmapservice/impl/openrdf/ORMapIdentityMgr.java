@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -18,6 +19,7 @@ import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapIdentityNotFoundException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
+import info.rmapproject.core.exception.RMapProfileNotFoundException;
 import info.rmapproject.core.idvalidator.PreferredIdValidator;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
@@ -199,5 +201,78 @@ public class ORMapIdentityMgr extends ORMapObjectMgr {
 		return identity;
 	}
 	
+	public boolean isLocalPartUri (URI uri, SesameTriplestore ts)
+	throws RMapException {
+		if (uri==null){
+			throw new RMapException ("null uri");
+		}
+		if (ts ==null){
+			throw new RMapException ("null triplestore");
+		}
+		boolean isLocalPartUri = false;
+		do {
+			Statement stmt = null;
+			try {
+				stmt = ts.getStatementAnyContext(null, RMAP.IDLOCALPART, uri);
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new RMapException(e);
+			}
+			if (stmt==null){
+				break;
+			}
+			Resource subject = stmt.getSubject();
+			if (! (subject instanceof URI)){
+				break;
+			}
+			URI subjUri = (URI)subject;
+			if (this.isProfileId(subjUri, ts)){
+				isLocalPartUri = true;
+			}
+		} while (false);
+		return isLocalPartUri;	
+	}
+	
+	/**
+	 * 
+	 * @param uri
+	 * @param profileMgr
+	 * @param ts
+	 * @return URI of parent agent of any profile with this identity, or null if none found
+	 * @throws RMapException
+	 */
+	public URI getParentAgentOfLocalPartUri(URI uri, ORMapProfileMgr profileMgr, 
+			SesameTriplestore ts)
+	throws RMapException {
+		if (uri==null){
+			throw new RMapException ("null uri");
+		}
+		if (ts ==null){
+			throw new RMapException ("null triplestore");
+		}
+		URI agentUri = null;
+		do {
+			Statement stmt = null;
+			try {
+				stmt = ts.getStatementAnyContext(null, RMAP.IDLOCALPART, uri);
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new RMapException(e);
+			}
+			if (stmt==null){
+				break;
+			}
+			Resource subject = stmt.getSubject();
+			if (! (subject instanceof URI)){
+				break;
+			}
+			URI profileUri = (URI)subject;
+			try {
+				agentUri = profileMgr.getParentAgentUri(profileUri, ts);
+			}
+			catch (RMapProfileNotFoundException e){}
+		} while (false);
+		return agentUri;
+	}
 
 }

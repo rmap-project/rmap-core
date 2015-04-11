@@ -332,7 +332,7 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 	 * @throws RMapProfileNotFoundException
 	 * @throws RMapException
 	 */
-	public URI getParentAgent(URI profileId, SesameTriplestore ts) 
+	public URI getParentAgentUri(URI profileId, SesameTriplestore ts) 
 			throws RMapProfileNotFoundException, RMapException {
 		URI agentId = null;
 		ORMapProfile profile = null;
@@ -348,7 +348,6 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 	 * @throws RMapProfileNotFoundException
 	 * @throws RMapException 
 	 */
-	//TODO change this to look at local part of identity
 	public ORMapProfile getProfileFromIdentity(URI idUri, SesameTriplestore ts)
 	throws RMapProfileNotFoundException, RMapException {
 		ORMapProfile profile = null;

@@ -315,7 +315,7 @@ public class ORMapService implements RMapService {
 		RMapEvent updateEvent = 
 				this.discomgr.updateDiSCO(agentUri,
 					ORAdapter.uri2OpenRdfUri(oldDiscoId), (ORMapDiSCO)disco, this.stmtmgr, 
-					this.eventmgr, this.agentgmr, this.profilemgr, ts);
+					this.eventmgr, this.agentgmr, this.profilemgr, this.identitymgr, ts);
 		return updateEvent;
 	}
 
@@ -345,7 +345,7 @@ public class ORMapService implements RMapService {
 		RMapEvent updateEvent = 
 				this.discomgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent),
 					ORAdapter.uri2OpenRdfUri(oldDiscoId), disco, this.stmtmgr, 
-					this.eventmgr, this.agentgmr, this.profilemgr, ts);
+					this.eventmgr, this.agentgmr, this.profilemgr, this.identitymgr, ts);
 		return updateEvent;
 	}
 	/* (non-Javadoc)
