@@ -92,7 +92,7 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 				continue;
 			}
 		}
-		if (!typeFound){
+		if (!typeFound || incomingIdValue==null){
 			throw new RMapException ("no profile type statement found in statement list");
 		}
 		// creator should not be null if method invoked from service,

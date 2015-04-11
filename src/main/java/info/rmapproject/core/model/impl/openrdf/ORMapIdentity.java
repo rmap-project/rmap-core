@@ -107,7 +107,7 @@ public class ORMapIdentity extends ORMapObject implements RMapIdentity {
 				continue;
 			}
 		}
-		if (!typeFound){
+		if (!typeFound || incomingIdValue==null){
 			throw new RMapException ("no Identity type statement found in statement list");
 		}
 		// creator should not be null if method invoked from service,

@@ -114,7 +114,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 				if (object.equals(RMAP.DISCO)){
 					discoFound = true;
 					incomingIdValue = subject;
-					discoIncomingId = ((Resource)subject).stringValue();
+					discoIncomingId = subject.stringValue();
 					break;
 				}
 			}

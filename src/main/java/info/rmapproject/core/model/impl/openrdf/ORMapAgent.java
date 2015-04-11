@@ -59,7 +59,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 					typeFound = true;
 					incomingIdValue = subject;
 					agentIncomingIdResource = subject;
-					agentIncomingIdStr = ((Resource)subject).stringValue();
+					agentIncomingIdStr = subject.stringValue();
 					// use incoming context if there is one
 					Resource context = stmt.getContext();
 					if (context != null && context instanceof URI){
@@ -70,7 +70,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 			}
 			continue;
 		} 
-		if (!typeFound){
+		if (!typeFound || incomingIdValue==null){
 			throw new RMapException ("No type statement found indicating AGENT");
 		}
 		if (agentIncomingIdStr==null || agentIncomingIdStr.length()==0){

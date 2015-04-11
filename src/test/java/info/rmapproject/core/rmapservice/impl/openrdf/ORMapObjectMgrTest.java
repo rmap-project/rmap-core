@@ -77,15 +77,15 @@ public class ORMapObjectMgrTest {
 		Statement gStmt = null;
 		try {
 			gStmt = ts.getStatement(subject, predicate, object, context);
+			assertNotNull(gStmt);
+			assertEquals(subject, gStmt.getSubject());
+			assertEquals(predicate, gStmt.getPredicate());
+			assertEquals(object, gStmt.getObject());
+			assertEquals(context, gStmt.getContext());
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
 		}
-		assertNotNull(gStmt);
-		assertEquals(subject, gStmt.getSubject());
-		assertEquals(predicate, gStmt.getPredicate());
-		assertEquals(object, gStmt.getObject());
-		assertEquals(context, gStmt.getContext());
 	}
 
 	/**
@@ -107,20 +107,15 @@ public class ORMapObjectMgrTest {
 		try {
 			stmt = ts.getValueFactory().createStatement(subject, predicate, object);
 			ts.addStatement(stmt);
-		} catch (RepositoryException e1) {
-			e1.printStackTrace();
-			fail(e1.getMessage());
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail(e.getMessage());
-		}
-		try {
 			Statement stmt2 = ts.getStatement(subject, predicate, object);
 			assertNotNull(stmt2);
 			assertEquals(stmt.getSubject(),stmt2.getSubject());
 			assertEquals(stmt.getPredicate(), stmt2.getPredicate());
 			assertEquals(stmt.getObject(), stmt2.getObject());
 			assertEquals(stmt.getContext(), stmt2.getContext());
+		} catch (RepositoryException e1) {
+			e1.printStackTrace();
+			fail(e1.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -143,34 +138,34 @@ public class ORMapObjectMgrTest {
 		List<Statement>stmts = null;
 		try {
 			stmts = ts.getStatements(stmtId, null, null);
+			assertNotNull(stmts);
+			assertEquals(4,stmts.size());
+			boolean foundit=false;
+			boolean foundId = false;
+			boolean foundObj = false;
+			for (Statement st:stmts){
+				URI pred = st.getPredicate();
+				if (!pred.equals(RDF.TYPE)){
+					continue;
+				}
+				URI subj = (URI)st.getSubject();
+				if (!subj.equals(stmtId)){
+					continue;
+				}
+				foundId = true;
+				URI obj = (URI)st.getObject();
+				if (! obj.equals(RMAP.STATEMENT)){
+					continue;
+				}
+				foundObj = true;
+				foundit = true;
+			}
+			assertTrue(foundId);
+			assertTrue(foundObj);
+			assertTrue(foundit);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		assertNotNull(stmts);
-		assertEquals(4,stmts.size());
-		boolean foundit=false;
-		boolean foundId = false;
-		boolean foundObj = false;
-		for (Statement st:stmts){
-			URI pred = st.getPredicate();
-			if (!pred.equals(RDF.TYPE)){
-				continue;
-			}
-			URI subj = (URI)st.getSubject();
-			if (!subj.equals(stmtId)){
-				continue;
-			}
-			foundId = true;
-			URI obj = (URI)st.getObject();
-			if (! obj.equals(RMAP.STATEMENT)){
-				continue;
-			}
-			foundObj = true;
-			foundit = true;
-		}
-		assertTrue(foundId);
-		assertTrue(foundObj);
-		assertTrue(foundit);
+		}	
 		boolean isStmtId = mgr.isStatementId(stmtId,ts);
 		assertTrue(isStmtId);
 	}
@@ -243,19 +238,19 @@ public class ORMapObjectMgrTest {
 		SesameTriplestore ts = null;
 		try {
 			ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
+			ORMapAgentMgr agentMgr = new ORMapAgentMgr();
+			agentMgr.createAgentTriples (agent, ts);
+			try {
+				ts.commitTransaction();
+			} catch (Exception e) {
+				e.printStackTrace();
+				fail("cant commit");
+			}
+			assertTrue(agentMgr.isAgentId(agentURI, ts));
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("cant create triplestore");
-		}
-		ORMapAgentMgr agentMgr = new ORMapAgentMgr();
-		agentMgr.createAgentTriples (agent, ts);
-		try {
-			ts.commitTransaction();
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail("cant commit");
-		}
-		assertTrue(agentMgr.isAgentId(agentURI, ts));
+		}		
 	}
 
 	/**
