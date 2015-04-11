@@ -12,6 +12,7 @@ import info.rmapproject.core.controlledlist.AgentPredicate;
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
+import info.rmapproject.core.idvalidator.PreferredIdValidator;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapIdentity;
@@ -328,6 +329,14 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			// add identities to Profile
 			for (ORMapIdentity identity:identities.keySet()){
 				identitymgr.addIdToProfile(identity,profile);
+				Statement localStmt = identity.getLocalPartStmt();
+				Value localId = localStmt.getObject();
+				if (localId instanceof URI){
+					URI localURI = (URI)localId;
+					if (PreferredIdValidator.isPreferredAgentId(ORAdapter.openRdfUri2URI(localURI))){
+						identitymgr.addPreferredIdToProfile(localURI, profile);
+					}
+				}
 				// add (new) Identities to new objects, all identity statements to added statements
 				boolean isNewId = identities.get(identity).booleanValue();
 				if (isNewId){
@@ -405,11 +414,6 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			// create any Identities needed
 			this.createIdentities(profilemgr, filterProfileModel, identitymgr, profile, 
 				systemAgent, newObjects, toBeAddedStmts, ts);
-			List<Statement>idStmts = profilemgr.getIdStmtsInRelatedStatments(filterProfileModel);
-			if (idStmts.size()>0){
-				URI preferredId = identitymgr.getPreferredIdInRelatedStatements(idStmts);
-				identitymgr.addPreferredIdToProfile(preferredId, profile);
-			}
 		}
 		// add profile (whether old or new) statements to DiSCO
 		toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));
@@ -433,31 +437,24 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			List<URI> newObjects, Model filterProfileModel, 
 			URI systemAgent, ORMapProfileMgr profilemgr, ORMapIdentityMgr identitymgr, SesameTriplestore ts)
 	throws RMapException {
-		// if agent profile(s) exists with URI as one of its IDs,
-		// keep the original assertion in related statements
 		//	get parent agent,
 		ORMapProfile idProfile = profilemgr.getProfileFromIdentity(crURI, ts);
 		URI profileId = ORAdapter.uri2OpenRdfUri(idProfile.getId());
-		URI parentURI = profilemgr.getParentAgentUri(profileId, ts);
-		ORMapAgent agent = this.readAgent(parentURI, ts);
+		URI agentUri = profilemgr.getParentAgentUri(profileId, ts);
+		ORMapAgent agent = this.readAgent(agentUri, ts);
 		toBeAddedStmts.addAll(this.makeAgentStatements(agent, ts));
 		ORMapProfile profile = null;
 		//   create new profile with parent agent, system-agent = creator, identity
 		if (!filterProfileModel.isEmpty()){
-			profile = profilemgr.createProfileFromRelatedStmts(parentURI, filterProfileModel, systemAgent, ts, crURI);						
+			profile = profilemgr.createProfileFromRelatedStmts(agentUri, filterProfileModel, systemAgent, ts, crURI);						
 			// add the old profile statements to list of statements to be deleted from related statements list
 			toBeDeletedStmts.addAll(filterProfileModel);
 			// create any Identities needed
 			this.createIdentities(profilemgr, filterProfileModel, identitymgr, profile, 
 				systemAgent, newObjects, toBeAddedStmts, ts);
-			List<Statement>idStmts = profilemgr.getIdStmtsInRelatedStatments(filterProfileModel);
-			if (idStmts.size()>0){
-				URI preferredId = identitymgr.getPreferredIdInRelatedStatements(idStmts);
-				identitymgr.addPreferredIdToProfile(preferredId, profile);
-			}
 		}
 		else {
-			profile = profilemgr.createProfile(crURI, parentURI, systemAgent, ts);
+			profile = profilemgr.createProfile(crURI, agentUri, systemAgent, ts);
 		}
 		newObjects.add(ORAdapter.uri2OpenRdfUri(profile.getId()));
 		// add the new profile statements (NOT including context, which will need to be DiSCO context) to new related statements
@@ -533,9 +530,6 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			// create any Identities needed
 			this.createIdentities(profilemgr, filterProfileModel, identitymgr, profile, 
 				systemAgent, newObjects, toBeAddedStmts, ts);
-			if (preferredId != null){
-				identitymgr.addPreferredIdToProfile(preferredId, profile);
-			}
 		}
 		else {
 			profile = new ORMapProfile(agentId,systemAgent);
@@ -638,10 +632,6 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			// create any Identities needed
 			this.createIdentities(profilemgr, filterProfileModel, identitymgr, profile, 
 					systemAgent, newObjects, toBeAddedStmts, ts);
-			// if there is a preferred Identity, add preferred id to Profile
-			if (preferredId != null){
-				identitymgr.addPreferredIdToProfile(preferredId, profile);
-			}
 		}
 		else {
 			// unlikely
