@@ -463,7 +463,7 @@ public class ORMapService implements RMapService {
 						true,this.eventmgr,ts);
 		Map<org.openrdf.model.URI,org.openrdf.model.URI> disco2event = 
 				Utils.invertMap(event2disco);
-		org.openrdf.model.URI discoEventId = disco2event.get(discoID);
+		org.openrdf.model.URI discoEventId = disco2event.get(ORAdapter.uri2OpenRdfUri(discoID));
 		Map <Date, org.openrdf.model.URI> date2event = 
 				this.eventmgr.getDate2EventMap(event2disco.keySet(),ts);
 		Map<org.openrdf.model.URI,Date> event2date = Utils.invertMap(date2event);
