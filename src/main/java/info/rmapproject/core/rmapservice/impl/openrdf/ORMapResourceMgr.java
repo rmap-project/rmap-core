@@ -1,6 +1,7 @@
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.exception.RMapStatementNotFoundException;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 
@@ -36,6 +37,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	throws RMapException{
 		List<Statement> triples = null;
 		try {
+			//TODO should this be getStatementsAnyContext
 			triples = ts.getStatements(resource, null, null);
 			triples.addAll(ts.getStatements(null, null, resource));
 		} catch (Exception e) {
@@ -58,35 +60,52 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	public Set<URI> getRelatedStatements(URI uri, RMapStatus statusCode,
 			ORMapStatementMgr stmtmgr, ORMapDiSCOMgr discomgr, SesameTriplestore ts) 
 			throws RMapException {
-		// get all Statements with uri in subject or object
-		List<Statement>stmts = this.getRelatedTriples(uri, ts);
-		// now make sure Statement status is same as statusCode
-		// context of each statement is URI of disco containing it
-		List<Statement>statusStmts = new ArrayList<Statement>();
-		if (statusCode==null){
-			statusStmts.addAll(stmts);
+		if (uri==null){
+			throw new RMapException ("null URI");
 		}
-		else {
-			for (Statement stmt:stmts){
-				URI context = (URI)stmt.getContext();
-				if (this.isDiscoId(context, ts)){
-					RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
-					if (dStatus.equals(statusCode)){
-						statusStmts.add(stmt);				
+		Set<URI> relatedStmtIds = new HashSet<URI>();
+		do {
+			if (this.isStatementId(uri, ts)){
+				relatedStmtIds.add(uri);
+				break;
+			}
+			// get all Statements with uri in subject or object
+			List<Statement>stmts = this.getRelatedTriples(uri, ts);
+			// now make sure Statement status is same as statusCode
+			// context of each statement is URI of disco containing it
+			List<Statement>statusStmts = new ArrayList<Statement>();
+			if (statusCode==null){
+				statusStmts.addAll(stmts);
+			}
+			else {
+				for (Statement stmt:stmts){
+					URI context = (URI)stmt.getContext();
+					if (this.isDiscoId(context, ts)){
+						RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
+						if (dStatus.equals(statusCode)){
+							statusStmts.add(stmt);				
+						}
 					}
 				}
 			}
-		}
-		// now get the ids of the statements
-		Set<URI> relatedStmtIds = new HashSet<URI>();
-		for (Statement stmt:statusStmts){
-			try{
-				URI stmId = stmtmgr.getStatementID(stmt.getSubject(),
-						stmt.getPredicate(), stmt.getObject(), ts);
-				relatedStmtIds.add(stmId);
-			} 
-			catch (RMapException e){}
-		}
+			// now get the ids of the statements
+			
+			for (Statement stmt:statusStmts){
+				URI context = (URI)stmt.getContext();
+				if (this.isStatementId(context, ts)){
+					relatedStmtIds.add(context);
+				}
+				else {
+					try{
+						URI stmId = stmtmgr.getStatementID(stmt.getSubject(),
+								stmt.getPredicate(), stmt.getObject(), ts);
+						relatedStmtIds.add(stmId);
+					} 
+					catch (RMapStatementNotFoundException nf){}
+					catch (RMapException e){}
+				}
+			}
+		} while (false);
 		return relatedStmtIds;
 	}
 	/**
@@ -107,14 +126,16 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		// make sure DiSCO in which statement appears matches statusCode
 		for (Statement stmt:stmts){
 			URI context = (URI)stmt.getContext();
-			if (statusCode==null){
-				// match any status
-				discos.add(context);
-			}
-			else {
-				RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
-				if (dStatus.equals(statusCode)){
+			if (this.isDiscoId(context, ts)){
+				if (statusCode==null){
+					// match any status
 					discos.add(context);
+				}
+				else {
+					RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
+					if (dStatus.equals(statusCode)){
+						discos.add(context);
+					}
 				}
 			}
 		}

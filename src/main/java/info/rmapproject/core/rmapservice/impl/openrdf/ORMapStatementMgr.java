@@ -343,7 +343,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 		Set<URI>discoIds = new HashSet<URI>();
 		for (Statement triple:triples){
 			Resource context = triple.getContext();
-			if (context instanceof URI){
+			if (context instanceof URI && this.isDiscoId((URI)context, ts)){
 				discoIds.add((URI)context);
 			}
 		}

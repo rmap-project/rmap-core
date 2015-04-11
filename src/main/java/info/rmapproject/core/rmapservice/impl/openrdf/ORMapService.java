@@ -145,7 +145,7 @@ public class ORMapService implements RMapService {
 	public List<URI> getResourceRelatedAgents(URI uri, RMapStatus statusCode)
 			throws RMapException, RMapDefectiveArgumentException {
 		// TODO Auto-generated method stub
-		return null;
+		return new ArrayList<URI>();
 	}
 
 	/* (non-Javadoc)
