@@ -68,7 +68,25 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 		ORMapProfile profile = new ORMapProfile(stmts,null);
 		return profile;
 	}
-	
+	/**
+	 * 
+	 * @param profile
+	 * @param ts
+	 * @return
+	 * @throws RMapException
+	 */
+	public URI createProfile (ORMapProfile profile, SesameTriplestore ts)
+	throws RMapException {
+		if (profile ==null){
+			throw new RMapException ("Null profile");
+		}
+		if (ts==null){
+			throw new RMapException("Null triplestore");
+		}
+		URI profileId = profile.getContext();
+		this.createProfileTriples(profile, ts);
+		return profileId;
+	}
 	/**
 	 * Get ids of all profiles related to an Agent id
 	 * @param agentId URI of Agent
@@ -149,29 +167,23 @@ public class ORMapProfileMgr extends ORMapObjectMgr {
 	}
 	/**
 	 * Instantiate a new ORMapProfile object (but not its triplestore statements)
-	 * @param suppliedId URI that will be one of new Profile's identities
 	 * @param parentAgentId URI of Agent that is new Profile's parent Agent
 	 * @param systemAgent URI of Agent that is new Profile's creator
-	 * @param ts
+	 * @param suppliedId URI that will be one of new Profile's identities
 	 * @return new ORMapProfile
 	 * @throws RMapException
 	 */
-	public ORMapProfile createProfile (URI suppliedId, URI parentAgentId, URI systemAgent, 
-			SesameTriplestore ts) throws RMapException {
-		if (suppliedId == null){
-			throw new RMapException ("null suppliedId");
-		}
+	public ORMapProfile createProfileObject (URI parentAgentId, URI systemAgent, URI suppliedId) throws RMapException {
 		if (parentAgentId==null){
 			throw new RMapException ("Null agentId");
 		}
 		if (systemAgent==null){
 			throw new RMapException ("null systemAgent");
 		}
-		if (ts == null){
-			throw new RMapException ("Null triplestore");
-		}
 		ORMapProfile profile = new ORMapProfile(parentAgentId, systemAgent);
-		profile.addIdentity(suppliedId);
+		if (suppliedId != null){
+			profile.addIdentity(suppliedId);
+		}
 		return profile;
 	}
 	/**

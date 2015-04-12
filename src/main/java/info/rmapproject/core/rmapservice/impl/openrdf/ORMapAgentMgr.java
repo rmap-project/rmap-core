@@ -85,6 +85,26 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * 
 	 * @param agent
 	 * @param ts
+	 * @return
+	 * @throws RMapException
+	 */
+	public URI createAgent (ORMapAgent agent, SesameTriplestore ts)
+	throws RMapException {
+		if (agent==null){
+			throw new RMapException ("null agent");
+		}
+		if (ts==null){
+			throw new RMapException ("null triplestore");
+		}
+		URI agentId = agent.getContext();
+		this.createAgentTriples(agent, ts);
+		return agentId;
+	}
+	
+	/**
+	 * 
+	 * @param agent
+	 * @param ts
 	 * @throws RMapException
 	 */
 	public void createAgentTriples (ORMapAgent agent, SesameTriplestore ts) 
@@ -97,6 +117,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}
 		return;
 	}
+
 	/**
 	 * Create a bare Agent, with nothing more than ID and creator 
 	 * @param agentId
@@ -454,19 +475,29 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 				systemAgent, newObjects, toBeAddedStmts, ts);
 		}
 		else {
-			profile = profilemgr.createProfile(crURI, agentUri, systemAgent, ts);
+			profile = profilemgr.createProfileObject(agentUri, systemAgent, crURI);
+		}
+		List<Statement> idStmts = profile.getIdentityStmts();
+		boolean foundCrURI = false;
+		String crUriStr = crURI.stringValue();
+		for (Statement stmt:idStmts){
+			Value idValue = stmt.getObject();
+			if (idValue instanceof URI){
+				URI idURI = (URI)idValue;
+				if (idURI.stringValue().equals(crUriStr)){
+					foundCrURI = true;
+					break;
+				}
+			}
+		}
+		if (!foundCrURI){
+			profile.addIdentity(crURI);
+			ORMapIdentity identity = identitymgr.read(crURI, ts);
+			toBeAddedStmts.addAll(identity.getAsModel());
 		}
 		newObjects.add(ORAdapter.uri2OpenRdfUri(profile.getId()));
 		// add the new profile statements (NOT including context, which will need to be DiSCO context) to new related statements
 		toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));	
-		try {
-			Statement sameStmt = ts.getValueFactory().createStatement(
-					crURI, OWL.SAMEAS, ORAdapter.uri2OpenRdfUri(profile.getId()));
-			toBeAddedStmts.add(sameStmt);
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-			throw new RMapException (e);
-		}
 		return;
 	}
 	/**

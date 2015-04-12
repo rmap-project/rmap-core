@@ -206,6 +206,12 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 				DCTERMS.CREATOR, creator, this.context);
 		this.creatorStmt = stmt;
 	}
+	/**
+	 * @return the context
+	 */
+	public URI getContext() {
+		return context;
+	}
 	
 
 }

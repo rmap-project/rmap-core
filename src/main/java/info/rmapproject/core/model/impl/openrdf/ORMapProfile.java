@@ -20,6 +20,7 @@ import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.idvalidator.PreferredIdValidator;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.agent.RMapProfile;
@@ -104,9 +105,20 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 		boolean isBNode = (agentIncomingIdResource instanceof BNode);
 		// if bNode, we don't care what the value is; if it's some other (non-RMap) identifier, keep it as an identity
 		if (!isBNode){
-			Statement idStmt = this.getValueFactory().createStatement(
-					this.context, RMAP.PROFILE_ID_BY, agentIncomingIdResource, this.context);
-			this.identityStmts.add(idStmt);
+			do {
+				if (agentIncomingIdResource instanceof URI){
+					URI uriId = (URI)agentIncomingIdResource;
+					java.net.URI jUri = ORAdapter.openRdfUri2URI(uriId);
+					if (PreferredIdValidator.isPreferredAgentId(jUri)){
+						this.context = uriId;
+						this.id = jUri;
+						continue;
+					}
+				}
+				Statement idStmt = this.getValueFactory().createStatement(
+						this.context, RMAP.PROFILE_ID_BY, agentIncomingIdResource, this.context);
+				this.identityStmts.add(idStmt);
+			} while (false);
 		}
 		for (Statement stmt:stmts){
 			Resource subject = stmt.getSubject();
@@ -421,5 +433,11 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 	 */
 	public Statement getCreatorStmt() {
 		return creatorStmt;
+	}
+	/**
+	 * @return the context
+	 */
+	public URI getContext() {
+		return context;
 	}
 }

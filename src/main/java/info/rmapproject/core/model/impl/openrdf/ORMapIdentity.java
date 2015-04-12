@@ -56,12 +56,22 @@ public class ORMapIdentity extends ORMapObject implements RMapIdentity {
 		if (creator==null){
 			throw new RMapException ("null creator id");
 		}
+		URI localURI = null;
 		if (localPart instanceof URI){
-			URI localURI = (URI)localPart;
-			this.id = ORAdapter.openRdfUri2URI(localURI);
-			this.context = localURI;
+			localURI = (URI)localPart;
 		}
-		Statement stmt = this.getValueFactory().createStatement(this.context, RMAP.IDLOCALPART, localPart,this.context);
+		else {
+			String localStr = localPart.stringValue();
+			try {
+				java.net.URI jUri = new java.net.URI(localStr);
+				localURI = ORAdapter.uri2OpenRdfUri(jUri);
+			} catch (URISyntaxException e) {}
+		}
+		Value localPartValue = localPart;
+		if (localURI != null){
+			localPartValue = localURI;
+		}
+		Statement stmt = this.getValueFactory().createStatement(this.context, RMAP.IDLOCALPART, localPartValue, this.context);
 		this.localPartStmt = stmt;
 		this.setCreatorStmt(creator);
 	}
@@ -264,6 +274,12 @@ public class ORMapIdentity extends ORMapObject implements RMapIdentity {
 	 */
 	public Statement getCreatorStmt() {
 		return creatorStmt;
+	}
+	/**
+	 * @return the context
+	 */
+	public URI getContext() {
+		return context;
 	}
 
 }

@@ -75,6 +75,29 @@ public class ORMapIdentityMgr extends ORMapObjectMgr {
 	 * @param identity
 	 * @param ts
 	 * @return
+	 * @throws RMapException
+	 */
+	public URI createIdentity (ORMapIdentity identity, SesameTriplestore ts)
+	throws RMapException {		
+		if (identity==null){
+			throw new RMapException ("Null identity");
+		}
+		if (ts==null){
+			throw new RMapException("Null triplestore");
+		}
+		URI idUri = null;
+		Model model = identity.getAsModel();
+		for (Statement stmt:model){
+			this.createTriple(ts, stmt);
+		}
+		idUri = identity.getContext();
+		return idUri;
+	}
+	/**
+	 * 
+	 * @param identity
+	 * @param ts
+	 * @return
 	 */
 	public List<Statement> makeIdentityStatements(
 			ORMapIdentity identity, SesameTriplestore ts) {

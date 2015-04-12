@@ -5,12 +5,16 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import static org.junit.Assert.*;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
+import info.rmapproject.core.model.impl.openrdf.ORMapIdentity;
+import info.rmapproject.core.model.impl.openrdf.ORMapProfile;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
 
@@ -144,9 +148,52 @@ public class ORMapAgentMgrTest {
 	 */
 	@Test
 	public void testCreateAgentandProfileFromProfileIdentityURI() {
-		fail("Not yet implemented");
+		String pAgentStr = "http://orcid.org/0000-0000-0000-0001";
+		java.net.URI jUri = null;
+		try {
+			jUri = new java.net.URI(pAgentStr);
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+			fail();
+		}
+		URI agentUri = ORAdapter.uri2OpenRdfUri(jUri);
+		ORMapAgent pAgent = new ORMapAgent(agentUri,systemAgentURI);
+		agentUri = agentMgr.createAgent(pAgent, ts);
+		assertTrue(agentMgr.isAgentId(agentUri, ts));
+		pAgent = agentMgr.readAgent(agentUri, ts);
+	
+		java.net.URI idJUri = null;
+		URI idUri;
+		try {
+			idJUri = new java.net.URI("http://www.portico.org");
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}
+		idUri = ORAdapter.uri2OpenRdfUri(idJUri);
+		ORMapIdentity identity = new ORMapIdentity(idUri,systemAgentURI);
+		idUri = identitymgr.createIdentity(identity, ts);
+		assertTrue(identitymgr.isIdentityId(idUri, ts));
+		identity = identitymgr.read(idUri, ts);
+		
+		ORMapProfile profile = profilemgr.createProfileObject(agentUri, systemAgentURI, idUri);
+		URI profileUri = profilemgr.createProfile(profile, ts);
+		assertTrue(profilemgr.isProfileId(profileUri, ts));
+		profile = profilemgr.readProfile(profileUri, ts);
+		
+		Model model = new LinkedHashModel();
+		try {
+			model.add(ts.getValueFactory().createStatement(idUri, RDF.TYPE, FOAF.ORGANIZATION));
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+			fail();
+		}
+		agentMgr.createAgentandProfileFromProfileIdentityURI(idUri, toBeAddedStmts, toBeDeletedStmts,
+				newObjects, model, systemAgentURI, profilemgr, identitymgr, ts);
+		assertEquals(1,newObjects.size());
+		assertEquals(10, toBeAddedStmts.size());
+		assertEquals(1, toBeDeletedStmts.size());
 	}
-
 	/**
 	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromNewURI(org.openrdf.model.URI, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, ORMapIdentityMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
 	 */
