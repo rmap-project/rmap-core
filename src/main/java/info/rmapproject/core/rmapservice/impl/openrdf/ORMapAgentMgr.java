@@ -211,9 +211,9 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			// if creator is URI
 			if (crObject instanceof URI){
 				URI crURI = (URI)crObject;	
-				this.createAgentandProfileFromURI(crURI, toBeAddedStmts, 
-						toBeDeletedStmts, newObjects, model, systemAgent, 
-						profilemgr, identitymgr, ts);
+				this.createAgentandProfileFromURI(crURI, crStmt, 
+						toBeAddedStmts, toBeDeletedStmts, newObjects, model, 
+						systemAgent, profilemgr, identitymgr, ts);
 			}
 		    // else if creator is bnode
 			else if (crObject instanceof BNode){				
@@ -235,6 +235,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	/**
 	 * Create any required Agent and Profile objects for any creator URI in DiSCO related statements
 	 * @param crURI
+	 * @param crStmt 
 	 * @param toBeAddedStmts
 	 * @param toBeDeletedStmts
 	 * @param newObjects
@@ -245,9 +246,10 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @param ts
 	 * @throws RMapException
 	 */
-	protected void createAgentandProfileFromURI(URI crURI, List<Statement> toBeAddedStmts, 
-			List<Statement> toBeDeletedStmts,List<URI> newObjects, Model model, 
-			URI systemAgent, ORMapProfileMgr profilemgr, ORMapIdentityMgr identitymgr, SesameTriplestore ts)
+	protected void createAgentandProfileFromURI(URI crURI, Statement crStmt, 
+			List<Statement> toBeAddedStmts,List<Statement> toBeDeletedStmts, List<URI> newObjects, 
+			Model model, URI systemAgent, ORMapProfileMgr profilemgr, ORMapIdentityMgr identitymgr,
+			SesameTriplestore ts)
 	throws RMapException {
 		// get profile statements related to agent
 		Model filterProfileModel = model.filter(crURI, null, null);
@@ -256,8 +258,8 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 					newObjects, filterProfileModel, systemAgent, profilemgr, identitymgr, ts);	
 		}
 		else if (this.isProfileId(crURI, ts)){
-			this.createAgentandProfileFromProfileURI(crURI, toBeAddedStmts, toBeDeletedStmts,
-					newObjects, filterProfileModel, systemAgent, profilemgr, identitymgr, ts);	
+			this.createAgentandProfileFromProfileURI(crURI, crStmt, toBeAddedStmts,
+					toBeDeletedStmts, newObjects, filterProfileModel, systemAgent, profilemgr, identitymgr, ts);	
 		}
 		else if (profilemgr.isProfileIdentity(crURI,ts)){
 			this.createAgentandProfileFromProfileIdentityURI(crURI, toBeAddedStmts, 
@@ -405,6 +407,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	/**
 	 * Create any required Agent and Profile objects for any creator Profile URI in DiSCO related statements
 	 * @param crURI
+	 * @param crStmt 
 	 * @param toBeAddedStmts
 	 * @param toBeDeletedStmts
 	 * @param newObjects
@@ -415,9 +418,10 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @param ts
 	 * @throws RMapException
 	 */
-	protected void createAgentandProfileFromProfileURI(URI crURI, List<Statement> toBeAddedStmts, 
-			List<Statement> toBeDeletedStmts,List<URI> newObjects, Model filterProfileModel, 
-			URI systemAgent, ORMapProfileMgr profilemgr, ORMapIdentityMgr identitymgr, SesameTriplestore ts)
+	protected void createAgentandProfileFromProfileURI(URI crURI, Statement crStmt, 
+			List<Statement> toBeAddedStmts,List<Statement> toBeDeletedStmts, List<URI> newObjects, 
+			Model filterProfileModel, URI systemAgent, ORMapProfileMgr profilemgr, 
+			ORMapIdentityMgr identitymgr, SesameTriplestore ts)
 	throws RMapException {
 		ORMapProfile profile = profilemgr.readProfile(crURI, ts);
 		URI profileId = ORAdapter.uri2OpenRdfUri(profile.getId());
@@ -434,6 +438,16 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			// create any Identities needed
 			this.createIdentities(profilemgr, filterProfileModel, identitymgr, profile, 
 				systemAgent, newObjects, toBeAddedStmts, ts);
+			// replace original dcterms:creator object with new profile id
+			try {
+				Statement newCrStmt = ts.getValueFactory().createStatement(crStmt.getSubject(), 
+						crStmt.getPredicate(), profile.getContext());
+				toBeAddedStmts.add(newCrStmt);
+				toBeDeletedStmts.add(crStmt);
+			} catch (RepositoryException e) {
+				e.printStackTrace();
+				throw new RMapException (e);
+			}
 		}
 		// add profile (whether old or new) statements to DiSCO
 		toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));

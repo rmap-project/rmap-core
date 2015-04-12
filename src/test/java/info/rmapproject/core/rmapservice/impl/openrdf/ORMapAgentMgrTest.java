@@ -120,7 +120,7 @@ public class ORMapAgentMgrTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromURI(org.openrdf.model.URI, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, ORMapIdentityMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromURI(org.openrdf.model.URI, Statement, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, ORMapIdentityMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
 	 */
 	@Test
 	public void testCreateAgentandProfileFromURI() {
@@ -172,11 +172,60 @@ public class ORMapAgentMgrTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromProfileURI(org.openrdf.model.URI, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, ORMapIdentityMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromProfileURI(org.openrdf.model.URI, Statement, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, ORMapIdentityMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
 	 */
 	@Test
 	public void testCreateAgentandProfileFromProfileURI() {
-		fail("Not yet implemented");
+		String pAgentStr = "http://orcid.org/0000-0000-0000-0003";
+		java.net.URI jUri = null;
+		try {
+			jUri = new java.net.URI(pAgentStr);
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+			fail();
+		}
+		URI agentUri = ORAdapter.uri2OpenRdfUri(jUri);
+		ORMapAgent pAgent = new ORMapAgent(agentUri,systemAgentURI);
+		agentUri = agentMgr.createAgent(pAgent, ts);
+		assertTrue(agentMgr.isAgentId(agentUri, ts));
+		pAgent = agentMgr.readAgent(agentUri, ts);
+		ORMapProfile profile = profilemgr.createProfileObject(agentUri, systemAgentURI, null);
+		URI profileUri = profilemgr.createProfile(profile, ts);
+		assertTrue(profilemgr.isProfileId(profileUri, ts));
+		profile = profilemgr.readProfile(profileUri, ts);
+		Model model = new LinkedHashModel();
+		Statement crStmt= null;
+		try {
+			crStmt = ts.getValueFactory().createStatement(profileUri, DCTERMS.CREATOR, profileUri);
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+			fail();
+		}
+		// first try with no change to profile
+		agentMgr.createAgentandProfileFromProfileURI(profileUri, crStmt, toBeAddedStmts, toBeDeletedStmts, newObjects, 
+				model, systemAgentURI, profilemgr, identitymgr, ts);
+		assertEquals(0,newObjects.size());
+		assertEquals(5, toBeAddedStmts.size());
+		assertEquals(0, toBeDeletedStmts.size());
+		// now try with changes to profile
+		try {
+			model.add(ts.getValueFactory().createStatement(profileUri, RDF.TYPE, FOAF.PERSON));
+			model.add(ts.getValueFactory().createStatement(profileUri, DCTERMS.IDENTIFIER, agentUri));
+			model.add(ts.getValueFactory().createStatement(profileUri, DCTERMS.IDENTIFIER, authorOtherIdLiteral));
+			model.add(ts.getValueFactory().createStatement(profileUri, FOAF.NAME, authorNameLiteral));
+			model.add(ts.getValueFactory().createStatement(profileUri, FOAF.MBOX, mboxURI));
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+			fail();
+		}
+		newObjects.clear();
+		toBeAddedStmts.clear();
+		toBeDeletedStmts.clear();
+		agentMgr.createAgentandProfileFromProfileURI(profileUri, crStmt, toBeAddedStmts, toBeDeletedStmts, newObjects, 
+				model, systemAgentURI, profilemgr, identitymgr, ts);
+		assertEquals(3,newObjects.size());
+		assertEquals(20, toBeAddedStmts.size());
+		assertEquals(6, toBeDeletedStmts.size());
 	}
 
 	/**
