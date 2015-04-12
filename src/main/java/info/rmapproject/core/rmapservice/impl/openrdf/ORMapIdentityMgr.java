@@ -3,6 +3,7 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -113,6 +114,15 @@ public class ORMapIdentityMgr extends ORMapObjectMgr {
 			if (localPart instanceof URI){
 				URI localUri = (URI)localPart;
 				identity = this.getIdentityWithLocalPartUri(localUri, ts);
+			}
+			else {
+				try {
+					java.net.URI uri = new java.net.URI(localPart.stringValue());
+					URI localUri = ORAdapter.uri2OpenRdfUri(uri);
+					// if literal can be made into URI, then make it into one and save it that way
+					localPart = localUri;
+					identity = this.getIdentityWithLocalPartUri(localUri, ts);
+				} catch (URISyntaxException e) {}
 			}
 			if (identity==null){
 				identity = new ORMapIdentity(localPart,systemAgent);

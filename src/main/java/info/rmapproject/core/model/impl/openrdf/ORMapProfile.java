@@ -132,6 +132,7 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 					Statement propStmt = this.getValueFactory().createStatement(
 							subject, predicate, object, this.context);
 					propertyStmts.add(propStmt);
+					continue;
 				}
 			}
 			if (predicate.equals(DCTERMS.CREATOR)){
@@ -144,6 +145,7 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 				Statement parentStmt = this.getValueFactory().createStatement(
 						subject, predicate, object, this.context);
 				this.parentAgentStmt = parentStmt;
+				continue;
 			}
 			if (predicate.equals(RMAP.PROFILE_ID_BY)){
 				Statement idStmt = this.getValueFactory().createStatement(

@@ -533,18 +533,8 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}
 		else {
 			profile = new ORMapProfile(agentId,systemAgent);
-		}	
-		ORMapIdentity uriIdentity = identitymgr.getIdentityWithLocalPartUri(crURI, ts);
-		URI idURI = null;
-		if (uriIdentity==null){
-			uriIdentity = new ORMapIdentity(crURI, systemAgent);
-			idURI = ORAdapter.uri2OpenRdfUri(uriIdentity.getId());
-			newObjects.add(idURI);
 		}
-		else {
-			idURI = ORAdapter.uri2OpenRdfUri(uriIdentity.getId());
-		}
-		profile.addIdentity(idURI);		
+		newObjects.add(ORAdapter.uri2OpenRdfUri(profile.getId()));		
 		// add the new profile statements (NOT including context, which will need to be DiSCO context) to new related statements
 		toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));	
 		if (! isSameAgentId){

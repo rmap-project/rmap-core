@@ -155,6 +155,24 @@ public class ORMapAgentMgrTest {
 		assertFalse(agentMgr.isAgentId(authorOrcURI, ts));
 		assertFalse(agentMgr.isProfileId(authorOrcURI, ts));
 		assertFalse(agentMgr.isIdentityId(authorOrcURI, ts));
+		assertFalse(identitymgr.isLocalPartUri(authorOrcURI, ts));
+		
+		Model model = new LinkedHashModel();
+		try {
+			model.add(ts.getValueFactory().createStatement(authorOrcURI, RDF.TYPE, FOAF.PERSON));
+			model.add(ts.getValueFactory().createStatement(authorOrcURI, DCTERMS.IDENTIFIER, authorOrcLiteral));
+			model.add(ts.getValueFactory().createStatement(authorOrcURI, DCTERMS.IDENTIFIER, authorOtherIdLiteral));
+			model.add(ts.getValueFactory().createStatement(authorOrcURI, FOAF.NAME, authorNameLiteral));
+			model.add(ts.getValueFactory().createStatement(authorOrcURI, FOAF.MBOX, mboxURI));
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+			fail();
+		}
+		agentMgr.createAgentandProfileFromNewURI(authorOrcURI, toBeAddedStmts, toBeDeletedStmts, newObjects, 
+				model, systemAgentURI, profilemgr, identitymgr, ts);
+		assertEquals(4,newObjects.size());
+		assertEquals(19, toBeAddedStmts.size());
+		assertEquals(5, toBeDeletedStmts.size());
 	}
 
 	/**
