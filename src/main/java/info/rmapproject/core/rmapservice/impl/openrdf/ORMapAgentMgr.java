@@ -318,7 +318,6 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		for (Statement idStmt: profile.getIdentityStmts()){
 			URI idId = (URI)idStmt.getObject();
 			ORMapIdentity identity = identityMgr.getIdentityWithLocalPartUri(idId, ts);
-			//TODO this might not work -- Identities might not be created yet	CHECK!
 			if (identity != null){
 				stmts.addAll(identity.getAsModel());
 			}

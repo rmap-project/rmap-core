@@ -132,7 +132,43 @@ public class ORMapAgentMgrTest {
 	 */
 	@Test
 	public void testCreateAgentandProfileFromAgentURI() {
-		fail("Not yet implemented");
+		String pAgentStr = "http://orcid.org/0000-0000-0000-0002";
+		java.net.URI jUri = null;
+		try {
+			jUri = new java.net.URI(pAgentStr);
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+			fail();
+		}
+		URI agentUri = ORAdapter.uri2OpenRdfUri(jUri);
+		assertFalse (agentMgr.isAgentId(agentUri, ts));
+		ORMapAgent agent = new ORMapAgent(agentUri,systemAgentURI);
+		agentUri = agentMgr.createAgent(agent, ts);
+		assertTrue(agentMgr.isAgentId(agentUri, ts));
+		agent = agentMgr.readAgent(agentUri, ts);
+		Literal agentLit = null;
+		try {
+			agentLit = ts.getValueFactory().createLiteral(pAgentStr);
+		} catch (RepositoryException e1) {
+			fail();;
+		}
+		
+		Model model = new LinkedHashModel();
+		try {
+			model.add(ts.getValueFactory().createStatement(agentUri, RDF.TYPE, FOAF.PERSON));
+			model.add(ts.getValueFactory().createStatement(agentUri, DCTERMS.IDENTIFIER, agentLit));
+			model.add(ts.getValueFactory().createStatement(agentUri, DCTERMS.IDENTIFIER, authorOtherIdLiteral));
+			model.add(ts.getValueFactory().createStatement(agentUri, FOAF.NAME, authorNameLiteral));
+			model.add(ts.getValueFactory().createStatement(agentUri, FOAF.MBOX, mboxURI));
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+			fail();
+		}
+		agentMgr.createAgentandProfileFromAgentURI(agentUri, toBeAddedStmts, toBeDeletedStmts, 
+				newObjects, model, systemAgentURI, profilemgr, identitymgr, ts);
+		assertEquals(3,newObjects.size());
+		assertEquals(19, toBeAddedStmts.size());
+		assertEquals(5, toBeDeletedStmts.size());
 	}
 
 	/**
