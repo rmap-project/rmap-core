@@ -204,8 +204,8 @@ public class ORMapAgentMgrTest {
 		agentMgr.createAgentandProfileFromURI(localPartURI, crStmt, toBeAddedStmts,
 				toBeDeletedStmts, newObjects, model, systemAgentURI, profilemgr, identitymgr, ts);	
 		assertEquals(1,newObjects.size());
-		assertEquals(11, toBeAddedStmts.size());
-		assertEquals(2, toBeDeletedStmts.size());
+		assertEquals(12, toBeAddedStmts.size());
+		assertEquals(3, toBeDeletedStmts.size());
 	}
 		
 	protected void testCreateAgentandProfileFromURIIdentity(String pAgentStr, 
@@ -259,8 +259,8 @@ public class ORMapAgentMgrTest {
 		agentMgr.createAgentandProfileFromURI(identityURI, crStmt, toBeAddedStmts, toBeDeletedStmts, newObjects, model, 
 				systemAgentURI, profilemgr, identitymgr, ts);
 		assertEquals(1,newObjects.size());
-		assertEquals(10, toBeAddedStmts.size());
-		assertEquals(1, toBeDeletedStmts.size());
+		assertEquals(11, toBeAddedStmts.size());
+		assertEquals(2, toBeDeletedStmts.size());
 		List<Statement> stmts = null;
 		try {
 			stmts = ts.getStatementsAnyContext(null, RMAP.IDLOCALPART, idUri, false);
@@ -386,7 +386,7 @@ public class ORMapAgentMgrTest {
 				newObjects, model, systemAgentURI, profilemgr, identitymgr, ts);		
 	}
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromAgentURI(org.openrdf.model.URI, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, ORMapIdentityMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromAgentURI(org.openrdf.model.URI, Statement, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, ORMapIdentityMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
 	 */
 	@Test
 	public void testCreateAgentandProfileFromAgentURI() {
@@ -413,8 +413,10 @@ public class ORMapAgentMgrTest {
 			fail();;
 		}
 		Literal authorNameLiteral= null;
+		Statement crStmt =null;
 		try {
 			authorNameLiteral = ts.getValueFactory().createLiteral("name 03");
+			crStmt = ts.getValueFactory().createStatement(doiURI, DCTERMS.CREATOR, agentUri);
 		} catch (RepositoryException e1) {
 			e1.printStackTrace();
 			fail();
@@ -430,8 +432,8 @@ public class ORMapAgentMgrTest {
 			e.printStackTrace();
 			fail();
 		}
-		agentMgr.createAgentandProfileFromAgentURI(agentUri, toBeAddedStmts, toBeDeletedStmts, 
-				newObjects, model, systemAgentURI, profilemgr, identitymgr, ts);
+		agentMgr.createAgentandProfileFromAgentURI(agentUri, crStmt, toBeAddedStmts, 
+				toBeDeletedStmts, newObjects, model, systemAgentURI, profilemgr, identitymgr, ts);
 		assertEquals(3,newObjects.size());
 		assertEquals(19, toBeAddedStmts.size());
 		assertEquals(5, toBeDeletedStmts.size());
@@ -463,7 +465,7 @@ public class ORMapAgentMgrTest {
 		Statement crStmt= null;
 		Literal authorOtherIdLiteral = null;
 		try {
-			crStmt = ts.getValueFactory().createStatement(profileUri, DCTERMS.CREATOR, profileUri);
+			crStmt = ts.getValueFactory().createStatement(doiURI, DCTERMS.CREATOR, profileUri);
 			authorOtherIdLiteral = ts.getValueFactory().createLiteral("http://ieee.org/author-id03");
 		} catch (RepositoryException e) {
 			e.printStackTrace();
@@ -504,7 +506,7 @@ public class ORMapAgentMgrTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromProfileIdentityURI(org.openrdf.model.URI, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, ORMapIdentityMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromProfileIdentityURI(org.openrdf.model.URI, Statement, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, ORMapIdentityMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
 	 */
 	@Test
 	public void testCreateAgentandProfileFromProfileIdentityURI() {
@@ -541,6 +543,14 @@ public class ORMapAgentMgrTest {
 		assertTrue(profilemgr.isProfileId(profileUri, ts));
 		profile = profilemgr.readProfile(profileUri, ts);
 		
+		Statement crStmt= null;
+		try {
+			crStmt = ts.getValueFactory().createStatement(doiURI, DCTERMS.CREATOR, idUri);
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+			fail();
+		}
+		
 		Model model = new LinkedHashModel();
 		try {
 			model.add(ts.getValueFactory().createStatement(idUri, RDF.TYPE, FOAF.ORGANIZATION));
@@ -548,11 +558,11 @@ public class ORMapAgentMgrTest {
 			e.printStackTrace();
 			fail();
 		}
-		agentMgr.createAgentandProfileFromProfileIdentityURI(idUri, toBeAddedStmts, toBeDeletedStmts,
-				newObjects, model, systemAgentURI, profilemgr, identitymgr, ts);
+		agentMgr.createAgentandProfileFromProfileIdentityURI(idUri, crStmt, toBeAddedStmts,
+				toBeDeletedStmts, newObjects, model, systemAgentURI, profilemgr, identitymgr, ts);
 		assertEquals(1,newObjects.size());
-		assertEquals(10, toBeAddedStmts.size());
-		assertEquals(1, toBeDeletedStmts.size());
+		assertEquals(11, toBeAddedStmts.size());
+		assertEquals(2, toBeDeletedStmts.size());
 	}
 	/**
 	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#createAgentandProfileFromNewURI(org.openrdf.model.URI, java.util.List, java.util.List, java.util.List, org.openrdf.model.Model, org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.ORMapProfileMgr, ORMapIdentityMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.

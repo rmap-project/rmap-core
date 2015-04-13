@@ -267,21 +267,21 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		// get profile statements related to agent
 		Model filterProfileModel = model.filter(crURI, null, null);
 		if (this.isAgentId(crURI, ts)){
-			this.createAgentandProfileFromAgentURI(crURI, toBeAddedStmts, toBeDeletedStmts,
-					newObjects, filterProfileModel, systemAgent, profilemgr, identitymgr, ts);	
+			this.createAgentandProfileFromAgentURI(crURI, crStmt, toBeAddedStmts,
+					toBeDeletedStmts, newObjects, filterProfileModel, systemAgent, profilemgr, identitymgr, ts);	
 		}
 		else if (this.isProfileId(crURI, ts)){
 			this.createAgentandProfileFromProfileURI(crURI, crStmt, toBeAddedStmts,
 					toBeDeletedStmts, newObjects, filterProfileModel, systemAgent, profilemgr, identitymgr, ts);	
 		}
 		else if (profilemgr.isProfileIdentity(crURI,ts)){
-			this.createAgentandProfileFromProfileIdentityURI(crURI, toBeAddedStmts, 
-					toBeDeletedStmts, newObjects, filterProfileModel, systemAgent, 
-					profilemgr, identitymgr, ts);			
+			this.createAgentandProfileFromProfileIdentityURI(crURI, crStmt, 
+					toBeAddedStmts, toBeDeletedStmts, newObjects, filterProfileModel, 
+					systemAgent, profilemgr, identitymgr, ts);			
 		}
 		else if (identitymgr.isLocalPartUri(crURI, ts)){
-			this.createAgentandProfileFromIdLocalUri(crURI, toBeAddedStmts, toBeDeletedStmts,
-					newObjects, filterProfileModel, systemAgent, profilemgr, identitymgr, ts);
+			this.createAgentandProfileFromIdLocalUri(crURI, crStmt, toBeAddedStmts,
+					toBeDeletedStmts, newObjects, filterProfileModel, systemAgent, profilemgr, identitymgr, ts);
 		}
 		else {	
 			this.createAgentandProfileFromNewURI(crURI, toBeAddedStmts, toBeDeletedStmts, 
@@ -291,10 +291,10 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	}	
 	
 	protected void createAgentandProfileFromIdLocalUri(URI crURI,
-			List<Statement> toBeAddedStmts, List<Statement> toBeDeletedStmts,
-			List<URI> newObjects, Model filterProfileModel, URI systemAgent,
-			ORMapProfileMgr profilemgr, ORMapIdentityMgr identitymgr,
-			SesameTriplestore ts) {
+			Statement crStmt, List<Statement> toBeAddedStmts,
+			List<Statement> toBeDeletedStmts, List<URI> newObjects, Model filterProfileModel,
+			URI systemAgent, ORMapProfileMgr profilemgr,
+			ORMapIdentityMgr identitymgr, SesameTriplestore ts) {
 		// get the agentId and agent
 		URI agentUri = identitymgr.getParentAgentOfLocalPartUri(crURI, profilemgr, ts);
 		if (agentUri==null){
@@ -303,23 +303,39 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		ORMapAgent agent = this.readAgent(agentUri, ts);
 		// TODO if ID is an RMap preferred ID, and NOT same as agentId, do we need to create a new agent with preferred ID as ID;create sameAs relation????????? in what context???????? 
 		toBeAddedStmts.addAll(this.makeAgentStatements(agent, ts));
+		ORMapProfile profile = null;
+		ORMapIdentity uriIdentity = null;
 		//create profile, crURI = parentAgent, systemAgent = creator
 		if (!filterProfileModel.isEmpty()){
-			ORMapProfile profile = profilemgr.createProfileFromRelatedStmts(agentUri, filterProfileModel, 
+			profile = profilemgr.createProfileFromRelatedStmts(agentUri, filterProfileModel, 
 					systemAgent, ts, crURI);
 			// create any Identities needed
 			this.createIdentities(profilemgr, filterProfileModel, identitymgr, profile, 
 				systemAgent, newObjects, toBeAddedStmts, ts);
 			// add identity for crURI (local part of an id)
-			ORMapIdentity uriIdentity = identitymgr.getIdentityWithLocalPartUri(crURI, ts);
+			uriIdentity = identitymgr.getIdentityWithLocalPartUri(crURI, ts);
 			profile.addIdentity(ORAdapter.uri2OpenRdfUri(uriIdentity.getId()));			
 			newObjects.add(ORAdapter.uri2OpenRdfUri(profile.getId()));
-			// add the new profile statements (NOT including context, which will need to be DiSCO context) to new related statements
-			toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));
-			toBeAddedStmts.addAll(uriIdentity.getAsModel());
 			// add the old profile statements to list of statements to be deleted from related statements list
 			toBeDeletedStmts.addAll(filterProfileModel);
 		}
+		else {
+			profile = identitymgr.getProfileFromLocalPart(crURI, agent.getContext(), profilemgr, ts);
+			uriIdentity = identitymgr.getIdentityWithLocalPartUri(crURI, ts);			
+		}
+		toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));
+		toBeAddedStmts.addAll(identitymgr.makeIdentityStatements(uriIdentity, ts));
+		Statement newCreateStmt= null;
+		// replace  object in create statement with profileId
+		try {
+			newCreateStmt = ts.getValueFactory().createStatement(crStmt.getSubject(),
+					crStmt.getPredicate(), profile.getContext());
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+			throw new RMapException(e);
+		}
+		toBeAddedStmts.add(newCreateStmt);
+		toBeDeletedStmts.add(crStmt);
 		return;
 	}
 
@@ -371,6 +387,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	/**
 	 * Create any required Agent and Profile objects for any creator Agent URI in DiSCO related statements
 	 * @param crURI
+	 * @param crStmt 
 	 * @param toBeAddedStmts
 	 * @param toBeDeletedStmts
 	 * @param newObjects
@@ -381,9 +398,9 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @param ts
 	 * @throws RMapException
 	 */
-	protected void createAgentandProfileFromAgentURI(URI crURI, List<Statement> toBeAddedStmts, 
-			List<Statement> toBeDeletedStmts,List<URI> newObjects, Model filterProfileModel, 
-			URI systemAgent, ORMapProfileMgr profilemgr, ORMapIdentityMgr identitymgr, SesameTriplestore ts)
+	protected void createAgentandProfileFromAgentURI(URI crURI, Statement crStmt, 
+			List<Statement> toBeAddedStmts,List<Statement> toBeDeletedStmts, List<URI> newObjects, 
+			Model filterProfileModel, URI systemAgent, ORMapProfileMgr profilemgr, ORMapIdentityMgr identitymgr, SesameTriplestore ts)
 	throws RMapException {
 		// if agent exists with uri , keep original object creator statement,
 		// add the Agent statements (NOT INCLUDING CONTEXT) to the new related statements
@@ -456,6 +473,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	/**
 	 * Create any required Agent and Profile objects for any creator Profile identity URI in DiSCO related statements
 	 * @param crURI
+	 * @param crStmt 
 	 * @param toBeAddedStmts
 	 * @param toBeDeletedStmts
 	 * @param newObjects
@@ -467,9 +485,9 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @throws RMapException
 	 */
 	protected void createAgentandProfileFromProfileIdentityURI(URI crURI, 
-			List<Statement> toBeAddedStmts, List<Statement> toBeDeletedStmts,
-			List<URI> newObjects, Model filterProfileModel, 
-			URI systemAgent, ORMapProfileMgr profilemgr, ORMapIdentityMgr identitymgr, SesameTriplestore ts)
+			Statement crStmt, List<Statement> toBeAddedStmts,
+			List<Statement> toBeDeletedStmts, List<URI> newObjects, 
+			Model filterProfileModel, URI systemAgent, ORMapProfileMgr profilemgr, ORMapIdentityMgr identitymgr, SesameTriplestore ts)
 	throws RMapException {
 		//	get parent agent,
 		ORMapProfile idProfile = profilemgr.getProfileFromIdentity(crURI, ts);
@@ -515,11 +533,22 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 				throw new RMapException (e);
 			}
 			ORMapIdentity identity = identitymgr.read(crURI, ts);
-			toBeAddedStmts.addAll(identity.getAsModel());
+			toBeAddedStmts.addAll(identitymgr.makeIdentityStatements(identity, ts));
 		}
 		newObjects.add(ORAdapter.uri2OpenRdfUri(profile.getId()));
 		// add the new profile statements (NOT including context, which will need to be DiSCO context) to new related statements
-		toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));	
+		toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));
+		Statement newCreateStmt= null;
+		// replace  object in create statement with profileId
+		try {
+			newCreateStmt = ts.getValueFactory().createStatement(crStmt.getSubject(),
+					crStmt.getPredicate(), profile.getContext());
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+			throw new RMapException(e);
+		}
+		toBeAddedStmts.add(newCreateStmt);
+		toBeDeletedStmts.add(crStmt);
 		return;
 	}
 	/**
@@ -652,18 +681,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		URI agentId = ORAdapter.uri2OpenRdfUri(agent.getId());
 		if(agentIsNew){
 			newObjects.add(agentId);
-		}
-		Statement newCreateStmt= null;
-		// replace bnode predicate in create statement with agentId
-		try {
-			newCreateStmt = ts.getValueFactory().createStatement(crStmt.getSubject(),
-					crStmt.getPredicate(), agentId);
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-			throw new RMapException(e);
-		}
-		toBeAddedStmts.add(newCreateStmt);
-		toBeDeletedStmts.add(crStmt);				
+		}						
 		toBeAddedStmts.addAll(this.makeAgentStatements(agent, ts));
 		ORMapProfile profile = null;
 		
@@ -679,7 +697,20 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		else {
 			// unlikely
 			profile = new ORMapProfile(agentId,systemAgent);
-		}					
+		}	
+		
+		Statement newCreateStmt= null;
+		// replace bnode predicate in create statement with agentId
+		try {
+			newCreateStmt = ts.getValueFactory().createStatement(crStmt.getSubject(),
+					crStmt.getPredicate(), profile.getContext());
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+			throw new RMapException(e);
+		}
+		toBeAddedStmts.add(newCreateStmt);
+		toBeDeletedStmts.add(crStmt);
+		
 		newObjects.add(ORAdapter.uri2OpenRdfUri(profile.getId()));
 		// add the new profile statements (NOT including context, which will need to be DiSCO context) to new related statements
 		toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));

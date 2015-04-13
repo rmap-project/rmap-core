@@ -321,5 +321,37 @@ public class ORMapIdentityMgr extends ORMapObjectMgr {
 		} while (false);
 		return agentUri;
 	}
+	
+	public ORMapProfile getProfileFromLocalPart(URI crURI, URI agentUri, 
+			ORMapProfileMgr profilemgr, SesameTriplestore ts) 
+	throws RMapProfileNotFoundException, RMapException {
+		if (crURI==null){
+			throw new RMapException("null crURI");
+		}
+		if (agentUri==null){
+			throw new RMapException("Null agentURI");
+		}
+		ORMapProfile profile = null;
+		List<Statement> stmts = null;
+		try {
+			stmts = ts.getStatementsAnyContext(null, RMAP.IDLOCALPART, crURI, false);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RMapException (e);
+		}
+		for (Statement stmt:stmts){
+			URI profileId = (URI)stmt.getSubject();
+			profile = profilemgr.readProfile(profileId, ts);
+			URI pParent = ORAdapter.rMapUri2OpenRdfUri(profile.getParentAgentId());
+			if (agentUri.stringValue().equals(pParent.stringValue())){
+				break;
+			}
+		}
+		if (profile==null){
+			throw new RMapProfileNotFoundException("no profile found to match parent agent "
+					+ agentUri.stringValue() + " and identity locarl part " + crURI.stringValue());
+		}
+		return profile;
+	}
 
 }
