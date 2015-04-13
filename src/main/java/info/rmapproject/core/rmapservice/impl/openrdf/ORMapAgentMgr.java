@@ -18,6 +18,7 @@ import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapIdentity;
 import info.rmapproject.core.model.impl.openrdf.ORMapProfile;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
@@ -97,7 +98,10 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			throw new RMapException ("null triplestore");
 		}
 		URI agentId = agent.getContext();
-		this.createAgentTriples(agent, ts);
+		// don't create duplicate of an existing agent	
+		if (!(this.isAgentId(agentId, ts))){
+			this.createAgentTriples(agent, ts);
+		}
 		return agentId;
 	}
 	
@@ -122,15 +126,25 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * Create a bare Agent, with nothing more than ID and creator 
 	 * @param agentId
 	 * @param ts
-	 * @return ORMapAgent new agent object
+	 * @return ORMapAgent new agent object, or existing agent with same ID and creator
 	 */
 	protected ORMapAgent createAgent(URI agentId, URI systemAgent,
 			SesameTriplestore ts) 
 	throws RMapException {
-		ORMapAgent agent = new ORMapAgent(agentId, systemAgent);		
-		this.createAgentTriples(agent, ts);
+		ORMapAgent agent = null;
+		do {
+			if (this.isAgentId(agentId, ts)){
+				ORMapAgent existingAgent = this.readAgent(agentId, ts);
+				agent = existingAgent;
+				break;
+			}
+			agent = new ORMapAgent(agentId, systemAgent);		
+			this.createAgentTriples(agent, ts);
+		} while (false);
 		return agent;
 	}
+	
+
 	/**
 	 * Create agent and profiles for DiSCO creator
 	 * @param creator
@@ -180,7 +194,6 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			URI systemAgent, ORMapProfileMgr profilemgr, ORMapIdentityMgr identitymgr,
 			SesameTriplestore ts)
 	throws RMapException {
-		//TODO what about checking creator on any of these
 		if (relatedStmts ==null){
 			throw new RMapException("Null related statement map");
 		}
@@ -292,7 +305,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		toBeAddedStmts.addAll(this.makeAgentStatements(agent, ts));
 		//create profile, crURI = parentAgent, systemAgent = creator
 		if (!filterProfileModel.isEmpty()){
-			ORMapProfile profile = profilemgr.createProfileFromRelatedStmts(crURI, filterProfileModel, 
+			ORMapProfile profile = profilemgr.createProfileFromRelatedStmts(agentUri, filterProfileModel, 
 					systemAgent, ts, crURI);
 			// create any Identities needed
 			this.createIdentities(profilemgr, filterProfileModel, identitymgr, profile, 
@@ -303,29 +316,13 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			newObjects.add(ORAdapter.uri2OpenRdfUri(profile.getId()));
 			// add the new profile statements (NOT including context, which will need to be DiSCO context) to new related statements
 			toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));
-			toBeAddedStmts.addAll(this.getIdentitiesStmts(profile,identitymgr, ts));
+			toBeAddedStmts.addAll(uriIdentity.getAsModel());
 			// add the old profile statements to list of statements to be deleted from related statements list
 			toBeDeletedStmts.addAll(filterProfileModel);
 		}
 		return;
 	}
 
-	protected List<Statement> getIdentitiesStmts(ORMapProfile profile, ORMapIdentityMgr identityMgr, 
-			SesameTriplestore ts) 
-	throws RMapException {
-		if (profile ==null){
-			throw new RMapException ("null profile");
-		}
-		List<Statement>stmts = new ArrayList<Statement>();
-		for (Statement idStmt: profile.getIdentityStmts()){
-			URI idId = (URI)idStmt.getObject();
-			ORMapIdentity identity = identityMgr.getIdentityWithLocalPartUri(idId, ts);
-			if (identity != null){
-				stmts.addAll(identity.getAsModel());
-			}
-		}
-		return stmts;
-	}
 
 	/**
 	 * 
@@ -363,10 +360,13 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 				boolean isNewId = identities.get(identity).booleanValue();
 				if (isNewId){
 					newObjects.add(ORAdapter.uri2OpenRdfUri(identity.getId()));
+					identitymgr.createIdentity(identity, ts);
 				}
 				toBeAddedStmts.addAll(identitymgr.makeIdentityStatements(identity, ts));
-			}
+			}			
 		}
+		// create triples for profile and its identities
+		profilemgr.createProfileTriples(profile, ts);
 	}
 	/**
 	 * Create any required Agent and Profile objects for any creator Agent URI in DiSCO related statements
@@ -489,6 +489,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}
 		else {
 			profile = profilemgr.createProfileObject(agentUri, systemAgent, crURI);
+			profilemgr.createProfileTriples(profile, ts);
 		}
 		List<Statement> idStmts = profile.getIdentityStmts();
 		boolean foundCrURI = false;
@@ -505,6 +506,14 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}
 		if (!foundCrURI){
 			profile.addIdentity(crURI);
+			try {
+				Statement idStmt = ts.getValueFactory().createStatement(profile.getContext(),
+						RMAP.PROFILE_ID_BY, crURI, profile.getContext());
+				this.createTriple(ts, idStmt);
+			} catch (RepositoryException e) {
+				e.printStackTrace();
+				throw new RMapException (e);
+			}
 			ORMapIdentity identity = identitymgr.read(crURI, ts);
 			toBeAddedStmts.addAll(identity.getAsModel());
 		}

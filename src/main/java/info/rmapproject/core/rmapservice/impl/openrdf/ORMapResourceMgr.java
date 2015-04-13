@@ -37,7 +37,6 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	throws RMapException{
 		List<Statement> triples = null;
 		try {
-			//TODO should this be getStatementsAnyContext
 			triples = ts.getStatements(resource, null, null);
 			triples.addAll(ts.getStatements(null, null, resource));
 		} catch (Exception e) {

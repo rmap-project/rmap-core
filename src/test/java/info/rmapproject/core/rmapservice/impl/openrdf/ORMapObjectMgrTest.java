@@ -170,15 +170,6 @@ public class ORMapObjectMgrTest {
 		assertTrue(isStmtId);
 	}
 
-
-	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr#isDiscoId(org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
-	 */
-	@Test
-	public void testIsDiscoId(){
-		fail("Not yet implemented");
-	}
-
 	/**
 	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr#isEventId(org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
 	 */
@@ -251,14 +242,6 @@ public class ORMapObjectMgrTest {
 			e.printStackTrace();
 			fail("cant create triplestore");
 		}		
-	}
-
-	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr#getNamedGraph(org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
-	 */
-	@Test
-	public void testGetNamedGraph() {
-		fail("Not yet implemented");
 	}
 
 }

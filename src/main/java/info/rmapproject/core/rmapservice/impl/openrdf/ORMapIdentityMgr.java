@@ -259,7 +259,7 @@ public class ORMapIdentityMgr extends ORMapObjectMgr {
 				break;
 			}
 			URI subjUri = (URI)subject;
-			if (this.isProfileId(subjUri, ts)){
+			if (this.isIdentityId(subjUri, ts)){
 				isLocalPartUri = true;
 			}
 		} while (false);
@@ -299,7 +299,21 @@ public class ORMapIdentityMgr extends ORMapObjectMgr {
 			if (! (subject instanceof URI)){
 				break;
 			}
-			URI profileUri = (URI)subject;
+			URI identityUri = (URI)subject;
+			try {
+				stmt = ts.getStatementAnyContext(null, RMAP.PROFILE_ID_BY, identityUri);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+				throw new RMapException(e1);
+			}
+			if (stmt==null){
+				break;
+			}
+			subject = stmt.getSubject();
+			if (! (subject instanceof URI)){
+				break;
+			}
+			URI profileUri =(URI)subject;
 			try {
 				agentUri = profileMgr.getParentAgentUri(profileUri, ts);
 			}

@@ -29,7 +29,6 @@ import info.rmapproject.core.model.statement.RMapStatement;
  *
  */
 public interface RMapService {
-//TODO  be more explicit about exceptions thrown
 	// Resource services
 	/**
 	 * Get URI of all RMap object types with a specified status code related to a Resource URI 

@@ -112,6 +112,8 @@ public class ORMapProfile extends ORMapObject implements RMapProfile {
 					if (PreferredIdValidator.isPreferredAgentId(jUri)){
 						this.context = uriId;
 						this.id = jUri;
+						this.typeStatement = this.getValueFactory().createStatement(this.context,
+								RDF.TYPE, RMAP.PROFILE, this.context);
 						continue;
 					}
 				}
