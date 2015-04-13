@@ -255,10 +255,10 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			if (relatedStmts == null){
 				break;
 			}
-			List<URI> relatedAgents = agentMgr.createRelatedStatementsAgents(
+			List<URI> newAgentRelatedObjects = agentMgr.createRelatedStatementsAgents(
 					relatedStmts, systemAgentId, profilemgr, identitymgr, ts);
-			if (relatedAgents != null){
-				created.addAll(relatedAgents);
+			if (newAgentRelatedObjects != null){
+				created.addAll(newAgentRelatedObjects);
 			}
 			// for each statement in relatedStatements
 			//   create reified statement if necessary, and add the triple
@@ -453,10 +453,10 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				if (relatedStmts == null){
 					break;
 				}
-				List<URI> relatedAgents = agentMgr.createRelatedStatementsAgents(
+				List<URI> newAgentRelatedObjects = agentMgr.createRelatedStatementsAgents(
 						relatedStmts, systemAgentId, profilemgr, identitymgr, ts);
-				if (relatedAgents != null){
-					created.addAll(relatedAgents);
+				if (newAgentRelatedObjects != null){
+					created.addAll(newAgentRelatedObjects);
 				}
 				// for each statement in relatedStatements
 				//   create reified statement if necessary, and add the triple

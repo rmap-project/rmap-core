@@ -582,6 +582,9 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 				preferredId = identitymgr.getPreferredIdInRelatedStatements(idStmts);
 			}
 		}
+		else {
+			//TODO check to see if crURI is a preferred id
+		}
 		boolean agentIsNew = false;
 		if (preferredId==null){
 			agent = new ORMapAgent(systemAgent);
@@ -602,7 +605,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			newObjects.add(agentId);
 		}		
 		toBeAddedStmts.addAll(this.makeAgentStatements(agent, ts));
-		boolean isSameAgentId = crURI.equals(agentId);
+//		boolean isSameAgentId = crURI.equals(agentId);
 		ORMapProfile profile = null;
 		if (!filterProfileModel.isEmpty()){
 			profile = profilemgr.createProfileFromRelatedStmts(agentId, filterProfileModel, 
@@ -618,18 +621,20 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}
 		newObjects.add(ORAdapter.uri2OpenRdfUri(profile.getId()));		
 		// add the new profile statements (NOT including context, which will need to be DiSCO context) to new related statements
-		toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));	
-		if (! isSameAgentId){
-			Statement sameStmt;
-			try {
-				sameStmt = ts.getValueFactory().createStatement(
-						crURI, OWL.SAMEAS, ORAdapter.uri2OpenRdfUri(profile.getId()));
-				toBeAddedStmts.add(sameStmt);
-			} catch (RepositoryException e) {
-				e.printStackTrace();
-				throw new RMapException (e);
-			}						
-		}
+		toBeAddedStmts.addAll(profilemgr.makeProfileStatments(profile, ts));
+		//TODO replace crStmt using profile ID
+		
+//		if (! isSameAgentId){
+//			Statement sameStmt;
+//			try {
+//				sameStmt = ts.getValueFactory().createStatement(
+//						crURI, OWL.SAMEAS, ORAdapter.uri2OpenRdfUri(profile.getId()));
+//				toBeAddedStmts.add(sameStmt);
+//			} catch (RepositoryException e) {
+//				e.printStackTrace();
+//				throw new RMapException (e);
+//			}						
+//		}
 		return;
 	}	
 	/**

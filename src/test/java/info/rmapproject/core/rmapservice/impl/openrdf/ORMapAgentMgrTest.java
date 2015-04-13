@@ -107,7 +107,40 @@ public class ORMapAgentMgrTest {
 	 */
 	@Test
 	public void testCreateRelatedStatementsAgents() {
-		fail("Not yet implemented");
+		URI newUri =null;
+		BNode bnode  = null;
+		Statement crStmt=null, crStmt2 = null;
+		try {
+			newUri = ts.getValueFactory().createURI("http://orcid.org/0000-0000-0000-0007");
+			bnode = ts.getValueFactory().createBNode();
+			crStmt = ts.getValueFactory().createStatement(doiURI, DCTERMS.CREATOR, newUri);
+			crStmt2 = ts.getValueFactory().createStatement(doiURI, DCTERMS.CREATOR, bnode);
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+			fail();
+		}
+		Literal dcLit= null;
+		try {
+			dcLit = ts.getValueFactory().createLiteral("Data Conservancy");
+		} catch (RepositoryException e1) {
+			e1.printStackTrace();
+			fail();
+		}
+		List<Statement> model = new ArrayList<Statement>();
+		try {
+			model.add(crStmt);
+			model.add(crStmt2);
+			model.add(ts.getValueFactory().createStatement(doiURI, DCTERMS.TYPE, textType));
+			model.add(ts.getValueFactory().createStatement(bnode, RDF.TYPE, FOAF.PERSON));
+			model.add(ts.getValueFactory().createStatement(bnode, FOAF.NAME, dcLit));
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+			fail();
+		}
+		List<URI> newAgentRelatedObjects= agentMgr.createRelatedStatementsAgents(model, systemAgentURI, profilemgr, identitymgr, ts);
+		assertEquals(4,newAgentRelatedObjects.size());
+		assertEquals(20,model.size());
+		
 	}
 
 	/**
@@ -140,27 +173,17 @@ public class ORMapAgentMgrTest {
 		List<Statement> stmts = null;
 		try {
 			stmts = ts.getStatementsAnyContext(null, RMAP.IDLOCALPART, dcUri, false);
-//			System.out.println("printing stmts");
-			for (Statement stmt:stmts){
-//				System.out.println(stmt.toString());			
+			for (Statement stmt:stmts){			
 				URI idUri = (URI) stmt.getSubject();
 				assertTrue(identitymgr.isIdentityId(idUri, ts));
 				List<Statement> profileStmts = ts.getStatementsAnyContext(
 						null, RMAP.PROFILE_ID_BY, idUri, false);
-//				System.out.println("printing profile stmts");
 				for (Statement pstmt:profileStmts){
-//					System.out.println(pstmt.toString());
 					URI profileId = (URI)pstmt.getSubject();
-//					List<Statement> allProfilestmts = ts.getStatements(profileId, null, null, false, profileId);
-//					System.out.println("printing allProfilestmts");
-//					for (Statement astmt:allProfilestmts){
-//						System.out.println(astmt.toString());
-//					}
 					assertTrue(profilemgr.isProfileId(profileId, ts));
 					ORMapProfile profile = profilemgr.readProfile(profileId, ts);
 					URI parentAgent = ORAdapter.rMapUri2OpenRdfUri(profile.getParentAgentId());
 					assertTrue(agentMgr.isAgentId(parentAgent, ts));
-//					System.out.println("Parent agent:" + parentAgent.stringValue());
 				}
 			}
 		} catch (Exception e) {
@@ -168,7 +191,6 @@ public class ORMapAgentMgrTest {
 			throw new RMapException(e);
 		}
 		this.testCreateAgentandProfileFromURIIdLocalPart(dcUri);
-		// URI is new
 	}
 
 	protected void clearLists() {

@@ -212,6 +212,11 @@ public class ORMapIdentityMgr extends ORMapObjectMgr {
 		}
 		return id;
 	}
+	
+	public boolean isPreferredId (URI idURI) throws RMapException {
+		boolean isPreferred = PreferredIdValidator.isPreferredAgentId(ORAdapter.openRdfUri2URI(idURI));		
+		return isPreferred;
+	}
 
 	public ORMapIdentity getIdentityWithLocalPartUri(URI localpart, SesameTriplestore ts)
 	throws RMapException {
