@@ -307,5 +307,22 @@ public interface RMapService {
 	 * @throws RMapDefectiveArgumentException
 	 */
 	public List<URI> getAgentEvents(URI agentId) throws RMapException, RMapDefectiveArgumentException;
+	/**
+	 * Find all RMapAgents that are representations of an agent identified by some external (non-RMAP) uri
+	 * @param uri External (non-RMAP) identifier for an Agent
+	 * @return List of ids for Agents that represent the agent identified by external URI
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public List<URI> getAgentRepresentations(URI uri) throws RMapException, RMapDefectiveArgumentException;
+	/**
+	 * 
+	 * @param agentId
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 * @throws RMapAgentNotFoundException
+	 */
+	public RMapStatus getAgentStatus(URI agentId) throws RMapException, RMapDefectiveArgumentException, RMapAgentNotFoundException;
 
 }

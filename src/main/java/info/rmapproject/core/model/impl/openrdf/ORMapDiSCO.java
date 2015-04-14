@@ -98,17 +98,14 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 *            comprise a disjoint graph, or if cannot create Statements from parameters
 	 */
 	public ORMapDiSCO(List<Statement> stmts) throws RMapException{
-		this();
-		
-		//TODO  make sure creator is a URI, not just a RESOURCE
-		
+		this();	
 		// Assuming RDF comes in, OpenRDF parser will create a bNode for the DiSCO
 		// itself, and use that BNode identifier as resource - or
 		// possibly also submitter used a local (non-RMap) identifier in RDF
 		boolean discoFound = false;
 		boolean isRmapId = false;
 		Value incomingIdValue = null;
-		String discoIncomingId = null;
+		String incomingIdStr = null;
 		for (Statement stmt:stmts){
 			Resource subject = stmt.getSubject();
 			URI predicate = stmt.getPredicate();
@@ -117,7 +114,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 				if (object.equals(RMAP.DISCO)){
 					discoFound = true;
 					incomingIdValue = subject;
-					discoIncomingId = subject.stringValue();
+					incomingIdStr = subject.stringValue();
 					break;
 				}
 			}
@@ -126,26 +123,26 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		if (!discoFound){
 			throw new RMapException ("No type statement found indicating DISCO");
 		}
-		if (discoIncomingId==null || discoIncomingId.length()==0){
+		if (incomingIdStr==null || incomingIdStr.length()==0){
 			throw new RMapException ("null or empty disco identifier");
 		}
 		// check to make sure DiSCO has an RMAP id not a local one
 		try {
 			Predicate<Object> predicate = RMapIdPredicate.rmapIdPredicate();
-			isRmapId  = predicate.evaluate(new java.net.URI(discoIncomingId));
+			isRmapId  = predicate.evaluate(new java.net.URI(incomingIdStr));
 		} catch (Exception e) {
 			throw new RMapException ("Unable to validate DiSCO id " + 
-					discoIncomingId, e);
+					incomingIdStr, e);
 		}				
 		if (isRmapId){
 			// use incoming id
 			try {
-				this.id = new java.net.URI(discoIncomingId);
+				this.id = new java.net.URI(incomingIdStr);
 				this.discoContext = ORAdapter.uri2OpenRdfUri(this.getId()); 
 				this.typeStatement =
 						this.getValueFactory().createStatement(this.discoContext,RDF.TYPE,RMAP.DISCO,this.discoContext);
 			} catch (URISyntaxException e) {
-				throw new RMapException ("Cannot convert incoming ID to URI: " + discoIncomingId,e);
+				throw new RMapException ("Cannot convert incoming ID to URI: " + incomingIdStr,e);
 			}			
 		}
 		else {
@@ -166,13 +163,13 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 			URI predicate = stmt.getPredicate();
 			Value object = stmt.getObject();
 			// see if disco is subject of statement
-			boolean subjectIsDisco = subject.stringValue().equals(discoIncomingId);
+			boolean subjectIsDisco = subject.stringValue().equals(incomingIdStr);
 			if (!isRmapId){
 				// convert incoming id to RMap id in subject and boject
 				if (subjectIsDisco){
 					subject = this.discoContext;
 				}
-				if (object.stringValue().equals(discoIncomingId)){
+				if (object.stringValue().equals(incomingIdStr)){
 					object = this.discoContext;
 				}
 			}			
@@ -185,6 +182,11 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 			}
 			else if (predicate.equals(DCTERMS.CREATOR)){
 				if (subjectIsDisco){
+					// make sure creator value is a URI
+					if (!(object instanceof URI)){
+						throw new RMapException("Object of DiSCO creator statement should be a URI and is not: "
+								+ object.stringValue());
+					}
 					this.creator = this.getValueFactory().createStatement
 							(subject, predicate, object, this.discoContext);
 				}

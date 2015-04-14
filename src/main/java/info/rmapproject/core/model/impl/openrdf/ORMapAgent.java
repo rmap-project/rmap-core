@@ -4,6 +4,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.collections4.Predicate;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -14,6 +15,7 @@ import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.idvalidator.RMapIdPredicate;
 import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapUri;
@@ -109,8 +111,8 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		}	
 		boolean typeFound = false;
 		Value incomingIdValue = null;
-		String agentIncomingIdStr = null;
-		Resource agentIncomingIdResource = null;
+		String incomingIdStr = null;
+		boolean isRmapId = false;
 		for (Statement stmt:stmts){
 			Resource subject = stmt.getSubject();
 			URI predicate = stmt.getPredicate();
@@ -119,8 +121,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 				if (object.equals(RMAP.AGENT)){
 					typeFound = true;
 					incomingIdValue = subject;
-					agentIncomingIdResource = subject;
-					agentIncomingIdStr = subject.stringValue();
+					incomingIdStr = subject.stringValue();
 					// use incoming context if there is one
 					Resource context = stmt.getContext();
 					if (context != null && context instanceof URI){
@@ -134,33 +135,36 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		if (!typeFound || incomingIdValue==null){
 			throw new RMapException ("No type statement found indicating AGENT");
 		}
-		if (agentIncomingIdStr==null || agentIncomingIdStr.length()==0){
+		if (incomingIdStr==null || incomingIdStr.length()==0){
 			throw new RMapException ("null or empty agent identifier");
 		}
+		
+		// check to make sure Agent has an RMAP id not a local one, or bnode id
+		try {
+			Predicate<Object> predicate = RMapIdPredicate.rmapIdPredicate();
+			isRmapId  = predicate.evaluate(new java.net.URI(incomingIdStr));
+		} catch (Exception e) {
+			throw new RMapException ("Unable to validate DiSCO id " + 
+					incomingIdStr, e);
+		}				
+		if (isRmapId){
+			// use incoming id
+			try {
+				this.id = new java.net.URI(incomingIdStr);
+				this.context = ORAdapter.uri2OpenRdfUri(this.getId()); 
+				this.typeStatement =
+						this.getValueFactory().createStatement(this.context,RDF.TYPE,RMAP.DISCO,this.context);
+			} catch (URISyntaxException e) {
+				throw new RMapException ("Cannot convert incoming ID to URI: " + incomingIdStr,e);
+			}			
+		}
+		
 		// creator should not be null if method invoked from service,
 		// can be null when creating ORMapAgent from triplestore statements,
 		// so we have to check at the end and make sure there is a non-null creator
 		if (creator!=null){
 			this.setCreatorStmt(creator);
-		}	
-
-		//TODO  do we have to deal with bnodes in agents?
-		
-		// check to make sure Agent has an RMAP-accepted id		
-//		boolean isValidId = false;
-//		if (agentIncomingIdResource instanceof URI){
-//			isValidId = IdValidator.isValidAgentId(ORAdapter.openRdfUri2URI((URI)agentIncomingIdResource));
-//		}		
-//		if (isValidId){
-//			// use incoming id
-//			try {
-//				this.id = new java.net.URI(agentIncomingIdStr);
-//				this.context = ORAdapter.uri2OpenRdfUri(this.getId()); 
-//			} catch (URISyntaxException e) {
-//				throw new RMapException ("Cannot convert incoming ID to URI: " + agentIncomingIdStr,e);
-//			}			
-//		}
-//		
+		}		
 				
 		for (Statement stmt:stmts){
 			Resource subject = stmt.getSubject();

@@ -3,7 +3,9 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.exception.RMapStatementNotFoundException;
+import info.rmapproject.core.exception.RMapTombstonedObjectException;
 import info.rmapproject.core.model.RMapStatus;
+import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 
 import java.util.ArrayList;
@@ -181,53 +183,116 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		return events;
 	}
 	
-	public Set<URI> getRelatedAgents(URI resource, RMapStatus statusCode, 
+	public Set<URI> getRelatedAgents(URI uri, RMapStatus statusCode, 
 			ORMapStatementMgr stmtmgr, ORMapDiSCOMgr discomgr, ORMapEventMgr eventMgr, 
 			ORMapAgentMgr agentmgr, SesameTriplestore ts) 
 	throws RMapException, RMapObjectNotFoundException {
+		Set<URI>agents = new HashSet<URI>();		
+		do {
+			if (this.isDiscoId(uri, ts)){
+				agents.addAll(discomgr.getRelatedAgents(uri, statusCode, eventMgr, ts));
+				break;	
+			}// end DiSCO				
+			if (this.isStatementId(uri, ts)){
+				agents.addAll(stmtmgr.getRelatedAgents(uri, statusCode, eventMgr, discomgr, ts));
+				break;
+			}// end Statement
+			if (this.isEventId(uri, ts)){
+				agents.addAll(eventMgr.getRelatedAgents(uri, ts));;				
+				break;
+			}// end Event
+			if (this.isAgentId(uri, ts)){
+				agents.addAll(agentmgr.getRelatedAgents(uri, statusCode, ts));
+				break;
+			}
+			// just a resource
+			agents.addAll(this.getResourceRelatedAgents(uri, statusCode, stmtmgr, discomgr, eventMgr, agentmgr, ts));
+			break;
+		} while (false);
+		return agents;
+	}
+	
+	/**
+	 * Figure out the object type for object containing a triple in which a resource appears, 
+	 * and find any agents associated with that object
+	 * @param uri
+	 * @param statusCode
+	 * @param stmtmgr
+	 * @param discomgr
+	 * @param eventMgr
+	 * @param agentmgr
+	 * @param ts
+	 * @return
+	 */
+	protected Set<URI> getResourceRelatedAgents(URI uri, RMapStatus statusCode, 
+			ORMapStatementMgr stmtmgr, ORMapDiSCOMgr discomgr, ORMapEventMgr eventMgr, 
+			ORMapAgentMgr agentmgr, SesameTriplestore ts){
 		Set<URI>agents = new HashSet<URI>();
-//TODO finish
-		// FOR EACH AGENT ID MATCH STATUS?
-//		if isDiscoId(URI) (MATCH STATUS)
-//		For each event associated with DiSCOID, return AssociatedAgent
-//		For each statement in the Disco, 
-//			if statement.subject.isAgentId, return subject
-//			if statement.object.isAgentId, return object
-//
-//	else if isStatementId(URI) (MATCH STATUS)
-//		For each event associated with StatementID, return associatedAgent
-//		if Statement.subject.isAgentId, return subject
-//		if Statement.obejct.isAgentId, return object
-//		
-//	else if is EventId (URI)
-//		Return event.AssociatedAgent
-//		if event.targettype==Agent,
-//			if eventType=Creation, return created agents
-//			if eventType=Tombstone, return tombstoned agent
-//			if eventType=Deletion, return deleted agent
-//			
-//	else if is AgentId (URI) (MATCH STATUS)
-//		Return agent.creator
-//		for stmt:Agent.properties.statements
-//			if stmt.subject.isAgentId, return subject
-//			if stmt.object.isAgentId, return object
-//			
-//	else (just a resource)
-//		get all triples with resource in subject or object
-//		for each triple
-//			get context
-//			if context.isDiscoID
-//				for each event associated with DiSCOid, return associated agent
-//			else if context.isStatementId
-//				for each event associated with StatementID, return associatedAgent
-//			else if context.isEventId
-//				return event.AssociatedAgent
-//			else if context.isAgentId
-//				return agentId, 
-//				return agentCreator
-//				for stmt:agent.properites.statements
-//					if stmt.subject.isAgentId, return subject
-//					if stmt.object.isAgentId, return object
+		List<Statement>stmts = this.getRelatedTriples(uri, ts);
+		for (Statement stmt:stmts){
+			if (!(stmt.getContext() instanceof URI)){
+				continue;
+			}
+			URI id = (URI) stmt.getContext();
+			do {
+				if (this.isDiscoId(id, ts)){
+					if (statusCode != null){
+						RMapStatus dStatus = discomgr.getDiSCOStatus(uri, ts);
+						if (!(dStatus.equals(statusCode))){
+							break;
+						}
+					}
+					List<URI>events = eventMgr.getDiscoRelatedEventIds(uri, ts);
+		           //For each event associated with DiSCOID, return AssociatedAgent
+					for (URI event:events){
+						URI assocAgent = eventMgr.getEventAssocAgent(event, ts);
+						agents.add(assocAgent);
+					}
+					break;
+				}
+				if (this.isStatementId(id, ts)){
+					if (statusCode != null){
+						RMapStatus status = stmtmgr.getStatementStatus(uri, discomgr, ts);
+						if (!(status.equals(statusCode))){
+							break;
+						}
+					}
+					//For each event associated with statement ID, return AssociatedAgent
+					List<URI>events = stmtmgr.getRelatedEvents(uri, eventMgr, ts);
+					for (URI event:events){
+						URI assocAgent = eventMgr.getEventAssocAgent(event, ts);
+						agents.add(assocAgent);
+					}
+					break;
+				}
+				if (this.isEventId(id, ts)){
+					agents.addAll(eventMgr.getRelatedAgents(id, ts));
+					break;
+				}
+				if (this.isAgentId(id, ts)){
+					if (statusCode != null){
+						RMapStatus status = agentmgr.getAgentStatus(uri, ts);
+						if (!(status.equals(statusCode))){
+							break;
+						}
+					}
+					agents.add(id);
+					ORMapAgent agent = null;
+					try{
+						agent = agentmgr.readAgent(uri, ts);
+					}
+					catch (RMapTombstonedObjectException RMapDeletedObjectException ){
+						break;
+					}
+					catch (Exception e){
+						throw new RMapException(e);
+					}
+					agents.add((URI)(agent.getCreatorStmt().getObject()));
+					break;
+				}
+				break;
+			} while (false);
+		}	
 		return agents;
 	}
 }

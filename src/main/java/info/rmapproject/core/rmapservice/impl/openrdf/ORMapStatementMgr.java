@@ -349,6 +349,52 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 		}
 		return discoIds;
 	}
+	/**
+	 * 
+	 * @param uri
+	 * @param statusCode
+	 * @param eventMgr
+	 * @param discomgr
+	 * @param ts
+	 * @return
+	 * @throws RMapException
+	 */
+	public Set<URI> getRelatedAgents (URI uri, RMapStatus statusCode, ORMapEventMgr eventMgr, 
+			ORMapDiSCOMgr discomgr, SesameTriplestore ts)
+	throws RMapException {
+		Set<URI>agents = new HashSet<URI>();
+		do {
+			if (statusCode != null){
+				RMapStatus status = this.getStatementStatus(uri, discomgr, ts);
+				if (!(status.equals(statusCode))){
+					break;
+				}
+			}
+			//For each event associated with statement ID, return AssociatedAgent
+			List<URI>events = this.getRelatedEvents(uri, eventMgr, ts);
+			for (URI event:events){
+				URI assocAgent = eventMgr.getEventAssocAgent(event, ts);
+				agents.add(assocAgent);
+			}
+			
+			//TODO ask do we want this??
+			ORMapStatement orStmt = this.getRMapStatement(uri, ts);
+			Value subject = orStmt.getSubjectStatement().getObject();
+			if (subject instanceof URI){
+				if (this.isAgentId((URI)subject,ts)){
+					agents.add((URI)subject);
+				}
+			}
+			Value object = orStmt.getObjectStatement().getObject();
+			if (object instanceof URI){
+				if (this.isAgentId((URI)object,ts)){
+					agents.add((URI)object);
+				}
+			}
+		}while (false);		
+		return agents;
+	}
+	
 
 }
 
