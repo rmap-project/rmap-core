@@ -237,7 +237,7 @@ public class ORMapObjectMgrTest {
 				e.printStackTrace();
 				fail("cant commit");
 			}
-			assertTrue(agentMgr.isAgentId(agentURI, ts));
+			assertTrue(agentMgr.isAgentId(agent.getContext(), ts));
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("cant create triplestore");

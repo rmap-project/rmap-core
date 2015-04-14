@@ -9,8 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
+import info.rmapproject.core.rmapservice.RMapService;
+import info.rmapproject.core.rmapservice.RMapServiceFactoryIOC;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
 
@@ -62,8 +66,23 @@ public class ORMapAgentMgrTest {
 	 */
 	@Test
 	public void testReadAgent() {
-		//TODO change to use service to create Agent so events exist so we can get status
+		// Prime the pump by creating a system agent
 		ORMapAgent systemAgent = agentMgr.createAgentObject(systemAgentURI, systemAgentURI, ts);
+		List<Statement> stmts= null;;
+		try {
+			stmts = ts.getStatements(systemAgent.getContext(), null, null, systemAgent.getContext());
+		} catch (Exception e2) {
+			e2.printStackTrace();
+		}
+		URI agentId = systemAgent.getContext();
+		assertTrue(agentMgr.isAgentId(agentId, ts));	
+		RMapService service = RMapServiceFactoryIOC.getFactory().createService();
+		try {
+			service.createAgent(ORAdapter.openRdfUri2URI(agentId), systemAgent);
+		} catch (RMapException | RMapDefectiveArgumentException e1) {
+			e1.printStackTrace();
+			fail();
+		}
 		URI newAgentURI = systemAgent.getContext();
 		ORMapAgent readAgent = null;
 		try {
