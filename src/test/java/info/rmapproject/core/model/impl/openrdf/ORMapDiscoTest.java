@@ -6,7 +6,6 @@ package info.rmapproject.core.model.impl.openrdf;
 import static org.junit.Assert.*;
 
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
@@ -82,7 +81,7 @@ public class ORMapDiscoTest {
 
 
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#ORMapDiSCO(RMapResource, java.util.List)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#ORMapDiSCO(RMapUri, java.util.List)}.
 	 */
 	@Test
 	public void testORMapDiSCORMapResourceListOfURI() {
@@ -210,7 +209,7 @@ public class ORMapDiscoTest {
 
 
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#setCreator(RMapResource)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#setCreator(RMapUri)}.
 	 */
 	@Test
 	public void testSetCreator() {

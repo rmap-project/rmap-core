@@ -5,8 +5,8 @@ package info.rmapproject.core.model.disco;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapObject;
-import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapTriple;
+import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
 
 import java.net.URI;
@@ -51,13 +51,13 @@ public interface RMapDiSCO extends RMapObject  {
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapResource getCreator() throws RMapException;
+	public RMapUri getCreator() throws RMapException;
 	/**
 	 * 
 	 * @param creator
 	 * @throws RMapException
 	 */
-	public void setCreator(RMapResource creator) throws RMapException;
+	public void setCreator(RMapUri creator) throws RMapException;
 
 	/**
 	 * 

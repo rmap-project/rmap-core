@@ -84,7 +84,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 * @param aggregatedResources Resources comprising compound object
 	 * @throws RMapException if unable to create Creator or aggregated resources Statements
 	 */
-	public ORMapDiSCO(RMapResource creator, List<java.net.URI> aggregatedResources) 
+	public ORMapDiSCO(RMapUri creator, List<java.net.URI> aggregatedResources) 
 			throws RMapException {
 		this();
 		this.setCreator(creator);
@@ -99,6 +99,9 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 */
 	public ORMapDiSCO(List<Statement> stmts) throws RMapException{
 		this();
+		
+		//TODO  make sure creator is a URI, not just a RESOURCE
+		
 		// Assuming RDF comes in, OpenRDF parser will create a bNode for the DiSCO
 		// itself, and use that BNode identifier as resource - or
 		// possibly also submitter used a local (non-RMap) identifier in RDF
@@ -402,17 +405,17 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapDiSCO#getCreators()
 	 */
-	public RMapResource getCreator() throws RMapException {
+	public RMapUri getCreator() throws RMapException {
 		RMapValue vCreator = null;
-		RMapResource creator = null;
+		RMapUri creator = null;
 		if (this.creator != null){
 			try {
 				vCreator = ORAdapter.openRdfValue2RMapValue(this.creator.getObject());
-				if (vCreator instanceof RMapResource){
-					creator = (RMapResource)vCreator;
+				if (vCreator instanceof RMapUri){
+					creator = (RMapUri)vCreator;
 				}
 				else {
-					throw new RMapException ("DiSCO Creator not an RMapResource");
+					throw new RMapException ("DiSCO Creator not an RMapUri");
 				}
 			} catch (IllegalArgumentException | URISyntaxException e) {
 				throw new RMapException(e);
@@ -430,13 +433,13 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapDiSCO#setCreators(List<info.rmapproject.core.model.RMapResource)>
 	 */
-	public void setCreator(RMapResource creator) throws RMapException {
+	public void setCreator(RMapUri creator) throws RMapException {
 		Statement stmt = null;
 		if (creator != null){
 			URI predicate = DCTERMS.CREATOR;
 			try {
 				Resource subject = this.discoContext;		
-				Value vcreator = ORAdapter.rMapValue2OpenRdfValue(creator);
+				URI vcreator = ORAdapter.rMapUri2OpenRdfUri(creator);
 				stmt = this.getValueFactory().createStatement(subject,predicate,vcreator,this.discoContext);			
 			} catch (Exception e) {
 				throw new RMapException(e);

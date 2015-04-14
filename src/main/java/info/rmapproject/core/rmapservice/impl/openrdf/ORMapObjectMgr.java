@@ -3,14 +3,23 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.openrdf.model.BNode;
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.repository.RepositoryException;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
+import info.rmapproject.core.idservice.IdServiceFactoryIOC;
+import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
@@ -97,26 +106,26 @@ public abstract class ORMapObjectMgr {
 	public boolean isAgentId(URI id, SesameTriplestore ts) throws RMapException {	
 		return this.isRMapType(ts, id, RMAP.AGENT);		
 	}
-	/**
-	 * 
-	 * @param id
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 */
-	public boolean isProfileId(URI id, SesameTriplestore ts) throws RMapException {	
-		return this.isRMapType(ts, id, RMAP.PROFILE);		
-	}
-	/**
-	 * 
-	 * @param id
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 */
-	public boolean isIdentityId (URI id, SesameTriplestore ts) throws RMapException {
-		return this.isRMapType(ts, id, RMAP.IDENTITY);
-	}
+//	/**
+//	 * 
+//	 * @param id
+//	 * @param ts
+//	 * @return
+//	 * @throws RMapException
+//	 */
+//	public boolean isProfileId(URI id, SesameTriplestore ts) throws RMapException {	
+//		return this.isRMapType(ts, id, RMAP.PROFILE);		
+//	}
+//	/**
+//	 * 
+//	 * @param id
+//	 * @param ts
+//	 * @return
+//	 * @throws RMapException
+//	 */
+//	public boolean isIdentityId (URI id, SesameTriplestore ts) throws RMapException {
+//		return this.isRMapType(ts, id, RMAP.IDENTITY);
+//	}
 	
 	/**
 	 * 
@@ -139,5 +148,117 @@ public abstract class ORMapObjectMgr {
 		}
 		return matchingTriples;
 	}
-
+	/**
+	 * Replaces any occurrences of BNodes in list of statements with RMapidentifier URIs
+	 * @param stmts
+	 * @param ts
+	 * @return
+	 * @throws RMapException
+	 */
+	protected List<Statement> replaceBNodeWithRMapId(List<Statement> stmts, SesameTriplestore ts) throws RMapException {
+		if (stmts==null){
+			throw new RMapException ("null stmts");
+		}
+		List<Statement>newStmts = new ArrayList<Statement>();
+		Map<BNode, URI> bnode2uri = new HashMap<BNode, URI>();
+		for (Statement stmt:stmts){
+			Resource subject = stmt.getSubject();
+			Value object = stmt.getObject();
+			BNode bSubject = null;
+			BNode bObject = null;
+			if (subject instanceof BNode ) {
+				bSubject = (BNode)subject;				
+			}
+			if (object instanceof BNode){
+				bObject = (BNode)object;
+			}
+			if (bSubject==null && bObject==null){
+				newStmts.add(stmt);
+				continue;
+			}
+			Resource newSubject = null;
+			Value newObject = null;
+			// if subject is BNODE, replace with URI (if necessary, create the URI and add mapping)
+			if (bSubject != null){
+				URI bReplace = bnode2uri.get(bSubject);
+				if (bReplace==null){
+					java.net.URI newId=null;
+					try {
+						newId = IdServiceFactoryIOC.getFactory().createService().createId();
+					} catch (Exception e) {
+						throw new RMapException (e);
+					}
+					bReplace = ORAdapter.uri2OpenRdfUri(newId);
+					bnode2uri.put(bSubject, bReplace);
+					newSubject = bReplace;
+				}
+				else {
+					newSubject = bReplace;
+				}
+			}
+			else {
+				newSubject = subject;
+			}
+			// if object is BNODE, replace with URI (if necessary, create the URI and add mapping)
+			if (bObject != null){
+				URI bReplace = bnode2uri.get(bObject);
+				if (bReplace==null){
+					java.net.URI newId=null;
+					try {
+						newId = IdServiceFactoryIOC.getFactory().createService().createId();
+					} catch (Exception e) {
+						throw new RMapException (e);
+					}
+					bReplace = ORAdapter.uri2OpenRdfUri(newId);
+					bnode2uri.put(bObject, bReplace);
+					newObject = bReplace;
+				}
+				else {
+					newObject = bReplace;
+				}
+			}
+			else {
+				newObject = object;
+			}
+			// now create new statement with bnodes replaced
+			Statement newStmt=null;
+			try {
+				newStmt = ts.getValueFactory().createStatement(newSubject, stmt.getPredicate(), newObject);
+			} catch (RepositoryException e) {
+				e.printStackTrace();
+				throw new RMapException (e);
+			}
+			newStmts.add(newStmt);
+			continue;
+		}
+		return newStmts;
+	}
+	
+	/**
+	 * Confirm 2 identifiers refer to the same creating agent
+	 * @param uri
+	 * @param systemAgentId
+	 * @param eventmgr
+	 * @param ts
+	 * @return
+	 * @throws RMapException
+	 */
+	protected boolean isSameCreatorAgent (URI uri, URI systemAgentId, 
+			ORMapEventMgr eventmgr, SesameTriplestore ts) 
+			throws RMapException {
+		boolean isSame = false;
+		Statement stmt = eventmgr.getRMapObjectCreateEventStatement(uri, ts);
+		do {
+			if (stmt==null){
+				break;
+			}
+			if (! (stmt.getSubject() instanceof URI)){
+				throw new RMapException ("Event ID is not URI: " + stmt.getSubject().stringValue());
+			}
+			URI eventId = (URI)stmt.getSubject();
+			URI createAgent = eventmgr.getEventAssocAgent(eventId, ts);
+			isSame = (systemAgentId.stringValue().equals(createAgent.stringValue()));
+		}while (false);
+		return isSame;
+	}
 }

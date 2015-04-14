@@ -1,6 +1,7 @@
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.exception.RMapStatementNotFoundException;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
@@ -149,9 +150,14 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @return
 	 */
 	public Set<URI> getRelatedEvents(URI resource,ORMapStatementMgr stmtmgr, 
-			ORMapDiSCOMgr discomgr, ORMapEventMgr eventMgr, SesameTriplestore ts) {
+			ORMapDiSCOMgr discomgr, ORMapEventMgr eventMgr, SesameTriplestore ts) 
+	throws RMapException, RMapObjectNotFoundException {
 		Set<URI>events = new HashSet<URI>();
 		do {
+			if (this.isEventId(resource, ts)){
+				events.add(resource);
+				break;
+			}
 			if (this.isDiscoId(resource, ts)){
 				events.addAll(eventMgr.getDiscoRelatedEventIds(resource, ts));
 				break;
@@ -161,7 +167,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 				break;
 			}
 			if (this.isAgentId(resource, ts)){
-				//TODO need agentmgr with getRelatedEvents() method
+				events.addAll(eventMgr.getAgentRelatedEventIds(resource, ts));
 				break;
 			}
 			// it's just a resource - get all Statements in appears in, and
@@ -173,5 +179,55 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			}
 		}while (false);
 		return events;
+	}
+	
+	public Set<URI> getRelatedAgents(URI resource, RMapStatus statusCode, 
+			ORMapStatementMgr stmtmgr, ORMapDiSCOMgr discomgr, ORMapEventMgr eventMgr, 
+			ORMapAgentMgr agentmgr, SesameTriplestore ts) 
+	throws RMapException, RMapObjectNotFoundException {
+		Set<URI>agents = new HashSet<URI>();
+//TODO finish
+		// FOR EACH AGENT ID MATCH STATUS?
+//		if isDiscoId(URI) (MATCH STATUS)
+//		For each event associated with DiSCOID, return AssociatedAgent
+//		For each statement in the Disco, 
+//			if statement.subject.isAgentId, return subject
+//			if statement.object.isAgentId, return object
+//
+//	else if isStatementId(URI) (MATCH STATUS)
+//		For each event associated with StatementID, return associatedAgent
+//		if Statement.subject.isAgentId, return subject
+//		if Statement.obejct.isAgentId, return object
+//		
+//	else if is EventId (URI)
+//		Return event.AssociatedAgent
+//		if event.targettype==Agent,
+//			if eventType=Creation, return created agents
+//			if eventType=Tombstone, return tombstoned agent
+//			if eventType=Deletion, return deleted agent
+//			
+//	else if is AgentId (URI) (MATCH STATUS)
+//		Return agent.creator
+//		for stmt:Agent.properties.statements
+//			if stmt.subject.isAgentId, return subject
+//			if stmt.object.isAgentId, return object
+//			
+//	else (just a resource)
+//		get all triples with resource in subject or object
+//		for each triple
+//			get context
+//			if context.isDiscoID
+//				for each event associated with DiSCOid, return associated agent
+//			else if context.isStatementId
+//				for each event associated with StatementID, return associatedAgent
+//			else if context.isEventId
+//				return event.AssociatedAgent
+//			else if context.isAgentId
+//				return agentId, 
+//				return agentCreator
+//				for stmt:agent.properites.statements
+//					if stmt.subject.isAgentId, return subject
+//					if stmt.object.isAgentId, return object
+		return agents;
 	}
 }

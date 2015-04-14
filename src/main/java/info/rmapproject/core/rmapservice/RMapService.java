@@ -12,14 +12,12 @@ import info.rmapproject.core.exception.RMapDiSCONotFoundException;
 import info.rmapproject.core.exception.RMapEventNotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
-import info.rmapproject.core.exception.RMapProfileNotFoundException;
 import info.rmapproject.core.exception.RMapStatementNotFoundException;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.agent.RMapAgent;
-import info.rmapproject.core.model.agent.RMapProfile;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.statement.RMapStatement;
@@ -261,7 +259,6 @@ public interface RMapService {
 	 */
 	public List<URI> getEventRelatedDiSCOS (URI eventID) throws RMapException, RMapDefectiveArgumentException;
 	
-	//TODO  add method to API to get event-related scholarly agents
 	/**
 	 * 
 	 * @param eventID
@@ -282,42 +279,33 @@ public interface RMapService {
 	 */
 	public RMapAgent readAgent (URI agentID) throws RMapException, RMapAgentNotFoundException, RMapDefectiveArgumentException;
 	/**
+	 * Create a new agent
+	 * @param agentID ID of (system) agent creating this new Agent
+	 * @param agent RMapAgent object to be instantiated in system
+	 * @return RMapEvent associated with creation of Agent
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public RMapEvent createAgent(URI agentID, RMapAgent agent) throws RMapException, RMapDefectiveArgumentException;
+	
+	/**
+	 * Tombstone an existing agent
+	 * @param systemAgentId
+	 * @param targetAgentID
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public RMapEvent deleteAgent(URI systemAgentId, URI targetAgentID) throws RMapException, RMapAgentNotFoundException, 
+	RMapDefectiveArgumentException;
+	
+	/**
 	 * 
 	 * @param agentId
 	 * @return
 	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
+	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<URI> getAgentRelatedProfiles (URI agentId) throws RMapException, RMapDefectiveArgumentException;
-	
-	// Agent profile services
-	
-	/**
-	 * 
-	 * @param profileId
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapProfileNotFoundException 
-	 * @throws RMapDefectiveArgumentException 
-	 */
-	public RMapProfile readProfile (URI profileId)  throws RMapException, RMapProfileNotFoundException, RMapDefectiveArgumentException;
-	/**
-	 * 
-	 * @param profileId
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
-	 */
-	public List<URI> getProfileRelatedIdentities (URI profileId) throws RMapException, RMapDefectiveArgumentException;
-	/**
-	 * 
-	 * @param profileId
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
-	 */
-	public URI getProfilePreferredIdentity (URI profileId) throws RMapException, RMapDefectiveArgumentException;
-	
-	
+	public List<URI> getAgentEvents(URI agentId) throws RMapException, RMapDefectiveArgumentException;
 
 }
