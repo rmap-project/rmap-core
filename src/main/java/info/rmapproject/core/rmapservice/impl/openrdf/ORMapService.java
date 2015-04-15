@@ -318,8 +318,8 @@ public class ORMapService implements RMapService {
 		org.openrdf.model.URI agentUri = ORAdapter.rMapUri2OpenRdfUri(systemAgent);
 		RMapEvent updateEvent = 
 				this.discomgr.updateDiSCO(agentUri,
-					ORAdapter.uri2OpenRdfUri(oldDiscoId), (ORMapDiSCO)disco, this.stmtmgr, 
-					this.eventmgr, ts);
+					false, ORAdapter.uri2OpenRdfUri(oldDiscoId), (ORMapDiSCO)disco, 
+					this.stmtmgr, this.eventmgr, ts);
 		return updateEvent;
 	}
 
@@ -329,12 +329,13 @@ public class ORMapService implements RMapService {
 	 * @param systemAgent
 	 * @param oldDiscoId
 	 * @param stmts
+	 * @param justInactivate 
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
 	public RMapEvent updateDiSCO(URI systemAgent, URI oldDiscoId, 
-			List<Statement> stmts)
+			List<Statement> stmts, boolean justInactivate)
 	throws RMapException, RMapDefectiveArgumentException {
 		if (systemAgent==null){
 			throw new RMapDefectiveArgumentException ("null system agent");
@@ -348,10 +349,29 @@ public class ORMapService implements RMapService {
 		ORMapDiSCO disco = new ORMapDiSCO(stmts);
 		RMapEvent updateEvent = 
 				this.discomgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent),
-					ORAdapter.uri2OpenRdfUri(oldDiscoId), disco, this.stmtmgr, 
-					this.eventmgr, ts);
+					false, ORAdapter.uri2OpenRdfUri(oldDiscoId), disco, 
+					this.stmtmgr, this.eventmgr, ts);
 		return updateEvent;
 	}
+
+	@Override
+	public RMapEvent inactivateDiSCO(RMapUri systemAgent, URI oldDiscoId)
+			throws RMapException, RMapDiSCONotFoundException,
+			RMapDefectiveArgumentException {
+		if (systemAgent==null){
+			throw new RMapDefectiveArgumentException ("null system agent");
+		}
+		if (oldDiscoId==null){
+			throw new RMapDefectiveArgumentException ("null id for old DiSCO");
+		}
+		org.openrdf.model.URI agentUri = ORAdapter.rMapUri2OpenRdfUri(systemAgent);
+		RMapEvent inactivateEvent = 
+				this.discomgr.updateDiSCO(agentUri,
+					true, ORAdapter.uri2OpenRdfUri(oldDiscoId), null, 
+					this.stmtmgr, this.eventmgr, ts);
+		return inactivateEvent;
+	}
+
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#deleteDiSCO(java.net.URI)
 	 */
@@ -702,5 +722,6 @@ public class ORMapService implements RMapService {
 	public ORMapAgentMgr getAgentgmr() {
 		return agentgmr;
 	}
+
 
 }

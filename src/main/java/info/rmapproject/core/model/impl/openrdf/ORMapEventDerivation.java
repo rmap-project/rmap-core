@@ -36,8 +36,11 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 
 
 	/**
+	 * 
 	 * @param associatedAgent
 	 * @param targetType
+	 * @param sourceObject
+	 * @param derivedObject
 	 * @throws RMapException
 	 */
 	public ORMapEventDerivation(URI associatedAgent,

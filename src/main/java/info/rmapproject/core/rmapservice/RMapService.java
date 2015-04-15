@@ -160,6 +160,17 @@ public interface RMapService {
 	 */
 	public RMapEvent updateDiSCO(RMapUri systemAgent, URI oldDiscoId, RMapDiSCO disco) throws RMapException, RMapDefectiveArgumentException;
 	/**
+	 * Inactivate a DiSCO.  Can only be performed by same agent that created DiSCO
+	 * @param systemAgent
+	 * @param oldDiscoId
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDiSCONotFoundException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public RMapEvent inactivateDiSCO(RMapUri systemAgent, URI oldDiscoId) throws RMapException, RMapDiSCONotFoundException,
+	RMapDefectiveArgumentException;
+	/**
 	 * Soft delete (tombstone) of a DiSCO
 	 * @param discoID
 	 * @return

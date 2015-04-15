@@ -17,6 +17,7 @@ import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapDeletedObjectException;
 import info.rmapproject.core.exception.RMapDiSCONotFoundException;
 import info.rmapproject.core.exception.RMapEventNotFoundException;
@@ -275,19 +276,24 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	/**
 	 * 
 	 * @param systemAgentId
+	 * @param justInactivate
 	 * @param oldDiscoId
 	 * @param disco
 	 * @param stmtMgr
 	 * @param eventMgr
 	 * @param ts
 	 * @return
+	 * @throws RMapDefectiveArgumentException
+	 * @throws RMapAgentNotFoundException
+	 * @throws RMapException
 	 */
-	public RMapEvent updateDiSCO(URI systemAgentId,
-			URI oldDiscoId, ORMapDiSCO disco, ORMapStatementMgr stmtMgr,
-			ORMapEventMgr eventMgr, SesameTriplestore ts) {
+	public RMapEvent updateDiSCO(URI systemAgentId, 
+			boolean justInactivate, URI oldDiscoId, ORMapDiSCO disco,
+			ORMapStatementMgr stmtMgr, ORMapEventMgr eventMgr, SesameTriplestore ts) 
+	throws RMapDefectiveArgumentException, RMapAgentNotFoundException, RMapException {
 		// confirm non-null old disco
 		if (oldDiscoId==null){
-			throw new RMapException ("Null value for id of target DiSCO");
+			throw new RMapDefectiveArgumentException ("Null value for id of target DiSCO");
 		}
 		// Confirm systemAgentId (not null, is Agent)
 		if (systemAgentId==null){
@@ -298,27 +304,28 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}			
 		// get the event started
 		ORMapEvent event = null;	
-		// same agent:  can be inactivation or update
-		if (this.isSameCreatorAgent(oldDiscoId, systemAgentId, eventMgr, ts)){
-			// either an inactivation or update event
-			if (disco==null){
-				// inactivation
+		if (justInactivate){
+			// must be same agent
+			if (this.isSameCreatorAgent(oldDiscoId, systemAgentId, eventMgr, ts)){
 				ORMapEventInactivation iEvent = new ORMapEventInactivation(systemAgentId, RMapEventTargetType.DISCO);
 				iEvent.setInactivatedObjectId(ORAdapter.openRdfUri2RMapUri(oldDiscoId));
 				event = iEvent;
 			}
-			else{
-				ORMapEventUpdate uEvent = new ORMapEventUpdate(systemAgentId, RMapEventTargetType.DISCO,
-						oldDiscoId, disco.getDiscoContext());
-				event = uEvent;
+			else {
+				throw new RMapDefectiveArgumentException("Agent is not the same as creating agent; " +
+						" cannot inactivate another agent's DiSCO");
 			}
 		}
 		else {
-			// but if it is a new Agent, MUST have new DiSCO, or else it's an illegal attempted update
-			// and it's a derivation event
+			// if same agent, it's an update; otherwise it's a derivation
+			// in either case, must have non-null new DiSCO
 			if (disco==null){
-				throw new RMapException("No new DiSCO provided; Agent is not the same as creating agent; " +
-						" cannot inactivate another agent's DiSCO");
+				throw new RMapDefectiveArgumentException("No new DiSCO provided for update");
+			}
+			if (this.isSameCreatorAgent(oldDiscoId, systemAgentId, eventMgr, ts)){
+				ORMapEventUpdate uEvent = new ORMapEventUpdate(systemAgentId, RMapEventTargetType.DISCO,
+						oldDiscoId, disco.getDiscoContext());
+				event = uEvent;
 			}
 			else {
 				ORMapEventDerivation dEvent = new ORMapEventDerivation(systemAgentId, RMapEventTargetType.DISCO,
@@ -326,6 +333,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				event = dEvent;
 			}
 		}
+			
 		// set up triplestore and start transaction
 		boolean doCommitTransaction = false;
 		try {
