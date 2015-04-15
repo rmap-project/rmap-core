@@ -1,7 +1,7 @@
 /**
  * 
  */
-package info.rmapproject.core.idservice.impl.ark;
+package info.rmapproject.core.idservice.impl.randomnumber;
 
 import info.rmapproject.core.idservice.IdService;
 import info.rmapproject.core.idservice.IdServiceFactory;
@@ -10,13 +10,13 @@ import info.rmapproject.core.idservice.IdServiceFactory;
  * @author  khanson, smorrissey
  *
  */
-public class ArkIdServiceFactory implements IdServiceFactory {
+public class RNIdServiceFactory implements IdServiceFactory {
 
-	private static IdService service = new ArkIdService();
+	private static IdService service = new RNIdService();
 	/**
 	 * 
 	 */
-	public ArkIdServiceFactory() {}
+	public RNIdServiceFactory() {}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.idservice.IdServiceFactory#createService()

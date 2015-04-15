@@ -31,7 +31,7 @@ public class ORMapObjectTest {
 		ORMapObject obj = new ORMapAgent();
 		URI id = obj.getId();
 		String idString = id.toString();
-		assertTrue(idString.startsWith("ark:/27927/"));
+		assertTrue(idString.startsWith("ark:/22573/"));
 	}
 
 }
