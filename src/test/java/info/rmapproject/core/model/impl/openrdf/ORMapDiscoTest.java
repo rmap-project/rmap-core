@@ -8,10 +8,15 @@ import static org.junit.Assert.*;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
+import info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -54,6 +59,44 @@ public class ORMapDiscoTest {
 	protected Literal creator;
 	protected URI creatorUri;
 	protected URI creatorUri2;
+	
+	protected String discoRDF = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> "  
+			+ "<rdf:RDF "  
+			+ " xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\""  
+			+ " xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\""  
+			+ " xmlns:rmap=\"http://rmap-project.org/rmap/terms/\""  
+			+ " xmlns:dcterms=\"http://purl.org/dc/terms/\""  
+			+ " xmlns:dc=\"http://purl.org/dc/elements/1.1/\""  
+			+ " xmlns:foaf=\"http://xmlns.com/foaf/0.1/\""  
+			+ " xmlns:fabio=\"http://purl.org/spar/fabio/\">"  
+			+ "<rmap:DiSCO>"  
+			+ "<dcterms:creator rdf:resource=\"http://orcid.org/0000-0000-0000-0000\"/>"
+			+ "<dc:description>"  
+			+ "This is an example DiSCO aggregating different file formats for an article on IEEE Xplore as well as multimedia content related to the article."  
+			+ "</dc:description>"  
+			+ "<rmap:aggregates rdf:resource=\"http://dx.doi.org/10.1109/ACCESS.2014.2332453\"/>"  
+			+ "<rmap:aggregates rdf:resource=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip\"/>"  
+	    	+ "</rmap:DiSCO>"  
+	    	+ "<fabio:JournalArticle rdf:about=\"http://dx.doi.org/10.1109/ACCESS.2014.2332453\">"  
+	    	+ "<dc:title>Toward Scalable Systems for Big Data Analytics: A Technology Tutorial</dc:title>"  
+	    	+ "<dc:creator>Yonggang Wen</dc:creator>"  
+	    	+ "<dc:creator>Tat-Seng Chua</dc:creator>"  
+	    	+ "<dc:creator>Xuelong Li</dc:creator>"  
+	    	+ "<dc:subject>Hadoop</dc:subject>"  
+	    	+ "<dc:subject>Big data analytics</dc:subject>"  
+	    	+ "<dc:subject>data acquisition</dc:subject>"  
+	    	+ "</fabio:JournalArticle>"  
+	    	+ "<rdf:Description rdf:about=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip\">"  
+	    	+ "<dc:format>application/zip</dc:format>"  
+	    	+ "<dc:description>Zip file containing an AVI movie and a README file in Word format.</dc:description>"  
+	    	+ "<dc:hasPart rdf:resource=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip#big%32data%32intro.avi\"/>"  
+	    	+ "<dc:hasPart rdf:resource=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip#README.docx\"/>"  
+	    	+ "</rdf:Description>"  
+	    	+ "<rdf:Description rdf:about=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip#big%32data%32intro.avi\">"  
+	    	+ "<dc:format>video/x-msvideo</dc:format>"  
+	    	+ "<dc:extent>194KB</dc:extent>"  
+	    	+ "</rdf:Description>"  
+	    	+ "</rdf:RDF>";
 	
 	/**
 	 * @throws java.lang.Exception
@@ -112,7 +155,18 @@ public class ORMapDiscoTest {
 		
 	}
 
-// TODO  create test for DiSCO (List<Statement> stmts)
+	@Test
+	public void testORMapDisco() {
+		InputStream stream = new ByteArrayInputStream(discoRDF.getBytes(StandardCharsets.UTF_8));
+		RioRDFHandler handler = new RioRDFHandler();	
+		List <Statement> stmts = handler.convertRDFToStmtList(
+				stream, "http://rmapdns.ddns.net:8080/api/disco/", "RDFXML");
+		ORMapDiSCO disco = new ORMapDiSCO(stmts);
+		assertEquals(14, disco.getRelatedStatementsAsList().size());
+		OutputStream os = handler.disco2Rdf(disco, "RDFXML");
+		String output = os.toString();
+		assertTrue(output.contains("Yonggang Wen"));
+	}
 	/**
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#referencesAggregate(java.util.List)}.
 	 */
