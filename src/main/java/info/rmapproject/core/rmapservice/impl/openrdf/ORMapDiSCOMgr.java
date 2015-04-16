@@ -656,9 +656,9 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		Map<URI,URI> event2Disco = new HashMap<URI,URI>();
 		do {
 			URI eventId = (URI)eventStmt.getSubject();
+			URI oldAgentId = agentId;
 			if (matchAgent){
 				// first time through, agentID will be null
-				URI oldAgentId = agentId;
 				if (agentId==null){
 					oldAgentId = eventmgr.getEventAssocAgent(eventId, ts);
 				}
@@ -670,7 +670,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			event2Disco.put(eventId,discoId);			
 			if(eventmgr.isCreationEvent(eventId, ts)){					
 				if (lookFoward){
-					event2Disco.putAll(this.lookFoward(discoId, agentId, matchAgent,eventmgr, ts));
+					event2Disco.putAll(this.lookFoward(discoId, oldAgentId, matchAgent,eventmgr, ts));
 				}
 				break;
 			}
@@ -683,10 +683,10 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				}
 				// look back recursively on create/updates for oldDiscoID
 				// DONT look forward on the backward search - you'll already have stuff
-				 event2Disco.putAll(this.lookBack(oldDiscoID, agentId, false, 
+				 event2Disco.putAll(this.lookBack(oldDiscoID, oldAgentId, false, 
 						 matchAgent, eventmgr, ts));
 				// now look ahead for any derived discos
-				 event2Disco.putAll(this.lookFoward(discoId, agentId, matchAgent, eventmgr,ts));
+				 event2Disco.putAll(this.lookFoward(discoId, oldAgentId, matchAgent, eventmgr,ts));
 				break;
 			}
 		} while (false);		
