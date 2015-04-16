@@ -25,6 +25,9 @@ public class RioUtil {
 		else if (rdfType == "RDFJSON")	{
 			rdfFormat = RDFFormat.RDFJSON; 		
 		}
+		else if (rdfType == "TURTLE"){
+			rdfFormat = RDFFormat.TURTLE;
+		}
 		else {
 			rdfFormat = RDFFormat.RDFXML; 			
 		}
