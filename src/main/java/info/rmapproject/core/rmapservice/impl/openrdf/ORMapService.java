@@ -432,8 +432,19 @@ public class ORMapService implements RMapService {
 	 */
 	public RMapDiSCO getDiSCOLatestVersion(URI discoID) 
 	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
+		URI discoUri = this.getDiSCOIdLatestVersion(discoID);
+		ORMapDiSCO latestDisco = null;		
+		if (discoUri != null){
+			org.openrdf.model.URI discoId = ORAdapter.uri2OpenRdfUri(discoID);
+			latestDisco = this.discomgr.readDiSCO(discoId, ts);
+		}
+		return latestDisco;
+	}
+	@Override
+	public URI getDiSCOIdLatestVersion(URI discoID) throws RMapException,
+			RMapObjectNotFoundException, RMapDefectiveArgumentException {
 		if (discoID ==null){
-			throw new RMapException ("null DiSCO id");
+			throw new RMapDefectiveArgumentException ("null DiSCO id");
 		}
 		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
 				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),
@@ -441,17 +452,30 @@ public class ORMapService implements RMapService {
 		org.openrdf.model.URI lastEvent = 
 				this.eventmgr.getLatestEvent(event2disco.keySet(),ts);
 		org.openrdf.model.URI discoId = event2disco.get(lastEvent);
-		return this.discomgr.readDiSCO(discoId, ts);
+		URI discoURI = ORAdapter.openRdfUri2URI(discoId);
+		return discoURI;
 	}
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getPreviousVersionDiSCO(java.net.URI)
 	 */
 	public RMapDiSCO getDiSCOPreviousVersion(URI discoID) 
 	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
+		RMapDiSCO nextDisco = null;
+		URI discoId = this.getDiSCOIdPreviousVersion(discoID);
+		if (discoId != null){
+			org.openrdf.model.URI prevDiscoId = ORAdapter.uri2OpenRdfUri(discoId);
+			nextDisco = this.discomgr.readDiSCO(prevDiscoId,ts);
+		}
+		return nextDisco;
+	}
+	@Override
+	public URI getDiSCOIdPreviousVersion(URI discoID)
+			throws RMapException, RMapObjectNotFoundException,
+			RMapDefectiveArgumentException {
 		if (discoID ==null){
 			throw new RMapDefectiveArgumentException ("null DiSCO id");
 		}
-		RMapDiSCO nextDisco = null;
+		URI nextDiscoUri = null;
 		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
 				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),
 						true,this.eventmgr,ts);
@@ -469,19 +493,30 @@ public class ORMapService implements RMapService {
 			Date previousDate = earlierDates.last()	;
 			org.openrdf.model.URI prevEventId = date2event.get(previousDate);
 			org.openrdf.model.URI prevDiscoId = event2disco.get(prevEventId);
-			nextDisco = this.discomgr.readDiSCO(prevDiscoId,ts);
-		}
-		return nextDisco;
+			nextDiscoUri = ORAdapter.openRdfUri2URI(prevDiscoId);
+		}		
+		return nextDiscoUri;
 	}
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getNextVersionDiSCO(java.net.URI)
 	 */
 	public RMapDiSCO getDiSCONextVersion(URI discoID) 
 	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
+		RMapDiSCO nextDisco = null;
+		URI nextDiscoURI = this.getDiSCOIdNextVersion(discoID);
+		if (nextDiscoURI != null){
+			org.openrdf.model.URI nextDiscoId = ORAdapter.uri2OpenRdfUri(nextDiscoURI);
+			nextDisco = this.discomgr.readDiSCO(nextDiscoId, ts);
+		}
+		return nextDisco;
+	}
+	@Override
+	public URI getDiSCOIdNextVersion(URI discoID) throws RMapException,
+			RMapObjectNotFoundException, RMapDefectiveArgumentException {
 		if (discoID ==null){
 			throw new RMapDefectiveArgumentException ("null DiSCO id");
 		}
-		RMapDiSCO nextDisco = null;
+		URI nextDiscoUri = null;
 		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
 				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),
 						true,this.eventmgr,ts);
@@ -499,10 +534,11 @@ public class ORMapService implements RMapService {
 			Date[] dateArray = laterDates.toArray(new Date[laterDates.size()]);	
 			org.openrdf.model.URI nextEventId = date2event.get(dateArray[1]);
 			org.openrdf.model.URI nextDiscoId = event2disco.get(nextEventId);
-			nextDisco = this.discomgr.readDiSCO(nextDiscoId, ts);
+			nextDiscoUri = ORAdapter.openRdfUri2URI(nextDiscoId);
 		}
-		return nextDisco;
+		return nextDiscoUri;
 	}
+
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCOEvents(java.net.URI)
 	 */

@@ -208,6 +208,15 @@ public interface RMapService {
 	 */
 	public RMapDiSCO getDiSCOLatestVersion (URI discoID) throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException;
 	/**
+	 * 
+	 * @param discoID
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapObjectNotFoundException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public URI getDiSCOIdLatestVersion(URI discoID) throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException;
+	/**
 	 * Get previous version created by same system agent, if any, of this DiSCO
 	 * @param discoID
 	 * @return
@@ -216,6 +225,24 @@ public interface RMapService {
 	 * @throws RMapDefectiveArgumentException 
 	 */
 	public RMapDiSCO getDiSCOPreviousVersion (URI discoID) throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException;
+	/**
+	 * 
+	 * @param discoID
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapObjectNotFoundException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public URI getDiSCOIdPreviousVersion(URI discoID) throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException;
+	/**
+	 * 
+	 * @param discoID
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapObjectNotFoundException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public URI getDiSCOIdNextVersion (URI discoID)throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException;
 	/**
 	 * Get next version created by same system agent, if any, of this DiSCO
 	 * @param discoID
