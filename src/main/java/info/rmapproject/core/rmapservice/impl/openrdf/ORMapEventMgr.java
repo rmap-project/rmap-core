@@ -1022,7 +1022,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		List<Statement> returnStmts = new ArrayList<Statement>();
 		try {
 			//TOD check this against new event types
-			stmts = ts.getStatements(null, RMAP.EVENT_DERIVED_OBJECT, targetId);
+			stmts = ts.getStatements(null, RMAP.EVENT_INACTIVATED_OBJECT, targetId);
 			for (Statement stmt:stmts){
 				// make sure this is an event
 				if (stmt != null && stmt.getSubject().equals(stmt.getContext())){
@@ -1092,7 +1092,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		URI sourceDisco = null;
 		Statement stmt = null;
 		try {
-			stmt = ts.getStatement(eventId, RMAP.EVENT_DERIVED_OBJECT, null, eventId);
+			stmt = ts.getStatement(eventId, RMAP.EVENT_INACTIVATED_OBJECT, null, eventId);
 			if (stmt != null){
 				Value vObject = stmt.getObject();
 				if (vObject instanceof URI){
