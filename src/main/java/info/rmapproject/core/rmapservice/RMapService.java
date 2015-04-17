@@ -335,8 +335,7 @@ public interface RMapService {
 	 * @throws RMapDefectiveArgumentException
 	 */
 	public RMapEvent deleteAgent(URI systemAgentId, URI targetAgentID) throws RMapException, RMapAgentNotFoundException, 
-	RMapDefectiveArgumentException;
-	
+	RMapDefectiveArgumentException;	
 	/**
 	 * 
 	 * @param agentId
@@ -347,12 +346,25 @@ public interface RMapService {
 	public List<URI> getAgentEvents(URI agentId) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Find all RMapAgents that are representations of an agent identified by some external (non-RMAP) uri
+	 * Include RMapAgents created by any RMapAgent
 	 * @param uri External (non-RMAP) identifier for an Agent
 	 * @return List of ids for Agents that represent the agent identified by external URI
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<URI> getAgentRepresentations(URI uri) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getAgentRepresentationsAnyCreator(URI uri) throws RMapException, RMapDefectiveArgumentException;
+	/**
+	 * Find all RMapAgents  that are representations of an agent identified by some external (non-RMAP) uri
+	 * and that were created by a particular RMapAgent
+	 * @param agentURI id of RMapAgent who created agents
+	 * @param repURI URI for some non-RMap identified agent
+	 * @return List of ids for RMapAgents that represent the agent identified by external URI
+	 * @throws RMapException
+	 * @throws RMapAgentNotFoundException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public List<URI> getAgentRepresentations(URI agentURI, URI repURI) throws RMapException, 
+	RMapAgentNotFoundException, RMapDefectiveArgumentException;
 	/**
 	 * 
 	 * @param agentId

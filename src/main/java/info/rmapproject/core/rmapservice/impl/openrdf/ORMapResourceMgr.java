@@ -1,5 +1,6 @@
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.exception.RMapStatementNotFoundException;
@@ -186,7 +187,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	public Set<URI> getRelatedAgents(URI uri, RMapStatus statusCode, 
 			ORMapStatementMgr stmtmgr, ORMapDiSCOMgr discomgr, ORMapEventMgr eventMgr, 
 			ORMapAgentMgr agentmgr, SesameTriplestore ts) 
-	throws RMapException, RMapObjectNotFoundException {
+	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
 		Set<URI>agents = new HashSet<URI>();		
 		do {
 			if (this.isDiscoId(uri, ts)){

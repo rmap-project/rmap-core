@@ -131,15 +131,13 @@ public class ArkIdService implements IdService {
 			URL noidUrl = null;
 			HttpURLConnection noidCon = null;
 			try {
-
 				noidUrl = new URL(url);
 				noidCon = (HttpURLConnection) noidUrl.openConnection();
 				noidCon.setDoInput(true);
 				noidCon.setDoOutput(false);
 				noidCon.connect();
 				reader = new BufferedReader(new InputStreamReader(noidCon
-						.getInputStream()));
-				if(null != reader){
+						.getInputStream()));				
 					String output = null;
 					if (noidCon.getResponseCode() == HTTP_STATUS_OK) {
 						while ((output = reader.readLine()) != null) {
@@ -157,19 +155,22 @@ public class ArkIdService implements IdService {
 					} else {
 						log.fatal("UNSUCCESSFUL HTTP REQUEST TO NOID SERVICE and  HTTP RETURN CODE is : " + noidCon.getResponseCode());
 					}
-				}
 			} catch(Exception e){
 				log.fatal("EXCEPTION CONNECTING TO NOID SERVER", e);
 
 			} finally {
 
 				try {
-					reader.close();
+					if (reader != null){
+						reader.close();
+					}
 				} catch (Exception e) {
 					log.fatal("Exception while closing Buffered Reader", e);
 				}
 				try {
-					noidCon.disconnect();
+					if (noidCon != null){
+						noidCon.disconnect();
+					}
 				} catch (Exception e) {
 					log.fatal("Exception while closing http connection to noid service ", e);
 				}

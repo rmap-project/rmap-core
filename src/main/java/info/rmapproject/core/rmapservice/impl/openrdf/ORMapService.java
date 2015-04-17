@@ -689,9 +689,26 @@ public class ORMapService implements RMapService {
 		}
 		return eventUris;
 	}
-
 	@Override
-	public List<URI> getAgentRepresentations(URI uri) throws RMapException,
+	public List<URI> getAgentRepresentations(URI agentURI, URI repURI)
+			throws RMapException, RMapAgentNotFoundException,
+			RMapDefectiveArgumentException {
+		if (agentURI==null){
+			throw new RMapDefectiveArgumentException ("null agent URI");
+		}	
+		if (repURI==null){
+			throw new RMapDefectiveArgumentException ("null representation URI");
+		}	
+		Set<org.openrdf.model.URI> ids = this.agentgmr.getAgentRepresentations(
+				ORAdapter.uri2OpenRdfUri(agentURI), ORAdapter.uri2OpenRdfUri(repURI), ts);
+		List<URI> uris = new ArrayList<URI>();
+		for (org.openrdf.model.URI idUri:ids){
+			uris.add(ORAdapter.openRdfUri2URI(idUri));
+		}
+		return uris;
+	}
+	@Override
+	public List<URI> getAgentRepresentationsAnyCreator(URI uri) throws RMapException,
 			RMapDefectiveArgumentException {
 		if (uri==null){
 			throw new RMapDefectiveArgumentException ("null uri");
@@ -704,8 +721,6 @@ public class ORMapService implements RMapService {
 		}
 		return uris;
 	}
-	
-
 	@Override
 	public RMapStatus getAgentStatus(URI agentId) throws RMapException,
 			RMapDefectiveArgumentException, RMapAgentNotFoundException {
@@ -758,6 +773,5 @@ public class ORMapService implements RMapService {
 	public ORMapAgentMgr getAgentgmr() {
 		return agentgmr;
 	}
-
 
 }

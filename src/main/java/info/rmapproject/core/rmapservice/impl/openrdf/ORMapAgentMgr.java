@@ -13,6 +13,7 @@ import java.util.Set;
 
 import info.rmapproject.core.controlledlist.AgentPredicate;
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapDeletedObjectException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
@@ -303,6 +304,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	
 	/**
 	 * Get ids of any Agents that are a representation of the agent identified by non-RMap URI 
+	 * created by any agent
 	 * @param id
 	 * @param ts
 	 * @return
@@ -334,18 +336,62 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		return agentIds;
 	}
 	/**
-	 * Find identifiers of RMap agents associated with an Agent ID
+	 * Find identifiers of RMap agents representing a particular resource and created by 
+	 * a particular agent
+	 * @param agentURI
+	 * @param repURI
+	 * @param ts
+	 * @return
+	 * @throws RMapDefectiveArgumentException
+	 * @throws RMapAgentNotFoundException
+	 * @throws RMapException
+	 */
+	public Set<org.openrdf.model.URI> getAgentRepresentations(URI agentURI, 
+			URI repURI, SesameTriplestore ts)
+	throws RMapDefectiveArgumentException, RMapAgentNotFoundException, RMapException {
+		if (agentURI==null){
+			throw new RMapDefectiveArgumentException("null agent URI");
+		}
+		if (repURI==null){
+			throw new RMapDefectiveArgumentException("nullrepURI");
+		}
+		if (ts==null){
+			throw new RMapDefectiveArgumentException("null triplestore");
+		}
+		if (!(this.isAgentId(agentURI, ts))){
+			throw new RMapAgentNotFoundException("No RMap agent with id " + 
+					agentURI.stringValue());
+		}
+		Set<URI>agents = this.getAgentRepresentations(repURI, ts);
+		Set<URI>matchingAgents = new HashSet<URI>();
+		String agentStr = agentURI.stringValue();
+		for (URI uri:agents){
+			ORMapAgent agent = this.readAgent(uri, ts);
+			URI agentRepUri = (URI)(agent.getRepresentationStmt().getObject());
+			if (agentRepUri.stringValue().equals(agentStr)){
+				matchingAgents.add(agentRepUri);
+			}
+		}
+		return matchingAgents;
+	}
+	
+	/**
+	 * Find identifiers of RMap agents associated with an Agent ID 
 	 * @param uri
 	 * @param statusCode
 	 * @param ts
 	 * @return
+	 * @throws RMapDefectiveArgumentException
+	 * @throws RMapAgentNotFoundException
+	 * @throws RMapException
 	 */
-	public Set<URI> getRelatedAgents (URI uri, RMapStatus statusCode, SesameTriplestore ts){
+	public Set<URI> getRelatedAgents (URI uri, RMapStatus statusCode, SesameTriplestore ts)
+	throws RMapDefectiveArgumentException, RMapAgentNotFoundException, RMapException {
 		if (uri == null){
-			throw new RMapException("null agentId");
+			throw new RMapDefectiveArgumentException("null agentId");
 		}
 		if (ts==null){
-			throw new RMapException("null triplestore");
+			throw new RMapDefectiveArgumentException("null triplestore");
 		}
 		
 		if (!(this.isAgentId(uri, ts))){
@@ -388,4 +434,5 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}while (false);
 		return agents;
 	}
+
 }
