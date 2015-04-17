@@ -11,6 +11,7 @@ import info.rmapproject.core.model.statement.RMapStatement;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 
 /**
  * @author smorrissey
@@ -26,6 +27,16 @@ public interface RDFHandler {
 	 * @throws RMapException if InputStream cannot be converted to valid DiSCO
 	 */
 	public RMapDiSCO rdf2RMapDiSCO(InputStream rdfIn, String baseUri, String rdfFormat) throws RMapException;
+	/**
+	 * Deserialize an RDF InputStream into an RMapAgent
+	 * @param systemAgent 
+	 * @param rdfIn
+	 * @param baseUri
+	 * @param rdfFormat
+	 * @return
+	 * @throws RMapException
+	 */
+	public RMapAgent rdf2RMapAgent(URI systemAgent, InputStream rdfIn, String baseUri, String rdfFormat) throws RMapException;
 	/**
 	 * Serialize RMapStatement as RDF
 	 * @param stmt RMapStatement to be serialized

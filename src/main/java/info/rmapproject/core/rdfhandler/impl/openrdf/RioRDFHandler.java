@@ -5,6 +5,7 @@ import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
+import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
@@ -104,6 +105,14 @@ public class RioRDFHandler implements RDFHandler {
 		ORMapDiSCO disco = new ORMapDiSCO(stmts);
 		return disco;
 	}
+	
+	@Override
+	public RMapAgent rdf2RMapAgent(java.net.URI systemAgent, InputStream rdfIn,
+			String baseUri, String rdfFormat) throws RMapException {
+		List <Statement> stmts = this.convertRDFToStmtList(rdfIn, rdfFormat, baseUri);
+		ORMapAgent agent = new ORMapAgent(stmts, ORAdapter.uri2OpenRdfUri(systemAgent));
+		return agent;
+	}
 
 	@Override
 	public OutputStream statement2Rdf(RMapStatement stmt, String rdfFormat)
@@ -192,4 +201,5 @@ public class RioRDFHandler implements RDFHandler {
 		OutputStream os = this.convertStmtListToRDF(model, rdfFormat);
 		return os;
 	}
+
 }
