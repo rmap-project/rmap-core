@@ -280,7 +280,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			SesameTriplestore ts) 
 	throws RMapException {
 		ORMapAgent agent = null;
-		agent = new ORMapAgent(targetId, systemAgent);		
+		agent = new ORMapAgent(targetId, systemAgent);	
 		this.createAgentTriples(agent, ts);
 		return agent;
 	}

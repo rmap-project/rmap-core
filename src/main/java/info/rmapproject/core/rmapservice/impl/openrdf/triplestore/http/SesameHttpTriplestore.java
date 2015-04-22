@@ -49,11 +49,6 @@ public class SesameHttpTriplestore  extends SesameTriplestore{
     		rmapHttpRepo.setUsernameAndPassword(SESAME_USER,SESAME_PASSWORD);
     		repository = rmapHttpRepo;
     		repository.initialize();	
-    		try {
-    			valueFactory = ((HTTPRepository)getRepository()).getValueFactory();
-    		} catch (Exception e) {
-    			throw new RepositoryException("Exception thrown creating HTTP value factory", e);
-    		}
     	}
     	return repository;
 	}

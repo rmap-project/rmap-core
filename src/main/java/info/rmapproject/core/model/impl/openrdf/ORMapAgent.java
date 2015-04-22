@@ -38,7 +38,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	 * @throws RMapException
 	 */
 	protected ORMapAgent() throws RMapException {
-		super();	
+		super();
 		this.context = ORAdapter.uri2OpenRdfUri(getId());	
 		this.typeStatement = 
 				this.getValueFactory().createStatement(this.context,RDF.TYPE,RMAP.AGENT,this.context);

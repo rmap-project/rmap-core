@@ -27,7 +27,7 @@ public abstract class SesameTriplestore  {
     protected boolean transactionOpen = false;
         
     protected static Repository repository = null;
-    protected static RepositoryConnection connection = null;
+    protected RepositoryConnection connection = null;
     protected  ValueFactory valueFactory = null;
 	
 	protected SesameTriplestore()	{}
@@ -175,11 +175,9 @@ public abstract class SesameTriplestore  {
 		if (valueFactory==null){
 			if (repository==null){
 				this.intitializeRepository();
-			}
-			else {
-				throw new RepositoryException ("Repository with out ValueFactory initialized");
-			}
-		}
+			}			
+			valueFactory = repository.getValueFactory();
+		}			
 		return valueFactory;
 	}
 		

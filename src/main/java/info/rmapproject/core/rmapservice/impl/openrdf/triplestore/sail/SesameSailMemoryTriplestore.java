@@ -66,11 +66,6 @@ public class SesameSailMemoryTriplestore extends SesameTriplestore {
 				repository = new SailRepository(new MemoryStore(dataFile));
 			}while (false);
 			repository.initialize();
-			try {
-				valueFactory = getRepository().getValueFactory();
-			} catch (Exception e) {
-				throw new RepositoryException("Exception thrown creating HTTP value factory", e);
-			}
 		}		
 		return repository;
 	}

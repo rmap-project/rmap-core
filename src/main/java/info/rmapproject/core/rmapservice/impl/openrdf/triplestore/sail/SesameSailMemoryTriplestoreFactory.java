@@ -11,11 +11,6 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
  *
  */
 public class SesameSailMemoryTriplestoreFactory implements SesameTriplestoreFactory {
-	private static SesameTriplestore ts;
-	
-	static {
-		ts = new SesameSailMemoryTriplestore();
-	}
 
 	/**
 	 * 
@@ -26,7 +21,7 @@ public class SesameSailMemoryTriplestoreFactory implements SesameTriplestoreFact
 	 * @see info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactory#createTriplestore()
 	 */
 	public SesameTriplestore createTriplestore() throws Exception {
-		return ts;
+		return new SesameSailMemoryTriplestore();
 	}
 
 }

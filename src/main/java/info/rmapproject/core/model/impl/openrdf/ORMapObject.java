@@ -9,14 +9,11 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
-import org.openrdf.repository.RepositoryException;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdServiceFactoryIOC;
 import info.rmapproject.core.model.RMapObject;
-import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.RMapServiceFactoryIOC;
-import info.rmapproject.core.rmapservice.impl.openrdf.ORMapService;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
 
 
 /**
@@ -27,38 +24,22 @@ import info.rmapproject.core.rmapservice.impl.openrdf.ORMapService;
  */
 public abstract class ORMapObject implements RMapObject  {
 	protected java.net.URI id;
-	
-	private ORMapService service = null;
-	private ValueFactory valueFactory=null;
-	
+	protected ValueFactory valueFactory=null;	
 	protected Statement typeStatement;
-	
-	protected ORMapService getService() throws RMapException {
-		if (service==null){
-			RMapService rservice = RMapServiceFactoryIOC.getFactory().createService();
-			if (!(rservice instanceof ORMapService)){
-				throw new RMapException("RMapService is not ORMapService");
-			}
-			this.service = (ORMapService)rservice;
-			try {
-				this.valueFactory = this.getService().getTriplestore().getValueFactory();
-			} catch (RepositoryException e) {
-				throw new RMapException("Exception thrown creating ValueFactory", e);
-			}
-		}
-		return this.service;
-	}
-	
+
 	protected ValueFactory getValueFactory() throws RMapException{
 		if (this.valueFactory == null){
 			try {
-				this.valueFactory = this.getService().getTriplestore().getValueFactory();
-			} catch (RepositoryException e) {
+				this.valueFactory = SesameTriplestoreFactoryIOC.getFactory().createTriplestore().getValueFactory();
+			} catch (Exception e) {
 				throw new RMapException("Exception thrown creating ValueFactory", e);
 			}
 		}
 		return this.valueFactory;
 	}
+	
+	
+	
 	/**
 	 * Base Constructor for all RMapObjects instances, which must have a unique java.net.URI identifier 
 	 * @throws Exception 

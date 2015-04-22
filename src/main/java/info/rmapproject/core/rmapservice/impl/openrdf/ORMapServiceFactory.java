@@ -12,9 +12,6 @@ import info.rmapproject.core.rmapservice.RMapServiceFactory;
  *
  */
 public class ORMapServiceFactory implements RMapServiceFactory {
-	
-	private static RMapService service = new ORMapService();
-
 	/**
 	 * 
 	 */
@@ -24,7 +21,7 @@ public class ORMapServiceFactory implements RMapServiceFactory {
 	 * @see info.rmapproject.core.rmapservice.RMapServiceFactory#createService()
 	 */
 	public RMapService createService() throws RMapException {
-		return service;
+		return new ORMapService();
 	}
 
 }

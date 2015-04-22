@@ -224,11 +224,12 @@ public class ORMapObjectMgrTest {
 		}
 		//yep, agent creates itself… just for now.
 		URI agentURI = ORAdapter.uri2OpenRdfUri(SYSAGENT_URI);
-		ORMapAgent agent = new ORMapAgent(agentURI, agentURI);
+		
 		//create through ORMapAgentMgr
 		SesameTriplestore ts = null;
 		try {
 			ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
+			ORMapAgent agent = new ORMapAgent(agentURI, agentURI);
 			ORMapAgentMgr agentMgr = new ORMapAgentMgr();
 			agentMgr.createAgentTriples (agent, ts);
 			try {
