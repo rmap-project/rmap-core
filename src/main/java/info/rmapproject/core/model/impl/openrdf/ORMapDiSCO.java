@@ -6,7 +6,9 @@ package info.rmapproject.core.model.impl.openrdf;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.collections4.Predicate;
 import org.openrdf.model.Model;
@@ -209,7 +211,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 				aggResources.add(this.getValueFactory().createStatement
 						(subject, predicate, object, this.discoContext));
 			}
-			else if (predicate.equals(DC.DESCRIPTION)){
+			else if ((predicate.equals(DC.DESCRIPTION)) || (predicate.equals(DCTERMS.DESCRIPTION))){
 				if (subjectIsDisco){
 					this.description= this.getValueFactory().createStatement
 							(subject, predicate, object, this.discoContext);
@@ -296,7 +298,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	protected boolean isConnectedGraph(List<Statement> relatedStatements) throws RMapException{
 		boolean isConnected = false;
 		HashMap<Value, Node> nodeMap = new HashMap<Value, Node>();
-		List<Node> visitedNodes = new ArrayList<Node>();
+		Set<Node> visitedNodes = new HashSet<Node>();
 		// get all the nodes in relatedStatements
 		for (Statement stmt:relatedStatements){
 			Value subj = stmt.getSubject();
@@ -340,7 +342,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 * @param visitedNodes
 	 * @param startNode
 	 */
-	protected void markConnected (List<Node> visitedNodes,
+	protected void markConnected (Set<Node> visitedNodes,
 		Node startNode){
 		startNode.setWasVisited(true);
 		visitedNodes.add(startNode);
