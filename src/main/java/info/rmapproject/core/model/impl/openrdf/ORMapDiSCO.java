@@ -208,7 +208,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 							(subject, predicate, object, this.discoContext));
 				}
 			}
-			else if (predicate.equals(ORE.AGGREGATION)){
+			else if (predicate.equals(ORE.AGGREGATES)){
 				aggResources.add(this.getValueFactory().createStatement
 						(subject, predicate, object, this.discoContext));
 			}
@@ -391,7 +391,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	public void setAggregratedResources(List<java.net.URI> aggregratedResources) throws RMapException {
 		List<Statement>aggResources = null;
 		if (aggregratedResources != null){
-			URI predicate = ORE.AGGREGATION;
+			URI predicate = ORE.AGGREGATES;
 			aggResources = new ArrayList<Statement>();
 				for (java.net.URI rmapResource:aggregratedResources){
 					Resource resource = ORAdapter.uri2OpenRdfUri(rmapResource);

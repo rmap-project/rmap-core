@@ -40,12 +40,17 @@ public class ORE {
 	 */
 	public static final URI AGGREGATION;
 	
+	/**
+	 * 
+	 */
+	public static final URI AGGREGATES;
 	static {
 		final ValueFactory f = ValueFactoryImpl.getInstance();
 
 		SIMILARTO = f.createURI(NAMESPACE, "similarTo");
 		DESCRIBES = f.createURI(NAMESPACE, "describes");
 		AGGREGATION = f.createURI(NAMESPACE, "Aggregation");
+		AGGREGATES = f.createURI(NAMESPACE, "aggregates");
 	}
 	
 	
