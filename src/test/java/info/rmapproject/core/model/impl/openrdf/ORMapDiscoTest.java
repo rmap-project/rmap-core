@@ -10,6 +10,7 @@ import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.ORE;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 import java.io.ByteArrayInputStream;
@@ -64,7 +65,8 @@ public class ORMapDiscoTest {
 			+ "<rdf:RDF "  
 			+ " xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\""  
 			+ " xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\""  
-			+ " xmlns:rmap=\"http://rmap-project.org/rmap/terms/\""  
+			+ " xmlns:rmap=\"http://rmap-project.org/rmap/terms/\""  		
+			+ " xmlns:ore=\"http://www.openarchives.org/ore/terms/\""
 			+ " xmlns:dcterms=\"http://purl.org/dc/terms/\""  
 			+ " xmlns:dc=\"http://purl.org/dc/elements/1.1/\""  
 			+ " xmlns:foaf=\"http://xmlns.com/foaf/0.1/\""  
@@ -74,8 +76,8 @@ public class ORMapDiscoTest {
 			+ "<dc:description>"  
 			+ "This is an example DiSCO aggregating different file formats for an article on IEEE Xplore as well as multimedia content related to the article."  
 			+ "</dc:description>"  
-			+ "<rmap:aggregates rdf:resource=\"http://dx.doi.org/10.1109/ACCESS.2014.2332453\"/>"  
-			+ "<rmap:aggregates rdf:resource=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip\"/>"  
+			+ "<ore:Aggregation rdf:resource=\"http://dx.doi.org/10.1109/ACCESS.2014.2332453\"/>"  
+			+ "<ore:Aggregation rdf:resource=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip\"/>"  
 	    	+ "</rmap:DiSCO>"  
 	    	+ "<fabio:JournalArticle rdf:about=\"http://dx.doi.org/10.1109/ACCESS.2014.2332453\">"  
 	    	+ "<dc:title>Toward Scalable Systems for Big Data Analytics: A Technology Tutorial</dc:title>"  
@@ -102,6 +104,7 @@ public class ORMapDiscoTest {
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
 			"<rdf:RDF  xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" " +
 			"    xmlns:rmap=\"http://rmap-project.org/rmap/terms/\" " +
+			"    xmlns:ore=\"http://www.openarchives.org/ore/terms/\"" +
 			"    xmlns:dc=\"http://purl.org/dc/elements/1.1/\" " +
 			"    xmlns:dcterms=\"http://purl.org/dc/terms/\" " +
 			"    xmlns:premis=\"http://www.loc.gov/premis/rdf/v1#\" " +
@@ -109,11 +112,11 @@ public class ORMapDiscoTest {
 			"    <rmap:DiSCO>" +
 			"        <dcterms:creator rdf:resource=\"http://portico.org\"/>" +
 			"        <dcterms:description>The group of digital objects relating to a single article that are preserved in the Portico digital archive.</dcterms:description>" +
-			"        <rmap:aggregates rdf:resource=\"ark:/27927/pf1xrp1cv9\"/>" +
-			"        <rmap:aggregates rdf:resource=\"http://dx.doi.org/10.1109/ICAL.2007.4339019\"/>" +
-			"        <rmap:aggregates rdf:resource=\"ark:/27927/pf1xrntg38\"/>" +
-			"        <rmap:aggregates rdf:resource=\"ark:/27927/pf1xrsw3hq\"/>" +
-			"        <rmap:aggregates rdf:resource=\"ark:/27927/pf1xrnsz85\"/>" +
+			"        <ore:Aggregation rdf:resource=\"ark:/27927/pf1xrp1cv9\"/>" +
+			"        <ore:Aggregation rdf:resource=\"http://dx.doi.org/10.1109/ICAL.2007.4339019\"/>" +
+			"        <ore:Aggregation rdf:resource=\"ark:/27927/pf1xrntg38\"/>" +
+			"        <ore:Aggregation rdf:resource=\"ark:/27927/pf1xrsw3hq\"/>" +
+			"        <ore:Aggregation rdf:resource=\"ark:/27927/pf1xrnsz85\"/>" +
 			"    </rmap:DiSCO>" +
 			"    <rdf:Description rdf:about=\"http://dx.doi.org/10.1109/ICAL.2007.4339019\">" +
 			"        <rdf:type rdf:resource=\"http://purl.org/spar/fabio/JournalArticle\"/>" +
@@ -192,7 +195,7 @@ public class ORMapDiscoTest {
 			model.addAll(resources);
 			Set<URI> predicates = model.predicates();
 			assertEquals(1,predicates.size());
-			assertTrue(predicates.contains(RMAP.AGGREGATES));
+			assertTrue(predicates.contains(ORE.AGGREGATION));
 			Set<Value> objects = model.objects();
 			assertTrue(objects.contains(r));
 			assertTrue(objects.contains (r2));
@@ -232,8 +235,8 @@ public class ORMapDiscoTest {
 	@Test
 	public void testReferencesAggregate() {
 		ORMapDiSCO disco = new ORMapDiSCO();
-		Statement rStmt = vf.createStatement(disco.discoContext, RMAP.AGGREGATES, r,disco.discoContext);
-		Statement rStmt2 = vf.createStatement(disco.discoContext, RMAP.AGGREGATES, r2,disco.discoContext);
+		Statement rStmt = vf.createStatement(disco.discoContext, ORE.AGGREGATION, r,disco.discoContext);
+		Statement rStmt2 = vf.createStatement(disco.discoContext, ORE.AGGREGATION, r2,disco.discoContext);
 		disco.aggregatedResources = new ArrayList<Statement>();
 		disco.aggregatedResources.add(rStmt);
 		disco.aggregatedResources.add(rStmt2);
@@ -258,8 +261,8 @@ public class ORMapDiscoTest {
 	@Test
 	public void testIsConnectedGraph() {
 		ORMapDiSCO disco = new ORMapDiSCO();
-		Statement rStmt = vf.createStatement(disco.discoContext, RMAP.AGGREGATES, r,disco.discoContext);
-		Statement rStmt2 = vf.createStatement(disco.discoContext, RMAP.AGGREGATES, r2,disco.discoContext);
+		Statement rStmt = vf.createStatement(disco.discoContext, ORE.AGGREGATION, r,disco.discoContext);
+		Statement rStmt2 = vf.createStatement(disco.discoContext, ORE.AGGREGATION, r2,disco.discoContext);
 		disco.aggregatedResources = new ArrayList<Statement>();
 		disco.aggregatedResources.add(rStmt);
 		disco.aggregatedResources.add(rStmt2);
@@ -292,8 +295,8 @@ public class ORMapDiscoTest {
 	@Test
 	public void testGetAggregatedResourceStatements() {
 		ORMapDiSCO disco = new ORMapDiSCO();
-		Statement rStmt = vf.createStatement(disco.discoContext, RMAP.AGGREGATES, r,disco.discoContext);
-		Statement rStmt2 = vf.createStatement(disco.discoContext, RMAP.AGGREGATES, r2,disco.discoContext);
+		Statement rStmt = vf.createStatement(disco.discoContext, ORE.AGGREGATION, r,disco.discoContext);
+		Statement rStmt2 = vf.createStatement(disco.discoContext, ORE.AGGREGATION, r2,disco.discoContext);
 		List<java.net.URI> list1 = new ArrayList<java.net.URI>();
 		list1.add(ORAdapter.openRdfUri2URI(r));
 		list1.add(ORAdapter.openRdfUri2URI(r2));

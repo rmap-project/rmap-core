@@ -28,6 +28,7 @@ import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.disco.RMapDiSCO;
+import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.ORE;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 /**
@@ -207,7 +208,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 							(subject, predicate, object, this.discoContext));
 				}
 			}
-			else if (predicate.equals(RMAP.AGGREGATES)){
+			else if (predicate.equals(ORE.AGGREGATION)){
 				aggResources.add(this.getValueFactory().createStatement
 						(subject, predicate, object, this.discoContext));
 			}
@@ -390,7 +391,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	public void setAggregratedResources(List<java.net.URI> aggregratedResources) throws RMapException {
 		List<Statement>aggResources = null;
 		if (aggregratedResources != null){
-			URI predicate = RMAP.AGGREGATES;
+			URI predicate = ORE.AGGREGATION;
 			aggResources = new ArrayList<Statement>();
 				for (java.net.URI rmapResource:aggregratedResources){
 					Resource resource = ORAdapter.uri2OpenRdfUri(rmapResource);

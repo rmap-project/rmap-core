@@ -157,10 +157,6 @@ public class RMAP {
 	public static final URI RMAP_AGENT_ID;
 
 	/**
-	 * rmap:Aggregates
-	 */
-	public static final URI AGGREGATES;
-	/**
 	 * rmap:Status
 	 */
 	public static final URI HAS_STATUS;
@@ -222,8 +218,7 @@ public class RMAP {
 		EVENT_INACTIVATED_OBJECT = f.createURI(NAMESPACE, "inactivatedObject");
 		EVENT_DERIVED_OBJECT = f.createURI(NAMESPACE, "derivedObject");
 		EVENT_TARGET_TOMBSTONED = f.createURI(NAMESPACE, "tombstonedObject");
-		EVENT_TARGET_DELETED = f.createURI(NAMESPACE, "deletedObject");		
-		AGGREGATES = f.createURI(NAMESPACE, "aggregates");   
+		EVENT_TARGET_DELETED = f.createURI(NAMESPACE, "deletedObject");		  
 		RMAP_AGENT_ID = f.createURI(NAMESPACE,"agentId");
 		HAS_STATUS = f.createURI(NAMESPACE, "hasStatus");
 		ACTIVE = f.createURI(NAMESPACE, "active"); 
