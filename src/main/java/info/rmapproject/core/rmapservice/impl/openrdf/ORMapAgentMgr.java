@@ -36,6 +36,7 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.vocabulary.DCTERMS;
 
 
 /**
@@ -320,7 +321,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}
 		Set<URI>agentIds = new HashSet<URI>();
 		try {
-			List<Statement> stmts = ts.getStatementsAnyContext(null, RMAP.AGENTREP, id, false);
+			List<Statement> stmts = ts.getStatementsAnyContext(null, DCTERMS.IS_FORMAT_OF, id, false);
 			for (Statement stmt:stmts){
 				Resource context = stmt.getContext();
 				if (context instanceof URI){

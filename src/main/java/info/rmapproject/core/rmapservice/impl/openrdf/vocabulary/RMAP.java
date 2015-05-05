@@ -57,10 +57,6 @@ public class RMAP {
 	/**
 	 * 
 	 */
-	public static final URI AGENTREP;
-	/**
-	 * 
-	 */
 	public static final URI PROFILE;
 	/**
 	 * 
@@ -202,7 +198,6 @@ public class RMAP {
 		STATEMENT = f.createURI(NAMESPACE, "Statement");
 		DISCO = f.createURI(NAMESPACE, "DiSCO");
 		AGENT = f.createURI(NAMESPACE, "Agent");
-		AGENTREP = f.createURI(NAMESPACE, "agentRepresentation");
 		SYSTEM_AGENT = f.createURI(NAMESPACE, "SystemAgent");
 		SCHOLARLY_AGENT = f.createURI(NAMESPACE, "ScholarlyAgent");
 		PROFILE = f.createURI(NAMESPACE, "Profile");

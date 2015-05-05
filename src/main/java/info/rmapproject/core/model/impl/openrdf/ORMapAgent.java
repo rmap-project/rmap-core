@@ -205,7 +205,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 				}
 				continue;
 			}
-			if (predicate.equals(RMAP.AGENTREP)){
+			if (predicate.equals(DCTERMS.IS_FORMAT_OF)){
 				if (agentIsSubject){
 					Statement repStmt = this.getValueFactory().createStatement(
 							subject, predicate, object, this.context);
@@ -258,7 +258,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	 */
 	protected void setRepresentationStmt (URI target){
 		Statement stmt = this.getValueFactory().createStatement(this.context, 
-				RMAP.AGENTREP, target, this.context);
+				DCTERMS.IS_FORMAT_OF, target, this.context);
 		this.representationStmt = stmt;
 	}
 	/**
