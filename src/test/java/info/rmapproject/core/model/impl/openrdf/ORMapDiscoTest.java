@@ -166,10 +166,10 @@ public class ORMapDiscoTest {
 		relatedStmts = new ArrayList<Statement>();
 		//predicates are nonsense here
 		// first test connected r->a r->b b->c b->d
-		s1 = vf.createStatement(r,RMAP.ACTIVE,a);
-		s2 = vf.createStatement(r,RMAP.ACTIVE,b);
-		s3 = vf.createStatement(b,RMAP.ACTIVE,c);
-		s4 = vf.createStatement(b,RMAP.ACTIVE,d);
+		s1 = vf.createStatement(r,RMAP.EVENT_DERIVED_OBJECT,a);
+		s2 = vf.createStatement(r,RMAP.EVENT_DERIVED_OBJECT,b);
+		s3 = vf.createStatement(b,RMAP.EVENT_DERIVED_OBJECT,c);
+		s4 = vf.createStatement(b,RMAP.EVENT_DERIVED_OBJECT,d);
 		creator = vf.createLiteral("Mary Smith");
 		creatorUri = vf.createURI("http://orcid.org/0000-0003-2069-1219");
 		creatorUri2 = vf.createURI("http://orcid.org/2222-0003-2069-1219");
@@ -278,9 +278,9 @@ public class ORMapDiscoTest {
 		isConnected = disco.isConnectedGraph(relatedStmts);
 		assertFalse(isConnected);
 		// third test connected r->a  b->c r2->c c->b, handles cycle, duplicates
-		Statement s5 = vf.createStatement(r2,RMAP.ACTIVE,c);
-		Statement s6 = vf.createStatement(c,RMAP.ACTIVE,b);
-		Statement s7 = vf.createStatement(c,RMAP.ACTIVE,b);
+		Statement s5 = vf.createStatement(r2,RMAP.EVENT_DERIVED_OBJECT,c);
+		Statement s6 = vf.createStatement(c,RMAP.EVENT_DERIVED_OBJECT,b);
+		Statement s7 = vf.createStatement(c,RMAP.EVENT_DERIVED_OBJECT,b);
 		relatedStmts.add(s6);
 		relatedStmts.add(s5);
 		relatedStmts.add(s7);

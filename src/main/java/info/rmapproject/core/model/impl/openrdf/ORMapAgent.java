@@ -153,7 +153,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 				this.id = new java.net.URI(incomingIdStr);
 				this.context = ORAdapter.uri2OpenRdfUri(this.getId()); 
 				this.typeStatement =
-						this.getValueFactory().createStatement(this.context,RDF.TYPE,RMAP.DISCO,this.context);
+						this.getValueFactory().createStatement(this.context,RDF.TYPE,RMAP.AGENT,this.context);
 			} catch (URISyntaxException e) {
 				throw new RMapException ("Cannot convert incoming ID to URI: " + incomingIdStr,e);
 			}			

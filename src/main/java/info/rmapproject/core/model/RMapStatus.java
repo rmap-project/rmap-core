@@ -13,10 +13,10 @@ import java.net.URISyntaxException;
  *
  */
 public enum RMapStatus {
-	ACTIVE ("http://rmap-project.org/rmap/terms/1.0/status/Active"),
-	INACTIVE ("http://rmap-project.org/rmap/terms/1.0/status/Inactive"),
-	TOMBSTONED ("http://rmap-project.org/rmap/terms/1.0/status/Tombstoned"),
-	DELETED("http://rmap-project.org/rmap/terms/1.0/status/Deleted");
+	ACTIVE ("http://rmap-project.org/rmap/terms/1.0/status/active"),
+	INACTIVE ("http://rmap-project.org/rmap/terms/1.0/status/inactive"),
+	TOMBSTONED ("http://rmap-project.org/rmap/terms/1.0/status/tombstoned"),
+	DELETED("http://rmap-project.org/rmap/terms/1.0/status/deleted");
 
 
 	@SuppressWarnings("unused")
