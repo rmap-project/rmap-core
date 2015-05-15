@@ -106,6 +106,10 @@ public class RMAP {
 	 * 
 	 */
 	public static final URI PROVIDERID;
+	/**
+	* rmap:Status
+	*/
+		public static final URI HAS_STATUS;
 	
 	//*****************************NEEDS UPDTIG
 	static {
@@ -130,5 +134,6 @@ public class RMAP {
 		EVENT_TARGET_TOMBSTONED = f.createURI(NAMESPACE, "tombstonedObject");
 		EVENT_TARGET_DELETED = f.createURI(NAMESPACE, "deletedObject");		  
 		PROVIDERID = f.createURI(NAMESPACE, "providerId");
+		HAS_STATUS = f.createURI(NAMESPACE, "hasStatus");
 	}
 }
