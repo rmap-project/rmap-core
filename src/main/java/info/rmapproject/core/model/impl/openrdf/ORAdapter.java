@@ -6,16 +6,19 @@ package info.rmapproject.core.model.impl.openrdf;
 
 import java.net.URISyntaxException;
 
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapBlankNode;
 import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.RMapResource;
+import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
 
 import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Literal;
 import org.openrdf.model.BNode;
@@ -266,6 +269,31 @@ public class ORAdapter {
 			throw new IllegalArgumentException("Unrecognized Resource type");
 		}
 		return resource;
+	}
+	/**
+	 * Covert OpenRdf Statement to RMapTriple
+	 * @param stmt OpenRdf Statement to be converted
+	 * @return RMapTriple corresponding to OpenRdf Statement
+	 * @throws RMapDefectiveArgumentException
+	 * @throws RMapException
+	 */
+	public static RMapTriple openRdfStatement2RMapTriple (Statement stmt)
+		throws RMapDefectiveArgumentException, RMapException {
+		if (stmt==null){
+			throw new RMapDefectiveArgumentException("null stmt");
+		}
+		RMapResource subject = null;
+		RMapUri predicate = null;
+		RMapValue object = null;
+		try {
+			subject = openRdfResource2NonLiteral(stmt.getSubject());
+			predicate=openRdfUri2RMapUri(stmt.getPredicate());
+			object = openRdfValue2RMapValue(stmt.getObject());
+		} catch (IllegalArgumentException | URISyntaxException e) {
+			throw new RMapException(e);
+		}
+		RMapTriple rtriple = new RMapTriple(subject, predicate, object);		
+		return rtriple;
 	}
 		
 }

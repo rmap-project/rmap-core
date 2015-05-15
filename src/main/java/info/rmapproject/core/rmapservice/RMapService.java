@@ -13,6 +13,7 @@ import info.rmapproject.core.exception.RMapEventNotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.exception.RMapStatementNotFoundException;
+import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapStatus;
@@ -47,6 +48,15 @@ public interface RMapService {
 	 * @throws RMapDefectiveArgumentException 
 	 */
 	public List<URI> getResourceRelatedStmts (URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	/**
+	 * Get the list of triples comprised by RMapStatements that reference a resource and whose status matches provided status code
+	 * @param uri Resource to be matched in RMapStatements
+	 * @param statusCode 
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public List<RMapTriple>getResourceRelatedTriples(URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Get all RMapEvents related to a Resource URI
 	 * @param uri

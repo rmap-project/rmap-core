@@ -37,7 +37,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @return
 	 * @throws RMapException
 	 */
-	public List<Statement> getRelatedTriples(URI resource, SesameTriplestore ts)
+	protected List<Statement> getRelatedTriples(URI resource, SesameTriplestore ts)
 	throws RMapException{
 		List<Statement> triples = null;
 		try {
@@ -58,32 +58,28 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @param discomgr
 	 * @param ts
 	 * @return
-	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
 	 */
-	public Set<URI> getRelatedStatements(URI uri, RMapStatus statusCode,
+	public Set<URI> getRelatedStatementIds(URI uri, RMapStatus statusCode,
 			ORMapStatementMgr stmtmgr, ORMapDiSCOMgr discomgr, SesameTriplestore ts) 
-			throws RMapException {
+			throws RMapDefectiveArgumentException {
 		if (uri==null){
-			throw new RMapException ("null URI");
+			throw new RMapDefectiveArgumentException ("null URI");
 		}
 		Set<URI> relatedStmtIds = new HashSet<URI>();
 		do {
-			if (this.isStatementId(uri, ts)){
-				relatedStmtIds.add(uri);
-				break;
-			}
-			// get all Statements with uri in subject or object
+			// get all triples with uri in subject or object
 			List<Statement>stmts = this.getRelatedTriples(uri, ts);
-			// now make sure Statement status is same as statusCode
+			// now make sure triple comes from DiSCO with status is same as statusCode
 			// context of each statement is URI of disco containing it
 			List<Statement>statusStmts = new ArrayList<Statement>();
-			if (statusCode==null){
-				statusStmts.addAll(stmts);
-			}
-			else {
-				for (Statement stmt:stmts){
-					URI context = (URI)stmt.getContext();
-					if (this.isDiscoId(context, ts)){
+			for (Statement stmt:stmts){
+				URI context = (URI)stmt.getContext();
+				if (this.isDiscoId(context, ts)){
+					if (statusCode==null){
+						statusStmts.add(stmt);
+					}
+					else {
 						RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
 						if (dStatus.equals(statusCode)){
 							statusStmts.add(stmt);				
@@ -91,25 +87,73 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 					}
 				}
 			}
-			// now get the ids of the statements
-			
+			// now get the ids of the DiSCO triples		
 			for (Statement stmt:statusStmts){
-				URI context = (URI)stmt.getContext();
-				if (this.isStatementId(context, ts)){
-					relatedStmtIds.add(context);
-				}
-				else {
-					try{
-						URI stmId = stmtmgr.getStatementID(stmt.getSubject(),
-								stmt.getPredicate(), stmt.getObject(), ts);
-						relatedStmtIds.add(stmId);
-					} 
-					catch (RMapStatementNotFoundException nf){}
-					catch (RMapException e){}
-				}
-			}
+				try{
+					URI stmId = stmtmgr.getStatementID(stmt.getSubject(),
+							stmt.getPredicate(), stmt.getObject(), ts);
+					relatedStmtIds.add(stmId);
+				} 
+				catch (RMapStatementNotFoundException nf){}
+				catch (RMapException e){}
+ 			}
 		} while (false);
 		return relatedStmtIds;
+	}
+	/**
+	 * Get Statements referencing a URI in subject or object, whose Subject, Predicate, and Object comprise an RMapStatement, 
+	 * and (if statusCode is not null), whose status matches statusCodeE
+	 * @param uri Resource to be matched
+	 * @param statusCode Status to be matched, or null if any status code
+	 * @param stmtmgr
+	 * @param discomgr
+	 * @param ts
+	 * @return 
+	 * @throws RMapDefectiveArgumentException
+	 * @throws RMapException
+	 */
+	public Set<Statement> getRelatedStatementTriples(URI uri,
+			RMapStatus statusCode, ORMapStatementMgr stmtmgr,
+			ORMapDiSCOMgr discomgr, SesameTriplestore ts) 
+	throws RMapDefectiveArgumentException, RMapException {
+		if (uri==null){
+			throw new RMapDefectiveArgumentException ("null URI");
+		}
+		Set<Statement> relatedStmts = new HashSet<Statement>();		
+		do {
+			// get all triples with uri in subject or object
+			List<Statement>stmts = this.getRelatedTriples(uri, ts);
+			// now make sure triple comes from DiSCO with status is same as statusCode
+			// context of each statement is URI of disco containing it
+			List<Statement>statusStmts = new ArrayList<Statement>();
+			for (Statement stmt:stmts){
+				URI context = (URI)stmt.getContext();
+				if (this.isDiscoId(context, ts)){
+					if (statusCode==null){
+						statusStmts.add(stmt);
+					}
+					else {
+						RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
+						if (dStatus.equals(statusCode)){
+							statusStmts.add(stmt);				
+						}
+					}
+				}
+			}
+			// now filter out any triples that do not correspond to an RMapStatement	
+			for (Statement stmt:statusStmts){
+				try{
+					@SuppressWarnings("unused")
+					URI stmId = stmtmgr.getStatementID(stmt.getSubject(),
+							stmt.getPredicate(), stmt.getObject(), ts);
+					// if no exception, then we found a matching RMapStatement
+					relatedStmts.add(stmt);
+				} 
+				catch (RMapStatementNotFoundException nf){}
+				catch (RMapException e){}
+ 			}
+		} while (false);
+		return relatedStmts;
 	}
 	/**
 	 * 
@@ -151,10 +195,11 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @param discomgr
 	 * @param ts
 	 * @return
+	 * @throws RMapDefectiveArgumentException 
 	 */
 	public Set<URI> getRelatedEvents(URI resource,ORMapStatementMgr stmtmgr, 
 			ORMapDiSCOMgr discomgr, ORMapEventMgr eventMgr, SesameTriplestore ts) 
-	throws RMapException, RMapObjectNotFoundException {
+	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
 		Set<URI>events = new HashSet<URI>();
 		do {
 			if (this.isEventId(resource, ts)){
@@ -175,7 +220,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			}
 			// it's just a resource - get all Statements in appears in, and
 			// get events related to those statements
-			Set<URI>stmts = this.getRelatedStatements(resource, null, stmtmgr,
+			Set<URI>stmts = this.getRelatedStatementIds(resource, null, stmtmgr,
 					discomgr, ts);
 			for (URI stmt:stmts){
 				events.addAll(stmtmgr.getRelatedEvents(stmt, eventMgr, ts));
@@ -296,4 +341,5 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		}	
 		return agents;
 	}
+
 }

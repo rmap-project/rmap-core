@@ -24,6 +24,7 @@ import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.exception.RMapStatementNotFoundException;
 import info.rmapproject.core.model.RMapResource;
+import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.RMapUri;
@@ -99,7 +100,7 @@ public class ORMapService implements RMapService {
 		}
 		org.openrdf.model.URI mUri = ORAdapter.uri2OpenRdfUri(uri);
 		Set<org.openrdf.model.URI> stmtIds = 
-				this.resourcemgr.getRelatedStatements(mUri, statusCode, stmtmgr, 
+				this.resourcemgr.getRelatedStatementIds(mUri, statusCode, stmtmgr, 
 						discomgr, ts);
 		List<URI> ids = new ArrayList<URI>();
 		for (org.openrdf.model.URI id:stmtIds){
@@ -108,6 +109,25 @@ public class ORMapService implements RMapService {
 		return ids;
 	}
 
+	@Override
+	public List<RMapTriple> getResourceRelatedTriples(URI uri,
+			RMapStatus statusCode) throws RMapException,
+			RMapDefectiveArgumentException {
+		if (uri==null){
+			throw new RMapDefectiveArgumentException("null uri");
+		}
+		org.openrdf.model.URI mUri = ORAdapter.uri2OpenRdfUri(uri);
+		Set<Statement> stmts = 
+				this.resourcemgr.getRelatedStatementTriples(mUri, statusCode, stmtmgr, 
+						discomgr, ts);
+		List<RMapTriple> triples = new ArrayList<RMapTriple>();
+		for (Statement stmt:stmts){
+			RMapTriple triple = ORAdapter.openRdfStatement2RMapTriple(stmt);
+			triples.add(triple);
+		}
+		return triples;
+	}
+	
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getRelatedEvents(java.net.URI)
 	 */
