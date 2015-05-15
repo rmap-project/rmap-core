@@ -55,13 +55,22 @@ public class ORMapService implements RMapService {
 	/**
 	 * 
 	 */
-	public ORMapService() throws RMapException{
-		
+	public ORMapService() throws RMapException{		
 		try {
 			ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
 		} catch (Exception e) {
 			throw new RMapException("Unable to create Sesame TripleStore: ", e);
 		}	
+	}
+
+	@Override
+	public void closeConnection() throws RMapException {
+		try {
+            ts.closeConnection();
+		}
+		catch(Exception e)  {
+            throw new RMapException("Could not close connection");
+		}
 	}
 
 	/* (non-Javadoc)
@@ -758,13 +767,6 @@ public class ORMapService implements RMapService {
 	 */
 	public ORMapEventMgr getEventmgr() {
 		return eventmgr;
-	}
-
-	/**
-	 * @return the ts
-	 */
-	public SesameTriplestore getTriplestore() {
-		return ts;
 	}
 
 	/**

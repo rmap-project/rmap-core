@@ -374,5 +374,10 @@ public interface RMapService {
 	 * @throws RMapAgentNotFoundException
 	 */
 	public RMapStatus getAgentStatus(URI agentId) throws RMapException, RMapDefectiveArgumentException, RMapAgentNotFoundException;
+	/**
+     * Closes triplestore connection if it is still open.
+     * @throws RMapException
+     */
+    public void closeConnection() throws RMapException;
 
 }
