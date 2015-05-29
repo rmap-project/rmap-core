@@ -1,6 +1,7 @@
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
+import info.rmapproject.core.exception.RMapDiSCONotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.exception.RMapStatementNotFoundException;
@@ -62,7 +63,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 */
 	public Set<URI> getRelatedStatementIds(URI uri, RMapStatus statusCode,
 			ORMapStatementMgr stmtmgr, ORMapDiSCOMgr discomgr, SesameTriplestore ts) 
-			throws RMapDefectiveArgumentException {
+			throws RMapDefectiveArgumentException, RMapException {
 		if (uri==null){
 			throw new RMapDefectiveArgumentException ("null URI");
 		}
@@ -80,10 +81,14 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 						statusStmts.add(stmt);
 					}
 					else {
-						RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
-						if (dStatus.equals(statusCode)){
-							statusStmts.add(stmt);				
+						try {
+							RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
+							if (dStatus.equals(statusCode)){
+								statusStmts.add(stmt);				
+							}
 						}
+						catch (RMapDiSCONotFoundException nf){}
+						catch (RMapException r) {throw r;}
 					}
 				}
 			}
@@ -179,10 +184,14 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 					discos.add(context);
 				}
 				else {
-					RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
-					if (dStatus.equals(statusCode)){
-						discos.add(context);
+					try {
+						RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
+						if (dStatus.equals(statusCode)){
+							discos.add(context);
+						}
 					}
+					catch (RMapDiSCONotFoundException rf){}
+					catch (RMapException r){throw r;}
 				}
 			}
 		}
