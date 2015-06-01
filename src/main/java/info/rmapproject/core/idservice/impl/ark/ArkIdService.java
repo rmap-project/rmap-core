@@ -69,7 +69,8 @@ public class ArkIdService implements IdService {
 	 * @throws Exception
 	 */
 	public boolean isValidId(URI id) throws Exception {
-		boolean isValid = id.toASCIIString().startsWith(naanIdentifier);
+		
+		boolean isValid = id.toASCIIString().startsWith(arkPrefix.concat(naanIdentifier));
 		return isValid;
 	}
 	

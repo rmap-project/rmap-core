@@ -9,7 +9,6 @@ import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.ORE;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
@@ -42,7 +41,7 @@ import org.openrdf.model.vocabulary.RDF;
  */
 public class ORMapDiscoTest {
 	protected ValueFactory vf = null;
-	protected SesameTriplestore ts = null;
+	//protected SesameTriplestore ts = null;
 	protected Statement rStmt;
 	protected Statement rStmt2;
 	protected Statement s1;
