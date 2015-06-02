@@ -203,7 +203,8 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 */
 	public RMapUri getAssociatedAgent()  throws RMapException{
 		RMapUri rUri = null;
-		rUri = (RMapUri) this.associatedAgentStmt.getObject();
+		URI agentURI = (URI)this.associatedAgentStmt.getObject();
+		rUri = ORAdapter.openRdfUri2RMapUri(agentURI);
 		return rUri;
 	}
 	/**
