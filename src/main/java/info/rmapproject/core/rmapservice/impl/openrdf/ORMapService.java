@@ -6,6 +6,8 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -181,6 +183,54 @@ public class ORMapService implements RMapService {
 			uris.add(dUri);
 		}
 		return uris;
+	}
+	
+	@Override
+	public Set<URI> getResourceRdfTypes(URI resourceUri, URI contextURI)
+			throws RMapException, RMapDefectiveArgumentException {
+		if (resourceUri==null){
+			throw new RMapDefectiveArgumentException("null resource URI");
+		}
+		if (contextURI==null){
+			throw new RMapDefectiveArgumentException("null context URI");
+		}
+		org.openrdf.model.URI rUri = ORAdapter.uri2OpenRdfUri(resourceUri);
+		org.openrdf.model.URI cUri = ORAdapter.uri2OpenRdfUri(contextURI);
+		Set<URI> returnSet = null;
+		Set<org.openrdf.model.URI> uris = resourcemgr.getResourceRdfTypes(rUri,cUri, ts);
+		if (uris != null && uris.size()>0){
+			returnSet = new HashSet<URI>();
+			for (org.openrdf.model.URI uri:uris){
+				returnSet.add(ORAdapter.openRdfUri2URI(uri));
+			}
+		}
+		return returnSet;
+	}
+
+	@Override
+	public Map<URI, Set<URI>> getResourceRdfTypesAllContexts(URI resourceUri)
+			throws RMapException, RMapDefectiveArgumentException {
+		if (resourceUri==null){
+			throw new RMapDefectiveArgumentException("null resource URI");
+		}
+		org.openrdf.model.URI rUri = ORAdapter.uri2OpenRdfUri(resourceUri);
+		Map<URI, Set<URI>> map = null;
+		Map<org.openrdf.model.URI, Set<org.openrdf.model.URI>> typesMap = 
+				resourcemgr.getResourceRdfTypesAllContexts(rUri, ts);
+		if (typesMap != null && typesMap.keySet().size()>0){
+			map = new HashMap<URI, Set<URI>>();
+			for (org.openrdf.model.URI uri : typesMap.keySet()){
+				Set<org.openrdf.model.URI> types = typesMap.get(uri);
+				URI key = ORAdapter.openRdfUri2URI(uri);
+				Set<URI> values = new HashSet<URI>();
+				for (org.openrdf.model.URI type:types){
+					URI typeURI = ORAdapter.openRdfUri2URI(type);
+					values.add(typeURI);
+				}
+				map.put(key, values);
+			}				
+		}
+		return map;
 	}
 
 	/* (non-Javadoc)
@@ -795,5 +845,6 @@ public class ORMapService implements RMapService {
 	public ORMapAgentMgr getAgentgmr() {
 		return agentgmr;
 	}
+
 
 }

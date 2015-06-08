@@ -11,12 +11,17 @@ import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.openrdf.model.vocabulary.RDF;
 
 /**
  * 
@@ -350,5 +355,90 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		}	
 		return agents;
 	}
-
+	/**
+	 * Find types of resource in specfic context
+	 * @param rUri resource whose type is being checked
+	 * @param cUri context in which to check
+	 * @param ts Triplestore
+	 * @return Set of URIs that are type(s) of resource in given context, or null if none found
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException 
+	 */
+	public Set<URI> getResourceRdfTypes(URI rUri, URI cUri,  SesameTriplestore ts)
+			throws RMapException, RMapDefectiveArgumentException {
+		if (rUri==null || cUri == null || ts == null){
+			throw new RMapDefectiveArgumentException ("Null parameter");
+		}
+		List<Statement> triples = null;
+		try {
+			triples = ts.getStatements(rUri, RDF.TYPE, null, cUri);
+		} catch (Exception e) {
+			throw new RMapException (e);
+		}	
+		Set<URI> returnSet = null;
+		if (triples!=null && triples.size()>0){
+			returnSet = new HashSet<URI>();
+			for (Statement stmt:triples){
+				Value object = stmt.getObject();
+				if (object instanceof URI){
+					returnSet.add((URI)object);
+				}
+			}
+			// correct if only triples found had non-URI objects
+			if (returnSet.size()==0){
+				returnSet = null;
+			}
+		}
+		return returnSet;
+	}
+	/**
+	 * Find types of resource in specfic context
+	 * @param rUri resource whose type is being checked
+	 * @param ts TripleStore
+	 * @return Map from context to any types found for that resource in that context, or null if no type statement
+	 * found for resource in any context
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public Map<URI, Set<URI>> getResourceRdfTypesAllContexts(URI rUri, SesameTriplestore ts) 
+			throws RMapException, RMapDefectiveArgumentException {
+		if (rUri==null || ts == null){
+			throw new RMapDefectiveArgumentException ("Null parameter");
+		}
+		List<Statement> triples = null;	
+		try {
+			triples = ts.getStatementsAnyContext(rUri, RDF.TYPE, null, false);
+		} catch (Exception e) {
+			throw new RMapException (e);
+		}	
+		Map<URI, Set<URI>> map = null;
+		if (triples !=null && triples.size()>0){
+			map = new HashMap<URI, Set<URI>>();
+			for (Statement stmt:triples){
+				Resource context = stmt.getContext();
+				if (!(context instanceof URI)){
+					continue;
+				}
+				Value object = stmt.getObject();
+				if (!(object instanceof URI)){
+					continue;
+				}
+				URI uContext = (URI)context;
+				URI uObject = (URI)object;
+				if (map.containsKey(uContext)){
+					Set<URI>types = map.get(uContext);
+					types.add(uObject);
+				}
+				else {
+					Set<URI>types = new HashSet<URI>();
+					types.add(uObject);
+					map.put(uContext, types);
+				}
+			}
+			if (map.keySet().size()==0){
+				map = null;
+			}
+		}
+		return map;
+	}
 }
