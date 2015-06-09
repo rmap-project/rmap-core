@@ -5,6 +5,8 @@ package info.rmapproject.core.rmapservice;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -83,6 +85,24 @@ public interface RMapService {
 	 * @throws RMapDefectiveArgumentException 
 	 */
 	public List<URI> getResourceRelatedAgents (URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	/**
+	 * Determine what types are associated with a given resource in a specific context (e.g. within a DiSCO)
+	 * @param resourceUri URI for resource whose type is being checked
+	 * @param contextURI URI for context in which type is to be checked
+	 * @return Set of URIs indicating type of the resource, or null if no type statement for resource is found in that context
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public Set<URI> getResourceRdfTypes(URI resourceUri, URI contextURI) throws RMapException, RMapDefectiveArgumentException;
+	/**
+	 * Determine what types are associated with a given resource in any context
+	 * @param resourceUri URI for resource whose type is being checked
+	 * @return Map from context to set of any type statements in that context for that resources, or null if no type statement
+	 * for resource is found in any context
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public Map<URI, Set<URI>> getResourceRdfTypesAllContexts(URI resourceUri)throws RMapException, RMapDefectiveArgumentException;
 	
 	// Statement services 
 	/**
