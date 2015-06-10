@@ -81,7 +81,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			List<Statement>statusStmts = new ArrayList<Statement>();
 			for (Statement stmt:stmts){
 				URI context = (URI)stmt.getContext();
-				if (this.isDiscoId(context, ts)){
+				if (context!=null && this.isDiscoId(context, ts)){
 					if (statusCode==null){
 						statusStmts.add(stmt);
 					}
