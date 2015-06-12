@@ -138,7 +138,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			List<Statement>statusStmts = new ArrayList<Statement>();
 			for (Statement stmt:stmts){
 				URI context = (URI)stmt.getContext();
-				if (this.isDiscoId(context, ts)){
+				if (context!=null && this.isDiscoId(context, ts)){
 					if (statusCode==null){
 						statusStmts.add(stmt);
 					}
@@ -183,7 +183,8 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		// make sure DiSCO in which statement appears matches statusCode
 		for (Statement stmt:stmts){
 			URI context = (URI)stmt.getContext();
-			if (this.isDiscoId(context, ts)){
+
+			if (context != null && this.isDiscoId(context, ts)){
 				if (statusCode==null){
 					// match any status
 					discos.add(context);
@@ -191,6 +192,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 				else {
 					try {
 						RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
+						
 						if (dStatus.equals(statusCode)){
 							discos.add(context);
 						}
@@ -295,7 +297,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			}
 			URI id = (URI) stmt.getContext();
 			do {
-				if (this.isDiscoId(id, ts)){
+				if (id!=null && this.isDiscoId(id, ts)){
 					if (statusCode != null){
 						RMapStatus dStatus = discomgr.getDiSCOStatus(uri, ts);
 						if (!(dStatus.equals(statusCode))){
@@ -310,7 +312,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 					}
 					break;
 				}
-				if (this.isStatementId(id, ts)){
+				if (id!=null && this.isStatementId(id, ts)){
 					if (statusCode != null){
 						RMapStatus status = stmtmgr.getStatementStatus(uri, discomgr, ts);
 						if (!(status.equals(statusCode))){
@@ -325,11 +327,11 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 					}
 					break;
 				}
-				if (this.isEventId(id, ts)){
+				if (id!=null && this.isEventId(id, ts)){
 					agents.addAll(eventMgr.getRelatedAgents(id, ts));
 					break;
 				}
-				if (this.isAgentId(id, ts)){
+				if (id!=null && this.isAgentId(id, ts)){
 					if (statusCode != null){
 						RMapStatus status = agentmgr.getAgentStatus(uri, ts);
 						if (!(status.equals(statusCode))){
