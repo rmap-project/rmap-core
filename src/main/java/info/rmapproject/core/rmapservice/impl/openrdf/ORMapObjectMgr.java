@@ -203,7 +203,7 @@ public abstract class ORMapObjectMgr {
 			// now create new statement with bnodes replaced
 			Statement newStmt=null;
 			try {
-				newStmt = ts.getValueFactory().createStatement(newSubject, stmt.getPredicate(), newObject);
+				newStmt = ts.getValueFactory().createStatement(newSubject, stmt.getPredicate(), newObject, stmt.getContext());
 			} catch (RepositoryException e) {
 				e.printStackTrace();
 				throw new RMapException (e);
