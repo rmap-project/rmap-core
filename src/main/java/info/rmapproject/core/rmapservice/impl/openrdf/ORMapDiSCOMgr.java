@@ -721,7 +721,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				}
 				// get id of new DiSCO
 				URI newDisco = eventmgr.getIdOfOldDisco(updateEventId, ts);
-				if (newDisco != null){
+				if (newDisco != null && !newDisco.equals(discoId)){
 					event2Disco.put(updateEventId,newDisco);
 					// follow new DiSCO forward
 					event2Disco.putAll(lookFoward(newDisco,agentId,matchAgent,eventmgr,ts));
