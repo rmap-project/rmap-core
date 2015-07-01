@@ -17,7 +17,7 @@ import info.rmapproject.core.idservice.IdServiceFactoryIOC;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.rmapservice.impl.openrdf.ORMapStatementMgr;
+//import info.rmapproject.core.rmapservice.impl.openrdf.ORMapStatementMgr;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
@@ -88,19 +88,19 @@ public class ORMapEventDerivationTest {
 		Set<URI> uris = new LinkedHashSet<URI>();
 		URI newDiscoContext = newDisco.getDiscoContext();
 		uris.add(newDiscoContext);
-		ORMapStatementMgr stmtMgr = new ORMapStatementMgr();
-		// add URI of each created Reified statement
-		for (Statement stmt:newDisco.getAsModel()){
-			URI stmtUri = stmtMgr.createReifiedStatement(stmt, ts);
-			uris.add(stmtUri);
-		}	
+//		ORMapStatementMgr stmtMgr = new ORMapStatementMgr();
+//		// add URI of each created Reified statement
+//		for (Statement stmt:newDisco.getAsModel()){
+//			URI stmtUri = stmtMgr.createReifiedStatement(stmt, ts);
+//			uris.add(stmtUri);
+//		}	
 		event.setCreatedObjectIdsFromURI(uris);
 		model = event.getAsModel();
-		assertEquals(11,model.size());
+		assertEquals(7,model.size());
 		Date end = new Date();
 		event.setEndTime(end);
 		model = event.getAsModel();
-		assertEquals(12,model.size());
+		assertEquals(8,model.size());
 		assertEquals(RMapEventType.DERIVATION, event.getEventType());
 		assertEquals(RMapEventTargetType.DISCO, event.getEventTargetType());
 	}
@@ -139,13 +139,13 @@ public class ORMapEventDerivationTest {
 		uris.add(newDiscoContext);
 		Model model = newDisco.getAsModel();
 		assertEquals(4,model.size());
-		ORMapStatementMgr stmtMgr = new ORMapStatementMgr();
-		// add URI of each created Reified statement
-		for (Statement stmt:model){
-			URI stmtUri = stmtMgr.createReifiedStatement(stmt, ts);
-			uris.add(stmtUri);
-		}		
-		
+//		ORMapStatementMgr stmtMgr = new ORMapStatementMgr();
+//		// add URI of each created Reified statement
+//		for (Statement stmt:model){
+//			URI stmtUri = stmtMgr.createReifiedStatement(stmt, ts);
+//			uris.add(stmtUri);
+//		}		
+//		
 		URI context = ORAdapter.uri2OpenRdfUri(id1);
 		
 		Date start = new Date();
@@ -190,14 +190,14 @@ public class ORMapEventDerivationTest {
 		ORMapEventDerivation event = new ORMapEventDerivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
 				descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, 
 				createdObjects, derivationStatement, sourceObjectStatement) ;
-		assertEquals(5,event.getCreatedObjectStatements().size());
-		assertEquals(5,event.getCreatedObjectIds().size());
+		assertEquals(1,event.getCreatedObjectStatements().size());
+		assertEquals(1,event.getCreatedObjectIds().size());
 		assertEquals(RMapEventType.DERIVATION, event.getEventType());
 		assertEquals(RMapEventTargetType.DISCO, event.getEventTargetType());
 		Statement tStmt = event.getTypeStatement();
 		assertEquals(RMAP.EVENT, tStmt.getObject());
 		Model eventModel = event.getAsModel();
-		assertEquals(14, eventModel.size());
+		assertEquals(10, eventModel.size());
 		assertEquals(oldDiscoId,ORAdapter.rMapUri2OpenRdfUri(event.getSourceObjectId()));
 		assertEquals(newDiscoContext,ORAdapter.rMapUri2OpenRdfUri(event.getDerivedObjectId()));		
 		assertEquals(desc.stringValue(), event.getDescription().getStringValue());

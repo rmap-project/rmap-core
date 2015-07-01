@@ -707,29 +707,29 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		return events;
 	}
 	
-	/**
-	 * Return ids of Statements associated with an event
-	 * Note that if event is a Deletion, then no statement ids are ever returned,
-	 * otherwise it would be possible to reconstitute a deleted DiSCO
-	 * @param eventId
-	 * @param ts
-	 * @return
-	 */
-	public List<URI> getRelatedStatements(URI eventId, ORMapDiSCOMgr discomgr,
-			ORMapStatementMgr stmtmgr, SesameTriplestore ts) 
-	throws RMapException {
-		if (eventId==null){
-			throw new RMapException("Null event id");
-		}
-		List<URI>stmtIds = new ArrayList<URI>();
-		if (!((this.isDeleteEvent(eventId, ts)) || (this.isUpdateEvent(eventId, ts)))){
-			List<URI> relatedDiSCOs = this.getRelatedDiSCOs(eventId, ts);
-			for (URI disco:relatedDiSCOs){
-				stmtIds.addAll(discomgr.getDiSCOStatements(disco, stmtmgr, ts));
-			}
-		}
-		return stmtIds;
-	}
+//	/**
+//	 * Return ids of Statements associated with an event
+//	 * Note that if event is a Deletion, then no statement ids are ever returned,
+//	 * otherwise it would be possible to reconstitute a deleted DiSCO
+//	 * @param eventId
+//	 * @param ts
+//	 * @return
+//	 */
+//	public List<URI> getRelatedStatements(URI eventId, ORMapDiSCOMgr discomgr,
+//			ORMapStatementMgr stmtmgr, SesameTriplestore ts) 
+//	throws RMapException {
+//		if (eventId==null){
+//			throw new RMapException("Null event id");
+//		}
+//		List<URI>stmtIds = new ArrayList<URI>();
+//		if (!((this.isDeleteEvent(eventId, ts)) || (this.isUpdateEvent(eventId, ts)))){
+//			List<URI> relatedDiSCOs = this.getRelatedDiSCOs(eventId, ts);
+//			for (URI disco:relatedDiSCOs){
+//				stmtIds.addAll(discomgr.getDiSCOStatements(disco, stmtmgr, ts));
+//			}
+//		}
+//		return stmtIds;
+//	}
 	/**
 	 * Return ids of all resources associated with an Event
 	 * Resources include DiSCOs associated with event
@@ -748,14 +748,14 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		Set<URI> relatedDiSCOs = new HashSet<URI>();
 		relatedDiSCOs.addAll(this.getRelatedDiSCOs(eventId, ts));;
 		resources.addAll(relatedDiSCOs);
-		// get Statement resources
-		Set<URI>stmtIds = new HashSet<URI>();
-		if (this.isCreationEvent(eventId, ts) || this.isUpdateEvent(eventId, ts)){			
-			for (URI disco:relatedDiSCOs){
-				stmtIds.addAll(discomgr.getDiSCOStatements(disco, stmtmgr, ts));
-			}
-			resources.addAll(stmtIds);
-		}
+//		// get Statement resources
+//		Set<URI>stmtIds = new HashSet<URI>();
+//		if (this.isCreationEvent(eventId, ts) || this.isUpdateEvent(eventId, ts)){			
+//			for (URI disco:relatedDiSCOs){
+//				stmtIds.addAll(discomgr.getDiSCOStatements(disco, stmtmgr, ts));
+//			}
+//			resources.addAll(stmtIds);
+//		}
 		// get Agent resources
 		resources.addAll(this.getRelatedAgents(eventId, ts));
 		List<URI> lResources = new ArrayList<URI>();

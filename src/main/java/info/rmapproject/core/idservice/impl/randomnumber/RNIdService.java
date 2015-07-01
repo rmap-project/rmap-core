@@ -39,7 +39,6 @@ public class RNIdService implements IdService {
 	 * @see info.rmapproject.core.idservice.IdService#createId()
 	 */
 	public URI createId() throws Exception {
-		// TODO USING KAREN"S ARK STUB NEED TO CREATE REAL ARK SERVICE
 		URI uri = null;
 		String id = RandomStringUtils.randomAlphanumeric(10).toLowerCase();
 		String ssp = "/" + NAAN + "/" + id;

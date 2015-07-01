@@ -4,7 +4,6 @@ import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapDiSCONotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
-import info.rmapproject.core.exception.RMapStatementNotFoundException;
 import info.rmapproject.core.exception.RMapTombstonedObjectException;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
@@ -54,62 +53,62 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		}		
 		return triples;
 	}
-	/**
-	 * Find ids for Statements whose subject or object matches resource URI
-	 * If statusCode anything but null, only return statement id if statement
-	 * status matches statusCode
-	 * @param uri
-	 * @param statusCode
-	 * @param stmtmgr
-	 * @param discomgr
-	 * @param ts
-	 * @return
-	 * @throws RMapDefectiveArgumentException
-	 */
-	public Set<URI> getRelatedStatementIds(URI uri, RMapStatus statusCode,
-			ORMapStatementMgr stmtmgr, ORMapDiSCOMgr discomgr, SesameTriplestore ts) 
-			throws RMapDefectiveArgumentException, RMapException {
-		if (uri==null){
-			throw new RMapDefectiveArgumentException ("null URI");
-		}
-		Set<URI> relatedStmtIds = new HashSet<URI>();
-		do {
-			// get all triples with uri in subject or object
-			List<Statement>stmts = this.getRelatedTriples(uri, ts);
-			// now make sure triple comes from DiSCO with status is same as statusCode
-			// context of each statement is URI of disco containing it
-			List<Statement>statusStmts = new ArrayList<Statement>();
-			for (Statement stmt:stmts){
-				URI context = (URI)stmt.getContext();
-				if (context!=null && this.isDiscoId(context, ts)){
-					if (statusCode==null){
-						statusStmts.add(stmt);
-					}
-					else {
-						try {
-							RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
-							if (dStatus.equals(statusCode)){
-								statusStmts.add(stmt);				
-							}
-						}
-						catch (RMapDiSCONotFoundException nf){}
-						catch (RMapException r) {throw r;}
-					}
-				}
-			}
-			// now get the ids of the DiSCO triples		
-			for (Statement stmt:statusStmts){
-				try{
-					URI stmId = stmtmgr.getStatementID(stmt.getSubject(),
-							stmt.getPredicate(), stmt.getObject(), ts);
-					relatedStmtIds.add(stmId);
-				} 
-				catch (RMapStatementNotFoundException nf){}
-				catch (RMapException e){}
- 			}
-		} while (false);
-		return relatedStmtIds;
-	}
+//	/**
+//	 * Find ids for Statements whose subject or object matches resource URI
+//	 * If statusCode anything but null, only return statement id if statement
+//	 * status matches statusCode
+//	 * @param uri
+//	 * @param statusCode
+//	 * @param stmtmgr
+//	 * @param discomgr
+//	 * @param ts
+//	 * @return
+//	 * @throws RMapDefectiveArgumentException
+//	 */
+//	public Set<URI> getRelatedStatementIds(URI uri, RMapStatus statusCode,
+//			ORMapStatementMgr stmtmgr, ORMapDiSCOMgr discomgr, SesameTriplestore ts) 
+//			throws RMapDefectiveArgumentException, RMapException {
+//		if (uri==null){
+//			throw new RMapDefectiveArgumentException ("null URI");
+//		}
+//		Set<URI> relatedStmtIds = new HashSet<URI>();
+//		do {
+//			// get all triples with uri in subject or object
+//			List<Statement>stmts = this.getRelatedTriples(uri, ts);
+//			// now make sure triple comes from DiSCO with status is same as statusCode
+//			// context of each statement is URI of disco containing it
+//			List<Statement>statusStmts = new ArrayList<Statement>();
+//			for (Statement stmt:stmts){
+//				URI context = (URI)stmt.getContext();
+//				if (context!=null && this.isDiscoId(context, ts)){
+//					if (statusCode==null){
+//						statusStmts.add(stmt);
+//					}
+//					else {
+//						try {
+//							RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
+//							if (dStatus.equals(statusCode)){
+//								statusStmts.add(stmt);				
+//							}
+//						}
+//						catch (RMapDiSCONotFoundException nf){}
+//						catch (RMapException r) {throw r;}
+//					}
+//				}
+//			}
+//			// now get the ids of the DiSCO triples		
+//			for (Statement stmt:statusStmts){
+//				try{
+//					URI stmId = stmtmgr.getStatementID(stmt.getSubject(),
+//							stmt.getPredicate(), stmt.getObject(), ts);
+//					relatedStmtIds.add(stmId);
+//				} 
+////				catch (RMapStatementNotFoundException nf){}
+//				catch (RMapException e){}
+// 			}
+//		} while (false);
+//		return relatedStmtIds;
+//	}
 	/**
 	 * Get Statements referencing a URI in subject or object, whose Subject, Predicate, and Object comprise an RMapStatement, 
 	 * and (if statusCode is not null), whose status matches statusCodeE
@@ -151,17 +150,16 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 				}
 			}
 			// now filter out any triples that do not correspond to an RMapStatement	
-			for (Statement stmt:statusStmts){
-				try{
-					@SuppressWarnings("unused")
-					URI stmId = stmtmgr.getStatementID(stmt.getSubject(),
-							stmt.getPredicate(), stmt.getObject(), ts);
-					// if no exception, then we found a matching RMapStatement
-					relatedStmts.add(stmt);
-				} 
-				catch (RMapStatementNotFoundException nf){}
-				catch (RMapException e){}
- 			}
+//			for (Statement stmt:statusStmts){
+//				try{
+//					@SuppressWarnings("unused")
+//					URI stmId = stmtmgr.getStatementID(stmt.getSubject(),
+//							stmt.getPredicate(), stmt.getObject(), ts);
+//					// if no exception, then we found a matching RMapStatement
+//					relatedStmts.add(stmt);
+//				} 
+//				catch (RMapException e){}
+// 			}
 		} while (false);
 		return relatedStmts;
 	}
@@ -226,21 +224,22 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 				events.addAll(eventMgr.getDiscoRelatedEventIds(resource, ts));
 				break;
 			}
-			if (this.isStatementId(resource, ts)){
-				events.addAll(stmtmgr.getRelatedEvents(resource, eventMgr, ts));
-				break;
-			}
+//			if (this.isStatementId(resource, ts)){
+//				events.addAll(stmtmgr.getRelatedEvents(resource, eventMgr, ts));
+//				break;
+//			}
 			if (this.isAgentId(resource, ts)){
 				events.addAll(eventMgr.getAgentRelatedEventIds(resource, ts));
 				break;
 			}
 			// it's just a resource - get all Statements in appears in, and
 			// get events related to those statements
-			Set<URI>stmts = this.getRelatedStatementIds(resource, null, stmtmgr,
-					discomgr, ts);
-			for (URI stmt:stmts){
-				events.addAll(stmtmgr.getRelatedEvents(stmt, eventMgr, ts));
-			}
+			//TODO  change to find relatedDiscos for resource, then find events related to DiSCO
+//			Set<URI>stmts = this.getRelatedStatementIds(resource, null, stmtmgr,
+//					discomgr, ts);
+//			for (URI stmt:stmts){
+//				events.addAll(stmtmgr.getRelatedEvents(stmt, eventMgr, ts));
+//			}
 		}while (false);
 		return events;
 	}
@@ -255,10 +254,10 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 				agents.addAll(discomgr.getRelatedAgents(uri, statusCode, eventMgr, ts));
 				break;	
 			}// end DiSCO				
-			if (this.isStatementId(uri, ts)){
-				agents.addAll(stmtmgr.getRelatedAgents(uri, statusCode, eventMgr, discomgr, ts));
-				break;
-			}// end Statement
+//			if (this.isStatementId(uri, ts)){
+//				agents.addAll(stmtmgr.getRelatedAgents(uri, statusCode, eventMgr, discomgr, ts));
+//				break;
+//			}// end Statement
 			if (this.isEventId(uri, ts)){
 				agents.addAll(eventMgr.getRelatedAgents(uri, ts));;				
 				break;
@@ -312,21 +311,21 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 					}
 					break;
 				}
-				if (id!=null && this.isStatementId(id, ts)){
-					if (statusCode != null){
-						RMapStatus status = stmtmgr.getStatementStatus(uri, discomgr, ts);
-						if (!(status.equals(statusCode))){
-							break;
-						}
-					}
-					//For each event associated with statement ID, return AssociatedAgent
-					List<URI>events = stmtmgr.getRelatedEvents(uri, eventMgr, ts);
-					for (URI event:events){
-						URI assocAgent = eventMgr.getEventAssocAgent(event, ts);
-						agents.add(assocAgent);
-					}
-					break;
-				}
+//				if (id!=null && this.isStatementId(id, ts)){
+//					if (statusCode != null){
+//						RMapStatus status = stmtmgr.getStatementStatus(uri, discomgr, ts);
+//						if (!(status.equals(statusCode))){
+//							break;
+//						}
+//					}
+//					//For each event associated with statement ID, return AssociatedAgent
+//					List<URI>events = stmtmgr.getRelatedEvents(uri, eventMgr, ts);
+//					for (URI event:events){
+//						URI assocAgent = eventMgr.getEventAssocAgent(event, ts);
+//						agents.add(assocAgent);
+//					}
+//					break;
+//				}
 				if (id!=null && this.isEventId(id, ts)){
 					agents.addAll(eventMgr.getRelatedAgents(id, ts));
 					break;

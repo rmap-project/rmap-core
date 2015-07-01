@@ -3,7 +3,7 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
-import java.util.ArrayList;
+//import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -171,68 +171,68 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		// add the DiSCO id as an event-created Resource
 		created.add(disco.getDiscoContext());
 		
-		// Create reified statment for type statement if necessary, and add the triple
-		URI typeId = null;
-		try {
-			typeId=stmtMgr.getStatementID(disco.getTypeStatement().getSubject(),
-					disco.getTypeStatement().getPredicate(), disco.getTypeStatement().getObject(), ts);	
-		}					
-		catch (Exception e){
-			typeId = stmtMgr.createReifiedStatement(disco.getTypeStatement(), ts);
-			created.add(typeId);
-		}
+		//  for type statement add the triple
+//		URI typeId = null;
+//		try {
+//			typeId=stmtMgr.getStatementID(disco.getTypeStatement().getSubject(),
+//					disco.getTypeStatement().getPredicate(), disco.getTypeStatement().getObject(), ts);	
+//		}					
+//		catch (Exception e){
+//			typeId = stmtMgr.createReifiedStatement(disco.getTypeStatement(), ts);
+//			created.add(typeId);
+//		}
 		this.createTriple(ts, disco.getTypeStatement());
 		
-		// Create reified statement for discoCreator if necessary, and add the triple
-		URI discoCreator = null;
-		try {
-			stmtMgr.getStatementID(disco.getCreatorStmt().getSubject(),
-				disco.getCreatorStmt().getPredicate(), disco.getCreatorStmt().getObject(), ts);	
-		}
-		catch (Exception e){
-			discoCreator = stmtMgr.createReifiedStatement(disco.getCreatorStmt(), ts);
-			created.add(discoCreator);
-		}
+		// discoCreator  add the triple
+//		URI discoCreator = null;
+//		try {
+//			stmtMgr.getStatementID(disco.getCreatorStmt().getSubject(),
+//				disco.getCreatorStmt().getPredicate(), disco.getCreatorStmt().getObject(), ts);	
+//		}
+//		catch (Exception e){
+//			discoCreator = stmtMgr.createReifiedStatement(disco.getCreatorStmt(), ts);
+//			created.add(discoCreator);
+//		}
 		this.createTriple(ts, disco.getCreatorStmt());
-		// Create reified statement for description if necessary, and add the triple
+		//  description add the triple
 		if (disco.getDescriptonStatement() != null){
-			URI desc = null;
-			try {
-				desc = stmtMgr.getStatementID(disco.getDescriptonStatement().getSubject(),
-					disco.getDescriptonStatement().getPredicate(), disco.getDescriptonStatement().getObject(), ts);
-			}
-			catch (Exception e){
-				desc = stmtMgr.createReifiedStatement(disco.getDescriptonStatement(), ts);
-				created.add(desc);
-			}
+//			URI desc = null;
+//			try {
+//				desc = stmtMgr.getStatementID(disco.getDescriptonStatement().getSubject(),
+//					disco.getDescriptonStatement().getPredicate(), disco.getDescriptonStatement().getObject(), ts);
+//			}
+//			catch (Exception e){
+//				desc = stmtMgr.createReifiedStatement(disco.getDescriptonStatement(), ts);
+//				created.add(desc);
+//			}
 			this.createTriple(ts, disco.getDescriptonStatement());
 		}
 		
 		// create reified statement for disco id the provider used
 		if (disco.getProviderIdStmt()!= null){
-			URI providerId = null;
-			try {
-				providerId = stmtMgr.getStatementID(disco.getProviderIdStmt().getSubject(),
-					disco.getProviderIdStmt().getPredicate(), disco.getProviderIdStmt().getObject(), ts);
-			}
-			catch (Exception e){
-				providerId= stmtMgr.createReifiedStatement(disco.getProviderIdStmt(),ts);
-				created.add(providerId);
-			}
+//			URI providerId = null;
+//			try {
+//				providerId = stmtMgr.getStatementID(disco.getProviderIdStmt().getSubject(),
+//					disco.getProviderIdStmt().getPredicate(), disco.getProviderIdStmt().getObject(), ts);
+//			}
+//			catch (Exception e){
+//				providerId= stmtMgr.createReifiedStatement(disco.getProviderIdStmt(),ts);
+//				created.add(providerId);
+//			}
 			this.createTriple(ts,disco.getProviderIdStmt());
 		}
 		
 		// for each aggregated resource, create reified statement if necessary, create triples
 		for (Statement stmt:aggResources){
-			URI aggResource = null;
-			try {
-				aggResource = stmtMgr.getStatementID(stmt.getSubject(),
-					stmt.getPredicate(), stmt.getObject(), ts);
-			}
-			catch (Exception e){
-				aggResource = stmtMgr.createReifiedStatement(stmt, ts);
-				created.add(aggResource);
-			}
+//			URI aggResource = null;
+//			try {
+//				aggResource = stmtMgr.getStatementID(stmt.getSubject(),
+//					stmt.getPredicate(), stmt.getObject(), ts);
+//			}
+//			catch (Exception e){
+//				aggResource = stmtMgr.createReifiedStatement(stmt, ts);
+//				created.add(aggResource);
+//			}
 			this.createTriple(ts, stmt);
 		}
 		do {
@@ -245,15 +245,15 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			// for each statement in relatedStatements
 			//   create reified statement if necessary, and add the triple
 			for (Statement stmt:filteredRelatedStatements){
-				URI relStmt = null;
-				try { 
-					relStmt =stmtMgr.getStatementID(stmt.getSubject(),
-						stmt.getPredicate(), stmt.getObject(), ts);
-				}
-				catch (Exception e){
-					relStmt = stmtMgr.createReifiedStatement(stmt, ts);
-					created.add(relStmt);
-				}
+//				URI relStmt = null;
+//				try { 
+//					relStmt =stmtMgr.getStatementID(stmt.getSubject(),
+//						stmt.getPredicate(), stmt.getObject(), ts);
+//				}
+//				catch (Exception e){
+//					relStmt = stmtMgr.createReifiedStatement(stmt, ts);
+//					created.add(relStmt);
+//				}
 				this.createTriple(ts, stmt);
 			}	
 		} while (false);
@@ -356,69 +356,69 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			// add the DiSCO id as an event-created Resource
 			created.add(disco.getDiscoContext());
 			
-			// Create reified statment for type statement if necessary, and add the triple
-			URI typeId = null;
-			try {
-				typeId=stmtMgr.getStatementID(disco.getTypeStatement().getSubject(),
-						disco.getTypeStatement().getPredicate(), disco.getTypeStatement().getObject(), ts);	
-			}					
-			catch (Exception e){
-				typeId = stmtMgr.createReifiedStatement(disco.getTypeStatement(), ts);
-				created.add(typeId);
-			}
+//			// Create reified statment for type statement if necessary, and add the triple
+//			URI typeId = null;
+//			try {
+//				typeId=stmtMgr.getStatementID(disco.getTypeStatement().getSubject(),
+//						disco.getTypeStatement().getPredicate(), disco.getTypeStatement().getObject(), ts);	
+//			}					
+//			catch (Exception e){
+//				typeId = stmtMgr.createReifiedStatement(disco.getTypeStatement(), ts);
+//				created.add(typeId);
+//			}
 			this.createTriple(ts, disco.getTypeStatement());
 			
-			// Create reified statement for discoCreater if necessary, and add the triple
-			URI discoCreator = null;
-			try{
-				discoCreator= stmtMgr.getStatementID(disco.getCreatorStmt().getSubject(),
-					disco.getCreatorStmt().getPredicate(), disco.getCreatorStmt().getObject(), ts);	
-			}
-			catch (Exception e){
-				discoCreator = stmtMgr.createReifiedStatement(disco.getCreatorStmt(), ts);
-				created.add(discoCreator);
-			}
+//			// Create reified statement for discoCreater if necessary, and add the triple
+//			URI discoCreator = null;
+//			try{
+//				discoCreator= stmtMgr.getStatementID(disco.getCreatorStmt().getSubject(),
+//					disco.getCreatorStmt().getPredicate(), disco.getCreatorStmt().getObject(), ts);	
+//			}
+//			catch (Exception e){
+//				discoCreator = stmtMgr.createReifiedStatement(disco.getCreatorStmt(), ts);
+//				created.add(discoCreator);
+//			}
 			this.createTriple(ts, disco.getCreatorStmt());
 			// Create reified statement for description if necessary, and add the triple
 			if (disco.getDescriptonStatement()!= null){
-				URI desc = null;
-				try {
-					stmtMgr.getStatementID(disco.getDescriptonStatement().getSubject(),
-						disco.getDescriptonStatement().getPredicate(), disco.getDescriptonStatement().getObject(), ts);
-				}
-				catch (Exception e){
-					desc = stmtMgr.createReifiedStatement(disco.getDescriptonStatement(), ts);
-					created.add(desc);
-				}
+//				URI desc = null;
+//				try {
+//					stmtMgr.getStatementID(disco.getDescriptonStatement().getSubject(),
+//						disco.getDescriptonStatement().getPredicate(), disco.getDescriptonStatement().getObject(), ts);
+//				}
+//				catch (Exception e){
+//					desc = stmtMgr.createReifiedStatement(disco.getDescriptonStatement(), ts);
+//					created.add(desc);
+//				}
 				this.createTriple(ts, disco.getDescriptonStatement());
 			}
 			
 			// create reified statement for disco id the provider used
 			if (disco.getProviderIdStmt()!= null){
-				URI providerId = null;
-				try{
-					providerId = stmtMgr.getStatementID(disco.getProviderIdStmt().getSubject(),
-						disco.getProviderIdStmt().getPredicate(), disco.getProviderIdStmt().getObject(), ts);
-				}
-				catch (Exception e){
-					providerId= stmtMgr.createReifiedStatement(disco.getProviderIdStmt(),ts);
-					created.add(providerId);
-				}
+//				URI providerId = null;
+//				try{
+//					providerId = stmtMgr.getStatementID(disco.getProviderIdStmt().getSubject(),
+//						disco.getProviderIdStmt().getPredicate(), disco.getProviderIdStmt().getObject(), ts);
+//				}
+//				catch (Exception e){
+//					providerId= stmtMgr.createReifiedStatement(disco.getProviderIdStmt(),ts);
+//					created.add(providerId);
+//				}
 				this.createTriple(ts,disco.getProviderIdStmt());
 			}
 			
 			// for each aggregated resource, create reified statement if necessary, create triples
 			List<Statement> aggResources = disco.getAggregatedResourceStatements();
 			for (Statement stmt:aggResources){
-				URI aggResource = null;
-				try{
-					aggResource = stmtMgr.getStatementID(stmt.getSubject(),
-						stmt.getPredicate(), stmt.getObject(), ts);
-				}
-				catch (Exception e){
-					aggResource = stmtMgr.createReifiedStatement(stmt, ts);
-					created.add(aggResource);
-				}
+//				URI aggResource = null;
+//				try{
+//					aggResource = stmtMgr.getStatementID(stmt.getSubject(),
+//						stmt.getPredicate(), stmt.getObject(), ts);
+//				}
+//				catch (Exception e){
+//					aggResource = stmtMgr.createReifiedStatement(stmt, ts);
+//					created.add(aggResource);
+//				}
 				this.createTriple(ts, stmt);
 			}
 			
@@ -430,17 +430,17 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				// Replace any BNodes in incoming statements with RMap identifiers
 				List<Statement> filteredRelatedStatements = this.replaceBNodeWithRMapId(relatedStmts, ts);
 				// for each statement in relatedStatements
-				//   create reified statement if necessary, and add the triple
+				//   add the triple
 				for (Statement stmt:filteredRelatedStatements){
-					URI relStmt = null;
-					try { 
-						relStmt =stmtMgr.getStatementID(stmt.getSubject(),
-							stmt.getPredicate(), stmt.getObject(), ts);
-					}
-					catch (Exception e){
-						relStmt = stmtMgr.createReifiedStatement(stmt, ts);
-						created.add(relStmt);
-					}
+//					URI relStmt = null;
+//					try { 
+//						relStmt =stmtMgr.getStatementID(stmt.getSubject(),
+//							stmt.getPredicate(), stmt.getObject(), ts);
+//					}
+//					catch (Exception e){
+//						relStmt = stmtMgr.createReifiedStatement(stmt, ts);
+//						created.add(relStmt);
+//					}
 					this.createTriple(ts, stmt);
 				}	
 			} while (false);
@@ -577,39 +577,39 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		
 		return status;
 	}
-	/**
-	 * Get ids of Statements associated with a DiSCO
-	 * @param discoId
-	 * @param stmtmgr
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapObjectNotFoundException
-	 */
-	public List<URI> getDiSCOStatements(URI discoId, ORMapStatementMgr stmtmgr,
-			SesameTriplestore ts) throws RMapDiSCONotFoundException, RMapException {
-		if (discoId==null){
-			throw new RMapException("Null discoID");
-		}
-		if (ts==null){
-			throw new RMapException("Null triplestore");
-		}
-		List<Statement>stmts = new ArrayList<Statement>();
-		try {
-			stmts.addAll(this.getNamedGraph(discoId, ts));
-		}
-		catch (RMapObjectNotFoundException e){
-			throw new RMapDiSCONotFoundException("No DiSCO found with id " + discoId.stringValue(), e);
-		}
-		catch (RMapException e) {throw e;}
-		List<URI>uris = new ArrayList<URI>();
-		for (Statement stmt:stmts){
-			URI stmtId = stmtmgr.getStatementID(stmt.getSubject(), stmt.getPredicate(),
-					stmt.getObject(), ts);
-			uris.add(stmtId);
-		}
-		return uris;
-	}
+//	/**
+//	 * Get ids of Statements associated with a DiSCO
+//	 * @param discoId
+//	 * @param stmtmgr
+//	 * @param ts
+//	 * @return
+//	 * @throws RMapException
+//	 * @throws RMapObjectNotFoundException
+//	 */
+//	public List<URI> getDiSCOStatements(URI discoId, ORMapStatementMgr stmtmgr,
+//			SesameTriplestore ts) throws RMapDiSCONotFoundException, RMapException {
+//		if (discoId==null){
+//			throw new RMapException("Null discoID");
+//		}
+//		if (ts==null){
+//			throw new RMapException("Null triplestore");
+//		}
+//		List<Statement>stmts = new ArrayList<Statement>();
+//		try {
+//			stmts.addAll(this.getNamedGraph(discoId, ts));
+//		}
+//		catch (RMapObjectNotFoundException e){
+//			throw new RMapDiSCONotFoundException("No DiSCO found with id " + discoId.stringValue(), e);
+//		}
+//		catch (RMapException e) {throw e;}
+//		List<URI>uris = new ArrayList<URI>();
+//		for (Statement stmt:stmts){
+//			URI stmtId = stmtmgr.getStatementID(stmt.getSubject(), stmt.getPredicate(),
+//					stmt.getObject(), ts);
+//			uris.add(stmtId);
+//		}
+//		return uris;
+//	}
 	/**
 	 * Method to get all versions of DiSCO
 	 * If matchAgent = true, then return only versions created by same agent as creating agent
