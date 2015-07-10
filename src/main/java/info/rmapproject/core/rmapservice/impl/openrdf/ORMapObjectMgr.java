@@ -64,16 +64,7 @@ public abstract class ORMapObjectMgr {
 		}		
 		return isCorrectType;	
 	}
-//	/**
-//	 * Confirm that URI is Statement id
-//	 * @param id
-//	 * @param ts
-//	 * @return
-//	 * @throws RMapException
-//	 */
-//	public boolean isStatementId(URI id, SesameTriplestore ts) throws RMapException {	
-//		return this.isRMapType(ts, id, RMAP.STATEMENT);		
-//	}
+
 	/**
 	 * Confirm that URI is a DiSCO id
 	 * @param discoId

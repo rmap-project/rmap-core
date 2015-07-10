@@ -41,7 +41,6 @@ import org.openrdf.model.vocabulary.RDF;
  */
 public class ORMapDiscoTest {
 	protected ValueFactory vf = null;
-	//protected SesameTriplestore ts = null;
 	protected Statement rStmt;
 	protected Statement rStmt2;
 	protected Statement s1;

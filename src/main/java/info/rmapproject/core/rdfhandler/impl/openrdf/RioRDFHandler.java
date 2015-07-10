@@ -114,25 +114,6 @@ public class RioRDFHandler implements RDFHandler {
 		return agent;
 	}
 
-//	@Override
-//	public OutputStream statement2Rdf(RMapStatement stmt, String rdfFormat)
-//			throws RMapException {
-//		if (stmt==null){
-//			throw new RMapException("null RMapStatement");
-//		}
-//		if (rdfFormat==null){
-//			throw new RMapException("null rdf format name");
-//		}
-//		if (! (stmt instanceof ORMapStatement)){
-//			throw new RMapException("RMapStatement not instance of ORMapStatement");
-//		}
-//	
-//		ORMapStatement orStmt = (ORMapStatement)stmt;
-//		Model model = orStmt.getAsModel();
-//		OutputStream os = this.convertStmtListToRDF(model, rdfFormat);
-//		return os;
-//	}
-
 	@Override
 	public OutputStream disco2Rdf(RMapDiSCO disco, String rdfFormat)
 			throws RMapException {

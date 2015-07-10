@@ -124,51 +124,6 @@ public class ORMapObjectMgrTest {
 		assertTrue(istype);
 	}
 
-//	/**
-//	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr#isStatementId(org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
-//	 */
-//	@Test
-//	public void testIsStatementId() {		
-//		ORMapStatementMgr mgr = new ORMapStatementMgr();
-//		URI subject = vf.createURI("http://portico.org");
-//		URI predicate = DCTERMS.CREATOR;
-//		Value object = vf.createLiteral("this test");
-//		Statement stmt = vf.createStatement(subject, predicate, object);
-//		URI stmtId = mgr.createReifiedStatement(stmt,ts);
-//		List<Statement>stmts = null;
-//		try {
-//			stmts = ts.getStatements(stmtId, null, null);
-//			assertNotNull(stmts);
-//			assertEquals(4,stmts.size());
-//			boolean foundit=false;
-//			boolean foundId = false;
-//			boolean foundObj = false;
-//			for (Statement st:stmts){
-//				URI pred = st.getPredicate();
-//				if (!pred.equals(RDF.TYPE)){
-//					continue;
-//				}
-//				URI subj = (URI)st.getSubject();
-//				if (!subj.equals(stmtId)){
-//					continue;
-//				}
-//				foundId = true;
-//				URI obj = (URI)st.getObject();
-//				if (! obj.equals(RMAP.STATEMENT)){
-//					continue;
-//				}
-//				foundObj = true;
-//				foundit = true;
-//			}
-//			assertTrue(foundId);
-//			assertTrue(foundObj);
-//			assertTrue(foundit);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}	
-//		boolean isStmtId = mgr.isStatementId(stmtId,ts);
-//		assertTrue(isStmtId);
-//	}
 
 	/**
 	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr#isEventId(org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
@@ -187,12 +142,6 @@ public class ORMapObjectMgrTest {
 			List<URI> uris = new ArrayList<URI>();
 			URI discoContext = disco.getDiscoContext();
 			uris.add(discoContext);
-//			Model model = disco.getAsModel();
-//			ORMapStatementMgr stmtMgr = new ORMapStatementMgr();
-//			for (Statement stmt:model){
-//				URI stmtUri = stmtMgr.createReifiedStatement(stmt, ts);
-//				uris.add(stmtUri);
-//			}
 			List<RMapUri> createdObjIds = new ArrayList<RMapUri>();
 			for (URI uri:uris){
 				createdObjIds.add(ORAdapter.openRdfUri2RMapUri(uri));

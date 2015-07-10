@@ -36,16 +36,6 @@ public interface RMapService {
 	 * @throws RMapDefectiveArgumentException 
 	 */
 	public List<URI> getResourceRelatedAll (URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
-//	/**
-//	 * Get all RMap Statements with a specified status code whose subject or object matches 
-//	 * a Resource URI 
-//	 * @param uri
-//	 * @param statusCode
-//	 * @return
-//	 * @throws RMapException
-//	 * @throws RMapDefectiveArgumentException 
-//	 */
-//	public List<URI> getResourceRelatedStmts (URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Get the list of triples comprised by statements that reference a resource and whose status matches provided status code
 	 * @param uri Resource to be matched in statements
@@ -99,54 +89,6 @@ public interface RMapService {
 	 * @throws RMapDefectiveArgumentException
 	 */
 	public Map<URI, Set<URI>> getResourceRdfTypesAllContexts(URI resourceUri)throws RMapException, RMapDefectiveArgumentException;
-	
-	// Statement services 
-//	/**
-//	 * Get the RMapStatement identified by a specific URI
-//	 * @param id
-//	 * @return
-//	 * @throws RMapException
-//	 * @throws RMapStatementNotFoundException 
-//	 * @throws RMapDefectiveArgumentException 
-//	 */
-//	public RMapStatement readStatement (URI id) throws RMapException, RMapStatementNotFoundException, RMapDefectiveArgumentException;
-//	/**
-//	 * Get the URI for the RMapStatement matching the supplied subject, predicate and objectc
-//	 * @param subject
-//	 * @param predicate
-//	 * @param object
-//	 * @return
-//	 * @throws RMapException
-//	 * @throws RMapDefectiveArgumentException 
-//	 */
-//	public URI getStatementID (RMapResource subject, RMapUri predicate, RMapValue object) throws RMapException, RMapDefectiveArgumentException;
-//	/**
-//	 * Return the RMapStatements identified by the listed URIS
-//	 * @param ids
-//	 * @return
-//	 * @throws RMapException
-//	 * @throws RMapStatementNotFoundException 
-//	 * @throws RMapDefectiveArgumentException 
-//	 */
-//	//
-//	public List<RMapStatement> readStatements (List<URI> ids) throws RMapException, RMapStatementNotFoundException, RMapDefectiveArgumentException;
-//	/**
-//	 * Get the status of the RMapStatement identified by the provided URI
-//	 * @param stmtId
-//	 * @return
-//	 * @throws RMapException
-//	 * @throws RMapDefectiveArgumentException 
-//	 */
-//	public RMapStatus getStatementStatus(URI stmtId) throws RMapException, RMapDefectiveArgumentException;
-//	/**
-//	 * Get all RMapEvents related to the RMapStatement identified by the provided URI
-//	 * @param stmtId
-//	 * @return
-//	 * @throws RMapException
-//	 * @throws RMapDefectiveArgumentException 
-//	 */
-//	public List<URI> getStatementEvents(URI stmtId) throws RMapException, RMapDefectiveArgumentException;
-//	
 	
 	// DiSCO services
 	/**
@@ -298,14 +240,6 @@ public interface RMapService {
 	 * @throws RMapDefectiveArgumentException 
 	 */
 	public RMapEvent readEvent(URI eventId)  throws RMapException, RMapEventNotFoundException, RMapDefectiveArgumentException;
-//	/**
-//	 * 
-//	 * @param eventID
-//	 * @return
-//	 * @throws RMapException
-//	 * @throws RMapDefectiveArgumentException 
-//	 */
-//	public List<URI> getEventRelatedStatements(URI eventID) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * 
 	 * @param eventID

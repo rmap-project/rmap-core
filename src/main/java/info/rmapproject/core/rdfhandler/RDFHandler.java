@@ -37,14 +37,6 @@ public interface RDFHandler {
 	 * @throws RMapException
 	 */
 	public RMapAgent rdf2RMapAgent(URI systemAgent, InputStream rdfIn, String baseUri, String rdfFormat) throws RMapException;
-//	/**
-//	 * Serialize RMapStatement as RDF
-//	 * @param stmt RMapStatement to be serialized
-//	 * @param rdfFormat RDF Format to be used in serialization
-//	 * @return OutputStream with serialized RDF
-//	 * @throws RMapException if RMapStatement cannot be serialized as RDF
-//	 */
-//	public OutputStream statement2Rdf(RMapStatement stmt, String rdfFormat)throws RMapException;
 	/**
 	 * Serialize RMapDiSCO as RDF
 	 * @param disco RMapDiSCO to be serialized

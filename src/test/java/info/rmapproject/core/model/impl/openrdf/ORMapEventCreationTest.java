@@ -61,11 +61,6 @@ public class ORMapEventCreationTest {
 			uris.add(discoContext);
 			Model model = disco.getAsModel();
 			assertEquals(4,model.size());
-//			ORMapStatementMgr stmtMgr = new ORMapStatementMgr();
-//			for (Statement stmt:model){
-//				URI stmtUri = stmtMgr.createReifiedStatement(stmt, ts);
-//				uris.add(stmtUri);
-//			}
 			List<RMapUri> createdObjIds = new ArrayList<RMapUri>();
 			for (URI uri:uris){
 				createdObjIds.add(ORAdapter.openRdfUri2RMapUri(uri));
@@ -89,7 +84,7 @@ public class ORMapEventCreationTest {
 			ORMapEventMgr eventMgr = new ORMapEventMgr();
 			URI crEventId = eventMgr.createEvent(event, ts);
 			assertEquals(context, crEventId);
-			assertNotEquals(context, discoContext);
+			assertFalse(context.stringValue().equals(discoContext.stringValue()));
 			assertTrue(eventMgr.isEventId(context, ts));
 		} catch (URISyntaxException e) {
 			e.printStackTrace();

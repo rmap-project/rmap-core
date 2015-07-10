@@ -88,12 +88,6 @@ public class ORMapEventDerivationTest {
 		Set<URI> uris = new LinkedHashSet<URI>();
 		URI newDiscoContext = newDisco.getDiscoContext();
 		uris.add(newDiscoContext);
-//		ORMapStatementMgr stmtMgr = new ORMapStatementMgr();
-//		// add URI of each created Reified statement
-//		for (Statement stmt:newDisco.getAsModel()){
-//			URI stmtUri = stmtMgr.createReifiedStatement(stmt, ts);
-//			uris.add(stmtUri);
-//		}	
 		event.setCreatedObjectIdsFromURI(uris);
 		model = event.getAsModel();
 		assertEquals(7,model.size());
@@ -139,15 +133,7 @@ public class ORMapEventDerivationTest {
 		uris.add(newDiscoContext);
 		Model model = newDisco.getAsModel();
 		assertEquals(4,model.size());
-//		ORMapStatementMgr stmtMgr = new ORMapStatementMgr();
-//		// add URI of each created Reified statement
-//		for (Statement stmt:model){
-//			URI stmtUri = stmtMgr.createReifiedStatement(stmt, ts);
-//			uris.add(stmtUri);
-//		}		
-//		
-		URI context = ORAdapter.uri2OpenRdfUri(id1);
-		
+		URI context = ORAdapter.uri2OpenRdfUri(id1);		
 		Date start = new Date();
 		String startTime = DateUtils.getIsoStringDate(start);
 		
