@@ -14,20 +14,14 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapDiSCONotFoundException;
 import info.rmapproject.core.exception.RMapEventNotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
-import info.rmapproject.core.exception.RMapStatementNotFoundException;
-import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapTriple;
-import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.agent.RMapAgent;
@@ -36,7 +30,6 @@ import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
-import info.rmapproject.core.model.statement.RMapStatement;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
@@ -85,30 +78,10 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException("null uri");
 		}
 		List<URI>uris = new ArrayList<URI>();
-		uris.addAll(this.getResourceRelatedStmts(uri, statusCode));
 		uris.addAll(this.getResourceRelatedDiSCOs(uri, statusCode));
 		uris.addAll(this.getResourceRelatedAgents(uri, statusCode));
 		uris.addAll(this.getResourceRelatedEvents(uri));
 		return uris;
-	}
-
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getRelatedStmts(java.net.URI, info.rmapproject.core.model.RMapStatus)
-	 */
-	public List<URI> getResourceRelatedStmts(URI uri, RMapStatus statusCode)
-			throws RMapException, RMapDefectiveArgumentException {
-		if (uri==null){
-			throw new RMapDefectiveArgumentException("null uri");
-		}
-		org.openrdf.model.URI mUri = ORAdapter.uri2OpenRdfUri(uri);
-		Set<org.openrdf.model.URI> stmtIds = 
-				this.resourcemgr.getRelatedStatementIds(mUri, statusCode, stmtmgr, 
-						discomgr, ts);
-		List<URI> ids = new ArrayList<URI>();
-		for (org.openrdf.model.URI id:stmtIds){
-			ids.add(ORAdapter.openRdfUri2URI(id));
-		}
-		return ids;
 	}
 
 	@Override
@@ -231,86 +204,6 @@ public class ORMapService implements RMapService {
 			}				
 		}
 		return map;
-	}
-
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#readStatement(java.net.URI)
-	 */
-	public RMapStatement readStatement(URI id) 
-	throws RMapException, RMapStatementNotFoundException, RMapDefectiveArgumentException {
-		org.openrdf.model.URI openUri;
-		if (id==null){
-			throw new RMapDefectiveArgumentException("Null Statement id provided");
-		}
-		try {
-			openUri = ORAdapter.uri2OpenRdfUri(id);
-		} catch (Exception e) {
-			throw new RMapException("Unable to convert URI to OpenRDF URI", e);
-		}
-		return this.stmtmgr.getRMapStatement(openUri, ts);
-	}
-
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getStatementID(info.rmapproject.core.model.RMapNonLiteral, info.rmapproject.core.model.RMapUri, info.rmapproject.core.model.RMapResource)
-	 */
-	public URI getStatementID(RMapResource subject, RMapUri predicate,
-			RMapValue object) throws RMapException, RMapDefectiveArgumentException {
-		if (subject==null){
-			throw new RMapDefectiveArgumentException("Null subject provided");
-		}
-		if (predicate ==null){
-			throw new RMapDefectiveArgumentException("Null predicate provided");
-		}
-		if (object==null){
-			throw new RMapDefectiveArgumentException("Null object provided");
-		}
-		Resource orSubject = ORAdapter.rMapNonLiteral2OpenRdfResource(subject);
-		org.openrdf.model.URI orPredicate = ORAdapter.rMapUri2OpenRdfUri(predicate);
-		Value orValue = ORAdapter.rMapValue2OpenRdfValue(object);
-		org.openrdf.model.URI id = this.stmtmgr.getStatementID(orSubject, orPredicate, orValue, ts);
-		return ORAdapter.openRdfUri2RMapUri(id).getIri();
-	}
-
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#readStatements(java.util.List)
-	 */
-	public List<RMapStatement> readStatements(List<URI> ids)
-			throws RMapException, RMapStatementNotFoundException, RMapDefectiveArgumentException {
-		if (ids==null || ids.size()==0){
-			throw new RMapDefectiveArgumentException("Null or empty list of statement ids provided");
-		}
-		List<RMapStatement> stmts =  new ArrayList<RMapStatement>();
-		for (URI id:ids){
-			stmts.add(this.readStatement(id));
-		}
-		return stmts;
-	}
-
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getStatementStatus(java.net.URI)
-	 */
-	public RMapStatus getStatementStatus(URI stmtId) throws RMapException, RMapDefectiveArgumentException {
-		if (stmtId==null){
-			throw new RMapDefectiveArgumentException ("Null statement id");
-		}
-		org.openrdf.model.URI uri = ORAdapter.uri2OpenRdfUri(stmtId);
-		return this.stmtmgr.getStatementStatus(uri, this.discomgr, ts);
-	}
-
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getStatementEvents(java.net.URI)
-	 */
-	public List<URI> getStatementEvents(URI stmtId) throws RMapException, RMapDefectiveArgumentException {
-		if (stmtId==null){
-			throw new RMapDefectiveArgumentException("null uri");
-		}
-		org.openrdf.model.URI uri = ORAdapter.uri2OpenRdfUri(stmtId);
-		List<org.openrdf.model.URI>uris = this.stmtmgr.getRelatedEvents(uri, this.eventmgr, ts);
-		List<URI>events = new ArrayList<URI>();
-		for (org.openrdf.model.URI event:uris){
-			events.add(ORAdapter.openRdfUri2URI(event));
-		}
-		return events;
 	}
 
 	/* (non-Javadoc)
@@ -643,23 +536,6 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException ("null event id");
 		}
 		return this.eventmgr.readEvent(ORAdapter.uri2OpenRdfUri(eventId), ts);
-	}
-
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getEventRelatedStatements(java.net.URI)
-	 */
-	public List<URI> getEventRelatedStatements(URI eventID)
-			throws RMapException, RMapDefectiveArgumentException {
-		if (eventID ==null){
-			throw new RMapDefectiveArgumentException ("null event id");
-		}
-		List<org.openrdf.model.URI> stmts = this.eventmgr.getRelatedStatements(
-				ORAdapter.uri2OpenRdfUri(eventID), this.discomgr, this.stmtmgr,ts);
-		List<URI>stmtIds = new ArrayList<URI>();
-		for (org.openrdf.model.URI id:stmts){
-			stmtIds.add(ORAdapter.openRdfUri2URI(id));
-		}
-		return stmtIds;
 	}
 
 	/* (non-Javadoc)

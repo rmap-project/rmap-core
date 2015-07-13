@@ -8,7 +8,7 @@ import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.rmapservice.impl.openrdf.ORMapEventMgr;
-import info.rmapproject.core.rmapservice.impl.openrdf.ORMapStatementMgr;
+//import info.rmapproject.core.rmapservice.impl.openrdf.ORMapStatementMgr;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
@@ -41,13 +41,6 @@ public class ORMapEventCreationTest {
 		ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
 	}
 
-	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventCreation#ORMapEventCreation(org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.URI, org.openrdf.model.Statement, java.util.List)}.
-	 */
-	@Test
-	public void testORMapEventCreationStatementStatementStatementStatementStatementStatementURIStatementListOfStatement() {
-		fail("Not yet implemented");
-	}
 
 	/**
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventCreation#ORMapEventCreation(info.rmapproject.core.model.RMapUri, info.rmapproject.core.model.event.RMapEventTargetType, info.rmapproject.core.model.RMapValue, java.util.List)}.
@@ -68,11 +61,6 @@ public class ORMapEventCreationTest {
 			uris.add(discoContext);
 			Model model = disco.getAsModel();
 			assertEquals(4,model.size());
-			ORMapStatementMgr stmtMgr = new ORMapStatementMgr();
-			for (Statement stmt:model){
-				URI stmtUri = stmtMgr.createReifiedStatement(stmt, ts);
-				uris.add(stmtUri);
-			}
 			List<RMapUri> createdObjIds = new ArrayList<RMapUri>();
 			for (URI uri:uris){
 				createdObjIds.add(ORAdapter.openRdfUri2RMapUri(uri));
@@ -82,12 +70,12 @@ public class ORMapEventCreationTest {
 			Date end = new Date();
 			event.setEndTime(end);
 			Model eventModel = event.getAsModel();
-			assertEquals(11, eventModel.size());
+			assertEquals(7, eventModel.size());
 			URI context = event.getContext();
 			for (Statement stmt:eventModel){
 				assertEquals(context,stmt.getContext());
 			}
-			assertEquals(5,event.getCreatedObjectStatements().size());
+			assertEquals(1,event.getCreatedObjectStatements().size());
 			assertEquals(createdObjIds.size(),event.getCreatedObjectIds().size());
 			assertEquals(RMapEventType.CREATION, event.getEventType());
 			assertEquals(RMapEventTargetType.DISCO, event.getEventTargetType());
@@ -96,7 +84,7 @@ public class ORMapEventCreationTest {
 			ORMapEventMgr eventMgr = new ORMapEventMgr();
 			URI crEventId = eventMgr.createEvent(event, ts);
 			assertEquals(context, crEventId);
-			assertNotEquals(context, discoContext);
+			assertFalse(context.stringValue().equals(discoContext.stringValue()));
 			assertTrue(eventMgr.isEventId(context, ts));
 		} catch (URISyntaxException e) {
 			e.printStackTrace();

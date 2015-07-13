@@ -41,7 +41,7 @@ public class ORMapResourceMgrTest {
 			resource01 = ORAdapter.uri2OpenRdfUri(context);
 			context = IdServiceFactoryIOC.getFactory().createService().createId();
 			context02 = ORAdapter.uri2OpenRdfUri(context);
-			resource02 = ts.getValueFactory().createURI("http://dx.doi.org/10.1109/ACCESS.2014.2332453");
+			resource02 = ts.getValueFactory().createURI("http://dx.doi.org/10.1109/ACCESS.2014.2332453/ORMapResourceMgrTest");
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail();

@@ -13,8 +13,8 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventDeletion;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
-import info.rmapproject.core.model.impl.openrdf.ORMapStatement;
-import info.rmapproject.core.model.statement.RMapStatement;
+//import info.rmapproject.core.model.impl.openrdf.ORMapStatement;
+//import info.rmapproject.core.model.statement.RMapStatement;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 
 import java.io.ByteArrayOutputStream;
@@ -112,25 +112,6 @@ public class RioRDFHandler implements RDFHandler {
 		List <Statement> stmts = this.convertRDFToStmtList(rdfIn, rdfFormat, baseUri);
 		ORMapAgent agent = new ORMapAgent(stmts, ORAdapter.uri2OpenRdfUri(systemAgent));
 		return agent;
-	}
-
-	@Override
-	public OutputStream statement2Rdf(RMapStatement stmt, String rdfFormat)
-			throws RMapException {
-		if (stmt==null){
-			throw new RMapException("null RMapStatement");
-		}
-		if (rdfFormat==null){
-			throw new RMapException("null rdf format name");
-		}
-		if (! (stmt instanceof ORMapStatement)){
-			throw new RMapException("RMapStatement not instance of ORMapStatement");
-		}
-	
-		ORMapStatement orStmt = (ORMapStatement)stmt;
-		Model model = orStmt.getAsModel();
-		OutputStream os = this.convertStmtListToRDF(model, rdfFormat);
-		return os;
 	}
 
 	@Override
