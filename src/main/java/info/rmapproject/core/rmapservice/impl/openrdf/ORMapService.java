@@ -42,7 +42,6 @@ import info.rmapproject.core.utils.Utils;
 public class ORMapService implements RMapService {
 
 	protected ORMapResourceMgr resourcemgr = new ORMapResourceMgr();
-	protected ORMapStatementMgr stmtmgr = new ORMapStatementMgr();
 	protected ORMapDiSCOMgr discomgr = new ORMapDiSCOMgr();
 	protected ORMapEventMgr eventmgr = new ORMapEventMgr();
 	protected ORMapAgentMgr agentgmr = new ORMapAgentMgr();
@@ -93,8 +92,8 @@ public class ORMapService implements RMapService {
 		}
 		org.openrdf.model.URI mUri = ORAdapter.uri2OpenRdfUri(uri);
 		Set<Statement> stmts = 
-				this.resourcemgr.getRelatedStatementTriples(mUri, statusCode, stmtmgr, 
-						discomgr, ts);
+				this.resourcemgr.getRelatedStatementTriples(mUri, statusCode, discomgr, 
+						ts);
 		List<RMapTriple> triples = new ArrayList<RMapTriple>();
 		for (Statement stmt:stmts){
 			RMapTriple triple = ORAdapter.openRdfStatement2RMapTriple(stmt);
@@ -112,7 +111,7 @@ public class ORMapService implements RMapService {
 		}
 		org.openrdf.model.URI mUri = ORAdapter.uri2OpenRdfUri(uri);
 		Set<org.openrdf.model.URI> orEvents =
-				this.resourcemgr.getRelatedEvents(mUri, stmtmgr, discomgr, eventmgr, ts);
+				this.resourcemgr.getRelatedEvents(mUri, discomgr, eventmgr, ts);
 		List<URI> uris = new ArrayList<URI>();
 		for (org.openrdf.model.URI event:orEvents){
 			URI dUri = ORAdapter.openRdfUri2URI(event);
@@ -149,7 +148,7 @@ public class ORMapService implements RMapService {
 		}
 		org.openrdf.model.URI resource = ORAdapter.uri2OpenRdfUri(uri);
 		Set<org.openrdf.model.URI> resourceAgents = 
-				this.resourcemgr.getRelatedAgents(resource, statusCode, stmtmgr, discomgr, eventmgr, agentgmr, ts);
+				this.resourcemgr.getRelatedAgents(resource, statusCode, discomgr, eventmgr, agentgmr, ts);
 		List<URI> uris = new ArrayList<URI>();
 		for (org.openrdf.model.URI agent:resourceAgents){
 			URI dUri = ORAdapter.openRdfUri2URI(agent);
@@ -232,7 +231,7 @@ public class ORMapService implements RMapService {
 		}
 		RMapEvent createEvent = 
 				this.discomgr.createDiSCO(ORAdapter.rMapUri2OpenRdfUri(systemAgent),
-				(ORMapDiSCO)disco, this.eventmgr, this.stmtmgr, ts);
+				(ORMapDiSCO)disco, this.eventmgr, ts);
 		return createEvent;
 	}
 
@@ -256,7 +255,7 @@ public class ORMapService implements RMapService {
 		ORMapDiSCO disco = new ORMapDiSCO(stmts);
 		RMapEvent createEvent = 
 				this.discomgr.createDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent),
-				disco, this.eventmgr, this.stmtmgr, ts);
+				disco, this.eventmgr, ts);
 		return createEvent;
 	}
 
@@ -291,7 +290,7 @@ public class ORMapService implements RMapService {
 		RMapEvent updateEvent = 
 				this.discomgr.updateDiSCO(agentUri,
 					false, ORAdapter.uri2OpenRdfUri(oldDiscoId), (ORMapDiSCO)disco, 
-					this.stmtmgr, this.eventmgr, ts);
+					this.eventmgr, ts);
 		return updateEvent;
 	}
 
@@ -322,7 +321,7 @@ public class ORMapService implements RMapService {
 		RMapEvent updateEvent = 
 				this.discomgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent),
 					false, ORAdapter.uri2OpenRdfUri(oldDiscoId), disco, 
-					this.stmtmgr, this.eventmgr, ts);
+					this.eventmgr, ts);
 		return updateEvent;
 	}
 
@@ -340,7 +339,7 @@ public class ORMapService implements RMapService {
 		RMapEvent inactivateEvent = 
 				this.discomgr.updateDiSCO(agentUri,
 					true, ORAdapter.uri2OpenRdfUri(oldDiscoId), null, 
-					this.stmtmgr, this.eventmgr, ts);
+					this.eventmgr, ts);
 		return inactivateEvent;
 	}
 
@@ -546,7 +545,7 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException ("null event id");
 		}
 		List<org.openrdf.model.URI> resources = this.eventmgr.getRelatedResources(
-				ORAdapter.uri2OpenRdfUri(eventID),this.discomgr, this.stmtmgr, ts);
+				ORAdapter.uri2OpenRdfUri(eventID),this.discomgr, ts);
 		List<URI> resourceIds = new ArrayList<URI>();
 		for (org.openrdf.model.URI resource:resources){
 			resourceIds.add(ORAdapter.openRdfUri2URI(resource));
@@ -692,13 +691,6 @@ public class ORMapService implements RMapService {
 	 */
 	public ORMapResourceMgr getResourcemgr() {
 		return resourcemgr;
-	}
-
-	/**
-	 * @return the stmtmgr
-	 */
-	public ORMapStatementMgr getStmtmgr() {
-		return stmtmgr;
 	}
 
 	/**

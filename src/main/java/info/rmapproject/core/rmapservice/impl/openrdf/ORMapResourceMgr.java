@@ -67,8 +67,8 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapException
 	 */
 	public Set<Statement> getRelatedStatementTriples(URI uri,
-			RMapStatus statusCode, ORMapStatementMgr stmtmgr,
-			ORMapDiSCOMgr discomgr, SesameTriplestore ts) 
+			RMapStatus statusCode, ORMapDiSCOMgr discomgr,
+			SesameTriplestore ts) 
 	throws RMapDefectiveArgumentException, RMapException {
 		if (uri==null){
 			throw new RMapDefectiveArgumentException ("null URI");
@@ -146,8 +146,8 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @return
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public Set<URI> getRelatedEvents(URI resource,ORMapStatementMgr stmtmgr, 
-			ORMapDiSCOMgr discomgr, ORMapEventMgr eventMgr, SesameTriplestore ts) 
+	public Set<URI> getRelatedEvents(URI resource,ORMapDiSCOMgr discomgr, 
+			ORMapEventMgr eventMgr, SesameTriplestore ts) 
 	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
 		Set<URI>events = new HashSet<URI>();
 		do {
@@ -169,8 +169,8 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	}
 	
 	public Set<URI> getRelatedAgents(URI uri, RMapStatus statusCode, 
-			ORMapStatementMgr stmtmgr, ORMapDiSCOMgr discomgr, ORMapEventMgr eventMgr, 
-			ORMapAgentMgr agentmgr, SesameTriplestore ts) 
+			ORMapDiSCOMgr discomgr, ORMapEventMgr eventMgr, ORMapAgentMgr agentmgr, 
+			SesameTriplestore ts) 
 	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
 		Set<URI>agents = new HashSet<URI>();		
 		do {
@@ -187,7 +187,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 				break;
 			}
 			// just a resource
-			agents.addAll(this.getResourceRelatedAgents(uri, statusCode, stmtmgr, discomgr, eventMgr, agentmgr, ts));
+			agents.addAll(this.getResourceRelatedAgents(uri, statusCode, discomgr, eventMgr, agentmgr, ts));
 			break;
 		} while (false);
 		return agents;
@@ -206,8 +206,8 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @return
 	 */
 	protected Set<URI> getResourceRelatedAgents(URI uri, RMapStatus statusCode, 
-			ORMapStatementMgr stmtmgr, ORMapDiSCOMgr discomgr, ORMapEventMgr eventMgr, 
-			ORMapAgentMgr agentmgr, SesameTriplestore ts){
+			ORMapDiSCOMgr discomgr, ORMapEventMgr eventMgr, ORMapAgentMgr agentmgr, 
+			SesameTriplestore ts){
 		Set<URI>agents = new HashSet<URI>();
 		List<Statement>stmts = this.getRelatedTriples(uri, ts);
 		for (Statement stmt:stmts){
