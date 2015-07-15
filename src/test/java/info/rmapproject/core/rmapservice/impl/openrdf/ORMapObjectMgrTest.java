@@ -67,12 +67,13 @@ public class ORMapObjectMgrTest {
 		}
 		URI subject = ORAdapter.uri2OpenRdfUri(id1);
 		URI predicate = RDF.TYPE;
-		URI object = RMAP.STATEMENT;
-		ORMapStatementMgr mgr = new ORMapStatementMgr();
-		String contextString = mgr.createContextURIString(subject.stringValue(),
-				predicate.stringValue(), object.stringValue());
-		URI context = ORAdapter.getValueFactory().createURI(contextString);
-		Statement stmt = vf.createStatement(subject, predicate, object,context);	
+		URI object = RMAP.DISCO;
+//		ORMapStatementMgr mgr = new ORMapStatementMgr();
+//		String contextString = mgr.createContextURIString(subject.stringValue(),
+//				predicate.stringValue(), object.stringValue());
+		URI context = subject;
+		Statement stmt = vf.createStatement(subject, predicate, object,context);
+		ORMapDiSCOMgr mgr = new ORMapDiSCOMgr();
 		mgr.createTriple(ts, stmt);
 		Statement gStmt = null;
 		try {
@@ -93,7 +94,7 @@ public class ORMapObjectMgrTest {
 	 */
 	@Test
 	public void testIsRMapType() {
-		ORMapStatementMgr mgr = new ORMapStatementMgr();
+		ORMapDiSCOMgr mgr = new ORMapDiSCOMgr();
 		java.net.URI id1 =null;
 		try {
 			id1 = IdServiceFactoryIOC.getFactory().createService().createId();
@@ -102,7 +103,7 @@ public class ORMapObjectMgrTest {
 		}
 		URI subject = ORAdapter.uri2OpenRdfUri(id1);
 		URI predicate = RDF.TYPE;
-		Value object = RMAP.STATEMENT;
+		Value object = RMAP.DISCO;
 		Statement stmt = null;
 		try {
 			stmt = ts.getValueFactory().createStatement(subject, predicate, object);
@@ -120,7 +121,7 @@ public class ORMapObjectMgrTest {
 			e.printStackTrace();
 			fail(e.getMessage());
 		}		
-		boolean istype = mgr.isRMapType(ts, subject, RMAP.STATEMENT);
+		boolean istype = mgr.isRMapType(ts, subject, RMAP.DISCO);
 		assertTrue(istype);
 	}
 

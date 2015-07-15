@@ -32,11 +32,6 @@ public class RMAP {
 	public static final Namespace NS = new NamespaceImpl(PREFIX, NAMESPACE);
 
 	/**
-	 * rmap:Statement
-	 */
-	public static final URI STATEMENT;
-
-	/**
 	 * rmap:DiSCO
 	 */
 	public static final URI DISCO;
@@ -116,7 +111,6 @@ public class RMAP {
 		final ValueFactory f = ValueFactoryImpl.getInstance();
 		
 		//rmap data types 
-		STATEMENT = f.createURI(NAMESPACE, "Statement");
 		DISCO = f.createURI(NAMESPACE, "DiSCO");
 		AGENT = f.createURI(NAMESPACE, "Agent");
 		EVENT = f.createURI(NAMESPACE, "Event");

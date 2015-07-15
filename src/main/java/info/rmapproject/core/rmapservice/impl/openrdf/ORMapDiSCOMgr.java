@@ -106,8 +106,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapException
 	 */
 	public RMapEvent createDiSCO(org.openrdf.model.URI systemAgentId,
-			List<Statement> stmts, ORMapStatementMgr stmtMgr, ORMapEventMgr eventMgr,
-			SesameTriplestore ts) 
+			List<Statement> stmts, ORMapEventMgr eventMgr, SesameTriplestore ts) 
 					throws RMapException {
 		if (systemAgentId==null){
 			throw new RMapException ("Null system agent id");			
@@ -119,8 +118,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			throw new RMapException ("null value for triplestore");
 		}
 		ORMapDiSCO disco = new ORMapDiSCO(stmts);		
-		return this.createDiSCO(systemAgentId, disco, eventMgr, stmtMgr, 
-				ts);
+		return this.createDiSCO(systemAgentId, disco, eventMgr, ts);
 	}
 	
 	/**
@@ -128,13 +126,12 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @param systemAgentId
 	 * @param disco
 	 * @param eventMgr
-	 * @param stmtMgr 
 	 * @param ts
 	 * @return
 	 * @throws RMapException
 	 */
 	public ORMapEvent createDiSCO(URI systemAgentId, ORMapDiSCO disco, 
-			ORMapEventMgr eventMgr, ORMapStatementMgr stmtMgr, SesameTriplestore ts) 
+			ORMapEventMgr eventMgr,SesameTriplestore ts) 
 			throws RMapException{		
 		// confirm non-null disco
 		if (disco==null){
@@ -235,7 +232,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 */
 	public RMapEvent updateDiSCO(URI systemAgentId, 
 			boolean justInactivate, URI oldDiscoId, ORMapDiSCO disco,
-			ORMapStatementMgr stmtMgr, ORMapEventMgr eventMgr, SesameTriplestore ts) 
+			ORMapEventMgr eventMgr, SesameTriplestore ts) 
 	throws RMapDefectiveArgumentException, RMapAgentNotFoundException, RMapException {
 		// confirm non-null old disco
 		if (oldDiscoId==null){

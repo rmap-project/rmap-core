@@ -116,9 +116,8 @@ public class ORMapDiSCOMgrTest {
 		java.net.URI idURI = disco.getId();
 		ORMapDiSCOMgr discoMgr = new ORMapDiSCOMgr();
 		ORMapEventMgr eventMgr = new ORMapEventMgr();
-		ORMapStatementMgr stmtMgr = new ORMapStatementMgr();
 		@SuppressWarnings("unused")
-		ORMapEvent event = discoMgr.createDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent.getId()), disco, eventMgr, stmtMgr, ts);
+		ORMapEvent event = discoMgr.createDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent.getId()), disco, eventMgr, ts);
 		URI dUri = ORAdapter.uri2OpenRdfUri(idURI);
 		ORMapDiSCO rDisco = discoMgr.readDiSCO(dUri, ts);
 		java.net.URI idURI2 = rDisco.getId();
