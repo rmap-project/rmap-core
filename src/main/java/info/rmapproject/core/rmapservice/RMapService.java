@@ -192,6 +192,15 @@ public interface RMapService {
 	 * @throws RMapObjectNotFoundException
 	 * @throws RMapDefectiveArgumentException
 	 */
+	public RMapDiSCODTO getDiSCODTOLatestVersion (URI discoID) throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException;
+	/**
+	 * 
+	 * @param discoID
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapObjectNotFoundException
+	 * @throws RMapDefectiveArgumentException
+	 */
 	public URI getDiSCOIdLatestVersion(URI discoID) throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException;
 	/**
 	 * Get previous version created by same system agent, if any, of this DiSCO
@@ -202,6 +211,15 @@ public interface RMapService {
 	 * @throws RMapDefectiveArgumentException 
 	 */
 	public RMapDiSCO getDiSCOPreviousVersion (URI discoID) throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException;
+	/**
+	 * 
+	 * @param discoID
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapObjectNotFoundException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public RMapDiSCODTO getDiSCODTOPreviousVersion (URI discoID) throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException;
 	/**
 	 * 
 	 * @param discoID
@@ -229,6 +247,15 @@ public interface RMapService {
 	 * @throws RMapDefectiveArgumentException 
 	 */
 	public RMapDiSCO getDiSCONextVersion (URI discoID)throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException;
+	/**
+	 * 
+	 * @param discoID
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapObjectNotFoundException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public RMapDiSCODTO getDiSCODTONextVersion (URI discoID)throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException;
 	/**
 	 * Get all events associated with a DiSCO
 	 * @param discoID
