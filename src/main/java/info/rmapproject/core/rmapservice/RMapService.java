@@ -101,6 +101,15 @@ public interface RMapService {
 	 */
 	public RMapDiSCO readDiSCO(URI discoID) throws RMapException, RMapDiSCONotFoundException, RMapDefectiveArgumentException;
 	/**
+	 * Return DiSCO, with associated Status and URIs for next, previous and latest versions, if any
+	 * @param discoID URI of DiSCO to be read
+	 * @return DTO containing DiSCO, with associated Status and URIs for next, previous and latest versions, if any
+	 * @throws RMapException
+	 * @throws RMapDiSCONotFoundException if Not found
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public RMapDiSCODTO readDiSCODTO (URI discoID) throws RMapException, RMapDiSCONotFoundException, RMapDefectiveArgumentException;
+	/**
 	 * 
 	 * @param systemAgent
 	 * @param disco

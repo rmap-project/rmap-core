@@ -3,13 +3,15 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
-//import java.util.ArrayList;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -39,6 +41,7 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEventWithNewObjects;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
+import info.rmapproject.core.utils.Utils;
 
 /**
  * Class that creates actual triples for DiSCO, and related Events, and
@@ -56,14 +59,16 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		super();
 	}
 	/**
-	 * Return DiSCO corresponding to discoID
+	 * Return DiSCO DTO corresponding to discoID
 	 * @param discoID
+	 * @param getLinks TODO
+	 * @param eventMgr 
 	 * @param ts
 	 * @return
 	 * @throws RMapDiSCONotFoundException
 	 * @throws RMapTombstonedObjectException
 	 */
-	public ORMapDiSCO readDiSCO(URI discoID, SesameTriplestore ts) 
+	public ORMapDiSCODTO readDiSCO(URI discoID, boolean getLinks, ORMapEventMgr eventMgr, SesameTriplestore ts) 
 	throws RMapDiSCONotFoundException, RMapTombstonedObjectException, RMapDeletedObjectException {
 		ORMapDiSCO disco = null;
 		if (discoID ==null){
@@ -75,6 +80,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		if (! (this.isDiscoId(discoID, ts))){
 			throw new RMapDiSCONotFoundException("No DiSCO with id " + discoID.stringValue());
 		}
+		ORMapDiSCODTO dto = new ORMapDiSCODTO();
 		RMapStatus status = this.getDiSCOStatus(discoID, ts);
 		switch (status){
 		case TOMBSTONED :
@@ -84,6 +90,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		default:
 			break;		
 		}
+		dto.setStatus(status);
 		List<Statement> discoStmts = null;
 		try {
 			discoStmts = this.getNamedGraph(discoID, ts);		
@@ -92,7 +99,40 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			throw new RMapDiSCONotFoundException("No DiSCO found with id " + discoID.stringValue(), e);
 		}
 		disco = new ORMapDiSCO(discoStmts);
-		return disco;
+		dto.setDisco(disco);
+		if (getLinks){
+			// get latest version of this DiSCO
+			Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
+					this.getAllDiSCOVersions(discoID,true,eventMgr,ts);
+			dto.setLatest(this.getLatestDiSCOUri(discoID, eventMgr, ts, event2disco));
+			
+			Map<URI,URI> disco2event = 
+					Utils.invertMap(event2disco);
+			URI discoEventId = disco2event.get(discoID);
+			Map <Date, URI> date2event = 
+					eventMgr.getDate2EventMap(event2disco.keySet(),ts);
+			Map<URI,Date> event2date = Utils.invertMap(date2event);
+			Date eventDate = event2date.get(discoEventId);
+			SortedSet<Date> sortedDates = new TreeSet<Date>();
+			sortedDates.addAll(date2event.keySet());				
+			// get next version of this DiSCO
+			SortedSet<Date> laterDates = sortedDates.tailSet(eventDate);
+			if (laterDates.size()>1){
+				Date[] dateArray = laterDates.toArray(new Date[laterDates.size()]);	
+				URI nextEventId = date2event.get(dateArray[1]);
+				URI nextDiscoId = event2disco.get(nextEventId);
+				dto.setNext(nextDiscoId);
+			}		
+			// get previous version of this DiSCO
+			SortedSet<Date>earlierDates = sortedDates.headSet(eventDate);
+			if (earlierDates.size()>0){
+				Date previousDate = earlierDates.last()	;
+				URI prevEventId = date2event.get(previousDate);
+				URI prevDiscoId = event2disco.get(prevEventId);
+				dto.setPrevious(prevDiscoId);
+			}
+		}
+		return dto;		
 	}
 	
 	/**
@@ -184,7 +224,6 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		
 		// for each aggregated resource, create reified statement if necessary, create triples
 		for (Statement stmt:aggResources){
-//			URI aggResource = null;
 			this.createTriple(ts, stmt);
 		}
 		do {
@@ -471,7 +510,8 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @param matchAgent true if searching for versions of disco by a particlar agent;
 	 *                   false if searching for all versions regardless of agent
 	 * @param ts triplestore
-	 * @return List of DiSCO ids, or null if none found
+	 * @return Map from URI of an Event to the URI of DiSCO created by event, either as creation,
+	 *  update, or derivation
 	 * @throws RMapException
 	 * @throws RMapObjectNotFoundException
 	 */
@@ -631,6 +671,20 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		} while (false);		
 		return agents;
 	}
-
-	
+	/**
+	 * Get URI of latest version of a DiSCO
+	 * @param disco URI of DiSCO whose latest version is being sought
+	 * @param eventmgr
+	 * @param ts
+	 * @param event2disco
+	 * @return URI of latest version of DiSCO
+	 */
+	protected URI getLatestDiSCOUri(URI disco, 
+			ORMapEventMgr eventmgr, SesameTriplestore ts,
+			Map<URI,URI>event2disco){
+		URI lastEvent = 
+				eventmgr.getLatestEvent(event2disco.keySet(),ts);
+		URI discoId = event2disco.get(lastEvent);
+		return discoId;
+	}
 }

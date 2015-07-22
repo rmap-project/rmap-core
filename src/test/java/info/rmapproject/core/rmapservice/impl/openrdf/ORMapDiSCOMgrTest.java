@@ -91,7 +91,7 @@ public class ORMapDiSCOMgrTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr#readDiSCO(org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr#readDiSCO(org.openrdf.model.URI, boolean, ORMapEventMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
 	 */
 	@Test
 	public void testReadDiSCO() {
@@ -119,7 +119,7 @@ public class ORMapDiSCOMgrTest {
 		@SuppressWarnings("unused")
 		ORMapEvent event = discoMgr.createDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent.getId()), disco, eventMgr, ts);
 		URI dUri = ORAdapter.uri2OpenRdfUri(idURI);
-		ORMapDiSCO rDisco = discoMgr.readDiSCO(dUri, ts);
+		ORMapDiSCO rDisco = discoMgr.readDiSCO(dUri, true, eventMgr, ts).getDisco();
 		java.net.URI idURI2 = rDisco.getId();
 		assertEquals(idURI.toASCIIString(),idURI2.toASCIIString());
 		

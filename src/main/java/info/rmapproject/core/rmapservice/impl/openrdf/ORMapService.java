@@ -30,6 +30,7 @@ import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
+import info.rmapproject.core.rmapservice.RMapDiSCODTO;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
@@ -213,9 +214,23 @@ public class ORMapService implements RMapService {
 		if (discoID == null){
 			throw new RMapDefectiveArgumentException("Null DiSCO id provided");
 		}
-		return this.discomgr.readDiSCO(ORAdapter.uri2OpenRdfUri(discoID), ts);
+		ORMapDiSCODTO dto = this.discomgr.readDiSCO(ORAdapter.uri2OpenRdfUri(discoID), 
+				false, this.eventmgr, ts);
+		return dto.getRMapDiSCO();
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#readDiSCODTO(java.net.URI)
+	 */
+	public RMapDiSCODTO readDiSCODTO (URI discoID)
+	throws RMapException, RMapDiSCONotFoundException, RMapDefectiveArgumentException {
+		if (discoID == null){
+			throw new RMapDefectiveArgumentException("Null DiSCO id provided");
+		}
+		ORMapDiSCODTO dto = this.discomgr.readDiSCO(ORAdapter.uri2OpenRdfUri(discoID), 
+				true, this.eventmgr, ts);
+		return dto;
+	}
 
 	@Override
 	public RMapEvent createDiSCO(RMapUri systemAgent, RMapDiSCO disco)
@@ -407,7 +422,7 @@ public class ORMapService implements RMapService {
 		ORMapDiSCO latestDisco = null;		
 		if (discoUri != null){
 			org.openrdf.model.URI discoId = ORAdapter.uri2OpenRdfUri(discoID);
-			latestDisco = this.discomgr.readDiSCO(discoId, ts);
+			latestDisco = this.discomgr.readDiSCO(discoId, true, this.eventmgr, ts).getDisco();
 		}
 		return latestDisco;
 	}
@@ -417,15 +432,21 @@ public class ORMapService implements RMapService {
 		if (discoID ==null){
 			throw new RMapDefectiveArgumentException ("null DiSCO id");
 		}
+		org.openrdf.model.URI dUri  = ORAdapter.uri2OpenRdfUri(discoID);
 		Map<org.openrdf.model.URI,org.openrdf.model.URI>event2disco=
-				this.discomgr.getAllDiSCOVersions(ORAdapter.uri2OpenRdfUri(discoID),
+				this.discomgr.getAllDiSCOVersions(dUri,
 						true,this.eventmgr,ts);
-		org.openrdf.model.URI lastEvent = 
-				this.eventmgr.getLatestEvent(event2disco.keySet(),ts);
-		org.openrdf.model.URI discoId = event2disco.get(lastEvent);
-		URI discoURI = ORAdapter.openRdfUri2URI(discoId);
+//		org.openrdf.model.URI lastEvent = 
+//				this.eventmgr.getLatestEvent(event2disco.keySet(),ts);
+//		org.openrdf.model.URI discoId = event2disco.get(lastEvent);
+//		URI discoURI = ORAdapter.openRdfUri2URI(discoId);
+		org.openrdf.model.URI latestDisco = this.discomgr.getLatestDiSCOUri(dUri,
+				eventmgr, ts, event2disco);
+		URI discoURI = ORAdapter.openRdfUri2URI(latestDisco)	;	
 		return discoURI;
 	}
+	
+
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getPreviousVersionDiSCO(java.net.URI)
 	 */
@@ -435,7 +456,7 @@ public class ORMapService implements RMapService {
 		URI discoId = this.getDiSCOIdPreviousVersion(discoID);
 		if (discoId != null){
 			org.openrdf.model.URI prevDiscoId = ORAdapter.uri2OpenRdfUri(discoId);
-			nextDisco = this.discomgr.readDiSCO(prevDiscoId,ts);
+			nextDisco = this.discomgr.readDiSCO(prevDiscoId,true, this.eventmgr, ts).getRMapDiSCO();
 		}
 		return nextDisco;
 	}
@@ -477,7 +498,7 @@ public class ORMapService implements RMapService {
 		URI nextDiscoURI = this.getDiSCOIdNextVersion(discoID);
 		if (nextDiscoURI != null){
 			org.openrdf.model.URI nextDiscoId = ORAdapter.uri2OpenRdfUri(nextDiscoURI);
-			nextDisco = this.discomgr.readDiSCO(nextDiscoId, ts);
+			nextDisco = this.discomgr.readDiSCO(nextDiscoId, true, this.eventmgr, ts).getRMapDiSCO();
 		}
 		return nextDisco;
 	}
