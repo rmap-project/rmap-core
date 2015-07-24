@@ -3,26 +3,14 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import org.openrdf.model.Statement;
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapDiSCONotFoundException;
 import info.rmapproject.core.exception.RMapEventNotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
-import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapStatus;
+import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.disco.RMapDiSCO;
@@ -34,7 +22,17 @@ import info.rmapproject.core.rmapservice.RMapDiSCODTO;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
-import info.rmapproject.core.utils.Utils;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.openrdf.model.Statement;
 
 /**
  *  @author khansen, smorrissey
@@ -88,6 +86,7 @@ public class ORMapService implements RMapService {
 	public List<RMapTriple> getResourceRelatedTriples(URI uri,
 			RMapStatus statusCode) throws RMapException,
 			RMapDefectiveArgumentException {
+		
 		if (uri==null){
 			throw new RMapDefectiveArgumentException("null uri");
 		}

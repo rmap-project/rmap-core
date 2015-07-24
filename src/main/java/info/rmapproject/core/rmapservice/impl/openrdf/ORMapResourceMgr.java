@@ -82,7 +82,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			List<Statement>statusStmts = new ArrayList<Statement>();
 			for (Statement stmt:stmts){
 				URI context = (URI)stmt.getContext();
-				if (context!=null && this.isDiscoId(context, ts)){
+				if (context!=null && (this.isDiscoId(context, ts) || this.isAgentId(context, ts))){
 					if (statusCode==null){
 						statusStmts.add(stmt);
 					}
@@ -94,7 +94,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 					}
 				}
 			}
-
+			relatedStmts.addAll(statusStmts);
 		} while (false);
 		return relatedStmts;
 	}
@@ -218,12 +218,12 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			do {
 				if (id!=null && this.isDiscoId(id, ts)){
 					if (statusCode != null){
-						RMapStatus dStatus = discomgr.getDiSCOStatus(uri, ts);
+						RMapStatus dStatus = discomgr.getDiSCOStatus(id, ts);
 						if (!(dStatus.equals(statusCode))){
 							break;
 						}
 					}
-					List<URI>events = eventMgr.getDiscoRelatedEventIds(uri, ts);
+					List<URI>events = eventMgr.getDiscoRelatedEventIds(id, ts);
 		           //For each event associated with DiSCOID, return AssociatedAgent
 					for (URI event:events){
 						URI assocAgent = eventMgr.getEventAssocAgent(event, ts);
