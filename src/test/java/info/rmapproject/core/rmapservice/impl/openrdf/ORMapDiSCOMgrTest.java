@@ -9,9 +9,13 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
+import info.rmapproject.core.exception.RMapDeletedObjectException;
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.exception.RMapObjectNotFoundException;
+import info.rmapproject.core.exception.RMapTombstonedObjectException;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
@@ -91,7 +95,7 @@ public class ORMapDiSCOMgrTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr#readDiSCO(org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr#readDiSCO(org.openrdf.model.URI, boolean, Map, Map, ORMapEventMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
 	 */
 	@Test
 	public void testReadDiSCO() {
@@ -119,9 +123,17 @@ public class ORMapDiSCOMgrTest {
 		@SuppressWarnings("unused")
 		ORMapEvent event = discoMgr.createDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent.getId()), disco, eventMgr, ts);
 		URI dUri = ORAdapter.uri2OpenRdfUri(idURI);
-		ORMapDiSCO rDisco = discoMgr.readDiSCO(dUri, ts);
-		java.net.URI idURI2 = rDisco.getId();
-		assertEquals(idURI.toASCIIString(),idURI2.toASCIIString());
+		ORMapDiSCO rDisco = null;;
+		try {
+			rDisco = discoMgr.readDiSCO(dUri, true, null, null, eventMgr, ts).getDisco();
+			java.net.URI idURI2 = rDisco.getId();
+			assertEquals(idURI.toASCIIString(),idURI2.toASCIIString());
+		} catch (RMapTombstonedObjectException | RMapDeletedObjectException
+				| RMapException | RMapObjectNotFoundException
+				| RMapDefectiveArgumentException e) {
+			e.printStackTrace();
+			fail();
+		}	
 		
 	}
 
