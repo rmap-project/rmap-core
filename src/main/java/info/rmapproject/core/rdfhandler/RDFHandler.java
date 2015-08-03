@@ -21,7 +21,7 @@ public interface RDFHandler {
 	/**
 	 * Deserialize an RDF InputStream into an RMapDiSCO
 	 * @param rdfIn an RDF InputStream
-	 * @param baseUri for resolving relative URIs; null if no relative URIs in stream
+	 * @param baseUri for resolving relative URIs; empty string if no relative URIs in stream
 	 * @param rdfFormat name of RDF format 
 	 * @return RMapDiSCO built from RDF statements in InputStream
 	 * @throws RMapException if InputStream cannot be converted to valid DiSCO
@@ -31,7 +31,7 @@ public interface RDFHandler {
 	 * Deserialize an RDF InputStream into an RMapAgent
 	 * @param systemAgent 
 	 * @param rdfIn
-	 * @param baseUri
+	 * @param baseUri; empty string if no relative URIs in stream
 	 * @param rdfFormat
 	 * @return
 	 * @throws RMapException
