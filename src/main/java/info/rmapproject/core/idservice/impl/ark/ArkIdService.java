@@ -37,14 +37,13 @@ public class ArkIdService implements IdService {
 
 	private static ArkIdService instance = new ArkIdService();
 
-	private List<String> noids = new ArrayList<String>();
 
 	private int maxRetryAttempts = -1;
 	private String serviceUrl = "";
 	private int bufferSize = -1;
 	private String naanIdentifier = "";
 	private String arkPrefix = "ark:/";
-	private File file = new File("noids.txt");
+	private String fileName = "noids.txt";
 	
 	public ArkIdService() {
 		this(DEFAULT_PROPERTIES);
@@ -93,8 +92,9 @@ public class ArkIdService implements IdService {
 
 	public synchronized String getNoidId() throws Exception {
 		log.debug("Getting noid id");
-		
-		if (noids.size() <= 0) {
+
+		String noid = readNoidFromFile();
+		if (noid==null) {
 			try {
 				getMoreNoids();
 			} catch (Exception e) {
@@ -102,110 +102,119 @@ public class ArkIdService implements IdService {
 						e);
 			}
 		}
-		if (noids.size() > 0) {
-			String noid = noids.remove(0);
-			FileUtils.writeLines(file, noids);
+		//try again
+		noid = readNoidFromFile();
+		if (noid!=null) {
 			return noid;
 		} else {
 			throw new Exception(
 					"Tried to fill noids and failed!  No Noids available!");
 		}
+		
 	}
+	
+	private synchronized String readNoidFromFile() throws Exception {
 
-	public int howManyAvailable() {
-		return noids.size();
+		File file = new File(this.fileName);
+		List<String> noids = new ArrayList<String>();
+		String noid = null;
+		
+		if(file.exists() && !file.isDirectory()) { 
+			noids = FileUtils.readLines(file, "utf-8");
+			if (noids.size() > 0) {
+				noid = noids.remove(0);
+				FileUtils.writeLines(file, noids);
+			}
+		}
+		return noid;
 	}
-
+	
 
 	/** replace this with httpclient or some such at some point.
 	 * Does this method have to be synchronized?  getNoidId is the only caller.  */
 	private synchronized void getMoreNoids() throws Exception {
 
-		if(file.exists() && !file.isDirectory()) { 
-			noids = FileUtils.readLines(file, "utf-8");
-		}
+		List<String> noids = new ArrayList<String>();
+		File file = new File(this.fileName);
+		
+		maxRetryAttempts = 2;
+		int retryCounter = 0;
 
-		if (noids.size() <= 0) {
-			
-			maxRetryAttempts = 2;
-			int retryCounter = 0;
-	
-			int HTTP_STATUS_OK = 200;
-	
-			String url = serviceUrl + "?" + bufferSize;
-	
-			BufferedReader reader = null;
-			boolean shouldRetry = true;
-			do {
-				retryCounter++;
-				log.debug("Requesting ark ids = |" + bufferSize + "|");
-				URL noidUrl = null;
-				HttpURLConnection noidCon = null;
-				try {
-					noidUrl = new URL(url);
-					noidCon = (HttpURLConnection) noidUrl.openConnection();
-					noidCon.setDoInput(true);
-					noidCon.setDoOutput(false);
-					noidCon.connect();
-					reader = new BufferedReader(new InputStreamReader(noidCon
-							.getInputStream()));				
-						String output = null;
-						if (noidCon.getResponseCode() == HTTP_STATUS_OK) {
-							while ((output = reader.readLine()) != null) {
-								if (!output.equals("")) {
-									if (output.indexOf(naanIdentifier) != -1) {
-										output = output.trim().substring(output.indexOf(" ") + 1);
-										output = arkPrefix + output;
-										noids.add(output);
-									} else {
-										log.warn("NOID SERVICE RETURNED AN UNEXPECTED RESULT : "
-														+ output);
-									}
+		int HTTP_STATUS_OK = 200;
+
+		String url = serviceUrl + "?" + bufferSize;
+
+		BufferedReader reader = null;
+		boolean shouldRetry = true;
+		do {
+			retryCounter++;
+			log.debug("Requesting ark ids = |" + bufferSize + "|");
+			URL noidUrl = null;
+			HttpURLConnection noidCon = null;
+			try {
+				noidUrl = new URL(url);
+				noidCon = (HttpURLConnection) noidUrl.openConnection();
+				noidCon.setDoInput(true);
+				noidCon.setDoOutput(false);
+				noidCon.connect();
+				reader = new BufferedReader(new InputStreamReader(noidCon
+						.getInputStream()));				
+					String output = null;
+					if (noidCon.getResponseCode() == HTTP_STATUS_OK) {
+						while ((output = reader.readLine()) != null) {
+							if (!output.equals("")) {
+								if (output.indexOf(naanIdentifier) != -1) {
+									output = output.trim().substring(output.indexOf(" ") + 1);
+									output = arkPrefix + output;
+									noids.add(output);
+								} else {
+									log.warn("NOID SERVICE RETURNED AN UNEXPECTED RESULT : "
+													+ output);
 								}
 							}
-						} else {
-							log.fatal("UNSUCCESSFUL HTTP REQUEST TO NOID SERVICE and  HTTP RETURN CODE is : " + noidCon.getResponseCode());
 						}
-				} catch(Exception e){
-					log.fatal("EXCEPTION CONNECTING TO NOID SERVER", e);
-	
-				} finally {
-	
-					try {
-						if (reader != null){
-							reader.close();
-						}
-					} catch (Exception e) {
-						log.fatal("Exception while closing Buffered Reader", e);
+					} else {
+						log.fatal("UNSUCCESSFUL HTTP REQUEST TO NOID SERVICE and  HTTP RETURN CODE is : " + noidCon.getResponseCode());
 					}
-					try {
-						if (noidCon != null){
-							noidCon.disconnect();
-						}
-					} catch (Exception e) {
-						log.fatal("Exception while closing http connection to noid service ", e);
+			} catch(Exception e){
+				log.fatal("EXCEPTION CONNECTING TO NOID SERVER", e);
+
+			} finally {
+
+				try {
+					if (reader != null){
+						reader.close();
 					}
+				} catch (Exception e) {
+					log.fatal("Exception while closing Buffered Reader", e);
 				}
-				shouldRetry = (retryCounter < maxRetryAttempts && noids.size() == 0);
-				//WAIT FOR 10 SECS BEFORE RE-TRYING TO OVERCOME TEMPORARY NETWORK FAILURES
-				//OR THE NOID SERVER BEING BUSY SERVICING ANOTHER REQUEST.
-				if(shouldRetry){
-					try{
-						wait(10000);
-					}catch(InterruptedException ie){
-						log.fatal("Wait interrupted in retry loop", ie);
+				try {
+					if (noidCon != null){
+						noidCon.disconnect();
 					}
-	
+				} catch (Exception e) {
+					log.fatal("Exception while closing http connection to noid service ", e);
 				}
-	
-			} while (shouldRetry);
-	
-			log.debug("Extracted ids = |" + noids.size() + "|");
-			if(noids.size() == 0){
-				throw new Exception("Could not retrieve new ARK IDs after retries. maxRetryAttempts:"+maxRetryAttempts);
-			}	
-			FileUtils.writeLines(file, noids);				
-		}
+			}
+			shouldRetry = (retryCounter < maxRetryAttempts && noids.size() == 0);
+			//WAIT FOR 10 SECS BEFORE RE-TRYING TO OVERCOME TEMPORARY NETWORK FAILURES
+			//OR THE NOID SERVER BEING BUSY SERVICING ANOTHER REQUEST.
+			if(shouldRetry){
+				try{
+					wait(10000);
+				}catch(InterruptedException ie){
+					log.fatal("Wait interrupted in retry loop", ie);
+				}
+
+			}
+
+		} while (shouldRetry);
+
+		log.debug("Extracted ids = |" + noids.size() + "|");
+		if(noids.size() == 0){
+			throw new Exception("Could not retrieve new ARK IDs after retries. maxRetryAttempts:"+maxRetryAttempts);
+		}	
+		FileUtils.writeLines(file, noids);				
 	}
 
 	public static ArkIdService getInstance() {
