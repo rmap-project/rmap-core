@@ -47,7 +47,7 @@ import info.rmapproject.core.utils.Utils;
  * Class that creates actual triples for DiSCO, and related Events, and
  * reified RMapStatements in the tripleStore;
  * 
- *  @author khansen, smorrissey
+ *  @author khanson, smorrissey
  *
  */
 public class ORMapDiSCOMgr extends ORMapObjectMgr {

@@ -141,7 +141,16 @@ public class ORAdapter {
 			throw new IllegalArgumentException ("Null RMapLiteral");
 		}
 		String litString = rLiteral.getStringValue();
-		literal = getValueFactory().createLiteral(litString);
+		if (rLiteral.getDatatype() != null){ //has a datatype associated with the literal
+			URI datatype = rMapUri2OpenRdfUri(rLiteral.getDatatype());
+			literal = getValueFactory().createLiteral(litString,datatype);			
+		}
+		else if (rLiteral.getLanguage() != null){ //has a language associated with the literal
+			literal = getValueFactory().createLiteral(litString,rLiteral.getLanguage());				
+		}
+		else {//just a string value - no type or language
+			literal = getValueFactory().createLiteral(litString);					
+		}
 		return literal;
 	}
 	
@@ -237,7 +246,18 @@ public class ORAdapter {
 		if (literal==null){
 			throw new IllegalArgumentException("Literal is null");
 		}
-		rLiteral = new RMapLiteral(literal.stringValue());
+
+		String litString = literal.getLabel();
+		if (literal.getDatatype() != null){ //has a datatype associated with the literal
+			RMapUri datatype = openRdfUri2RMapUri(literal.getDatatype());
+			rLiteral = new RMapLiteral(litString, datatype);		
+		}
+		else if (literal.getLanguage() != null){ //has a language associated with the literal
+			rLiteral = new RMapLiteral(litString,literal.getLanguage());			
+		}
+		else {//just a string value - no type or language
+			rLiteral = new RMapLiteral(litString);					
+		}
 		return rLiteral;
 	}
 	/**

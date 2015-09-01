@@ -40,7 +40,7 @@ import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.RDF;
 
 /**
- *  @author khansen, smorrissey
+ *  @author khanson, smorrissey
  *
  */
 public class ORMapEventMgr extends ORMapObjectMgr {

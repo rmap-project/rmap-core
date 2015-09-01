@@ -24,7 +24,7 @@ import org.openrdf.model.vocabulary.RDF;
 
 /**
  * 
- *  @author khansen, smorrissey
+ *  @author khanson, smorrissey
  *
  */
 public class ORMapResourceMgr extends ORMapObjectMgr {

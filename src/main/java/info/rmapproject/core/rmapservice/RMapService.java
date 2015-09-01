@@ -3,26 +3,27 @@
  */
 package info.rmapproject.core.rmapservice;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapDiSCONotFoundException;
 import info.rmapproject.core.exception.RMapEventNotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
+import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapUri;
-import info.rmapproject.core.model.RMapStatus;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 /**
  *
- *  @author khansen, smorrissey
+ *  @author khanson, smorrissey
  *
  */
 public interface RMapService {
@@ -80,6 +81,7 @@ public interface RMapService {
 	 * @throws RMapDefectiveArgumentException
 	 */
 	public Set<URI> getResourceRdfTypes(URI resourceUri, URI contextURI) throws RMapException, RMapDefectiveArgumentException;
+	
 	/**
 	 * Determine what types are associated with a given resource in any context
 	 * @param resourceUri URI for resource whose type is being checked
@@ -89,6 +91,32 @@ public interface RMapService {
 	 * @throws RMapDefectiveArgumentException
 	 */
 	public Map<URI, Set<URI>> getResourceRdfTypesAllContexts(URI resourceUri)throws RMapException, RMapDefectiveArgumentException;
+	
+	
+	/**
+	 * Get a list of DiSCOs that contain the statement passed in
+	 * @param subject of statement
+	 * @param predicate of statement
+	 * @param object of statement
+	 * @param statusCode to match DiSCO status
+	 * @return URI list of DiSCOs containing statement
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public List<URI> getStmtRelatedDiSCOs(java.net.URI subject, java.net.URI predicate, RMapValue object, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	
+	/**
+	 * Get a list of Agents that contain the statement passed in
+	 * @param subject of statement
+	 * @param predicate of statement
+	 * @param object of statement
+	 * @param statusCode to match Agent status
+	 * @return URI list of Agents containing statement
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public List<URI> getStmtRelatedAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	
 	
 	// DiSCO services
 	/**

@@ -11,6 +11,8 @@ package info.rmapproject.core.model;
 public class RMapLiteral implements RMapValue {
 	
 	String value;
+	String language;
+	RMapUri datatype;
 
 	/**
 	 * 
@@ -19,9 +21,21 @@ public class RMapLiteral implements RMapValue {
 		super();
 	}
 
-	public RMapLiteral(String r){
+	public RMapLiteral(String value){
 		this();
-		this.value = r;
+		this.value = value;
+	}
+
+	public RMapLiteral(String value, String language){
+		this();
+		this.value = value;
+		this.language = language;
+	}
+
+	public RMapLiteral(String value, RMapUri datatype){
+		this();
+		this.value = value;
+		this.datatype = datatype;
 	}
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.Resource#getStringValue()
@@ -33,6 +47,16 @@ public class RMapLiteral implements RMapValue {
 	public String getValue() {
 		return value;
 	}
+
+	public String getLanguage() {
+		return language;
+	}
+
+	public RMapUri getDatatype() {
+		return datatype;
+	}
+	
+	
 	@Override
 	public String toString(){
 		return getStringValue();

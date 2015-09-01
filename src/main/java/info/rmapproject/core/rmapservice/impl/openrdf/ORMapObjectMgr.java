@@ -24,7 +24,7 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 /**
- *  @author khansen, smorrissey
+ *  @author khanson, smorrissey
  *
  */
 public abstract class ORMapObjectMgr {
