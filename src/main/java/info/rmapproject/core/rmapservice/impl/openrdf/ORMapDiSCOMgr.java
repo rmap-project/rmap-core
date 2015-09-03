@@ -4,20 +4,6 @@
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapDeletedObjectException;
@@ -43,9 +29,23 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 import info.rmapproject.core.utils.Utils;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+
 /**
- * Class that creates actual triples for DiSCO, and related Events, and
- * reified RMapStatements in the tripleStore;
+ * Class that creates actual triples for DiSCO, related Events, and
+ * Statements in the tripleStore;
  * 
  *  @author khanson, smorrissey
  *
@@ -617,6 +617,46 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		} while (false);			 
 		return event2Disco;
 	}	
+	
+	
+
+	
+	/**
+	 * Get ids of any Agents that asserted a DiSCO i.e isAssociatedWith the create or derive event
+	 * @param uri ID of DiSCO
+	 * @param statusCode
+	 * @param eventMgr
+	 * @param ts
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDiSCONotFoundException
+	 * @throws RMapObjectNotFoundException
+	 */
+	public Set<URI> getAssertingAgents(URI uri, RMapStatus statusCode, ORMapEventMgr eventMgr, SesameTriplestore ts) 
+	throws RMapException, RMapDiSCONotFoundException, RMapObjectNotFoundException {
+		Set<URI>agents = new HashSet<URI>();
+		do {
+			//don't get agent if DiSCO status doesn't match OR the DiSCO should be hidden from public view.
+			RMapStatus dStatus = this.getDiSCOStatus(uri, ts);
+			if ((statusCode != null && !dStatus.equals(statusCode))
+					|| dStatus.equals(RMapStatus.DELETED)
+					|| dStatus.equals(RMapStatus.TOMBSTONED)){
+					break;
+			}
+			
+			List<URI> events = eventMgr.getMakeObjectEvents(uri, ts);
+			
+           //For each event associated with DiSCOID, return AssociatedAgent
+			for (URI event:events){
+				URI assocAgent = eventMgr.getEventAssocAgent(event, ts);
+				if (assocAgent!=null) {
+					agents.add(assocAgent);
+				}
+			}
+		} while (false);		
+		return agents;
+	}
+	
 	
 	/**
 	 * Get ids of any Agents associated with a DiSCO

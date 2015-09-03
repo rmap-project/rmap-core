@@ -211,7 +211,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getStmtRelatedDiSCOs(java.net.URI, java.net.URI, RMapValue, RMapStatus)
 	 */
-	public List<URI> getStmtRelatedDiSCOs(java.net.URI subject, java.net.URI predicate, RMapValue object, 
+	public List<URI> getStatementRelatedDiSCOs(java.net.URI subject, java.net.URI predicate, RMapValue object, 
 											RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException {
 		if (subject==null){
 			throw new RMapDefectiveArgumentException("null subject");
@@ -239,7 +239,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getStmtRelatedAgents(java.net.URI, java.net.URI, RMapValue, RMapStatus)
 	 */
-	public List<URI> getStmtRelatedAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, 
+	public List<URI> getStatementRelatedAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, 
 											RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException {
 		if (subject==null){
 			throw new RMapDefectiveArgumentException("null subject");
@@ -263,6 +263,39 @@ public class ORMapService implements RMapService {
 		}		
 		return returnSet;
 	}
+	
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getStmtAssertingAgents(java.net.URI, java.net.URI, RMapValue, RMapStatus)
+	 */
+	public List<URI> getStatementAssertingAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, 
+											RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException {
+		if (subject==null){
+			throw new RMapDefectiveArgumentException("null subject");
+		}
+		if (predicate==null){
+			throw new RMapDefectiveArgumentException("null predicate");
+		}
+		if (object==null){
+			throw new RMapDefectiveArgumentException("null object");
+		}
+		org.openrdf.model.URI orSubject = ORAdapter.uri2OpenRdfUri(subject);
+		org.openrdf.model.URI orPredicate = ORAdapter.uri2OpenRdfUri(predicate);
+		org.openrdf.model.Value orObject = ORAdapter.rMapValue2OpenRdfValue(object);
+		
+		Set <org.openrdf.model.URI> assertingAgents = 
+				this.stmtmgr.getAssertingAgents(orSubject, orPredicate, orObject, statusCode, eventmgr, discomgr, agentmgr, ts);
+		
+		List<URI> returnSet = null;
+		if (assertingAgents != null && assertingAgents.size()>0){
+			returnSet = new ArrayList<URI>();
+			for (org.openrdf.model.URI uri:assertingAgents){
+				returnSet.add(ORAdapter.openRdfUri2URI(uri));
+			}
+		}		
+		return returnSet;
+	}
+	
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#readDiSCO(java.net.URI)

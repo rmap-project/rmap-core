@@ -3,17 +3,6 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDiSCONotFoundException;
 import info.rmapproject.core.exception.RMapEventNotFoundException;
@@ -32,6 +21,17 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 import info.rmapproject.core.utils.DateUtils;
+
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -1065,6 +1065,46 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			throw new RMapException (e);
 		}
 		return createdDisco;
+	}
+	
+
+
+	/**
+	 * Get IDs of Events that generate a new DiSCO or Agent through derivation or creation
+	 * @param targetId
+	 * @param ts
+	 * @return
+	 * @throws RMapException
+	 */
+	protected List<URI> getMakeObjectEvents(URI targetId, SesameTriplestore ts)
+			throws RMapException {
+		List<Statement> stmts = null;
+		List<URI> returnEventIds = new ArrayList<URI>();
+		try {
+			//TODO check this against new event types
+			stmts = ts.getStatements(null, RMAP.EVENT_DERIVED_OBJECT, targetId);
+			stmts.addAll(ts.getStatements(null, PROV.GENERATED, targetId));
+			for (Statement stmt:stmts){
+				// make sure this is an event
+				if (stmt != null && stmt.getSubject().equals(stmt.getContext())){
+					Statement typeStmt = ts.getStatement(stmt.getSubject(), RDF.TYPE, RMAP.EVENT, stmt.getContext());
+					if (typeStmt==null){
+						stmt = null;
+					}
+				}
+				else {
+					stmt = null;
+				}
+				if (stmt != null){
+					returnEventIds.add((URI)stmt.getContext());
+				}
+			}
+		} catch (Exception e) {
+			throw new RMapException (
+					"Exception thrown when querying for derive and generate events for id " 
+							+ targetId.stringValue(), e);
+		}		
+		return returnEventIds;
 	}
 
 }

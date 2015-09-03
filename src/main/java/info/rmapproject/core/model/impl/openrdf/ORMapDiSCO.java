@@ -165,6 +165,13 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 			Resource subject = stmt.getSubject();
 			URI predicate = stmt.getPredicate();
 			Value object = stmt.getObject();
+			
+			//openrdf is too forgiving wrt URIs - it allows new line characters, for example. 
+			//This code checks the URIs can be converted to java.net.URI
+			if (!ORAdapter.isOpenRdfStatementCompatibleWithUri(stmt))	{
+				throw new RMapException("Cannot convert stmt resource reference to a URI: " + stmt.toString());
+				}
+			
 			// see if disco is subject of statement
 			boolean subjectIsDisco = subject.stringValue().equals(incomingIdStr);
 			if (!isRmapId){

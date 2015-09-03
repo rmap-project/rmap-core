@@ -24,7 +24,7 @@ import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 /**
  * 
- *  @author khansen, smorrissey
+ *  @author khanson, smorrissey
  *
  */
 public class ORMapAgent extends ORMapObject implements RMapAgent {
@@ -117,6 +117,12 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 			Resource subject = stmt.getSubject();
 			URI predicate = stmt.getPredicate();
 			Value object = stmt.getObject();
+			
+			//Checks the URIs can be converted to java.net.URI - makes sure they are cross compatible
+			if (!ORAdapter.isOpenRdfStatementCompatibleWithUri(stmt))	{
+				throw new RMapException("Cannot convert stmt resource reference to a URI: " + stmt.toString());
+				}
+			
 			if (predicate.equals(RDF.TYPE)){
 				if (object.equals(RMAP.AGENT)){
 					typeFound = true;

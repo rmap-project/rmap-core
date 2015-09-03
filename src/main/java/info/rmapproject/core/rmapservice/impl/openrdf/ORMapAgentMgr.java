@@ -11,14 +11,15 @@ import java.util.List;
 import java.util.Set;
 
 
+
 import info.rmapproject.core.controlledlist.AgentPredicate;
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapDeletedObjectException;
+import info.rmapproject.core.exception.RMapDiSCONotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.exception.RMapTombstonedObjectException;
-
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.event.RMapEventTargetType;
@@ -39,10 +40,6 @@ import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.DCTERMS;
 
 
-/**
- * @author smorrissey
- *
- */
 /**
  * @author smorrissey
  *
@@ -387,7 +384,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @throws RMapException
 	 */
 	public Set<URI> getRelatedAgents (URI uri, RMapStatus statusCode, SesameTriplestore ts)
-	throws RMapDefectiveArgumentException, RMapAgentNotFoundException, RMapException {
+									throws RMapDefectiveArgumentException, RMapAgentNotFoundException, RMapException {
 		if (uri == null){
 			throw new RMapDefectiveArgumentException("null agentId");
 		}
@@ -435,5 +432,43 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}while (false);
 		return agents;
 	}
+	
+
+	/**
+	 * Get ids of any Agents that asserted an Agent i.e isAssociatedWith the create event
+	 * @param uri ID of Agent
+	 * @param statusCode
+	 * @param eventMgr
+	 * @param ts
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDiSCONotFoundException
+	 * @throws RMapObjectNotFoundException
+	 */
+	public Set<URI> getAssertingAgents(URI uri, RMapStatus statusCode, ORMapEventMgr eventMgr, SesameTriplestore ts) 
+	throws RMapException, RMapDiSCONotFoundException, RMapObjectNotFoundException {
+		Set<URI>agents = new HashSet<URI>();
+		do {
+			//don't get agent if DiSCO status doesn't match OR the DiSCO should be hidden from public view.
+			RMapStatus dStatus = this.getAgentStatus(uri, ts);
+			if ((statusCode != null && !dStatus.equals(statusCode))
+					|| dStatus.equals(RMapStatus.DELETED)
+					|| dStatus.equals(RMapStatus.TOMBSTONED)){
+					break;
+			}
+			
+			List<URI> events = eventMgr.getMakeObjectEvents(uri, ts);
+			
+           //For each event associated with Agent, return AssociatedAgent
+			for (URI event:events){
+				URI assocAgent = eventMgr.getEventAssocAgent(event, ts);
+				if (assocAgent!=null) {
+					agents.add(assocAgent);
+				}
+			}
+		} while (false);		
+		return agents;
+	}
+	
 
 }

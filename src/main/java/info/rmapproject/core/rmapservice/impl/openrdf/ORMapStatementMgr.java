@@ -8,7 +8,6 @@ import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -121,47 +120,37 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 
 
 	/**
-	 * Get Agent URIs that contains Statement corresponding to subject, predicate, object provided
+	 * Get Agent URIs that asserted the Statement corresponding to subject, predicate, object provided
 	 * @param subject
 	 * @param predicate
 	 * @param object
+	 * @param eventmgr 
+	 * @param discomgr
+	 * @param agentmgr
 	 * @param ts 
-	 * @return List of DiSCO URIs
+	 * @return List of Agent URIs
 	 * @throws RMapException
 	 */
-	public Set<URI> getAssertingSysAgents (Resource subject, URI predicate, Value object, RMapStatus statusCode, ORMapAgentMgr agentmgr,
-			SesameTriplestore ts) throws RMapObjectNotFoundException, RMapException {
-			// get all Statements with uri in subject or object
-
+	public Set<URI> getAssertingAgents (Resource subject, URI predicate, Value object, RMapStatus statusCode, 
+					ORMapEventMgr eventmgr, ORMapDiSCOMgr discomgr, ORMapAgentMgr agentmgr,
+					SesameTriplestore ts) throws RMapObjectNotFoundException, RMapException {
+			
 			List<Statement> stmts = null;
 			try {
 				stmts = ts.getStatements(subject, predicate, object);
 			} catch (Exception e) {
 				throw new RMapException (e);
 			}		
-					
-						
-			Set<URI> agents = new HashSet<URI>();
+											
+			Set<URI> agents = null;
 			// make sure Agent in which statement appears matches statusCode
 			for (Statement stmt:stmts){
 				URI context = (URI)stmt.getContext();
-
-				if (context != null && this.isDiscoId(context, ts)){
-					if (statusCode==null){
-						// match any status
-						agents.add(context);
-					}
-					else {
-						try {
-							RMapStatus aStatus = agentmgr.getAgentStatus(context, ts);
-							
-							if (aStatus.equals(statusCode)){
-								agents.add(context);
-							}
-						}
-						catch (RMapDiSCONotFoundException rf){}
-						catch (RMapException r){throw r;}
-					}
+				if (context != null && this.isAgentId(context, ts)){
+					agents = agentmgr.getAssertingAgents(context, statusCode, eventmgr, ts);
+				}
+				else if (context != null && this.isDiscoId(context, ts)){
+					agents = discomgr.getAssertingAgents(context, statusCode, eventmgr, ts);
 				}
 			}
 			return agents;		

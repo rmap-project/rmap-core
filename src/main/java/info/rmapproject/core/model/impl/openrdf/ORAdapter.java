@@ -4,24 +4,24 @@
 package info.rmapproject.core.model.impl.openrdf;
 
 
-import java.net.URISyntaxException;
-
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapBlankNode;
 import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapTriple;
-import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.RMapUri;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
 
+import java.net.URISyntaxException;
+
+import org.openrdf.model.BNode;
+import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
-import org.openrdf.model.Literal;
-import org.openrdf.model.BNode;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 
@@ -29,7 +29,7 @@ import org.openrdf.model.ValueFactory;
 /**
  * Adapter utilities for conversion between RMap classes and OpenRDF/Sesame classes
  * 
- * @author smorrissey
+ * @author smorrissey, khanson
  *
  */
 public class ORAdapter {
@@ -314,6 +314,29 @@ public class ORAdapter {
 		}
 		RMapTriple rtriple = new RMapTriple(subject, predicate, object);		
 		return rtriple;
+	}
+	
+	/**
+	 * Attempt to convert URIs in openRdf Statement to a java.net.URI to see if it is compatible
+	 * openRdf is more relaxed about what characters to allow in the URI e.g. "/n" can be put in openRdfUri. 
+	 * This ensures URIs in the statement are compatible with the narrower URI definition in java.net.URI.
+	 * @param stmt
+	 * @return boolean
+	 * @throws RMapException
+	 */
+	public static boolean isOpenRdfStatementCompatibleWithUri (Statement stmt) throws RMapException {
+		try {			
+			if (stmt.getSubject() instanceof URI) {
+				new java.net.URI(stmt.getSubject().toString());
+			}
+			new java.net.URI(stmt.getPredicate().toString()); 
+			if (stmt.getObject() instanceof URI) {
+				new java.net.URI(stmt.getObject().toString());
+			}		
+		} catch (URISyntaxException e) {
+			return false;
+		}
+		return true;
 	}
 		
 }

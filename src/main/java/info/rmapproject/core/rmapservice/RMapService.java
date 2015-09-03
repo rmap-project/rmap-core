@@ -103,7 +103,7 @@ public interface RMapService {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<URI> getStmtRelatedDiSCOs(java.net.URI subject, java.net.URI predicate, RMapValue object, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getStatementRelatedDiSCOs(java.net.URI subject, java.net.URI predicate, RMapValue object, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Get a list of Agents that contain the statement passed in
@@ -115,7 +115,19 @@ public interface RMapService {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<URI> getStmtRelatedAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getStatementRelatedAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+
+	/**
+	 * Get a list of Agents that contain the statement passed in
+	 * @param subject of statement
+	 * @param predicate of statement
+	 * @param object of statement
+	 * @param statusCode to match Agent status
+	 * @return URI list of Agents containing statement
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public List<URI> getStatementAssertingAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
 	
 	
 	// DiSCO services
