@@ -2,6 +2,7 @@ package info.rmapproject.core.rdfhandler.impl.openrdf;
 
 
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
@@ -26,6 +27,8 @@ import java.util.List;
 
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
+import org.openrdf.model.impl.LinkedHashModel;
+import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
@@ -112,6 +115,25 @@ public class RioRDFHandler implements RDFHandler {
 		List <Statement> stmts = this.convertRDFToStmtList(rdfIn, rdfFormat, baseUri);
 		ORMapAgent agent = new ORMapAgent(stmts, ORAdapter.uri2OpenRdfUri(systemAgent));
 		return agent;
+	}
+	
+	@Override
+	public OutputStream triples2Rdf(List<RMapTriple> triples, String rdfFormat) throws RMapException	{
+		if (triples == null){
+			throw new RMapException("Null triple list");			
+		}
+		if (rdfFormat==null){
+			throw new RMapException("null rdf format name");
+		}
+		Model model = new LinkedHashModel();
+		
+		for (RMapTriple triple:triples){
+			model.add(new StatementImpl(ORAdapter.rMapNonLiteral2OpenRdfResource(triple.getSubject()), 
+										ORAdapter.rMapUri2OpenRdfUri(triple.getPredicate()), 
+										ORAdapter.rMapValue2OpenRdfValue(triple.getObject())));
+		}
+		OutputStream rdf = this.convertStmtListToRDF(model, rdfFormat);
+		return rdf;
 	}
 
 	@Override

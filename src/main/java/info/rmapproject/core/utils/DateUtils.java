@@ -9,6 +9,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 /**
  * @author smorrissey
  *
@@ -48,4 +50,15 @@ public class DateUtils {
 		String dateString = format.format(date);
 		return dateString;
 	}
+	/**
+     * Converts XMLGregorianCalendar to java.util.Date in Java
+	 * @param calendar
+	 * @return Date
+	 */
+    public static Date xmlGregorianCalendarToDate(XMLGregorianCalendar calendar){
+        if(calendar == null) {
+            return null;
+        }
+        return calendar.toGregorianCalendar().getTime();
+    }
 }

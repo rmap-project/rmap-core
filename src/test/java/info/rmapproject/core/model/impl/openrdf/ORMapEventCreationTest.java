@@ -3,7 +3,10 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
@@ -79,6 +82,10 @@ public class ORMapEventCreationTest {
 			assertEquals(createdObjIds.size(),event.getCreatedObjectIds().size());
 			assertEquals(RMapEventType.CREATION, event.getEventType());
 			assertEquals(RMapEventTargetType.DISCO, event.getEventTargetType());
+
+			//Date sdate = event.getStartTime();
+			//Date edate = event.getEndTime();
+			
 			Statement tStmt = event.getTypeStatement();
 			assertEquals(RMAP.EVENT, tStmt.getObject());
 			ORMapEventMgr eventMgr = new ORMapEventMgr();

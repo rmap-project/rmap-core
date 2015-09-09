@@ -8,19 +8,26 @@ import info.rmapproject.core.exception.RMapTombstonedObjectException;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
+import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
+import info.rmapproject.core.utils.DateUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.TupleQueryResult;
 
 /**
  * 
@@ -99,7 +106,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		return relatedStmts;
 	}
 	/**
-	 * 
+	 * Get list of DiSCO URIs that have a statement containing the resource.  
 	 * @param uri
 	 * @param statusCode  if null, match any status code
 	 * @param discomgr
@@ -107,34 +114,97 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @return
 	 * @throws RMapException
 	 */
-	public Set<URI> getRelatedDiSCOS(URI uri, RMapStatus statusCode,
-			ORMapDiSCOMgr discomgr, SesameTriplestore ts)
-			throws RMapException {
-		// get all Statements with uri in subject or object
-		List<Statement>stmts = this.getRelatedTriples(uri, ts);
-		Set<URI> discos = new HashSet<URI>();
-		// make sure DiSCO in which statement appears matches statusCode
-		for (Statement stmt:stmts){
-			URI context = (URI)stmt.getContext();
+	public Set<URI> getRelatedDiSCOS(URI resource, RMapStatus statusCode,
+						List<URI> systemAgents, Date dateFrom, Date dateTo,
+						ORMapDiSCOMgr discomgr, SesameTriplestore ts)
+						throws RMapException {		
 
-			if (context != null && this.isDiscoId(context, ts)){
-				if (statusCode==null){
-					// match any status
-					discos.add(context);
+		Set<URI> discos = new HashSet<URI>();
+		String sResource = resource.toString();
+		sResource = sResource.replace("\"","\\\"");
+		
+		//build system agent filter SPARQL
+		String sysAgentSparql = "";
+		if (systemAgents.size()>0) {
+			Integer i = 0;			
+			for (URI systemAgent : systemAgents) {
+				i=i+1;
+				if (i>1){
+					sysAgentSparql = sysAgentSparql + " UNION ";
 				}
-				else {
-					try {
-						RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
-						
-						if (dStatus.equals(statusCode)){
-							discos.add(context);
-						}
-					}
-					catch (RMapDiSCONotFoundException rf){}
-					catch (RMapException r){throw r;}
+				sysAgentSparql = sysAgentSparql + " {?eventId <" + PROV.WASASSOCIATEDWITH + "> <" + systemAgent.toString() + ">} ";
+			}
+			sysAgentSparql = sysAgentSparql + " . ";
+		}
+		
+		//query gets discoIds and startDates of created DiSCOs that contain Resource
+		/*  SELECT DISTINCT ?discoId ?startDate 
+			WHERE { 
+			{?eventId <http://www.w3.org/ns/prov#generated> ?discoId} UNION
+			{?eventId <http://rmap-project.org/rmap/terms/derivedObject> ?discoId} .
+			 ?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
+			 {?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2m3>} UNION
+			 {?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2p4>} .
+			GRAPH ?discoId 
+			  {
+			     {?s ?p <http://dx.doi.org/10.1109/InPar.2012.6339604>} UNION 
+			     {<http://dx.doi.org/10.1109/InPar.2012.6339604> ?p ?o} .
+			  } .
+			?discoId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/DiSCO>
+			}
+			}	 */
+		String sparqlQuery = "SELECT DISTINCT ?discoId ?startDate "
+							+ "WHERE { "
+							+ "{?eventId <" + PROV.GENERATED + "> ?discoId} UNION"
+							+ "{?eventId <" + RMAP.EVENT_DERIVED_OBJECT + "> ?discoId} ."
+							+ "?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate ."
+							+ sysAgentSparql
+							+ "GRAPH ?discoId "
+							+ "	  {"
+							+ "		{?s ?p <" + sResource + ">} UNION "
+							+ "		{<" + sResource + "> ?p ?o} ."
+							+ "     ?discoId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/DiSCO> . "							
+							+ "	  } "
+							+ "}";
+		TupleQueryResult resultset = null;
+		try {
+			resultset = ts.getSPARQLQueryResults(sparqlQuery);
+		}
+		catch (Exception e) {
+			throw new RMapException("Could not retrieve SPARQL query results", e);
+		}
+		
+		try{
+			while (resultset.hasNext()) {
+				boolean addit = true;
+				BindingSet bindingSet = resultset.next();
+				URI discoId = (URI) bindingSet.getBinding("discoId").getValue();
+				Literal startDateLiteral = (Literal) bindingSet.getBinding("startDate").getValue();
+				Date startDate = DateUtils.xmlGregorianCalendarToDate(startDateLiteral.calendarValue());
+
+				//apply filters for date and status
+				if (dateFrom != null) { 
+					addit = startDate.after(dateFrom);
+				}
+				if (dateTo != null && addit) {
+					addit = startDate.before(dateTo);
+				}
+				if (statusCode != null && addit){
+					RMapStatus dStatus = discomgr.getDiSCOStatus(discoId, ts);
+					addit = dStatus.equals(statusCode);
+				}
+				
+				if (addit) {
+					discos.add(discoId);
 				}
 			}
+		}	
+		catch (RMapDiSCONotFoundException rf){}
+		catch (RMapException r){throw r;}
+		catch (Exception e){
+			throw new RMapException("Could not process SPARQL results for resource's DiSCOs", e);
 		}
+
 		return discos;		
 	}
 	/**
@@ -168,6 +238,19 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		return events;
 	}
 	
+	/**
+	 * 
+	 * @param uri
+	 * @param statusCode
+	 * @param discomgr
+	 * @param eventMgr
+	 * @param agentmgr
+	 * @param ts
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapObjectNotFoundException
+	 * @throws RMapDefectiveArgumentException
+	 */
 	public Set<URI> getRelatedAgents(URI uri, RMapStatus statusCode, 
 			ORMapDiSCOMgr discomgr, ORMapEventMgr eventMgr, ORMapAgentMgr agentmgr, 
 			SesameTriplestore ts) 

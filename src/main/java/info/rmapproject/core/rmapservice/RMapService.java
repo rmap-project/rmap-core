@@ -18,6 +18,7 @@ import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,46 +33,61 @@ public interface RMapService {
 	 * Get URI of all RMap object types with a specified status code related to a Resource URI 
 	 * @param uri
 	 * @param statusCode
+	 * @param systemAgents
+	 * @param dateFrom
+	 * @param dateTo
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public List<URI> getResourceRelatedAll (URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getResourceRelatedAll (URI uri, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Get the list of triples comprised by statements that reference a resource and whose status matches provided status code
 	 * @param uri Resource to be matched in statements
-	 * @param statusCode 
+	 * @param statusCode
+	 * @param systemAgents
+	 * @param dateFrom
+	 * @param dateTo
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<RMapTriple>getResourceRelatedTriples(URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	public List<RMapTriple>getResourceRelatedTriples(URI uri, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Get all RMapEvents related to a Resource URI
 	 * @param uri
+	 * @param systemAgents
+	 * @param dateFrom
+	 * @param dateTo
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public List<URI> getResourceRelatedEvents (URI uri) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getResourceRelatedEvents (URI uri, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Get all RMapDiSCOs with a specified status code related to a Resource URI 
 	 * @param uri
 	 * @param statusCode
+	 * @param systemAgents
+	 * @param dateFrom
+	 * @param dateTo
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public List<URI> getResourceRelatedDiSCOs (URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getResourceRelatedDiSCOs (URI uri, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Get all RMapAgents with a specified status code related to a Resource URI 
 	 * @param uri
 	 * @param statusCode
+	 * @param systemAgents
+	 * @param dateFrom
+	 * @param dateTo
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public List<URI> getResourceRelatedAgents (URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getResourceRelatedAgents (URI uri, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Determine what types are associated with a given resource in a specific context (e.g. within a DiSCO)
 	 * @param resourceUri URI for resource whose type is being checked
@@ -85,12 +101,13 @@ public interface RMapService {
 	/**
 	 * Determine what types are associated with a given resource in any context
 	 * @param resourceUri URI for resource whose type is being checked
+	 * @param statusCode
 	 * @return Map from context to set of any type statements in that context for that resources, or null if no type statement
 	 * for resource is found in any context
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public Map<URI, Set<URI>> getResourceRdfTypesAllContexts(URI resourceUri)throws RMapException, RMapDefectiveArgumentException;
+	public Map<URI, Set<URI>> getResourceRdfTypesAllContexts(URI resourceUri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
 	
 	
 	/**
@@ -99,11 +116,16 @@ public interface RMapService {
 	 * @param predicate of statement
 	 * @param object of statement
 	 * @param statusCode to match DiSCO status
+	 * @param systemAgents
+	 * @param dateFrom
+	 * @param dateTo
 	 * @return URI list of DiSCOs containing statement
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<URI> getStatementRelatedDiSCOs(java.net.URI subject, java.net.URI predicate, RMapValue object, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getStatementRelatedDiSCOs(URI subject, URI predicate, RMapValue object, 
+							RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) 
+							throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Get a list of Agents that contain the statement passed in
@@ -111,23 +133,31 @@ public interface RMapService {
 	 * @param predicate of statement
 	 * @param object of statement
 	 * @param statusCode to match Agent status
+	 * @param systemAgents
+	 * @param dateFrom
+	 * @param dateTos
 	 * @return URI list of Agents containing statement
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<URI> getStatementRelatedAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getStatementRelatedAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, 
+							RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) 
+							throws RMapException, RMapDefectiveArgumentException;
 
 	/**
-	 * Get a list of Agents that contain the statement passed in
+	 * Get a list of Agents that have asserted the statement passed in
 	 * @param subject of statement
 	 * @param predicate of statement
 	 * @param object of statement
 	 * @param statusCode to match Agent status
+	 * @param dateFrom
+	 * @param dateTo
 	 * @return URI list of Agents containing statement
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<URI> getStatementAssertingAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getStatementAssertingAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, 
+												RMapStatus statusCode, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
 	
 	
 	// DiSCO services

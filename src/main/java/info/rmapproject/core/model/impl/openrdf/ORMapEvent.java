@@ -3,9 +3,20 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
+import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.RMapUri;
+import info.rmapproject.core.model.RMapValue;
+import info.rmapproject.core.model.event.RMapEvent;
+import info.rmapproject.core.model.event.RMapEventTargetType;
+import info.rmapproject.core.model.event.RMapEventType;
+import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
+import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
+import info.rmapproject.core.utils.DateUtils;
+
 import java.net.URISyntaxException;
-import java.text.ParseException;
 import java.util.Date;
+
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
@@ -15,16 +26,6 @@ import org.openrdf.model.Value;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.RDF;
-
-import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapValue;
-import info.rmapproject.core.model.RMapUri;
-import info.rmapproject.core.model.event.RMapEvent;
-import info.rmapproject.core.model.event.RMapEventTargetType;
-import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
-import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
-import info.rmapproject.core.utils.DateUtils;
 
 /**
  * @author khansen, smorrissey
@@ -83,8 +84,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		super();
 		this.context = ORAdapter.uri2OpenRdfUri(this.getId());
 		Date date = new Date();
-		String dateString = DateUtils.getIsoStringDate(date);
-		Literal dateLiteral = this.getValueFactory().createLiteral(dateString);
+		Literal dateLiteral = this.getValueFactory().createLiteral(date);
 		Statement startTime = this.getValueFactory().createStatement(this.context, PROV.STARTEDATTIME, 
 				dateLiteral, this.context);
 		this.startTimeStmt = startTime;
@@ -243,10 +243,12 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 */
 	public Date getStartTime() throws RMapException {
 		Date finalResult = null;
-		String timeStr = this.startTimeStmt.getObject().stringValue();
 		try {
-			finalResult =  DateUtils.getDateFromIsoString(timeStr);
-		} catch (ParseException e){
+			Literal timeStr = (Literal)this.startTimeStmt.getObject();
+			XMLGregorianCalendar startTime =  timeStr.calendarValue();
+			finalResult = DateUtils.xmlGregorianCalendarToDate(startTime);
+			//finalResult =  DateUtils.getDateFromIsoString(timeStr);
+		} catch (Exception e){
 			throw new RMapException (e);
 		}		
 		return finalResult;
@@ -255,7 +257,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * 
 	 * @return
 	 */
-	public Statement getStartTypeStmt(){
+	public Statement getStartTimeStmt(){
 		return this.startTimeStmt;
 	}
 	/* (non-Javadoc)
@@ -263,10 +265,12 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 */
 	public Date getEndTime() throws RMapException {
 		Date finalResult = null;
-		String timeStr = this.endTimeStmt.getObject().stringValue();
 		try {
-			finalResult = DateUtils.getDateFromIsoString(timeStr);
-		} catch (ParseException e){
+			Literal timeStr = (Literal)this.endTimeStmt.getObject();
+			XMLGregorianCalendar endTime =  timeStr.calendarValue();
+			finalResult = DateUtils.xmlGregorianCalendarToDate(endTime);
+			//finalResult = DateUtils.getDateFromIsoString(timeStr);
+		} catch (Exception e){
 			throw new RMapException (e);
 		}		
 		return finalResult;
@@ -283,14 +287,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @see info.rmapproject.core.model.RMapEvent#setEndTime(java.util.Date)
 	 */
 	public void setEndTime(Date endTime) throws RMapException {
-		String dateString = null;	
-		try {
-			dateString = DateUtils.getIsoStringDate(endTime);
-		}
-		catch (Exception e){
-			throw new RMapException(e);
-		}
-		Literal dateLiteral = this.getValueFactory().createLiteral(dateString);
+		Literal dateLiteral = this.getValueFactory().createLiteral(endTime);
 		Statement endTimeStmt = this.getValueFactory().createStatement(this.context, PROV.ENDEDATTIME, 
 				dateLiteral, this.context);
 		this.endTimeStmt = endTimeStmt;

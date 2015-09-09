@@ -4,14 +4,17 @@
 package info.rmapproject.core.rdfhandler;
 
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
 //import info.rmapproject.core.model.statement.RMapStatement;
 
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.util.List;
 
 /**
  * @author smorrissey
@@ -37,6 +40,16 @@ public interface RDFHandler {
 	 * @throws RMapException
 	 */
 	public RMapAgent rdf2RMapAgent(URI systemAgent, InputStream rdfIn, String baseUri, String rdfFormat) throws RMapException;
+	
+	/**
+	 * Serialize RMapTriple list as RDF
+	 * @param List <RMapTriple> to be serialized
+	 * @param rdfFormat RDF Format to be used in serialization
+	 * @return OutputStream with serialized RDF
+	 * @throws RMapException if RMapTriple list cannot be serialized as RDF
+	 */
+	public OutputStream triples2Rdf(List<RMapTriple> triples, String rdfFormat)	throws RMapException;
+	
 	/**
 	 * Serialize RMapDiSCO as RDF
 	 * @param disco RMapDiSCO to be serialized

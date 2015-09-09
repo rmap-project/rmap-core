@@ -68,7 +68,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		this.createTriple(ts, event.getEventTypeStmt());
 		this.createTriple(ts, event.getEventTargetTypeStmt());
 		this.createTriple(ts, event.getAssociatedAgentStmt());
-		this.createTriple(ts, event.getStartTypeStmt());
+		this.createTriple(ts, event.getStartTimeStmt());
 		this.createTriple(ts, event.getEndTimeStmt());
 		if (event.getDescriptionStmt()!= null){
 			this.createTriple(ts, event.getDescriptionStmt());

@@ -12,6 +12,11 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ContextStatementImpl;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.TupleQuery;
+import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -160,7 +165,44 @@ public abstract class SesameTriplestore  {
 		return getStatement(subj,pred,obj,null);
 	}
 	
+	/**
+	 * Executes SPARQL query against triplestore.  Note, the query must return a list containing spoc in order to convert 
+	 * the results to a list of statements.
+	 * @param sparqlQuery
+	 * @param includeInferred
+	 * @return list of statements
+	 * @throws Exception
+	 */
+	public List<Statement> getStatementListBySPARQL(String sparqlQuery) 
+			throws Exception {
+		List <Statement> stmts = new ArrayList <Statement>();
+		TupleQuery tupleQuery = getConnection().prepareTupleQuery(QueryLanguage.SPARQL, sparqlQuery);
+		TupleQueryResult resultset = tupleQuery.evaluate();
+		while (resultset.hasNext()) {
+			BindingSet bindingSet = resultset.next();
+			Statement stmt = new ContextStatementImpl((Resource) bindingSet.getBinding("s").getValue(),
+												(URI)bindingSet.getBinding("p").getValue(),
+												bindingSet.getBinding("o").getValue(),
+												(Resource) bindingSet.getBinding("c").getValue());
+			stmts.add(stmt);
+			
+		}		
+		return stmts;
+	}
 	
+	/**
+	 * Executes SPARQL query against triplestore and returns one column list of URIs 
+	 * @param sparqlQuery
+	 * @param includeInferred
+	 * @return list of matching URIs
+	 * @throws Exception
+	 */
+	public TupleQueryResult getSPARQLQueryResults(String sparqlQuery)
+			throws Exception {
+		TupleQuery tupleQuery = getConnection().prepareTupleQuery(QueryLanguage.SPARQL, sparqlQuery);
+		TupleQueryResult resultset = tupleQuery.evaluate();
+		return resultset;
+	}
 	
 	public BNode getBNode() throws Exception {
 		// USE RMAP ids for all bnode ids
