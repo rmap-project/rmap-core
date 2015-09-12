@@ -632,7 +632,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapDiSCONotFoundException
 	 * @throws RMapObjectNotFoundException
 	 */
-	public Set<URI> getAssertingAgents(URI uri, RMapStatus statusCode, ORMapEventMgr eventMgr, SesameTriplestore ts) 
+	public Set<URI> getAssertingAgents(URI uri, RMapStatus statusCode, Date dateFrom, Date dateTo, ORMapEventMgr eventMgr, SesameTriplestore ts) 
 	throws RMapException, RMapDiSCONotFoundException, RMapObjectNotFoundException {
 		Set<URI>agents = new HashSet<URI>();
 		do {

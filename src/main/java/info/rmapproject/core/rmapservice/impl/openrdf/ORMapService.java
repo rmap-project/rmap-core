@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
 
 /**
  *  @author khanson, smorrissey
@@ -85,8 +86,15 @@ public class ORMapService implements RMapService {
 	}
 
 	@Override
+	public List<RMapTriple> getResourceRelatedTriples(URI uri, RMapStatus statusCode) 
+			throws RMapException, RMapDefectiveArgumentException {
+		List <RMapTriple> triples = getResourceRelatedTriples(uri, statusCode, null, null, null);
+		return triples;
+	}
+	
+	@Override
 	public List<RMapTriple> getResourceRelatedTriples(URI uri, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo)
-						throws RMapException, RMapDefectiveArgumentException {
+			throws RMapException, RMapDefectiveArgumentException {
 		
 		if (uri==null){
 			throw new RMapDefectiveArgumentException("null uri");
@@ -215,7 +223,8 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#getStmtRelatedDiSCOs(java.net.URI, java.net.URI, RMapValue, RMapStatus)
 	 */
 	public List<URI> getStatementRelatedDiSCOs(URI subject, URI predicate, RMapValue object, 
-			RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException {
+												RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) 
+												throws RMapException, RMapDefectiveArgumentException {
 		if (subject==null){
 			throw new RMapDefectiveArgumentException("null subject");
 		}
@@ -228,7 +237,10 @@ public class ORMapService implements RMapService {
 		org.openrdf.model.URI orSubject = ORAdapter.uri2OpenRdfUri(subject);
 		org.openrdf.model.URI orPredicate = ORAdapter.uri2OpenRdfUri(predicate);
 		org.openrdf.model.Value orObject = ORAdapter.rMapValue2OpenRdfValue(object);
-		List <org.openrdf.model.URI> relatedDiSCOs = this.stmtmgr.getRelatedDiSCOs(orSubject, orPredicate, orObject, statusCode, discomgr, ts);
+
+		List <org.openrdf.model.URI> relatedDiSCOs = 
+				this.stmtmgr.getRelatedDiSCOs(orSubject, orPredicate, orObject, statusCode, 
+												dateFrom, dateTo, systemAgents, discomgr, ts);
 		List<URI> returnSet = null;
 		if (relatedDiSCOs != null && relatedDiSCOs.size()>0){
 			returnSet = new ArrayList<URI>();
@@ -273,7 +285,7 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#getStmtAssertingAgents(java.net.URI, java.net.URI, RMapValue, RMapStatus)
 	 */
 	public List<URI> getStatementAssertingAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, 
-											RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException {
+											RMapStatus statusCode, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException {
 		if (subject==null){
 			throw new RMapDefectiveArgumentException("null subject");
 		}
@@ -288,7 +300,7 @@ public class ORMapService implements RMapService {
 		org.openrdf.model.Value orObject = ORAdapter.rMapValue2OpenRdfValue(object);
 		
 		Set <org.openrdf.model.URI> assertingAgents = 
-				this.stmtmgr.getAssertingAgents(orSubject, orPredicate, orObject, statusCode, eventmgr, discomgr, agentmgr, ts);
+				this.stmtmgr.getAssertingAgents(orSubject, orPredicate, orObject, statusCode, dateFrom, dateTo, eventmgr, discomgr, agentmgr, ts);
 		
 		List<URI> returnSet = null;
 		if (assertingAgents != null && assertingAgents.size()>0){

@@ -140,11 +140,14 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		//query gets discoIds and startDates of created DiSCOs that contain Resource
 		/*  SELECT DISTINCT ?discoId ?startDate 
 			WHERE { 
-			{?eventId <http://www.w3.org/ns/prov#generated> ?discoId} UNION
-			{?eventId <http://rmap-project.org/rmap/terms/derivedObject> ?discoId} .
-			 ?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
-			 {?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2m3>} UNION
-			 {?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2p4>} .
+			GRAPH ?eventId {
+			 	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
+				{?eventId <http://www.w3.org/ns/prov#generated> ?discoId} UNION
+				{?eventId <http://rmap-project.org/rmap/terms/derivedObject> ?discoId} .
+			 	?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
+			 	{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2m3>} UNION
+			 	{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2p4>} .
+			 	} .
 			GRAPH ?discoId 
 			  {
 			     {?s ?p <http://dx.doi.org/10.1109/InPar.2012.6339604>} UNION 
@@ -155,10 +158,13 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			}	 */
 		String sparqlQuery = "SELECT DISTINCT ?discoId ?startDate "
 							+ "WHERE { "
+							+ "GRAPH ?eventId {"
+							+ "?eventId <" + RDF.TYPE + "> <" + RMAP.EVENT + "> ."
 							+ "{?eventId <" + PROV.GENERATED + "> ?discoId} UNION"
 							+ "{?eventId <" + RMAP.EVENT_DERIVED_OBJECT + "> ?discoId} ."
-							+ "?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate ."
+							+ "?eventId <" + PROV.STARTEDATTIME + "> ?startDate ."
 							+ sysAgentSparql
+							+ "} ."
 							+ "GRAPH ?discoId "
 							+ "	  {"
 							+ "		{?s ?p <" + sResource + ">} UNION "

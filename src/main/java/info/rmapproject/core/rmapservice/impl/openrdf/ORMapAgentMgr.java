@@ -445,7 +445,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @throws RMapDiSCONotFoundException
 	 * @throws RMapObjectNotFoundException
 	 */
-	public Set<URI> getAssertingAgents(URI uri, RMapStatus statusCode, ORMapEventMgr eventMgr, SesameTriplestore ts) 
+	public Set<URI> getAssertingAgents(URI uri, RMapStatus statusCode, Date dateFrom, Date dateTo, ORMapEventMgr eventMgr, SesameTriplestore ts) 
 	throws RMapException, RMapDiSCONotFoundException, RMapObjectNotFoundException {
 		Set<URI>agents = new HashSet<URI>();
 		do {
@@ -461,10 +461,22 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			
            //For each event associated with Agent, return AssociatedAgent
 			for (URI event:events){
+				boolean addToList = true;
 				URI assocAgent = eventMgr.getEventAssocAgent(event, ts);
-				if (assocAgent!=null) {
-					agents.add(assocAgent);
+				if (assocAgent==null) {
+					addToList = false;
 				}
+				if (dateFrom != null || dateTo != null) { //if a date is passed, checked within the range.
+					Date eventDate = eventMgr.getEventStartDate(event, ts);
+					if ((dateFrom != null && eventDate.before(dateFrom))
+							|| (dateTo != null && eventDate.after(dateTo))) {
+						addToList = false;
+					}
+				}
+				
+					
+					
+				agents.add(assocAgent);
 			}
 		} while (false);		
 		return agents;

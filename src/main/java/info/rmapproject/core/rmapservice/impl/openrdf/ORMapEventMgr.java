@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -856,6 +857,43 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		RMapEventTargetType tType = RMapEventTargetType.getTargetTypeFromString(type.stringValue());
 		return tType;
 	}
+	
+	/**
+	 * Get start date associated with event
+	 * @param eventId
+	 * @param ts
+	 * @return
+	 * @throws RMapEventNotFoundException
+	 * @throws RMapException
+	 */
+	public Date getEventStartDate (URI eventId, SesameTriplestore ts) 
+		throws RMapEventNotFoundException, RMapException{
+		if (eventId == null){
+			throw new RMapException("null eventID");
+		}
+		if (ts==null){
+			throw new RMapException ("null triplestore");
+		}
+		Date startDate = null;
+		Statement stmt = null;
+		try {
+			stmt = ts.getStatement(eventId, PROV.STARTEDATTIME, null, eventId);
+			if (stmt == null){
+				throw new RMapEventNotFoundException("No event start date statement found for ID " +
+			            eventId.stringValue());
+			}
+			else {
+				Literal startDateLiteral = (Literal) stmt.getObject();
+				startDate = DateUtils.xmlGregorianCalendarToDate(startDateLiteral.calendarValue());
+			}
+		} catch (Exception e) {
+			throw new RMapException ("Exception thrown getting event start date for " 
+					+ eventId.stringValue(), e);
+		}
+
+		return startDate;
+	}
+	
 	/**
 	 * 
 	 * @param eventId

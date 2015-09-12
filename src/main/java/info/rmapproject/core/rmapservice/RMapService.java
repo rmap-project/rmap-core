@@ -33,6 +33,16 @@ public interface RMapService {
 	 * Get URI of all RMap object types with a specified status code related to a Resource URI 
 	 * @param uri
 	 * @param statusCode
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException 
+	 */
+	public List<URI> getResourceRelatedAll (URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	
+	/**
+	 * Get URI of all RMap object types that are related to a Resource URI and match the filters specified
+	 * @param uri
+	 * @param statusCode
 	 * @param systemAgents
 	 * @param dateFrom
 	 * @param dateTo
@@ -43,6 +53,15 @@ public interface RMapService {
 	public List<URI> getResourceRelatedAll (URI uri, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Get the list of triples comprised by statements that reference a resource and whose status matches provided status code
+	 * @param uri Resource to be matched in statements
+	 * @param statusCode
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public List<RMapTriple>getResourceRelatedTriples(URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	/**
+	 * Get the list of triples comprised by statements that reference a resource and whose properties match the filters provided
 	 * @param uri Resource to be matched in statements
 	 * @param statusCode
 	 * @param systemAgents
@@ -56,6 +75,14 @@ public interface RMapService {
 	/**
 	 * Get all RMapEvents related to a Resource URI
 	 * @param uri
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException 
+	 */
+	public List<URI> getResourceRelatedEvents (URI uri) throws RMapException, RMapDefectiveArgumentException;
+	/**
+	 * Get all RMapEvents related to a Resource URI that match the filters provided
+	 * @param uri
 	 * @param systemAgents
 	 * @param dateFrom
 	 * @param dateTo
@@ -68,6 +95,15 @@ public interface RMapService {
 	 * Get all RMapDiSCOs with a specified status code related to a Resource URI 
 	 * @param uri
 	 * @param statusCode
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException 
+	 */
+	public List<URI> getResourceRelatedDiSCOs (URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	/**
+	 * Get all RMapDiSCOs related to a Resource URI that match the filters provided
+	 * @param uri
+	 * @param statusCode
 	 * @param systemAgents
 	 * @param dateFrom
 	 * @param dateTo
@@ -78,6 +114,15 @@ public interface RMapService {
 	public List<URI> getResourceRelatedDiSCOs (URI uri, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Get all RMapAgents with a specified status code related to a Resource URI 
+	 * @param uri
+	 * @param statusCode
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException 
+	 */
+	public List<URI> getResourceRelatedAgents (URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	/**
+	 * Get all RMapAgents related to a Resource URI that match the filters specified
 	 * @param uri
 	 * @param statusCode
 	 * @param systemAgents
@@ -110,8 +155,21 @@ public interface RMapService {
 	public Map<URI, Set<URI>> getResourceRdfTypesAllContexts(URI resourceUri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
 	
 	
+	//Statement Services
 	/**
 	 * Get a list of DiSCOs that contain the statement passed in
+	 * @param subject of statement
+	 * @param predicate of statement
+	 * @param object of statement
+	 * @param statusCode to match DiSCO status
+	 * @return URI list of DiSCOs containing statement
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public List<URI> getStatementRelatedDiSCOs(URI subject, URI predicate, RMapValue object, RMapStatus statusCode) 
+							throws RMapException, RMapDefectiveArgumentException;
+	/**
+	 * Get a list of DiSCOs that contain the statement passed in and match the filters provided
 	 * @param subject of statement
 	 * @param predicate of statement
 	 * @param object of statement
@@ -133,6 +191,19 @@ public interface RMapService {
 	 * @param predicate of statement
 	 * @param object of statement
 	 * @param statusCode to match Agent status
+	 * @return URI list of Agents containing statement
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public List<URI> getStatementRelatedAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, RMapStatus statusCode) 
+							throws RMapException, RMapDefectiveArgumentException;
+
+	/**
+	 * Get a list of Agents that contain the statement passed in and match the filters provided
+	 * @param subject of statement
+	 * @param predicate of statement
+	 * @param object of statement
+	 * @param statusCode to match Agent status
 	 * @param systemAgents
 	 * @param dateFrom
 	 * @param dateTos
@@ -146,6 +217,21 @@ public interface RMapService {
 
 	/**
 	 * Get a list of Agents that have asserted the statement passed in
+	 * @param subject of statement
+	 * @param predicate of statement
+	 * @param object of statement
+	 * @param statusCode to match Agent status
+	 * @param dateFrom
+	 * @param dateTo
+	 * @return URI list of Agents containing statement
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public List<URI> getStatementAssertingAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, 
+												RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+
+	/**
+	 * Get a list of Agents that have asserted the statement passed and were asserted within the date range provided
 	 * @param subject of statement
 	 * @param predicate of statement
 	 * @param object of statement

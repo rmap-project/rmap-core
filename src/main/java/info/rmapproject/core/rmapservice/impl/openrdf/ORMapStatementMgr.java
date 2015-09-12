@@ -8,6 +8,7 @@ import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -32,42 +33,44 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	 * @return List of DiSCO URIs
 	 * @throws RMapException
 	 */
-	public List<URI> getRelatedDiSCOs (URI subject, URI predicate, Value object, RMapStatus statusCode, ORMapDiSCOMgr discomgr,
-			SesameTriplestore ts) throws RMapObjectNotFoundException, RMapException {
-			// get all Statements with uri in subject or object
 
-			List<Statement> stmts = null;
-			try {
-				stmts = ts.getStatements(subject, predicate, object);
-			} catch (Exception e) {
-				throw new RMapException (e);
-			}		
-					
-			List<URI> discos = new ArrayList<URI>();
-			// make sure DiSCO in which statement appears matches statusCode
-			for (Statement stmt:stmts){
-				URI context = (URI)stmt.getContext();
+	public List<URI> getRelatedDiSCOs (URI subject, URI predicate, Value object, RMapStatus statusCode, 
+		Date dateFrom, Date dateTo, List<java.net.URI> systemAgents, ORMapDiSCOMgr discomgr,
+		SesameTriplestore ts) throws RMapObjectNotFoundException, RMapException {
+		// get all Statements with uri in subject or object
 
-				if (context != null && this.isDiscoId(context, ts)){
-					if (statusCode==null){
-						// match any status
-						discos.add(context);
-					}
-					else {
-						try {
-							RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
-							
-							if (dStatus.equals(statusCode)){
-								discos.add(context);
-							}
+		List<Statement> stmts = null;
+		try {
+			stmts = ts.getStatements(subject, predicate, object);
+		} catch (Exception e) {
+			throw new RMapException (e);
+		}		
+				
+		List<URI> discos = new ArrayList<URI>();
+		// make sure DiSCO in which statement appears matches statusCode
+		for (Statement stmt:stmts){
+			URI context = (URI)stmt.getContext();
+
+			if (context != null && this.isDiscoId(context, ts)){
+				if (statusCode==null){
+					// match any status
+					discos.add(context);
+				}
+				else {
+					try {
+						RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
+						
+						if (dStatus.equals(statusCode)){
+							discos.add(context);
 						}
-						catch (RMapDiSCONotFoundException rf){}
-						catch (RMapException r){throw r;}
 					}
+					catch (RMapDiSCONotFoundException rf){}
+					catch (RMapException r){throw r;}
 				}
 			}
-			return discos;		
 		}
+		return discos;		
+	}
 	
 
 	/**
@@ -131,7 +134,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	 * @return List of Agent URIs
 	 * @throws RMapException
 	 */
-	public Set<URI> getAssertingAgents (Resource subject, URI predicate, Value object, RMapStatus statusCode, 
+	public Set<URI> getAssertingAgents (Resource subject, URI predicate, Value object, RMapStatus statusCode, Date dateFrom, Date dateTo,
 					ORMapEventMgr eventmgr, ORMapDiSCOMgr discomgr, ORMapAgentMgr agentmgr,
 					SesameTriplestore ts) throws RMapObjectNotFoundException, RMapException {
 			
@@ -147,14 +150,16 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 			for (Statement stmt:stmts){
 				URI context = (URI)stmt.getContext();
 				if (context != null && this.isAgentId(context, ts)){
-					agents = agentmgr.getAssertingAgents(context, statusCode, eventmgr, ts);
+					agents = agentmgr.getAssertingAgents(context, statusCode, dateFrom, dateTo, eventmgr, ts);
 				}
 				else if (context != null && this.isDiscoId(context, ts)){
-					agents = discomgr.getAssertingAgents(context, statusCode, eventmgr, ts);
+					agents = discomgr.getAssertingAgents(context, statusCode, dateFrom, dateTo, eventmgr, ts);
 				}
 			}
 			return agents;		
 		}
+
+
 	
 	
 	
