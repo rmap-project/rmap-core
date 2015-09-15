@@ -218,9 +218,18 @@ public class ORMapService implements RMapService {
 		return map;
 	}
 	
-
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getStmtRelatedDiSCOs(java.net.URI, java.net.URI, RMapValue, RMapStatus)
+	 */
+	public List<URI> getStatementRelatedDiSCOs(URI subject, URI predicate, RMapValue object, 
+												RMapStatus statusCode) 
+												throws RMapException, RMapDefectiveArgumentException {
+		return getStatementRelatedDiSCOs(subject, predicate, object, statusCode, null, null, null);
+	}
+	
+	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getStmtRelatedDiSCOs(java.net.URI, java.net.URI, RMapValue, RMapStatus, List<java.net.URI>, Date, Date)
 	 */
 	public List<URI> getStatementRelatedDiSCOs(URI subject, URI predicate, RMapValue object, 
 												RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) 
@@ -909,6 +918,50 @@ public class ORMapService implements RMapService {
 	 */
 	public ORMapAgentMgr getagentmgr() {
 		return agentmgr;
+	}
+
+	@Override
+	public List<URI> getResourceRelatedAll(URI uri, RMapStatus statusCode)
+			throws RMapException, RMapDefectiveArgumentException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<URI> getResourceRelatedEvents(URI uri) throws RMapException,
+			RMapDefectiveArgumentException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<URI> getResourceRelatedDiSCOs(URI uri, RMapStatus statusCode)
+			throws RMapException, RMapDefectiveArgumentException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<URI> getResourceRelatedAgents(URI uri, RMapStatus statusCode)
+			throws RMapException, RMapDefectiveArgumentException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<URI> getStatementRelatedAgents(URI subject, URI predicate,
+			RMapValue object, RMapStatus statusCode) throws RMapException,
+			RMapDefectiveArgumentException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<URI> getStatementAssertingAgents(URI subject, URI predicate,
+			RMapValue object, RMapStatus statusCode) throws RMapException,
+			RMapDefectiveArgumentException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

@@ -22,7 +22,6 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 import info.rmapproject.core.utils.DateUtils;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -32,6 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
@@ -443,13 +444,16 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 				throw new RMapException("Exception thrown getting end time statement for event "
 							+ eventId.stringValue());
 			}
-			String endTimeStr = stmt.getObject().stringValue();
+			//String endTimeStr = stmt.getObject().stringValue();
+			Literal endTimeLiteral = (Literal)stmt.getObject();
 			Date date = null;
 			try {
-				date = DateUtils.getDateFromIsoString(endTimeStr);
-			} catch (ParseException e) {
+				XMLGregorianCalendar endTimeDate =  endTimeLiteral.calendarValue();
+				date = DateUtils.xmlGregorianCalendarToDate(endTimeDate);
+				//date = DateUtils.getDateFromIsoString(endTimeStr);
+			} catch (Exception e) {
 				throw new RMapException("Cannot parse date string " +
-						endTimeStr + " for event id " + eventId.stringValue());
+						endTimeLiteral.stringValue() + " for event id " + eventId.stringValue());
 			}
 			date2event.put(date, eventId);
 		}

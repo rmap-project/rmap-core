@@ -3,7 +3,6 @@ package info.rmapproject.core.idservice.impl.ark;
 import info.rmapproject.core.idservice.IdService;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -13,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,13 +35,13 @@ public class ArkIdService implements IdService {
 
 	private static ArkIdService instance = new ArkIdService();
 
+	private final List<String> noids = new ArrayList<String>();
 
 	private int maxRetryAttempts = -1;
 	private String serviceUrl = "";
 	private int bufferSize = -1;
 	private String naanIdentifier = "";
 	private String arkPrefix = "ark:/";
-	private String fileName = "noids.txt";
 	
 	public ArkIdService() {
 		this(DEFAULT_PROPERTIES);
@@ -57,11 +55,12 @@ public class ArkIdService implements IdService {
 			log.fatal("failed to load IdServiceImpl's props file " + propsPath, e);
 			throw new IllegalArgumentException("failed to load IdServiceImpl's props file " + propsPath, e);
 		}
+
 		maxRetryAttempts = Integer.parseInt( p.getProperty(MAX_RETRY_PROPERTY, defaultMaxRetry) );
 		bufferSize = Integer.parseInt(p.getProperty(BUFFER_PROPERTY, "1") );
 		arkPrefix = p.getProperty(PREFIX_PROPERTY);
 		naanIdentifier = p.getProperty(NAAN_PROPERTY);
-		serviceUrl = p.getProperty(URL_PROPERTY);		
+		serviceUrl = p.getProperty(URL_PROPERTY);
 	}
 
 
@@ -93,8 +92,7 @@ public class ArkIdService implements IdService {
 	public synchronized String getNoidId() throws Exception {
 		log.debug("Getting noid id");
 
-		String noid = readNoidFromFile();
-		if (noid==null) {
+		if (noids.size() <= 0) {
 			try {
 				getMoreNoids();
 			} catch (Exception e) {
@@ -102,41 +100,23 @@ public class ArkIdService implements IdService {
 						e);
 			}
 		}
-		//try again
-		noid = readNoidFromFile();
-		if (noid!=null) {
-			return noid;
+		if (noids.size() > 0) {
+			return noids.remove(noids.size()-1);
 		} else {
 			throw new Exception(
 					"Tried to fill noids and failed!  No Noids available!");
 		}
-		
 	}
-	
-	private synchronized String readNoidFromFile() throws Exception {
 
-		File file = new File(this.fileName);
-		List<String> noids = new ArrayList<String>();
-		String noid = null;
-		
-		if(file.exists() && !file.isDirectory()) { 
-			noids = FileUtils.readLines(file, "utf-8");
-			if (noids.size() > 0) {
-				noid = noids.remove(0);
-				FileUtils.writeLines(file, noids);
-			}
-		}
-		return noid;
+	public int howManyAvailable() {
+		return noids.size();
 	}
-	
+
 
 	/** replace this with httpclient or some such at some point.
 	 * Does this method have to be synchronized?  getNoidId is the only caller.  */
 	private synchronized void getMoreNoids() throws Exception {
 
-		List<String> noids = new ArrayList<String>();
-		File file = new File(this.fileName);
-		
 		maxRetryAttempts = 2;
 		int retryCounter = 0;
 
@@ -148,7 +128,8 @@ public class ArkIdService implements IdService {
 		boolean shouldRetry = true;
 		do {
 			retryCounter++;
-			log.debug("Requesting ark ids = |" + bufferSize + "|");
+			log.debug("Minting ids");
+			log.debug("Requested ids = |" + bufferSize + "|");
 			URL noidUrl = null;
 			HttpURLConnection noidCon = null;
 			try {
@@ -213,8 +194,7 @@ public class ArkIdService implements IdService {
 		log.debug("Extracted ids = |" + noids.size() + "|");
 		if(noids.size() == 0){
 			throw new Exception("Could not retrieve new ARK IDs after retries. maxRetryAttempts:"+maxRetryAttempts);
-		}	
-		FileUtils.writeLines(file, noids);				
+		}
 	}
 
 	public static ArkIdService getInstance() {
