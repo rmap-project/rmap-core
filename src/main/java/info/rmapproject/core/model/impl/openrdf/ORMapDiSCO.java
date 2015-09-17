@@ -36,7 +36,7 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
  * as DiSCO ID.
  * Status, as always, computed from events; related events also computed 
  * 
- * @author khansen, smorrissey
+ * @author khanson, smorrissey
  *
  */
 public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
@@ -148,7 +148,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 				throw new RMapException ("Cannot convert incoming ID to URI: " + incomingIdStr,e);
 			}			
 		}
-		else {
+		else if (incomingIdValue instanceof URI) { //make sure it's not a blank node - only URIs acceptable
 			// create a statement saying what original id was, and use existing type statement
 			Statement idStmt = this.getValueFactory().createStatement(this.discoContext, RMAP.PROVIDERID,
 					incomingIdValue, this.discoContext);

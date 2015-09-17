@@ -6,6 +6,7 @@ import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.openrdf.utils.OSparqlUtils;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 import info.rmapproject.core.utils.DateUtils;
@@ -17,8 +18,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.RDF;
@@ -42,85 +41,47 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	 * @throws RMapException
 	 */
 	public List<URI> getRelatedDiSCOs (URI subject, URI predicate, Value object, RMapStatus statusCode, 
-		Date dateFrom, Date dateTo, List<java.net.URI> systemAgents, ORMapDiSCOMgr discomgr,
+		Date dateFrom, Date dateTo, List<URI> systemAgents, ORMapDiSCOMgr discomgr,
 		SesameTriplestore ts) throws RMapObjectNotFoundException, RMapException {
-		// get all Statements with uri in subject or object
-
+		
 		List<URI> discos = new ArrayList<URI>();
-		String sSubject = subject.stringValue();
-		sSubject = sSubject.replace("\"","\\\"");
-		
-		String sPredicate = predicate.stringValue();
-		sPredicate = sPredicate.replace("\"","\\\"");
-		
-		String sObject = object.stringValue();
-		sObject = sObject.replace("\"","\\\"");
-		
-		//apply language or datatype filter for object of statement.
-		String objectFilter = "";
-		if (object instanceof Literal) {
-			objectFilter = "\"" + sObject + "\""; // put in quotes
-			String lang = ((Literal) object).getLanguage();
-			URI type = ((Literal) object).getDatatype();
-			if (lang != null && lang.length() > 0) {
-				objectFilter = objectFilter + "@" + lang;
-			}
-			else if (type != null) {
-				objectFilter = objectFilter + "^^<" + type.toString() + ">";
-			}
-		}
-		else { // put in angle brackets
-			objectFilter = "<" + objectFilter + ">";
-		}
-				
-		//build system agent filter SPARQL
-		String sysAgentSparql = "";
-		if (systemAgents.size()>0) {
-			Integer i = 0;			
-			for (java.net.URI systemAgent : systemAgents) {
-				i=i+1;
-				if (i>1){
-					sysAgentSparql = sysAgentSparql + " UNION ";
-				}
-				sysAgentSparql = sysAgentSparql + " {?eventId <" + PROV.WASASSOCIATEDWITH + "> <" + systemAgent.toString() + ">} ";
-			}
-			sysAgentSparql = sysAgentSparql + " . ";
-		}
-		
-		//query gets discoIds and startDates of created DiSCOs that contain Resource
-		/*  
-select DISTINCT ?discoid ?startDate
-WHERE { 
-  GRAPH ?eventId {
-	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
-	{?eventId <http://www.w3.org/ns/prov#generated> ?discoId} UNION
-	{?eventId <http://rmap-project.org/rmap/terms/derivedObject> ?discoId} .
-	?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
-	{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18m7mj4>} .
-	} .
- GRAPH ?discoid
-  {
- <http://dx.doi.org/10.1145/356502.356497> <http://purl.org/dc/terms/issued> "1978-12-01"^^<http://www.w3.org/2001/XMLSchema#date> . 
-  } .
- ?discoId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/DiSCO>
-}
+		String sSubject = OSparqlUtils.convertUriToSparqlParam(subject);
+		String sPredicate = OSparqlUtils.convertUriToSparqlParam(predicate);
+		String sObject = OSparqlUtils.convertValueToSparqlParam(object);
+		String sysAgentSparql = OSparqlUtils.convertSysAgentUriListToSparqlFilter(systemAgents);
 
-	 */
+		//query gets discoIds and startDates of created DiSCOs that contain Statement
+		/*  
+		select DISTINCT ?discoId ?startDate 
+		WHERE { 
+		 GRAPH ?discoId  {
+			 <http://dx.doi.org/10.1145/356502.356500> <http://purl.org/dc/terms/issued> "1978-12-01"^^<http://www.w3.org/2001/XMLSchema#date> . 
+			 ?discoId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/DiSCO> .
+		  } .
+		 GRAPH ?eventId {
+			?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
+			{?eventId <http://www.w3.org/ns/prov#generated> ?discoId} UNION
+			{?eventId <http://rmap-project.org/rmap/terms/derivedObject> ?discoId} .
+			?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
+			{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2m3>} .
+			} 
+		}
+		*/
 		String sparqlQuery = "SELECT DISTINCT ?discoId ?startDate "
 							+ "WHERE { "
-							+ "GRAPH ?eventId {"
-							+ "?eventId <" + RDF.TYPE + "> <" + RMAP.EVENT + "> ."
-							+ "{?eventId <" + PROV.GENERATED + "> ?discoId} UNION"
-							+ "{?eventId <" + RMAP.EVENT_DERIVED_OBJECT + "> ?discoId} ."
-							+ "?eventId <" + PROV.STARTEDATTIME + "> ?startDate ."
-							+ sysAgentSparql
-							+ "} ."
-							+ "GRAPH ?discoId "
-							+ "	  {"
-							+ "		{<" + sSubject + "> <" + sPredicate + "> " + objectFilter + "} ."
-							+ "     ?discoId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/DiSCO> . "							
-							+ "	  } "
+							+ " GRAPH ?discoId {"
+							+     sSubject + " " + sPredicate + " " + sObject + " ."
+							+ "   ?discoId <" + RDF.TYPE + "> <" + RMAP.DISCO + "> . "							
+							+ "	 } . "
+							+ " GRAPH ?eventId {"
+							+ "   ?eventId <" + RDF.TYPE + "> <" + RMAP.EVENT + "> ."
+							+ "   {?eventId <" + PROV.GENERATED + "> ?discoId} UNION"
+							+ "      {?eventId <" + RMAP.EVENT_DERIVED_OBJECT + "> ?discoId} ."
+							+ "   ?eventId <" + PROV.STARTEDATTIME + "> ?startDate ."
+							+     sysAgentSparql
+							+ "  }"
 							+ "}";
+		
 		TupleQueryResult resultset = null;
 		try {
 			resultset = ts.getSPARQLQueryResults(sparqlQuery);
@@ -131,27 +92,25 @@ WHERE {
 		
 		try{
 			while (resultset.hasNext()) {
-				boolean addit = true;
 				BindingSet bindingSet = resultset.next();
 				URI discoId = (URI) bindingSet.getBinding("discoId").getValue();
 				Literal startDateLiteral = (Literal) bindingSet.getBinding("startDate").getValue();
 				Date startDate = DateUtils.xmlGregorianCalendarToDate(startDateLiteral.calendarValue());
 
-				//apply filters for date and status
-				if (dateFrom != null) { 
-					addit = startDate.after(dateFrom);
+				RMapStatus dStatus = discomgr.getDiSCOStatus(discoId, ts);
+				if (dStatus == RMapStatus.DELETED 
+						|| dStatus == RMapStatus.TOMBSTONED
+						|| (statusCode != null && !dStatus.equals(statusCode))) { 
+					continue; //don't include deleted or mismatched status
 				}
-				if (dateTo != null && addit) {
-					addit = startDate.before(dateTo);
-				}
-				if (statusCode != null && addit){
-					RMapStatus dStatus = discomgr.getDiSCOStatus(discoId, ts);
-					addit = dStatus.equals(statusCode);
-				}
+					
+				if ((dateFrom != null && startDate.before(dateFrom))
+						|| (dateTo != null && startDate.after(dateTo))) { 
+					continue; // don't include out of range date
+				}		
 				
-				if (addit) {
-					discos.add(discoId);
-				}
+				//all good
+				discos.add(discoId);
 			}
 		}	
 		catch (RMapDiSCONotFoundException rf){}
@@ -162,44 +121,6 @@ WHERE {
 
 		return discos;		
 		
-		
-		/*
-		
-		
-		
-		
-		
-		List<Statement> stmts = null;
-		try {
-			stmts = ts.getStatements(subject, predicate, object);
-		} catch (Exception e) {
-			throw new RMapException (e);
-		}		
-				
-		List<URI> discos = new ArrayList<URI>();
-		// make sure DiSCO in which statement appears matches statusCode
-		for (Statement stmt:stmts){
-			URI context = (URI)stmt.getContext();
-
-			if (context != null && this.isDiscoId(context, ts)){
-				if (statusCode==null){
-					// match any status
-					discos.add(context);
-				}
-				else {
-					try {
-						RMapStatus dStatus = discomgr.getDiSCOStatus(context, ts);
-						
-						if (dStatus.equals(statusCode)){
-							discos.add(context);
-						}
-					}
-					catch (RMapDiSCONotFoundException rf){}
-					catch (RMapException r){throw r;}
-				}
-			}
-		}
-		return discos;		*/
 	}
 	
 
@@ -212,42 +133,85 @@ WHERE {
 	 * @return List of Agent URIs
 	 * @throws RMapException
 	 */
-	public List<URI> getRelatedAgents (Resource subject, URI predicate, Value object, RMapStatus statusCode, ORMapAgentMgr agentmgr,
+	public List<URI> getRelatedAgents (URI subject, URI predicate, Value object, RMapStatus statusCode, 
+			List<URI> systemAgents, Date dateTo, Date dateFrom, ORMapAgentMgr agentmgr,
 			SesameTriplestore ts) throws RMapObjectNotFoundException, RMapException {
-			// get all Statements with uri in subject or object
-		
-			List<Statement> stmts = null;
-			try {
-				stmts = ts.getStatements(subject, predicate, object);
-			} catch (Exception e) {
-				throw new RMapException (e);
-			}		
-					
-			List<URI> agents = new ArrayList<URI>();
-			// make sure Agent in which statement appears matches statusCode
-			for (Statement stmt:stmts){
-				URI context = (URI)stmt.getContext();
 
-				if (context != null && this.isAgentId(context, ts)){
-					if (statusCode==null){
-						// match any status
-						agents.add(context);
-					}
-					else {
-						try {
-							RMapStatus aStatus = agentmgr.getAgentStatus(context, ts);
-							
-							if (aStatus.equals(statusCode)){
-								agents.add(context);
-							}
-						}
-						catch (RMapAgentNotFoundException rf){}
-						catch (RMapException r){throw r;}
-					}
-				}
-			}
-			return agents;		
+		List<URI> agents = new ArrayList<URI>();
+		String sSubject = OSparqlUtils.convertUriToSparqlParam(subject);
+		String sPredicate = OSparqlUtils.convertUriToSparqlParam(predicate);
+		String sObject = OSparqlUtils.convertValueToSparqlParam(object);
+		String sysAgentSparql = OSparqlUtils.convertSysAgentUriListToSparqlFilter(systemAgents);
+
+		//query gets agentsIds and startDates of created Agents that contain Statement
+		/*  
+		select DISTINCT ?agentId ?startDate
+		WHERE { 
+		  GRAPH ?agentId {
+		    <http://isni.org/isni/000000010941358X> <http://xmlns.com/foaf/0.1/name> "IEEE" .
+		    ?agentId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Agent> .
+		  } .
+		  GRAPH ?eventId {
+			?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
+			{?eventId <http://www.w3.org/ns/prov#generated> ?agentId} .
+			?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
+			{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd3jq0>} .
+		  }
 		}
+		*/
+		String sparqlQuery = "SELECT DISTINCT ?agentId ?startDate "
+							+ "WHERE { "
+							+ " GRAPH ?agentId {"	
+							+ 	  sSubject + " " + sPredicate + " " + sObject + " ."	
+							+ "   ?agentId <" + RDF.TYPE + "> <" + RMAP.AGENT + "> . "					
+							+ "	  } . "
+							+ " GRAPH ?eventId {"
+							+ "   ?eventId <" + RDF.TYPE + "> <" + RMAP.EVENT + "> ."
+							+ "   {?eventId <" + PROV.GENERATED + "> ?agentId} ."
+							+ "   ?eventId <" + PROV.STARTEDATTIME + "> ?startDate ."
+							+     sysAgentSparql
+							+ "   } "
+							+ "}";
+		
+		TupleQueryResult resultset = null;
+		try {
+			resultset = ts.getSPARQLQueryResults(sparqlQuery);
+		}
+		catch (Exception e) {
+			throw new RMapException("Could not retrieve SPARQL query results", e);
+		}
+		
+		try{
+			while (resultset.hasNext()) {
+				BindingSet bindingSet = resultset.next();
+				URI discoId = (URI) bindingSet.getBinding("agentId").getValue();
+				Literal startDateLiteral = (Literal) bindingSet.getBinding("startDate").getValue();
+				Date startDate = DateUtils.xmlGregorianCalendarToDate(startDateLiteral.calendarValue());
+
+				RMapStatus dStatus = agentmgr.getAgentStatus(discoId, ts);
+				if (dStatus == RMapStatus.DELETED 
+						|| dStatus == RMapStatus.TOMBSTONED
+						|| (statusCode != null && !dStatus.equals(statusCode))) { 
+					continue; //don't include deleted or mismatched status
+				}
+					
+				if ((dateFrom != null && startDate.before(dateFrom))
+						|| (dateTo != null && startDate.after(dateTo))) { 
+					continue; // don't include out of range date
+				}		
+				
+				//all good
+				agents.add(discoId);
+			}
+		}	
+		catch (RMapAgentNotFoundException rf){}
+		catch (RMapException r){throw r;}
+		catch (Exception e){
+			throw new RMapException("Could not process SPARQL results for resource's Agents", e);
+		}
+
+	return agents;		
+	}
 
 	
 
@@ -264,33 +228,85 @@ WHERE {
 	 * @return List of Agent URIs
 	 * @throws RMapException
 	 */
-	public Set<URI> getAssertingAgents (Resource subject, URI predicate, Value object, RMapStatus statusCode, Date dateFrom, Date dateTo,
+	public Set<URI> getAssertingAgents (URI subject, URI predicate, Value object, RMapStatus statusCode, Date dateFrom, Date dateTo,
 					ORMapEventMgr eventmgr, ORMapDiSCOMgr discomgr, ORMapAgentMgr agentmgr,
 					SesameTriplestore ts) throws RMapObjectNotFoundException, RMapException {
+		
+		Set<URI> agents = new HashSet<URI>();
+		String sSubject = OSparqlUtils.convertUriToSparqlParam(subject);
+		String sPredicate = OSparqlUtils.convertUriToSparqlParam(predicate);
+		String sObject = OSparqlUtils.convertValueToSparqlParam(object);		
+		
+		/*
+		 * select DISTINCT ?agentId ?startDate
+			WHERE { 
+			  GRAPH ?objectId {
+			  <http://dx.doi.org/10.1145/356502.356500> <http://purl.org/dc/terms/issued> "1978-12-01"^^<http://www.w3.org/2001/XMLSchema#date> .
+			  } .
+			  GRAPH ?eventId {
+				?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
+				{?eventId <http://www.w3.org/ns/prov#generated> ?objectId} UNION
+				{?eventId <http://rmap-project.org/rmap/terms/derivedObject> ?objectId} .
+				?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> ?agentId .
+				?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
+				} 
 			
-			List<Statement> stmts = null;
-			try {
-				stmts = ts.getStatements(subject, predicate, object);
-			} catch (Exception e) {
-				throw new RMapException (e);
-			}		
-											
-			Set<URI> agents = null;
-			// make sure Agent in which statement appears matches statusCode
-			for (Statement stmt:stmts){
-				URI context = (URI)stmt.getContext();
-				if (context != null && this.isAgentId(context, ts)){
-					agents = agentmgr.getAssertingAgents(context, statusCode, dateFrom, dateTo, eventmgr, ts);
-				}
-				else if (context != null && this.isDiscoId(context, ts)){
-					agents = discomgr.getAssertingAgents(context, statusCode, dateFrom, dateTo, eventmgr, ts);
-				}
 			}
-			return agents;		
+		 */
+
+		String sparqlQuery = "SELECT DISTINCT ?agentId ?startDate "
+							+ "WHERE { "
+							+ "GRAPH ?objectId {"
+							+ 		sSubject + " " + sPredicate + " " + sObject
+							+ "		} ."			
+							+ "GRAPH ?eventId {"
+							+ "		?eventId <" + RDF.TYPE + "> <" + RMAP.EVENT + "> ."
+							+ "		{?eventId <" + PROV.GENERATED + "> ?objectId} UNION"
+							+ "		  {?eventId <" + RMAP.EVENT_DERIVED_OBJECT + "> ?objectId} ."
+							+ "     ?eventId <" + PROV.WASASSOCIATEDWITH + "> ?agentId . "
+							+ "		?eventId <" + PROV.STARTEDATTIME + "> ?startDate ."
+							+ "		} ."
+							+ "}";
+		
+		TupleQueryResult resultset = null;
+		try {
+			resultset = ts.getSPARQLQueryResults(sparqlQuery);
+		}
+		catch (Exception e) {
+			throw new RMapException("Could not retrieve SPARQL query results", e);
+		}
+		
+		try{
+			while (resultset.hasNext()) {
+				BindingSet bindingSet = resultset.next();
+				URI agentId = (URI) bindingSet.getBinding("agentId").getValue();
+				Literal startDateLiteral = (Literal) bindingSet.getBinding("startDate").getValue();
+				Date startDate = DateUtils.xmlGregorianCalendarToDate(startDateLiteral.calendarValue());
+
+				RMapStatus dStatus = agentmgr.getAgentStatus(agentId, ts);
+				if (dStatus == RMapStatus.DELETED 
+						|| dStatus == RMapStatus.TOMBSTONED
+						|| (statusCode != null && !dStatus.equals(statusCode))) { 
+					continue; //don't include deleted or mismatched status
+				}
+					
+				if ((dateFrom != null && startDate.before(dateFrom))
+						|| (dateTo != null && startDate.after(dateTo))) { 
+					continue; // don't include out of range date
+				}	
+				
+				//all OK
+				agents.add(agentId);
+			}
+		}	
+		catch (RMapAgentNotFoundException rf){}
+		catch (RMapException r){throw r;}
+		catch (Exception e){
+			throw new RMapException("Could not process SPARQL results for Statement's asserting Agents", e);
 		}
 
+		return agents;		
 
-	
-	
+		}
 	
 }

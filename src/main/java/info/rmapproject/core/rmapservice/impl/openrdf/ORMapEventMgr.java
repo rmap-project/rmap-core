@@ -620,9 +620,9 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapDiSCONotFoundException
 	 * @throws RMapException
 	 */
-	public List<URI> getDiscoRelatedEventIds(URI id, SesameTriplestore ts) 
+	public Set<URI> getDiscoRelatedEventIds(URI id, SesameTriplestore ts) 
 			throws RMapDiSCONotFoundException, RMapException {
-		List<URI> events = null;
+		Set<URI> events = null;
 		if (id==null){
 			throw new RMapException ("Null disco");
 		}
@@ -642,7 +642,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 				if (eventStmts.isEmpty()){
 					break;
 				}
-				events = new ArrayList<URI>();
+				events = new HashSet<URI>();
 				for (Statement stmt:eventStmts){
 					URI eventId = (URI)stmt.getSubject();
 					if (this.isEventId(eventId,ts)){

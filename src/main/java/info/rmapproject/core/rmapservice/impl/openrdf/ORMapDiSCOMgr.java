@@ -679,7 +679,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 					break;
 				}
 			}
-			List<URI>events = eventMgr.getDiscoRelatedEventIds(uri, ts);
+			Set<URI>events = eventMgr.getDiscoRelatedEventIds(uri, ts);
            //For each event associated with DiSCOID, return AssociatedAgent
 			for (URI event:events){
 				URI assocAgent = eventMgr.getEventAssocAgent(event, ts);

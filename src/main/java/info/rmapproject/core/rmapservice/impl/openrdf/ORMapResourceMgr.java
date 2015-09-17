@@ -8,6 +8,7 @@ import info.rmapproject.core.exception.RMapTombstonedObjectException;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.openrdf.utils.OSparqlUtils;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 import info.rmapproject.core.utils.DateUtils;
@@ -42,6 +43,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	public ORMapResourceMgr() {
 		super();
 	}
+	
 	/**
 	 * Find all triples with subject or object equal to resource
 	 * @param resource
@@ -66,7 +68,6 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * and (if statusCode is not null), whose status matches statusCodeE
 	 * @param uri Resource to be matched
 	 * @param statusCode Status to be matched, or null if any status code
-	 * @param stmtmgr
 	 * @param discomgr
 	 * @param ts
 	 * @return 
@@ -120,26 +121,18 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 						throws RMapException {		
 
 		Set<URI> discos = new HashSet<URI>();
-		String sResource = resource.toString();
-		sResource = sResource.replace("\"","\\\"");
-		
-		//build system agent filter SPARQL
-		String sysAgentSparql = "";
-		if (systemAgents.size()>0) {
-			Integer i = 0;			
-			for (URI systemAgent : systemAgents) {
-				i=i+1;
-				if (i>1){
-					sysAgentSparql = sysAgentSparql + " UNION ";
-				}
-				sysAgentSparql = sysAgentSparql + " {?eventId <" + PROV.WASASSOCIATEDWITH + "> <" + systemAgent.toString() + ">} ";
-			}
-			sysAgentSparql = sysAgentSparql + " . ";
-		}
+		String sResource = OSparqlUtils.convertUriToSparqlParam(resource);
+		String sysAgentSparql = OSparqlUtils.convertSysAgentUriListToSparqlFilter(systemAgents);
 		
 		//query gets discoIds and startDates of created DiSCOs that contain Resource
 		/*  SELECT DISTINCT ?discoId ?startDate 
 			WHERE { 
+			GRAPH ?discoId 
+			  {
+			     {?s ?p <http://dx.doi.org/10.1109/InPar.2012.6339604>} UNION 
+			        {<http://dx.doi.org/10.1109/InPar.2012.6339604> ?p ?o} .
+			     ?discoId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/DiSCO> .
+			  } .
 			GRAPH ?eventId {
 			 	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
 				{?eventId <http://www.w3.org/ns/prov#generated> ?discoId} UNION
@@ -147,62 +140,54 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			 	?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
 			 	{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2m3>} UNION
 			 	{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2p4>} .
-			 	} .
-			GRAPH ?discoId 
-			  {
-			     {?s ?p <http://dx.doi.org/10.1109/InPar.2012.6339604>} UNION 
-			     {<http://dx.doi.org/10.1109/InPar.2012.6339604> ?p ?o} .
-			  } .
-			?discoId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/DiSCO>
-			}
-			}	 */
+			 	}
+			  }
+			*/
 		String sparqlQuery = "SELECT DISTINCT ?discoId ?startDate "
 							+ "WHERE { "
-							+ "GRAPH ?eventId {"
-							+ "?eventId <" + RDF.TYPE + "> <" + RMAP.EVENT + "> ."
-							+ "{?eventId <" + PROV.GENERATED + "> ?discoId} UNION"
-							+ "{?eventId <" + RMAP.EVENT_DERIVED_OBJECT + "> ?discoId} ."
-							+ "?eventId <" + PROV.STARTEDATTIME + "> ?startDate ."
-							+ sysAgentSparql
-							+ "} ."
-							+ "GRAPH ?discoId "
+							+ " GRAPH ?discoId "
 							+ "	  {"
-							+ "		{?s ?p <" + sResource + ">} UNION "
-							+ "		{<" + sResource + "> ?p ?o} ."
-							+ "     ?discoId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/DiSCO> . "							
-							+ "	  } "
-							+ "}";
+							+ "		{?s ?p " + sResource + "} UNION "
+							+ "		  {" + sResource + " ?p ?o} ."
+							+ "     ?discoId <" + RDF.TYPE + "> <" + RMAP.DISCO + "> . "							
+							+ "	  } . "
+							+ " GRAPH ?eventId {"
+							+ "   ?eventId <" + RDF.TYPE + "> <" + RMAP.EVENT + "> ."
+							+ "   {?eventId <" + PROV.GENERATED + "> ?discoId} UNION"
+							+ "   {?eventId <" + RMAP.EVENT_DERIVED_OBJECT + "> ?discoId} ."
+							+ "   ?eventId <" + PROV.STARTEDATTIME + "> ?startDate ."
+							+     sysAgentSparql
+							+ "  } "
+							+ "} ";
+		
 		TupleQueryResult resultset = null;
 		try {
 			resultset = ts.getSPARQLQueryResults(sparqlQuery);
 		}
 		catch (Exception e) {
-			throw new RMapException("Could not retrieve SPARQL query results", e);
+			throw new RMapException("Could not retrieve SPARQL query results using " + sparqlQuery, e);
 		}
 		
 		try{
 			while (resultset.hasNext()) {
-				boolean addit = true;
 				BindingSet bindingSet = resultset.next();
 				URI discoId = (URI) bindingSet.getBinding("discoId").getValue();
 				Literal startDateLiteral = (Literal) bindingSet.getBinding("startDate").getValue();
 				Date startDate = DateUtils.xmlGregorianCalendarToDate(startDateLiteral.calendarValue());
 
-				//apply filters for date and status
-				if (dateFrom != null) { 
-					addit = startDate.after(dateFrom);
-				}
-				if (dateTo != null && addit) {
-					addit = startDate.before(dateTo);
-				}
-				if (statusCode != null && addit){
-					RMapStatus dStatus = discomgr.getDiSCOStatus(discoId, ts);
-					addit = dStatus.equals(statusCode);
-				}
+				RMapStatus dStatus = discomgr.getDiSCOStatus(discoId, ts);
 				
-				if (addit) {
-					discos.add(discoId);
+				if (dStatus == RMapStatus.DELETED 
+						|| dStatus == RMapStatus.TOMBSTONED
+						|| (statusCode != null && !dStatus.equals(statusCode))) { 
+					continue; //don't include deleted or mismatched status
 				}
+					
+				if ((dateFrom != null && startDate.before(dateFrom))
+						|| (dateTo != null && startDate.after(dateTo))) { 
+					continue; // don't include out of range date
+				}
+				discos.add(discoId);
 			}
 		}	
 		catch (RMapDiSCONotFoundException rf){}
@@ -312,7 +297,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 							break;
 						}
 					}
-					List<URI>events = eventMgr.getDiscoRelatedEventIds(id, ts);
+					Set<URI>events = eventMgr.getDiscoRelatedEventIds(id, ts);
 		           //For each event associated with DiSCOID, return AssociatedAgent
 					for (URI event:events){
 						URI assocAgent = eventMgr.getEventAssocAgent(event, ts);

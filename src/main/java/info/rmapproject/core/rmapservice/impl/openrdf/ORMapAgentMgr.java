@@ -461,22 +461,20 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			
            //For each event associated with Agent, return AssociatedAgent
 			for (URI event:events){
-				boolean addToList = true;
 				URI assocAgent = eventMgr.getEventAssocAgent(event, ts);
 				if (assocAgent==null) {
-					addToList = false;
+					continue;
 				}
 				if (dateFrom != null || dateTo != null) { //if a date is passed, checked within the range.
 					Date eventDate = eventMgr.getEventStartDate(event, ts);
 					if ((dateFrom != null && eventDate.before(dateFrom))
 							|| (dateTo != null && eventDate.after(dateTo))) {
-						addToList = false;
+						continue;
 					}
 				}
-				
-					
-					
+				//all ok
 				agents.add(assocAgent);
+				
 			}
 		} while (false);		
 		return agents;
