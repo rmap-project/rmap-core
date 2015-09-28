@@ -111,9 +111,17 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException("null uri");
 		}
 		org.openrdf.model.URI mUri = ORAdapter.uri2OpenRdfUri(uri);
+		List<org.openrdf.model.URI> mSystemAgents = new ArrayList<org.openrdf.model.URI>();
+		if (systemAgents != null) {
+			for (URI sysAgent : systemAgents){
+				mSystemAgents.add(ORAdapter.uri2OpenRdfUri(sysAgent));
+			}
+		}
+		else {
+			mSystemAgents = null;
+		}
 		Set<Statement> stmts = 
-				this.resourcemgr.getRelatedStatementTriples(mUri, statusCode, discomgr, 
-						ts);
+				this.resourcemgr.getRelatedStatementTriples(mUri, statusCode, mSystemAgents, dateFrom, dateTo, discomgr, agentmgr, ts);
 		List<RMapTriple> triples = new ArrayList<RMapTriple>();
 		for (Statement stmt:stmts){
 			RMapTriple triple = ORAdapter.openRdfStatement2RMapTriple(stmt);
@@ -139,8 +147,17 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException("null uri");
 		}
 		org.openrdf.model.URI mUri = ORAdapter.uri2OpenRdfUri(uri);
+		List<org.openrdf.model.URI> mSystemAgents = new ArrayList<org.openrdf.model.URI>();
+		if (systemAgents != null) {
+			for (URI sysAgent : systemAgents){
+				mSystemAgents.add(ORAdapter.uri2OpenRdfUri(sysAgent));
+			}
+		}
+		else {
+			mSystemAgents = null;
+		}
 		Set<org.openrdf.model.URI> orEvents =
-				this.resourcemgr.getRelatedEvents(mUri, discomgr, eventmgr, ts);
+				this.resourcemgr.getRelatedEvents(mUri, mSystemAgents, dateFrom, dateTo, ts);
 		List<URI> uris = new ArrayList<URI>();
 		for (org.openrdf.model.URI event:orEvents){
 			URI dUri = ORAdapter.openRdfUri2URI(event);
@@ -201,8 +218,17 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException("null uri");
 		}
 		org.openrdf.model.URI resource = ORAdapter.uri2OpenRdfUri(uri);
+		List<org.openrdf.model.URI> mSystemAgents = new ArrayList<org.openrdf.model.URI>();
+		if (systemAgents != null) {
+			for (URI sysAgent : systemAgents){
+				mSystemAgents.add(ORAdapter.uri2OpenRdfUri(sysAgent));
+			}
+		}
+		else {
+			mSystemAgents = null;
+		}
 		Set<org.openrdf.model.URI> resourceAgents = 
-				this.resourcemgr.getRelatedAgents(resource, statusCode, discomgr, eventmgr, agentmgr, ts);
+				this.resourcemgr.getRelatedAgents(resource, statusCode, mSystemAgents, dateFrom, dateTo, agentmgr, ts);
 		List<URI> uris = new ArrayList<URI>();
 		for (org.openrdf.model.URI agent:resourceAgents){
 			URI dUri = ORAdapter.openRdfUri2URI(agent);
