@@ -420,7 +420,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapDefectiveArgumentException
 	 * @throws RMapException
 	 */
-	public Set<Statement> getRelatedStatementTriples(URI resource, RMapStatus statusCode, 			List<URI> systemAgents, Date dateFrom, Date dateTo, ORMapDiSCOMgr discomgr, 
+	public Set<Statement> getRelatedTriples(URI resource, RMapStatus statusCode, 			List<URI> systemAgents, Date dateFrom, Date dateTo, ORMapDiSCOMgr discomgr, 
 			ORMapAgentMgr agentmgr, SesameTriplestore ts) 
 			throws RMapDefectiveArgumentException, RMapException {
 		if (resource==null){

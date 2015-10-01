@@ -134,7 +134,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	 * @throws RMapException
 	 */
 	public List<URI> getRelatedAgents (URI subject, URI predicate, Value object, RMapStatus statusCode, 
-			List<URI> systemAgents, Date dateTo, Date dateFrom, ORMapAgentMgr agentmgr,
+			List<URI> systemAgents, Date dateFrom, Date dateTo, ORMapAgentMgr agentmgr,
 			SesameTriplestore ts) throws RMapObjectNotFoundException, RMapException {
 
 		List<URI> agents = new ArrayList<URI>();

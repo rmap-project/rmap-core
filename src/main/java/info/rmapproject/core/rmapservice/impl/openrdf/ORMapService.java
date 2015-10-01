@@ -121,7 +121,7 @@ public class ORMapService implements RMapService {
 			mSystemAgents = null;
 		}
 		Set<Statement> stmts = 
-				this.resourcemgr.getRelatedStatementTriples(mUri, statusCode, mSystemAgents, dateFrom, dateTo, discomgr, agentmgr, ts);
+				this.resourcemgr.getRelatedTriples(mUri, statusCode, mSystemAgents, dateFrom, dateTo, discomgr, agentmgr, ts);
 		List<RMapTriple> triples = new ArrayList<RMapTriple>();
 		for (Statement stmt:stmts){
 			RMapTriple triple = ORAdapter.openRdfStatement2RMapTriple(stmt);
