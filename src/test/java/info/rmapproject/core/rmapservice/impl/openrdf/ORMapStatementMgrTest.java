@@ -157,7 +157,7 @@ public class ORMapStatementMgrTest {
 			URI predicate = ts.getValueFactory().createURI("http://purl.org/dc/terms/isFormatOf");
 			Value object = ts.getValueFactory().createURI("http://orcid.org/0000-0000-0000-1234");
 		
-			List <URI> agentIds = stmtMgr.getRelatedAgents(subject, predicate, object, null, sysAgents, dateFrom, dateTo, ts);
+			List <URI> agentIds = stmtMgr.getRelatedAgents(subject, predicate, object, sysAgents, dateFrom, dateTo, ts);
 			
 			assertTrue(agentIds.size()==1);
 

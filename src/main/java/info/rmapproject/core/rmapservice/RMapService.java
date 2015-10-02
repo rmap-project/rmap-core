@@ -115,16 +115,14 @@ public interface RMapService {
 	/**
 	 * Get all RMapAgents with a specified status code related to a Resource URI 
 	 * @param uri
-	 * @param statusCode
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public List<URI> getResourceRelatedAgents (URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getResourceRelatedAgents (URI uri) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Get all RMapAgents related to a Resource URI that match the filters specified
 	 * @param uri
-	 * @param statusCode
 	 * @param systemAgents
 	 * @param dateFrom
 	 * @param dateTo
@@ -132,7 +130,7 @@ public interface RMapService {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public List<URI> getResourceRelatedAgents (URI uri, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getResourceRelatedAgents (URI uri, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Determine what types are associated with a given resource in a specific context (e.g. within a DiSCO)
 	 * @param resourceUri URI for resource whose type is being checked
@@ -190,12 +188,11 @@ public interface RMapService {
 	 * @param subject of statement
 	 * @param predicate of statement
 	 * @param object of statement
-	 * @param statusCode to match Agent status
 	 * @return URI list of Agents containing statement
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<URI> getStatementRelatedAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, RMapStatus statusCode) 
+	public List<URI> getStatementRelatedAgents(java.net.URI subject, java.net.URI predicate, RMapValue object) 
 							throws RMapException, RMapDefectiveArgumentException;
 
 	/**
@@ -203,7 +200,6 @@ public interface RMapService {
 	 * @param subject of statement
 	 * @param predicate of statement
 	 * @param object of statement
-	 * @param statusCode to match Agent status
 	 * @param systemAgents
 	 * @param dateFrom
 	 * @param dateTos
@@ -212,7 +208,7 @@ public interface RMapService {
 	 * @throws RMapDefectiveArgumentException
 	 */
 	public List<URI> getStatementRelatedAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, 
-							RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) 
+							List<URI> systemAgents, Date dateFrom, Date dateTo) 
 							throws RMapException, RMapDefectiveArgumentException;
 
 	/**

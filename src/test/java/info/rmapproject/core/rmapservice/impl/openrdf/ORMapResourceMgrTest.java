@@ -166,7 +166,7 @@ public class ORMapResourceMgrTest {
 			Date dateFrom = dateFormat.parse("2014-1-1");
 			Date dateTo = dateFormat.parse("2050-1-1");
 		
-			Set <URI> agentUris = resourceMgr.getRelatedAgents(systemAgentURI, null, sysAgents, dateFrom, dateTo, ts);
+			Set <URI> agentUris = resourceMgr.getRelatedAgents(systemAgentURI, sysAgents, dateFrom, dateTo, ts);
 			
 			assertTrue(agentUris.size()==1);
 			

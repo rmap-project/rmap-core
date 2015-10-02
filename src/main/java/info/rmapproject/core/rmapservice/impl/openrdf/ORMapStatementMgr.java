@@ -28,7 +28,13 @@ import org.openrdf.query.TupleQueryResult;
  */
 
 public class ORMapStatementMgr extends ORMapObjectMgr {
-	
+
+	/**
+	 * 
+	 */
+	public ORMapStatementMgr() {
+		super();
+	}
 	/**
 	 * Get DiSCO URIs that contains Statement corresponding to subject, predicate, object provided
 	 * @param subject
@@ -78,7 +84,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<URI> getRelatedAgents (URI subject, URI predicate, Value object, RMapStatus statusCode, 
+	public List<URI> getRelatedAgents (URI subject, URI predicate, Value object,  
 			List<URI> systemAgents, Date dateFrom, Date dateTo, SesameTriplestore ts) 
 			throws RMapException, RMapDefectiveArgumentException {
 		/*
@@ -101,7 +107,8 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 			FILTER NOT EXISTS {?statusChangeEventId <http://rmap-project.org/rmap/terms/inactivatedObject> ?rmapObjId} 
 		}
 		*/
-		List<URI> agents = getRelatedObjects(subject, predicate, object, statusCode, systemAgents, dateFrom, dateTo, ts, RMAP.AGENT);
+		//note - active is the only status that is visible, so that is the filter.
+		List<URI> agents = getRelatedObjects(subject, predicate, object, RMapStatus.ACTIVE, systemAgents, dateFrom, dateTo, ts, RMAP.AGENT);
 		return agents;		
 	}
 

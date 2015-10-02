@@ -88,7 +88,7 @@ public class ORMapService implements RMapService {
 		}
 		List<URI>uris = new ArrayList<URI>();
 		uris.addAll(this.getResourceRelatedDiSCOs(uri, statusCode, systemAgents, dateFrom, dateTo));
-		uris.addAll(this.getResourceRelatedAgents(uri, statusCode, systemAgents, dateFrom, dateTo));
+		uris.addAll(this.getResourceRelatedAgents(uri, systemAgents, dateFrom, dateTo));
 		uris.addAll(this.getResourceRelatedEvents(uri, systemAgents, dateFrom, dateTo));
 		return uris;
 	}
@@ -203,16 +203,16 @@ public class ORMapService implements RMapService {
 	}
 
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRelatedAgents (URI, RMapStatus)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRelatedAgents (URI)
 	 */
-	public List<URI> getResourceRelatedAgents (URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException{
-		return getResourceRelatedAgents (uri, statusCode, null, null, null);
+	public List<URI> getResourceRelatedAgents (URI uri) throws RMapException, RMapDefectiveArgumentException{
+		return getResourceRelatedAgents (uri, null, null, null);
 	}
 	
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRelatedAgents (URI, RMapStatus, List<URI>, Date, Date)
 	 */
-	public List<URI> getResourceRelatedAgents (URI uri, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo)
+	public List<URI> getResourceRelatedAgents (URI uri, List<URI> systemAgents, Date dateFrom, Date dateTo)
 			throws RMapException, RMapDefectiveArgumentException {
 		if (uri==null){
 			throw new RMapDefectiveArgumentException("null uri");
@@ -228,7 +228,7 @@ public class ORMapService implements RMapService {
 			mSystemAgents = null;
 		}
 		Set<org.openrdf.model.URI> resourceAgents = 
-				this.resourcemgr.getRelatedAgents(resource, statusCode, mSystemAgents, dateFrom, dateTo, ts);
+				this.resourcemgr.getRelatedAgents(resource, mSystemAgents, dateFrom, dateTo, ts);
 		List<URI> uris = new ArrayList<URI>();
 		for (org.openrdf.model.URI agent:resourceAgents){
 			URI dUri = ORAdapter.openRdfUri2URI(agent);
@@ -340,10 +340,9 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getStmtRelatedAgents(java.net.URI, java.net.URI, RMapValue, RMapStatus)
 	 */
-	public List<URI> getStatementRelatedAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, 
-						RMapStatus statusCode) 
+	public List<URI> getStatementRelatedAgents(java.net.URI subject, java.net.URI predicate, RMapValue object) 
 						throws RMapException, RMapDefectiveArgumentException {
-		return getStatementRelatedAgents(subject, predicate, object, statusCode);
+		return getStatementRelatedAgents(subject, predicate, object, null, null, null);
 	}
 	
 	
@@ -351,7 +350,7 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#getStmtRelatedAgents(java.net.URI, java.net.URI, RMapValue, RMapStatus, List<URI>, Date, Date)
 	 */
 	public List<URI> getStatementRelatedAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, 
-						RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) 
+						List<URI> systemAgents, Date dateFrom, Date dateTo) 
 						throws RMapException, RMapDefectiveArgumentException {
 		if (subject==null){
 			throw new RMapDefectiveArgumentException("null subject");
@@ -377,7 +376,7 @@ public class ORMapService implements RMapService {
 		}
 		
 		List <org.openrdf.model.URI> relatedAgents 
-				= this.stmtmgr.getRelatedAgents(orSubject, orPredicate, orObject, statusCode, mSystemAgents, dateFrom, dateTo, ts);
+				= this.stmtmgr.getRelatedAgents(orSubject, orPredicate, orObject, mSystemAgents, dateFrom, dateTo, ts);
 		List<URI> returnSet = null;
 		if (relatedAgents != null && relatedAgents.size()>0){
 			returnSet = new ArrayList<URI>();

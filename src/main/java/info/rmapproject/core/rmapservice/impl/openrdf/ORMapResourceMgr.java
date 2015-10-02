@@ -105,9 +105,9 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public Set<URI> getRelatedAgents(URI uri, RMapStatus statusCode, SesameTriplestore ts) 
+	public Set<URI> getRelatedAgents(URI uri, SesameTriplestore ts) 
 	throws RMapException, RMapDefectiveArgumentException {
-		return getRelatedAgents(uri, statusCode, null, null, null, ts);
+		return getRelatedAgents(uri, null, null, null, ts);
 	}
 
 	/**
@@ -120,8 +120,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public Set<URI> getRelatedAgents(URI resource, RMapStatus statusCode,
-						List<URI> systemAgents, Date dateFrom, Date dateTo, SesameTriplestore ts)
+	public Set<URI> getRelatedAgents(URI resource, List<URI> systemAgents, Date dateFrom, Date dateTo, SesameTriplestore ts)
 					throws RMapException, RMapDefectiveArgumentException {		
 		/*query gets agentIds and startDates of created Agents that contain Resource
 	    SELECT DISTINCT ?rmapObjId ?startDate 
@@ -141,7 +140,8 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		 	}
 		  }
 		*/
-		return getRelatedObjects(resource, statusCode, systemAgents, dateFrom, dateTo, ts, RMAP.AGENT);
+		//note - active is the only status that is visible, so that is the filter.
+		return getRelatedObjects(resource, RMapStatus.ACTIVE, systemAgents, dateFrom, dateTo, ts, RMAP.AGENT);
 
 	}
 
@@ -238,9 +238,12 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 				objects.addAll(discos);
 			}
 
-			Set<URI> agents = getRelatedAgents(resource, statusCode, systemAgents, dateFrom, dateTo, ts);
-			if (agents!=null && agents.size()>0) {
-				objects.addAll(agents);
+			// Agents cannot be inactive, so if the status filter is set to this, no need to process Agents.
+			if (statusCode != RMapStatus.INACTIVE) {
+				Set<URI> agents = getRelatedAgents(resource, systemAgents, dateFrom, dateTo, ts);
+				if (agents!=null && agents.size()>0) {
+					objects.addAll(agents);
+				}
 			}
 		}	
 		catch (RMapException r){throw r;}
@@ -286,6 +289,8 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		Set<URI> events = new HashSet<URI>();
 		String sResource = OSparqlUtils.convertUriToSparqlParam(resource);
 		String sysAgentSparql = OSparqlUtils.convertSysAgentUriListToSparqlFilter(systemAgents);
+		// default filter excludes tombstoned objects... applying this so tombstoned object events don't show up.
+		String statusFilterSparql = OSparqlUtils.convertRMapStatusToSparqlFilter(null);
 		
 		//query gets eventIds and startDates of created DiSCOs that contain Resource
 		/*  SELECT DISTINCT ?eventId ?startDate 
@@ -317,6 +322,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 							+ "   ?eventId <" + PROV.STARTEDATTIME + "> ?startDate ."
 							+     sysAgentSparql
 							+ "  } "
+							+ statusFilterSparql
 							+ "} ";
 		
 		TupleQueryResult resultset = null;

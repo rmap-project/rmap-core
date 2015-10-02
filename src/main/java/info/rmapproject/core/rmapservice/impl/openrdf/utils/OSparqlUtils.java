@@ -87,18 +87,14 @@ public class OSparqlUtils {
 	 * @return
 	 */
 	public static String convertRMapStatusToSparqlFilter(RMapStatus statusCode) {
-		String filterSparql = "";
+		// should not show TOMBSTONED objects... no need to exclude DELETED as these have no statements.
+		String filterSparql = " . FILTER NOT EXISTS {?statusChangeEventId <" + RMAP.EVENT_TARGET_TOMBSTONED + "> ?rmapObjId } ";
 		if (statusCode != null) {
 			if (statusCode == RMapStatus.ACTIVE)	{
-				filterSparql = " . FILTER NOT EXISTS {?statusChangeEventId <" + RMAP.EVENT_TARGET_TOMBSTONED + "> ?rmapObjId } . "
-								+ "FILTER NOT EXISTS {?statusChangeEventId <" + RMAP.EVENT_INACTIVATED_OBJECT + "> ?rmapObjId } ";
+				filterSparql = filterSparql + " . FILTER NOT EXISTS {?statusChangeEventId <" + RMAP.EVENT_INACTIVATED_OBJECT + "> ?rmapObjId } ";
 			}
-			if (statusCode == RMapStatus.INACTIVE)	{
-				filterSparql = " . FILTER NOT EXISTS {?statusChangeEventId <" + RMAP.EVENT_TARGET_TOMBSTONED + "> ?rmapObjId } . "
-								+ "FILTER EXISTS {?statusChangeEventId <" + RMAP.EVENT_INACTIVATED_OBJECT + "> ?rmapObjId } ";
-			}
-			if (statusCode == RMapStatus.TOMBSTONED)	{
-				filterSparql = " . FILTER EXISTS {?statusChangeEventId <" + RMAP.EVENT_TARGET_TOMBSTONED + "> ?rmapObjId } ";
+			else if (statusCode == RMapStatus.INACTIVE)	{
+				filterSparql = filterSparql + " . FILTER EXISTS {?statusChangeEventId <" + RMAP.EVENT_INACTIVATED_OBJECT + "> ?rmapObjId } ";
 			}
 		}
 		return filterSparql;
