@@ -9,6 +9,7 @@ import static org.junit.Assert.fail;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdServiceFactoryIOC;
+import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
@@ -129,14 +130,20 @@ public class ORMapResourceMgrTest {
 			Date dateFrom = dateFormat.parse("2014-1-1");
 			Date dateTo = dateFormat.parse("2050-1-1");
 		
-			Set <URI> discoUris = resourceMgr.getRelatedDiSCOS(uri, 
-								null, sysAgents, dateFrom, dateTo, discoMgr, ts);
+			Set <URI> discoUris = resourceMgr.getRelatedDiSCOS(uri, null, sysAgents, dateFrom, dateTo, ts);
 			
 			assertTrue(discoUris.size()==1);
 			
 			Iterator<URI> iter = discoUris.iterator();
 			URI matchingUri = iter.next();
 			assertTrue(matchingUri.toString().equals(discoId.toString()));
+
+			discoMgr.updateDiSCO(agentId, true, matchingUri, null, eventMgr, ts);
+			discoUris = resourceMgr.getRelatedDiSCOS(uri, RMapStatus.ACTIVE, sysAgents, dateFrom, dateTo, ts);
+			assertTrue(discoUris.size()==0);
+
+			discoUris = resourceMgr.getRelatedDiSCOS(uri, RMapStatus.INACTIVE, sysAgents, dateFrom, dateTo, ts);
+			assertTrue(discoUris.size()==1);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -159,8 +166,7 @@ public class ORMapResourceMgrTest {
 			Date dateFrom = dateFormat.parse("2014-1-1");
 			Date dateTo = dateFormat.parse("2050-1-1");
 		
-			Set <URI> agentUris = resourceMgr.getRelatedAgents(systemAgentURI, 
-								null, sysAgents, dateFrom, dateTo, agentMgr, ts);
+			Set <URI> agentUris = resourceMgr.getRelatedAgents(systemAgentURI, null, sysAgents, dateFrom, dateTo, ts);
 			
 			assertTrue(agentUris.size()==1);
 			
@@ -190,8 +196,7 @@ public class ORMapResourceMgrTest {
 			Date dateFrom = dateFormat.parse("2014-1-1");
 			Date dateTo = dateFormat.parse("2050-1-1");
 		
-			Set <URI> objectUris = resourceMgr.getRelatedObjects(uri, 
-								null, sysAgents, dateFrom, dateTo, agentMgr, discoMgr, ts);
+			Set <URI> objectUris = resourceMgr.getAllRelatedObjects(uri, null, sysAgents, dateFrom, dateTo, ts);
 			
 			assertTrue(objectUris.size()==2);
 
@@ -264,8 +269,7 @@ public class ORMapResourceMgrTest {
 			Date dateFrom = dateFormat.parse("2014-1-1");
 			Date dateTo = dateFormat.parse("2050-1-1");
 		
-			Set <Statement> matchingStmts = resourceMgr.getRelatedTriples(uri, 
-								null, sysAgents, dateFrom, dateTo, discoMgr, agentMgr, ts);
+			Set <Statement> matchingStmts = resourceMgr.getRelatedTriples(uri, null, sysAgents, dateFrom, dateTo, ts);
 			
 			//should return 3 results - agent creator stmt, agent isFormatOf stmt, and disco creator stmt.
 			assertTrue(matchingStmts.size()==3);

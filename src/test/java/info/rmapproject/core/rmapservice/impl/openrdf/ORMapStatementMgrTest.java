@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
@@ -34,7 +35,6 @@ import org.openrdf.model.Value;
 public class ORMapStatementMgrTest {
 	
 	protected SesameTriplestore ts = null;
-	protected ORMapResourceMgr resourceMgr;
 	protected ORMapAgentMgr agentMgr;
 	protected ORMapDiSCOMgr discoMgr;
 	protected ORMapEventMgr eventMgr;
@@ -85,7 +85,6 @@ public class ORMapStatementMgrTest {
 	@Before
 	public void setUp() throws Exception {
 		ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
-		resourceMgr = new ORMapResourceMgr();
 		agentMgr = new ORMapAgentMgr();
 		discoMgr = new ORMapDiSCOMgr();
 		eventMgr = new ORMapEventMgr();
@@ -110,13 +109,18 @@ public class ORMapStatementMgrTest {
 			URI predicate = ts.getValueFactory().createURI("http://purl.org/dc/elements/1.1/subject");
 			Value object = ts.getValueFactory().createLiteral("Hadoop");
 		
-			List <URI> discoIds = stmtMgr.getRelatedDiSCOs(subject, predicate, object, null, dateFrom, dateTo, sysAgents, discoMgr, ts);
-			
+			List <URI> discoIds = stmtMgr.getRelatedDiSCOs(subject, predicate, object, RMapStatus.ACTIVE, sysAgents, dateFrom, dateTo, ts);
 			assertTrue(discoIds.size()==1);
-
 			Iterator<URI> iter = discoIds.iterator();
 			URI matchingDiscoId = iter.next();
 			assertTrue(matchingDiscoId.toString().equals(discoId.toString()));
+
+			discoMgr.updateDiSCO(agentId, true, matchingDiscoId, null, eventMgr, ts);
+			discoIds = stmtMgr.getRelatedDiSCOs(subject, predicate, object, RMapStatus.ACTIVE, sysAgents, dateFrom, dateTo, ts);
+			assertTrue(discoIds.size()==0);
+			
+			discoIds = stmtMgr.getRelatedDiSCOs(subject, predicate, object, RMapStatus.INACTIVE, sysAgents, dateFrom, dateTo, ts);
+			assertTrue(discoIds.size()==1);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -153,7 +157,7 @@ public class ORMapStatementMgrTest {
 			URI predicate = ts.getValueFactory().createURI("http://purl.org/dc/terms/isFormatOf");
 			Value object = ts.getValueFactory().createURI("http://orcid.org/0000-0000-0000-1234");
 		
-			List <URI> agentIds = stmtMgr.getRelatedAgents(subject, predicate, object, null, sysAgents, dateFrom, dateTo, agentMgr, ts);
+			List <URI> agentIds = stmtMgr.getRelatedAgents(subject, predicate, object, null, sysAgents, dateFrom, dateTo, ts);
 			
 			assertTrue(agentIds.size()==1);
 
@@ -184,8 +188,7 @@ public class ORMapStatementMgrTest {
 			URI predicate = ts.getValueFactory().createURI("http://purl.org/dc/elements/1.1/subject");
 			Value object = ts.getValueFactory().createLiteral("Hadoop");
 		
-			Set <URI> agentIds = stmtMgr.getAssertingAgents(subject, predicate, object, null, dateFrom, dateTo, 
-															eventMgr, discoMgr, agentMgr, ts);
+			Set <URI> agentIds = stmtMgr.getAssertingAgents(subject, predicate, object, null, dateFrom, dateTo, ts);
 			
 			assertTrue(agentIds.size()==1);
 

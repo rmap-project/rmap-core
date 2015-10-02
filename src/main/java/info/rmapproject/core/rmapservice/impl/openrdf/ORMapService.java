@@ -121,7 +121,7 @@ public class ORMapService implements RMapService {
 			mSystemAgents = null;
 		}
 		Set<Statement> stmts = 
-				this.resourcemgr.getRelatedTriples(mUri, statusCode, mSystemAgents, dateFrom, dateTo, discomgr, agentmgr, ts);
+				this.resourcemgr.getRelatedTriples(mUri, statusCode, mSystemAgents, dateFrom, dateTo, ts);
 		List<RMapTriple> triples = new ArrayList<RMapTriple>();
 		for (Statement stmt:stmts){
 			RMapTriple triple = ORAdapter.openRdfStatement2RMapTriple(stmt);
@@ -193,7 +193,7 @@ public class ORMapService implements RMapService {
 			mSystemAgents = null;
 		}
 		Set<org.openrdf.model.URI> orDiscos = 
-				this.resourcemgr.getRelatedDiSCOS(mUri, statusCode, mSystemAgents, dateFrom, dateTo, discomgr, ts);
+				this.resourcemgr.getRelatedDiSCOS(mUri, statusCode, mSystemAgents, dateFrom, dateTo, ts);
 		List<URI> uris = new ArrayList<URI>();
 		for (org.openrdf.model.URI disco:orDiscos){
 			URI dUri = ORAdapter.openRdfUri2URI(disco);
@@ -228,7 +228,7 @@ public class ORMapService implements RMapService {
 			mSystemAgents = null;
 		}
 		Set<org.openrdf.model.URI> resourceAgents = 
-				this.resourcemgr.getRelatedAgents(resource, statusCode, mSystemAgents, dateFrom, dateTo, agentmgr, ts);
+				this.resourcemgr.getRelatedAgents(resource, statusCode, mSystemAgents, dateFrom, dateTo, ts);
 		List<URI> uris = new ArrayList<URI>();
 		for (org.openrdf.model.URI agent:resourceAgents){
 			URI dUri = ORAdapter.openRdfUri2URI(agent);
@@ -326,7 +326,7 @@ public class ORMapService implements RMapService {
 		
 		List <org.openrdf.model.URI> relatedDiSCOs = 
 				this.stmtmgr.getRelatedDiSCOs(orSubject, orPredicate, orObject, statusCode, 
-												dateFrom, dateTo, mSystemAgents, discomgr, ts);
+						 						mSystemAgents, dateFrom, dateTo, ts);
 		List<URI> returnSet = null;
 		if (relatedDiSCOs != null && relatedDiSCOs.size()>0){
 			returnSet = new ArrayList<URI>();
@@ -377,7 +377,7 @@ public class ORMapService implements RMapService {
 		}
 		
 		List <org.openrdf.model.URI> relatedAgents 
-				= this.stmtmgr.getRelatedAgents(orSubject, orPredicate, orObject, statusCode, mSystemAgents, dateFrom, dateTo, agentmgr, ts);
+				= this.stmtmgr.getRelatedAgents(orSubject, orPredicate, orObject, statusCode, mSystemAgents, dateFrom, dateTo, ts);
 		List<URI> returnSet = null;
 		if (relatedAgents != null && relatedAgents.size()>0){
 			returnSet = new ArrayList<URI>();
@@ -415,7 +415,7 @@ public class ORMapService implements RMapService {
 		org.openrdf.model.Value orObject = ORAdapter.rMapValue2OpenRdfValue(object);
 		
 		Set <org.openrdf.model.URI> assertingAgents = 
-				this.stmtmgr.getAssertingAgents(orSubject, orPredicate, orObject, statusCode, dateFrom, dateTo, eventmgr, discomgr, agentmgr, ts);
+				this.stmtmgr.getAssertingAgents(orSubject, orPredicate, orObject, statusCode, dateFrom, dateTo, ts);
 		
 		List<URI> returnSet = null;
 		if (assertingAgents != null && assertingAgents.size()>0){

@@ -1,6 +1,8 @@
 package info.rmapproject.core.rmapservice.impl.openrdf.utils;
 
+import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
+import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 import java.util.List;
 
@@ -77,6 +79,29 @@ public class OSparqlUtils {
 		}
 		
 		return sysAgentSparql;
+	}
+	
+	/**
+	 * Converts an RMapStatus code to an appropriate SPARQL filter
+	 * @param statusCode
+	 * @return
+	 */
+	public static String convertRMapStatusToSparqlFilter(RMapStatus statusCode) {
+		String filterSparql = "";
+		if (statusCode != null) {
+			if (statusCode == RMapStatus.ACTIVE)	{
+				filterSparql = " . FILTER NOT EXISTS {?statusChangeEventId <" + RMAP.EVENT_TARGET_TOMBSTONED + "> ?rmapObjId } . "
+								+ "FILTER NOT EXISTS {?statusChangeEventId <" + RMAP.EVENT_INACTIVATED_OBJECT + "> ?rmapObjId } ";
+			}
+			if (statusCode == RMapStatus.INACTIVE)	{
+				filterSparql = " . FILTER NOT EXISTS {?statusChangeEventId <" + RMAP.EVENT_TARGET_TOMBSTONED + "> ?rmapObjId } . "
+								+ "FILTER EXISTS {?statusChangeEventId <" + RMAP.EVENT_INACTIVATED_OBJECT + "> ?rmapObjId } ";
+			}
+			if (statusCode == RMapStatus.TOMBSTONED)	{
+				filterSparql = " . FILTER EXISTS {?statusChangeEventId <" + RMAP.EVENT_TARGET_TOMBSTONED + "> ?rmapObjId } ";
+			}
+		}
+		return filterSparql;
 	}
 
 	
