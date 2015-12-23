@@ -6,10 +6,8 @@ package info.rmapproject.core.model;
 
 import info.rmapproject.core.exception.RMapException;
 
-import java.net.URI;
-
 /**
- * @author smorrissey
+ * @author smorrissey, khanson
  *
  */
 public interface RMapObject {
@@ -18,11 +16,11 @@ public interface RMapObject {
 	 * 
 	 * @return
 	 */
-	public URI getId();
+	public RMapUri getId();
 	/**
 	 * 
 	 * @return
 	 */
-	public URI getType() throws RMapException;
+	public RMapUri getType() throws RMapException;
 
 }

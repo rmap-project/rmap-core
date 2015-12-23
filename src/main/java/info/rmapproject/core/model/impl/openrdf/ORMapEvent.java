@@ -3,6 +3,7 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
@@ -13,7 +14,6 @@ import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 import info.rmapproject.core.utils.DateUtils;
 
-import java.net.URISyntaxException;
 import java.util.Date;
 
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -25,7 +25,6 @@ import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.DC;
-import org.openrdf.model.vocabulary.RDF;
 
 /**
  * @author khansen, smorrissey
@@ -38,7 +37,6 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	protected Statement descriptionStmt;
 	protected Statement startTimeStmt;  // set by constructor
 	protected Statement endTimeStmt;
-	protected URI context;
    
 	/**
 	 *Most likely use is to construct Event for read() method in RMapService from statements
@@ -51,45 +49,40 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @param endTimeStmt
 	 * @param context
 	 * @param typeStatement
-	 * @throws RMapException
+	 * @throws Exception 
+	 * @throws RMapDefectiveArgumentException 
 	 */
 	protected  ORMapEvent(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
 			Statement associatedAgentStmt,  Statement descriptionStmt, 
 			Statement startTimeStmt,  Statement endTimeStmt, URI context, 
 			Statement typeStatement) throws RMapException {
-		super();
-		if (context != null){
-			this.context = context;
-			this.id = ORAdapter.openRdfUri2URI(context);
+		if (context != null){  //set it as the ID... this also sets the context
+			setId(context);
 		}
 		else {
-			this.context = ORAdapter.uri2OpenRdfUri(this.getId());
+			setId();
 		}
-		this.id = ORAdapter.openRdfUri2URI(this.context);
 		this.eventTypeStmt = eventTypeStmt;
 		this.eventTargetTypeStmt = eventTargetTypeStmt;
 		this.associatedAgentStmt = associatedAgentStmt;
 		this.descriptionStmt = descriptionStmt;
 		this.startTimeStmt = startTimeStmt;
 		this.endTimeStmt = endTimeStmt;
-		this.typeStatement = 
-				this.getValueFactory().createStatement(this.context,RDF.TYPE,RMAP.EVENT,this.context);
-			
+		setTypeStatement(RMAP.EVENT);
 	}
 	/**
 	 * Constructor sets the start time
 	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException 
 	 */
 	protected ORMapEvent() throws RMapException {
 		super();
-		this.context = ORAdapter.uri2OpenRdfUri(this.getId());
 		Date date = new Date();
 		Literal dateLiteral = this.getValueFactory().createLiteral(date);
-		Statement startTime = this.getValueFactory().createStatement(this.context, PROV.STARTEDATTIME, 
+		Statement startTime = this.getValueFactory().createStatement(this.id, PROV.STARTEDATTIME, 
 				dateLiteral, this.context);
 		this.startTimeStmt = startTime;
-		this.typeStatement = 
-				this.getValueFactory().createStatement(this.context,RDF.TYPE,RMAP.EVENT,this.context);
+		setTypeStatement(RMAP.EVENT);
 	}
 	/**
 	 * 
@@ -97,7 +90,8 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @param targetType
 	 * @throws RMapException
 	 */
-	protected ORMapEvent(RMapUri associatedAgent, RMapEventTargetType targetType) throws RMapException {
+	protected ORMapEvent(RMapUri associatedAgent, RMapEventTargetType targetType) 
+			throws RMapException, RMapDefectiveArgumentException {
 		this();
 		if (associatedAgent==null){
 			throw new RMapException("Null associatedAgent not allowed in RMapEvent");
@@ -105,10 +99,12 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		if (targetType==null){
 			throw new RMapException("Null target type not allowed in RMapEvent");
 		}
-		Statement agent = this.getValueFactory().createStatement(this.context, PROV.WASASSOCIATEDWITH, 
-				ORAdapter.rMapUri2OpenRdfUri(associatedAgent), this.context);
+		
+		Statement agent = this.getValueFactory().createStatement(this.id, PROV.WASASSOCIATEDWITH, 
+									ORAdapter.rMapUri2OpenRdfUri(associatedAgent), this.context);
 		this.associatedAgentStmt=agent;
-		Statement tt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_TARGET_TYPE, 
+		
+		Statement tt = this.getValueFactory().createStatement(this.id, RMAP.EVENT_TARGET_TYPE, 
 				this.getValueFactory().createLiteral(targetType.uriString()),
 				this.context);
 		this.eventTargetTypeStmt = tt;
@@ -119,6 +115,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @param associatedAgent
 	 * @param targetType
 	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException 
 	 */
 	protected ORMapEvent(URI associatedAgent, RMapEventTargetType targetType) throws RMapException {
 		this();
@@ -145,12 +142,11 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @throws RMapException
 	 */
 	protected ORMapEvent(RMapUri associatedAgent, RMapEventTargetType targetType, RMapValue desc) 
-			throws RMapException {
+			throws RMapException, RMapDefectiveArgumentException {
 		this(associatedAgent, targetType);
 		if (desc != null){
 			Statement descSt = this.getValueFactory().createStatement(this.context, 
-					DC.DESCRIPTION,
-					ORAdapter.rMapValue2OpenRdfValue(desc), this.context);
+					DC.DESCRIPTION, ORAdapter.rMapValue2OpenRdfValue(desc), this.context);
 			this.descriptionStmt = descSt;
 		}
 	}	
@@ -201,7 +197,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEvent#getAssociatedAgent()
 	 */
-	public RMapUri getAssociatedAgent()  throws RMapException{
+	public RMapUri getAssociatedAgent() throws RMapException{
 		RMapUri rUri = null;
 		URI agentURI = (URI)this.associatedAgentStmt.getObject();
 		rUri = ORAdapter.openRdfUri2RMapUri(agentURI);
@@ -221,12 +217,13 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	public RMapValue getDescription() throws RMapException {
 		RMapValue rResource= null;
 		if (this.descriptionStmt!= null){
-				Value value = this.descriptionStmt.getObject();
-				try {
-					rResource = ORAdapter.openRdfValue2RMapValue(value);
-				} catch (IllegalArgumentException | URISyntaxException e) {
-					throw new RMapException(e);
-				}
+			Value value = this.descriptionStmt.getObject();
+			try {
+				rResource = ORAdapter.openRdfValue2RMapValue(value);
+			}
+			catch(RMapDefectiveArgumentException e) {
+				throw new RMapException(e);
+			}
 		}
 		return rResource;
 	}

@@ -3,9 +3,8 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
-import static org.junit.Assert.*;
-
-import java.net.URI;
+import static org.junit.Assert.assertTrue;
+import info.rmapproject.core.model.RMapUri;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +28,7 @@ public class ORMapObjectTest {
 	@Test
 	public void testGetId() {
 		ORMapObject obj = new ORMapAgent();
-		URI id = obj.getId();
+		RMapUri id = obj.getId();
 		String idString = id.toString();
 		assertTrue(idString.startsWith("ark:/22573/"));
 	}

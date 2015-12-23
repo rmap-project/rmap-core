@@ -3,14 +3,22 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
-import java.net.URISyntaxException;
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
+import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.RMapResource;
+import info.rmapproject.core.model.RMapTriple;
+import info.rmapproject.core.model.RMapUri;
+import info.rmapproject.core.model.RMapValue;
+import info.rmapproject.core.model.disco.RMapDiSCO;
+import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.ORE;
+import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.collections4.Predicate;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -20,16 +28,6 @@ import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
-
-import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.idvalidator.RMapIdPredicate;
-import info.rmapproject.core.model.RMapResource;
-import info.rmapproject.core.model.RMapTriple;
-import info.rmapproject.core.model.RMapUri;
-import info.rmapproject.core.model.RMapValue;
-import info.rmapproject.core.model.disco.RMapDiSCO;
-import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.ORE;
-import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
 
 /**
  * Each DiSCO is a named graph.  Constituent statements will share same context, which is same
@@ -62,22 +60,16 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 * ID used by provider of DiSCO on their own system
 	 */
 	protected Statement providerIdStmt;
-	/** 
-	 * ID of DiSCO is also used as context	
-	 */
-	protected URI discoContext = null;	
 
 	/**
 	 * Base constructor
 	 * Sets DiSCO context equal to DiSCO ID, so DiSCO is named graph
+	 * @throws RMapDefectiveArgumentException 
 	 * @throws Exception
 	 */
 	protected ORMapDiSCO() throws RMapException {
-		super();
-		this.discoContext = ORAdapter.uri2OpenRdfUri(this.getId());
-		this.typeStatement = 
-				this.getValueFactory().createStatement(this.discoContext, RDF.TYPE,
-						RMAP.DISCO,this.discoContext);
+		super();	
+		this.setTypeStatement(RMAP.DISCO);
 	}	
 	
 	/**
@@ -86,9 +78,10 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 * @param creator Author of DiSCO
 	 * @param aggregatedResources Resources comprising compound object
 	 * @throws RMapException if unable to create Creator or aggregated resources Statements
+	 * @throws RMapDefectiveArgumentException 
 	 */
 	public ORMapDiSCO(RMapUri creator, List<java.net.URI> aggregatedResources) 
-			throws RMapException {
+			throws RMapException, RMapDefectiveArgumentException {
 		this();
 		this.setCreator(creator);
 		this.setAggregratedResources(aggregatedResources);
@@ -99,27 +92,30 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 * @param stmts Statements to be structured into DiSCO
 	 * @throws RMapException if resources not present, or related statements do not reference at least one resource, or
 	 *            comprise a disjoint graph, or if cannot create Statements from parameters
+	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapDiSCO(List<Statement> stmts) throws RMapException{
+	public ORMapDiSCO(List<Statement> stmts) throws RMapException, RMapDefectiveArgumentException{
 		this();	
 		// Assuming RDF comes in, OpenRDF parser will create a bNode for the DiSCO
 		// itself, and use that BNode identifier as resource - or
 		// possibly also submitter used a local (non-RMap) identifier in RDF
 		boolean discoFound = false;
-		boolean isRmapId = false;
-		Value incomingIdValue = null;
+		
+		//openrdf is too forgiving wrt URIs - it allows new line characters, for example. 
+		//This code checks the URIs can be converted to java.net.URI
+		ORAdapter.checkOpenRdfUri2UriCompatibility(stmts);
+		
+		Resource incomingIdValue = null;
 		String incomingIdStr = null;
 		for (Statement stmt:stmts){
 			Resource subject = stmt.getSubject();
 			URI predicate = stmt.getPredicate();
 			Value object = stmt.getObject();
-			if (predicate.equals(RDF.TYPE)){
-				if (object.equals(RMAP.DISCO)){
-					discoFound = true;
-					incomingIdValue = subject;
-					incomingIdStr = subject.stringValue();
-					break;
-				}
+			if (object.equals(RMAP.DISCO)&&predicate.equals(RDF.TYPE)){
+				discoFound = true;
+				incomingIdValue = subject;
+				incomingIdStr = subject.stringValue();
+				break;
 			}
 			continue;
 		} 
@@ -130,30 +126,20 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 			throw new RMapException ("null or empty disco identifier");
 		}
 		// check to make sure DiSCO has an RMAP id not a local one
-		try {
-			Predicate<Object> predicate = RMapIdPredicate.rmapIdPredicate();
-			isRmapId  = predicate.evaluate(new java.net.URI(incomingIdStr));
-		} catch (Exception e) {
-			throw new RMapException ("Unable to validate DiSCO id " + 
-					incomingIdStr, e);
-		}				
-		if (isRmapId){
-			// use incoming id
-			try {
-				this.id = new java.net.URI(incomingIdStr);
-				this.discoContext = ORAdapter.uri2OpenRdfUri(this.getId()); 
-				this.typeStatement =
-						this.getValueFactory().createStatement(this.discoContext,RDF.TYPE,RMAP.DISCO,this.discoContext);
-			} catch (URISyntaxException e) {
-				throw new RMapException ("Cannot convert incoming ID to URI: " + incomingIdStr,e);
-			}			
+		boolean isRmapUri = false;
+		if (incomingIdValue instanceof URI){
+			isRmapUri = isRMapUri((URI)incomingIdValue);
+			if (isRmapUri){	// then use incoming id
+				this.setId((URI)incomingIdValue);
+			}
+			else { //capture it if it's not a blank node - only URIs acceptable
+				// create a statement saying what original id was, and use existing type statement
+				Statement idStmt = this.getValueFactory().createStatement(this.id, RMAP.PROVIDER_ID,
+																		incomingIdValue, this.context);
+				this.providerIdStmt = idStmt;
+			}
 		}
-		else if (incomingIdValue instanceof URI) { //make sure it's not a blank node - only URIs acceptable
-			// create a statement saying what original id was, and use existing type statement
-			Statement idStmt = this.getValueFactory().createStatement(this.discoContext, RMAP.PROVIDERID,
-					incomingIdValue, this.discoContext);
-			this.providerIdStmt = idStmt;
-		}
+		
 		// sort out statements into type statement, aggregate resource statement,
 		// creator statement, related statements, desc statement
 		// replacing DiSCO id with new one if necessary
@@ -166,28 +152,22 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 			URI predicate = stmt.getPredicate();
 			Value object = stmt.getObject();
 			
-			//openrdf is too forgiving wrt URIs - it allows new line characters, for example. 
-			//This code checks the URIs can be converted to java.net.URI
-			if (!ORAdapter.isOpenRdfStatementCompatibleWithUri(stmt))	{
-				throw new RMapException("Cannot convert stmt resource reference to a URI: " + stmt.toString());
-				}
-			
 			// see if disco is subject of statement
 			boolean subjectIsDisco = subject.stringValue().equals(incomingIdStr);
-			if (!isRmapId){
-				// convert incoming id to RMap id in subject and boject
+			if (!isRmapUri){
+				// convert incoming id to RMap id in subject and object
 				if (subjectIsDisco){
-					subject = this.discoContext;
+					subject = this.id;
 				}
 				if (object.stringValue().equals(incomingIdStr)){
-					object = this.discoContext;
+					object = this.id;
 				}
 			}			
 			if (predicate.equals(RDF.TYPE)){
 				if (!subjectIsDisco){
 					// we automatically created a type statement for disco					
 					relStatements.add(this.getValueFactory().createStatement
-							(subject, predicate, object, this.discoContext));
+							(subject, predicate, object, this.context));
 				}
 			}
 			else if (predicate.equals(DCTERMS.CREATOR)){
@@ -198,40 +178,40 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 								+ object.stringValue());
 					}
 					this.creator = this.getValueFactory().createStatement
-							(subject, predicate, object, this.discoContext);
+							(subject, predicate, object, this.context);
 				}
 				else {
 					relStatements.add(this.getValueFactory().createStatement
-							(subject, predicate, object, this.discoContext));
+							(subject, predicate, object, this.context));
 				}
 			}
-			else if (predicate.equals(RMAP.PROVIDERID)){
+			else if (predicate.equals(RMAP.PROVIDER_ID)){
 				if (subjectIsDisco){
 					this.providerIdStmt = this.getValueFactory().createStatement
-							(subject, predicate, object,this.discoContext);
+							(subject, predicate, object,this.context);
 				}
 				else {
 					relStatements.add(this.getValueFactory().createStatement
-							(subject, predicate, object, this.discoContext));
+							(subject, predicate, object, this.context));
 				}
 			}
 			else if (predicate.equals(ORE.AGGREGATES)){
 				aggResources.add(this.getValueFactory().createStatement
-						(subject, predicate, object, this.discoContext));
+						(subject, predicate, object, this.context));
 			}
 			else if ((predicate.equals(DC.DESCRIPTION)) || (predicate.equals(DCTERMS.DESCRIPTION))){
 				if (subjectIsDisco){
 					this.description= this.getValueFactory().createStatement
-							(subject, predicate, object, this.discoContext);
+							(subject, predicate, object, this.context);
 				}
 				else {
 					relStatements.add(this.getValueFactory().createStatement
-							(subject, predicate, object, this.discoContext));
+							(subject, predicate, object, this.context));
 				}
 			}
 			else {
 				relStatements.add(this.getValueFactory().createStatement
-						(subject, predicate, object, this.discoContext));
+						(subject, predicate, object, this.context));
 			}
 		}
 		if (this.creator==null){
@@ -404,7 +384,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 					Resource resource = ORAdapter.uri2OpenRdfUri(rmapResource);
 					try {
 						Statement newStmt = this.getValueFactory().createStatement
-								(this.discoContext, predicate,resource,this.discoContext);
+								(this.context, predicate,resource,this.context);
 						aggResources.add(newStmt);
 					} catch (Exception e) {
 						throw new RMapException (e);
@@ -429,7 +409,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 				else {
 					throw new RMapException ("DiSCO Creator not an RMapUri");
 				}
-			} catch (IllegalArgumentException | URISyntaxException e) {
+			} catch (RMapDefectiveArgumentException e) {
 				throw new RMapException(e);
 			}
 		}
@@ -450,9 +430,9 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		if (creator != null){
 			URI predicate = DCTERMS.CREATOR;
 			try {
-				Resource subject = this.discoContext;		
+				Resource subject = this.context;		
 				URI vcreator = ORAdapter.rMapUri2OpenRdfUri(creator);
-				stmt = this.getValueFactory().createStatement(subject,predicate,vcreator,this.discoContext);			
+				stmt = this.getValueFactory().createStatement(subject,predicate,vcreator,this.context);			
 			} catch (Exception e) {
 				throw new RMapException(e);
 			}			
@@ -471,7 +451,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 			}
 			try {
 				desc = ORAdapter.openRdfValue2RMapValue(this.description.getObject());
-			} catch (IllegalArgumentException | URISyntaxException e) {
+			} catch (RMapDefectiveArgumentException e) {
 				throw new RMapException(e);
 			}
 		} while (false);
@@ -492,9 +472,9 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		if (description != null){
 			URI predicate = DC.DESCRIPTION;
 			try {
-				Resource subject = this.discoContext;		
+				Resource subject = this.context;		
 				Value vdesc = ORAdapter.rMapValue2OpenRdfValue(description);
-				stmt = this.getValueFactory().createStatement(subject,predicate,vdesc,this.discoContext);			
+				stmt = this.getValueFactory().createStatement(subject,predicate,vdesc,this.context);			
 			} catch (Exception e) {
 				throw new RMapException(e);
 			}			
@@ -507,7 +487,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 * @return the discoContext
 	 */
 	public URI getDiscoContext() {
-		return discoContext;
+		return context;
 	}
 	/**
 	 * Return id used by provider of DiSCO in their own system as String
@@ -556,14 +536,14 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 				RMapResource subject = null;
 				try {
 					subject = ORAdapter.openRdfResource2NonLiteral(stmt.getSubject());
-				} catch (IllegalArgumentException | URISyntaxException e) {
+				} catch (RMapDefectiveArgumentException e) {
 					throw new RMapException(e);
 				}
 				RMapUri predicate = ORAdapter.openRdfUri2RMapUri(stmt.getPredicate());
 				RMapValue object = null;
 				try {
 					object = ORAdapter.openRdfValue2RMapValue(stmt.getObject());
-				} catch (IllegalArgumentException | URISyntaxException e) {
+				} catch (RMapDefectiveArgumentException e) {
 					throw new RMapException(e);
 				}
 				RMapTriple triple = new RMapTriple(subject, predicate, object);
@@ -587,10 +567,18 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		}
 		List<Statement>stmts = new ArrayList<Statement>();
 		for (RMapTriple triple:relatedStatements){
-			Resource subject = ORAdapter.rMapNonLiteral2OpenRdfResource(triple.getSubject());
-			URI predicate = ORAdapter.rMapUri2OpenRdfUri(triple.getPredicate());
-			Value object = ORAdapter.rMapValue2OpenRdfValue(triple.getObject());
-			Statement stmt = this.getValueFactory().createStatement(subject, predicate, object, this.discoContext);
+			Resource subject = null;
+			URI predicate = null;
+			Value object = null;
+			try {
+				subject = ORAdapter.rMapNonLiteral2OpenRdfResource(triple.getSubject());
+				predicate=ORAdapter.rMapUri2OpenRdfUri(triple.getPredicate());
+				object = ORAdapter.rMapValue2OpenRdfValue(triple.getObject());
+			}
+			catch(RMapDefectiveArgumentException e) {
+				throw new RMapException(e);
+			}
+			Statement stmt = this.getValueFactory().createStatement(subject, predicate, object, this.context);
 			stmts.add(stmt);
 		}
 		this.relatedStatements = stmts;

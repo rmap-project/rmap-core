@@ -3,8 +3,11 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
@@ -23,7 +26,6 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
@@ -176,9 +178,11 @@ public class ORMapDiscoTest {
 
 	/**
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#ORMapDiSCO(RMapUri, java.util.List)}.
+	 * @throws RMapDefectiveArgumentException 
+	 * @throws RMapException 
 	 */
 	@Test
-	public void testORMapDiSCORMapResourceListOfURI() {
+	public void testORMapDiSCORMapResourceListOfURI() throws RMapException, RMapDefectiveArgumentException {
 		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
 		try {
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
@@ -207,7 +211,7 @@ public class ORMapDiscoTest {
 	}
 
 	@Test
-	public void testORMapDisco() {
+	public void testORMapDisco() throws RMapException, RMapDefectiveArgumentException {
 		InputStream stream = new ByteArrayInputStream(discoRDF.getBytes(StandardCharsets.UTF_8));
 		RioRDFHandler handler = new RioRDFHandler();	
 		List <Statement> stmts = handler.convertRDFToStmtList(
@@ -229,12 +233,14 @@ public class ORMapDiscoTest {
 	}
 	/**
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#referencesAggregate(java.util.List)}.
+	 * @throws  
+	 * @throws RMapException 
 	 */
 	@Test
-	public void testReferencesAggregate() {
+	public void testReferencesAggregate() throws RMapException {
 		ORMapDiSCO disco = new ORMapDiSCO();
-		Statement rStmt = vf.createStatement(disco.discoContext, ORE.AGGREGATES, r,disco.discoContext);
-		Statement rStmt2 = vf.createStatement(disco.discoContext, ORE.AGGREGATES, r2,disco.discoContext);
+		Statement rStmt = vf.createStatement(disco.context, ORE.AGGREGATES, r,disco.context);
+		Statement rStmt2 = vf.createStatement(disco.context, ORE.AGGREGATES, r2,disco.context);
 		disco.aggregatedResources = new ArrayList<Statement>();
 		disco.aggregatedResources.add(rStmt);
 		disco.aggregatedResources.add(rStmt2);
@@ -259,8 +265,8 @@ public class ORMapDiscoTest {
 	@Test
 	public void testIsConnectedGraph() {
 		ORMapDiSCO disco = new ORMapDiSCO();
-		Statement rStmt = vf.createStatement(disco.discoContext, ORE.AGGREGATES, r,disco.discoContext);
-		Statement rStmt2 = vf.createStatement(disco.discoContext, ORE.AGGREGATES, r2,disco.discoContext);
+		Statement rStmt = vf.createStatement(disco.context, ORE.AGGREGATES, r,disco.context);
+		Statement rStmt2 = vf.createStatement(disco.context, ORE.AGGREGATES, r2,disco.context);
 		disco.aggregatedResources = new ArrayList<Statement>();
 		disco.aggregatedResources.add(rStmt);
 		disco.aggregatedResources.add(rStmt2);
@@ -293,8 +299,8 @@ public class ORMapDiscoTest {
 	@Test
 	public void testGetAggregatedResourceStatements() {
 		ORMapDiSCO disco = new ORMapDiSCO();
-		Statement rStmt = vf.createStatement(disco.discoContext, ORE.AGGREGATES, r,disco.discoContext);
-		Statement rStmt2 = vf.createStatement(disco.discoContext, ORE.AGGREGATES, r2,disco.discoContext);
+		Statement rStmt = vf.createStatement(disco.context, ORE.AGGREGATES, r,disco.context);
+		Statement rStmt2 = vf.createStatement(disco.context, ORE.AGGREGATES, r2,disco.context);
 		List<java.net.URI> list1 = new ArrayList<java.net.URI>();
 		list1.add(ORAdapter.openRdfUri2URI(r));
 		list1.add(ORAdapter.openRdfUri2URI(r2));
@@ -324,9 +330,11 @@ public class ORMapDiscoTest {
 
 	/**
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#setCreator(RMapUri)}.
+	 * @throws RMapDefectiveArgumentException 
+	 * @throws RMapException 
 	 */
 	@Test
-	public void testSetCreator() {
+	public void testSetCreator() throws RMapException, RMapDefectiveArgumentException {
 		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
 		try {
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
@@ -352,9 +360,11 @@ public class ORMapDiscoTest {
 
 	/**
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#setDescription(RMapValue)}.
+	 * @throws RMapDefectiveArgumentException 
+	 * @throws RMapException 
 	 */
 	@Test
-	public void testSetDescription() {
+	public void testSetDescription() throws RMapException, RMapDefectiveArgumentException {
 		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
 		try {
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
@@ -377,9 +387,11 @@ public class ORMapDiscoTest {
 
 	/**
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#getTypeStatement()}.
+	 * @throws RMapDefectiveArgumentException 
+	 * @throws RMapException 
 	 */
 	@Test
-	public void testGetTypeStatement() {
+	public void testGetTypeStatement() throws RMapException, RMapDefectiveArgumentException {
 		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
 		try {
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
@@ -388,7 +400,7 @@ public class ORMapDiscoTest {
 			RMapUri author = ORAdapter.openRdfUri2RMapUri(creatorUri);
 			ORMapDiSCO disco = new ORMapDiSCO(author, resourceList);
 			Statement stmt = disco.getTypeStatement();
-			assertEquals(disco.getId().toASCIIString(), stmt.getSubject().stringValue());
+			assertEquals(disco.getId().getStringValue(), stmt.getSubject().stringValue());
 			assertEquals(RDF.TYPE, stmt.getPredicate());
 			assertEquals(RMAP.DISCO, stmt.getObject());
 		} catch (URISyntaxException e) {
@@ -399,9 +411,11 @@ public class ORMapDiscoTest {
 
 	/**
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#getDiscoContext()}.
+	 * @throws RMapDefectiveArgumentException 
+	 * @throws RMapException 
 	 */
 	@Test
-	public void testGetDiscoContext() {
+	public void testGetDiscoContext() throws RMapException, RMapDefectiveArgumentException {
 		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
 		try {
 			resourceList.add(new java.net.URI("http://rmap-info.org"));

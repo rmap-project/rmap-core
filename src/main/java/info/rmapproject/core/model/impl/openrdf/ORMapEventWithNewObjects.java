@@ -11,6 +11,7 @@ import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
@@ -59,9 +60,10 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 	 * @param associatedAgent
 	 * @param targetType
 	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException 
 	 */
 	protected ORMapEventWithNewObjects(RMapUri associatedAgent,
-			RMapEventTargetType targetType) throws RMapException {
+			RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
 		super(associatedAgent, targetType);
 	}
 
@@ -80,10 +82,11 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 	 * @param targetType
 	 * @param desc
 	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException 
 	 */
 	protected ORMapEventWithNewObjects(RMapUri associatedAgent,
 			RMapEventTargetType targetType, RMapValue desc)
-			throws RMapException {
+			throws RMapException, RMapDefectiveArgumentException {
 		super(associatedAgent, targetType, desc);
 	}
 
@@ -109,7 +112,7 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 	 */
 	@Override
 	public void setCreatedObjectIds(List<RMapUri> createdObjects)
-			throws RMapException {
+			throws RMapException, RMapDefectiveArgumentException {
 		List<Statement> stmts = null;
 		if (createdObjects != null){
 			stmts = new ArrayList<Statement>();

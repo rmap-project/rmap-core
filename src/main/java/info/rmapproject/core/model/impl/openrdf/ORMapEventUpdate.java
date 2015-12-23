@@ -9,6 +9,7 @@ import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.event.RMapEventTargetType;
@@ -111,7 +112,7 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 		return rid;
 	}
 	@Override
-	public void setInactivatedObjectId(RMapUri uri) throws RMapException {
+	public void setInactivatedObjectId(RMapUri uri) throws RMapException, RMapDefectiveArgumentException {
 		URI inactiveUri = ORAdapter.rMapUri2OpenRdfUri(uri);
 		this.setInactivatedObjectStmt(inactiveUri);
 	}
@@ -156,7 +157,7 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	}
 	
 	@Override
-	public void setDerivedObjectId(RMapUri uri) throws RMapException {
+	public void setDerivedObjectId(RMapUri uri) throws RMapException, RMapDefectiveArgumentException {
 		URI derivedURI = ORAdapter.rMapUri2OpenRdfUri(uri);
 		this.setDerivationStmt(derivedURI);
 	}

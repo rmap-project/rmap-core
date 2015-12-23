@@ -114,7 +114,6 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * Get list of RMap Agent URIs that have a statement containing the resource.  
 	 * @param uri
 	 * @param statusCode  if null, match any status code
-	 * @param agentmgr
 	 * @param ts
 	 * @return
 	 * @throws RMapException

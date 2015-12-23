@@ -3,6 +3,7 @@
  */
 package info.rmapproject.core.model.event;
 
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapUri;
 
@@ -25,7 +26,8 @@ public interface RMapEventWithNewObjects extends RMapEvent {
 	/**
 	 * @param createdObjects the createdObjects to set
 	 * @throws RMapException 
+	 * @throws RMapDefectiveArgumentException 
 	 */
-	public void setCreatedObjectIds(List<RMapUri> createdObjects) throws RMapException;
+	public void setCreatedObjectIds(List<RMapUri> createdObjects) throws RMapException, RMapDefectiveArgumentException;
 
 }

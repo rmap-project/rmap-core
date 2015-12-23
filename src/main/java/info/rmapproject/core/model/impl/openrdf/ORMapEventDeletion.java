@@ -10,6 +10,7 @@ import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.RMapUri;
@@ -65,7 +66,7 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	 */
 	public ORMapEventDeletion(RMapUri associatedAgent,
 			RMapEventTargetType targetType, RMapValue desc)
-			throws RMapException {
+			throws RMapException, RMapDefectiveArgumentException {
 		super(associatedAgent, targetType, desc);
 		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.DELETION);
 	}
@@ -101,7 +102,8 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEventDelete#setDeletedObjectIds(java.util.List)
 	 */
-	public void setDeletedObjectIds(List<RMapUri> deletedObjectIds) throws RMapException {
+	public void setDeletedObjectIds(List<RMapUri> deletedObjectIds) 
+			throws RMapException, RMapDefectiveArgumentException {
 		if (deletedObjectIds != null){
 			List<Statement> stmts = new ArrayList<Statement>();
 			for (RMapUri rid:deletedObjectIds){

@@ -3,37 +3,36 @@
  */
 package info.rmapproject.core.model.agent;
 
-import java.util.List;
-
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapObject;
-import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapUri;
-
+import info.rmapproject.core.model.RMapValue;
 
 
 /**
- * @author smorrissey
+ * @author smorrissey, khanson
  *
  */
 public interface RMapAgent extends RMapObject {
 
 	/**
-	 * Get URI of agent that created this Agent
+	 * Get name associated with the Agent 
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapUri getCreator() throws RMapException;
+	public RMapValue getName() throws RMapException, RMapDefectiveArgumentException;
 	/**
-	 * Get Resource URI of agent for which RMap agent is a representation
+	 * Get ID of provider used to authenticate the RMap user that is associated with the Agent
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapUri getRepresentationId() throws RMapException;
+	public RMapUri getIdProvider() throws RMapException;
 	/**
+	 * Get Auth URI of agent - this is generated using the id provider and idP username
 	 * @return
 	 * @throws RMapException
 	 */
-	public List<RMapTriple> getProperties() throws RMapException;
+	public RMapUri getAuthId() throws RMapException;
 
 }

@@ -3,24 +3,26 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
-import static org.junit.Assert.*;
-
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdServiceFactoryIOC;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
-import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
+
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +39,7 @@ import org.openrdf.repository.RepositoryException;
  * @author smorrissey
  *
  */
-public class ORMapObjectMgrTest {
+public class ORMapObjectMgrTest extends ORMapMgrTest {
 
 	protected SesameTriplestore ts = null;
 	ValueFactory vf = null;
@@ -46,6 +48,7 @@ public class ORMapObjectMgrTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
+		super.setUp();
 		try {
 			ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
 			vf = ts.getValueFactory();
@@ -128,9 +131,11 @@ public class ORMapObjectMgrTest {
 
 	/**
 	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr#isEventId(org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * @throws RMapDefectiveArgumentException 
+	 * @throws RMapException 
 	 */
 	@Test
-	public void testIsEventId() {
+	public void testIsEventId() throws RMapException, RMapDefectiveArgumentException {
 		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
 		try {
 		    URI creatorUri = vf.createURI("http://orcid.org/0000-0003-2069-1219");
@@ -164,31 +169,10 @@ public class ORMapObjectMgrTest {
 	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr#isAgentId(org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
 	 */
 	@Test
-	public void testIsAgentId() {
-		java.net.URI SYSAGENT_URI = null;
-		try {
-			SYSAGENT_URI = new java.net.URI("http://orcid.org/0000-0003-2069-1219");
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			fail("cant create URI");
-		}
-		//yep, agent creates itself… just for now.
-		URI agentURI = ORAdapter.uri2OpenRdfUri(SYSAGENT_URI);
-		
+	public void testIsAgentId() throws URISyntaxException {
 		//create through ORMapAgentMgr
-		SesameTriplestore ts = null;
 		try {
-			ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
-			ORMapAgent agent = new ORMapAgent(agentURI, agentURI);
-			ORMapAgentMgr agentMgr = new ORMapAgentMgr();
-			agentMgr.createAgentTriples (agent, ts);
-			try {
-				ts.commitTransaction();
-			} catch (Exception e) {
-				e.printStackTrace();
-				fail("cant commit");
-			}
-			assertTrue(agentMgr.isAgentId(agent.getContext(), ts));
+			assertTrue(rmapService.isAgentId(agentId));
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("cant create triplestore");

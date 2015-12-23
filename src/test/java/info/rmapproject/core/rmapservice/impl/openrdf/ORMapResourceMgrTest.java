@@ -10,14 +10,12 @@ import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdServiceFactoryIOC;
 import info.rmapproject.core.model.RMapStatus;
+import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
-import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
 import info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler;
-import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.RMapServiceFactoryIOC;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
@@ -40,7 +38,7 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.RDF;
 
-public class ORMapResourceMgrTest {
+public class ORMapResourceMgrTest extends ORMapMgrTest {
 	protected SesameTriplestore ts = null;
 	protected URI typePred = null;
 	protected URI context01 = null;
@@ -51,8 +49,6 @@ public class ORMapResourceMgrTest {
 	protected ORMapAgentMgr agentMgr;
 	protected ORMapDiSCOMgr discoMgr;
 	protected ORMapEventMgr eventMgr;
-	protected URI systemAgentURI;
-	protected String systemAgentId = "http://orcid.org/0000-0000-0000-0000";
 
 	protected String discoRDF = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> "  
 			+ "<rdf:RDF "  
@@ -95,13 +91,13 @@ public class ORMapResourceMgrTest {
 		
 	@Before
 	public void setUp() throws Exception {
+		super.setUp();
 		ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
 		typePred = RDF.TYPE;	
 		resourceMgr = new ORMapResourceMgr();
 		agentMgr = new ORMapAgentMgr();
 		discoMgr = new ORMapDiSCOMgr();
 		eventMgr = new ORMapEventMgr();
-		systemAgentURI = ts.getValueFactory().createURI(systemAgentId);
 		try {
 			java.net.URI context = IdServiceFactoryIOC.getFactory().createService().createId();
 			context01 = ORAdapter.uri2OpenRdfUri(context);
@@ -119,12 +115,11 @@ public class ORMapResourceMgrTest {
 	@Test
 	public void testGetRelatedDiSCOS() {	
 		try {			
-			URI agentId = this.createSystemAgent();
-			java.net.URI discoId = this.createDiSCO(agentId);
+			RMapUri discoId = this.createDiSCO(agentId);
 			
 			URI uri = ts.getValueFactory().createURI("http://dx.doi.org/10.1109/ACCESS.2014.2332453");
 			List <URI> sysAgents = new ArrayList<URI>();
-			sysAgents.add(agentId);
+			sysAgents.add(ORAdapter.uri2OpenRdfUri(agentId));
 			
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			Date dateFrom = dateFormat.parse("2014-1-1");
@@ -138,7 +133,7 @@ public class ORMapResourceMgrTest {
 			URI matchingUri = iter.next();
 			assertTrue(matchingUri.toString().equals(discoId.toString()));
 
-			discoMgr.updateDiSCO(agentId, true, matchingUri, null, eventMgr, ts);
+			discoMgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(agentId), true, matchingUri, null, ts);
 			discoUris = resourceMgr.getRelatedDiSCOS(uri, RMapStatus.ACTIVE, sysAgents, dateFrom, dateTo, ts);
 			assertTrue(discoUris.size()==0);
 
@@ -155,18 +150,15 @@ public class ORMapResourceMgrTest {
 
 	@Test
 	public void testGetRelatedAgents() {	
-		try {			
-
-			URI agentId = this.createSystemAgent();
-				
+		try {							
 			List <URI> sysAgents = new ArrayList<URI>();
-			sysAgents.add(agentId);
+			sysAgents.add(ORAdapter.uri2OpenRdfUri(agentId));
 			
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			Date dateFrom = dateFormat.parse("2014-1-1");
 			Date dateTo = dateFormat.parse("2050-1-1");
 		
-			Set <URI> agentUris = resourceMgr.getRelatedAgents(systemAgentURI, sysAgents, dateFrom, dateTo, ts);
+			Set <URI> agentUris = resourceMgr.getRelatedAgents(ORAdapter.uri2OpenRdfUri(agentId), sysAgents, dateFrom, dateTo, ts);
 			
 			assertTrue(agentUris.size()==1);
 			
@@ -185,12 +177,11 @@ public class ORMapResourceMgrTest {
 	@Test
 	public void testGetRelatedObjects() {	
 		try {			
-			URI agentId = this.createSystemAgent();
-			java.net.URI discoId = this.createDiSCO(agentId);
+			RMapUri discoId = this.createDiSCO(agentId);
 			
 			URI uri = ts.getValueFactory().createURI("http://orcid.org/0000-0000-0000-0000");
 			List <URI> sysAgents = new ArrayList<URI>();
-			sysAgents.add(agentId);
+			sysAgents.add(ORAdapter.uri2OpenRdfUri(agentId));
 			
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			Date dateFrom = dateFormat.parse("2014-1-1");
@@ -216,21 +207,20 @@ public class ORMapResourceMgrTest {
 	@Test
 	public void testGetRelatedEvents() {	
 		try {			
-			URI agentId = this.createSystemAgent();
 			InputStream stream = new ByteArrayInputStream(discoRDF.getBytes(StandardCharsets.UTF_8));
 			RioRDFHandler handler = new RioRDFHandler();	
 			List<Statement>stmts = handler.convertRDFToStmtList(
 					stream, "http://rmapdns.ddns.net:8080/api/disco/", "RDFXML");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
-			RMapEvent event = discoMgr.createDiSCO(agentId, disco, eventMgr, ts);
-			java.net.URI eventId = event.getId();
-		
-			RMapEvent updateEvent = discoMgr.updateDiSCO(agentId, true, ORAdapter.uri2OpenRdfUri(disco.getId()), disco, eventMgr, ts);
-			java.net.URI updateEventId = updateEvent.getId();
+			RMapEvent event = discoMgr.createDiSCO(ORAdapter.uri2OpenRdfUri(agentId), disco, ts);
+			RMapUri eventId = event.getId();
+			URI discoId = ORAdapter.rMapUri2OpenRdfUri(disco.getId());
+			RMapEvent updateEvent = discoMgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(agentId), true, discoId, disco, ts);
+			URI updateEventId = ORAdapter.rMapUri2OpenRdfUri(updateEvent.getId());
 			
 			URI uri = ts.getValueFactory().createURI("http://dx.doi.org/10.1109/ACCESS.2014.2332453");
 			List <URI> sysAgents = new ArrayList<URI>();
-			sysAgents.add(agentId);
+			sysAgents.add(ORAdapter.uri2OpenRdfUri(agentId));
 			
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			Date dateFrom = dateFormat.parse("2014-1-1");
@@ -257,13 +247,11 @@ public class ORMapResourceMgrTest {
 	@Test
 	public void testGetRelatedTriples() {	
 		try {			
-			URI agentId = this.createSystemAgent();
 			@SuppressWarnings("unused")
-			java.net.URI discoId = this.createDiSCO(agentId);
-			
-			URI uri = ts.getValueFactory().createURI("http://orcid.org/0000-0000-0000-0000");
+			RMapUri discoId = this.createDiSCO(agentId);
+			URI uri = ts.getValueFactory().createURI("ark:/29297/rmaptestagent");
 			List <URI> sysAgents = new ArrayList<URI>();
-			sysAgents.add(agentId);
+			sysAgents.add(ORAdapter.uri2OpenRdfUri(agentId));
 			
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			Date dateFrom = dateFormat.parse("2014-1-1");
@@ -272,7 +260,7 @@ public class ORMapResourceMgrTest {
 			Set <Statement> matchingStmts = resourceMgr.getRelatedTriples(uri, null, sysAgents, dateFrom, dateTo, ts);
 			
 			//should return 3 results - agent creator stmt, agent isFormatOf stmt, and disco creator stmt.
-			assertTrue(matchingStmts.size()==3);
+			assertTrue(matchingStmts.size()==4);
 
 			Iterator<Statement> iter = matchingStmts.iterator();
 			Statement stmt = iter.next();
@@ -281,7 +269,8 @@ public class ORMapResourceMgrTest {
 			assertTrue(stmt.getSubject().toString().equals(uri.toString()) || stmt.getObject().toString().equals(uri.toString()));
 			stmt = iter.next();
 			assertTrue(stmt.getSubject().toString().equals(uri.toString()) || stmt.getObject().toString().equals(uri.toString()));
-			
+			stmt = iter.next();
+			assertTrue(stmt.getSubject().toString().equals(uri.toString()) || stmt.getObject().toString().equals(uri.toString()));
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail();
@@ -351,32 +340,15 @@ public class ORMapResourceMgrTest {
 		}		
 	}
 	
-	
-	private URI createSystemAgent() {
-		ORMapAgent systemAgent = agentMgr.createAgentObject(systemAgentURI, systemAgentURI, ts);
-		URI agentId = systemAgent.getContext();
-		assertTrue(agentMgr.isAgentId(agentId, ts));	
-		agentId = ORAdapter.uri2OpenRdfUri(systemAgent.getId());
-		assertTrue(agentMgr.isAgentId(agentId, ts));
-		RMapService service = RMapServiceFactoryIOC.getFactory().createService();
-		try {
-			service.createAgent(ORAdapter.openRdfUri2URI(agentId), systemAgent);
-		} catch (RMapException | RMapDefectiveArgumentException e1) {
-			e1.printStackTrace();
-			fail();
-		}
-		return agentId;
-	}
-	
-	private java.net.URI createDiSCO(URI agentId){
+	private RMapUri createDiSCO(java.net.URI agentId) throws RMapException, RMapDefectiveArgumentException{
 		InputStream stream = new ByteArrayInputStream(discoRDF.getBytes(StandardCharsets.UTF_8));
 		RioRDFHandler handler = new RioRDFHandler();	
 		List<Statement>stmts = handler.convertRDFToStmtList(
 				stream, "http://rmapdns.ddns.net:8080/api/disco/", "RDFXML");
 		ORMapDiSCO disco = new ORMapDiSCO(stmts);
-		java.net.URI discoId = disco.getId();
+		RMapUri discoId = disco.getId();
 		@SuppressWarnings("unused")
-		ORMapEvent event = discoMgr.createDiSCO(agentId, disco, eventMgr, ts);
+		ORMapEvent event = discoMgr.createDiSCO(ORAdapter.uri2OpenRdfUri(agentId), disco, ts);
 		return discoId;
 	}
 	

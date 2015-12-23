@@ -12,6 +12,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdServiceFactoryIOC;
 import info.rmapproject.core.model.RMapUri;
@@ -53,9 +54,11 @@ public class ORMapEventDerivationTest {
 
 	/**
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation#ORMapEventDerivation(org.openrdf.model.URI, info.rmapproject.core.model.event.RMapEventTargetType, org.openrdf.model.URI, org.openrdf.model.URI)}.
+	 * @throws RMapDefectiveArgumentException 
+	 * @throws RMapException 
 	 */
 	@Test
-	public void testORMapEventDerivationURIRMapEventTargetTypeURIURI() { 
+	public void testORMapEventDerivationURIRMapEventTargetTypeURIURI() throws RMapException, RMapDefectiveArgumentException { 
 		URI associatedAgent = vf.createURI("http://orcid.org/0000-0000-0000-0000");
 		java.net.URI id1 = null;
 		try {
@@ -101,9 +104,11 @@ public class ORMapEventDerivationTest {
 
 	/**
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation#ORMapEventDerivation(org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.URI, org.openrdf.model.Statement, java.util.List, org.openrdf.model.Statement, org.openrdf.model.Statement)}.
+	 * @throws RMapDefectiveArgumentException 
+	 * @throws RMapException 
 	 */
 	@Test
-	public void testORMapEventDerivationStatementStatementStatementStatementStatementStatementURIStatementListOfStatementStatementStatement() {
+	public void testORMapEventDerivationStatementStatementStatementStatementStatementStatementURIStatementListOfStatementStatementStatement() throws RMapException, RMapDefectiveArgumentException {
 		java.net.URI id1 = null, id2 = null;
 		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
 		try {
@@ -181,7 +186,7 @@ public class ORMapEventDerivationTest {
 		assertEquals(RMapEventType.DERIVATION, event.getEventType());
 		assertEquals(RMapEventTargetType.DISCO, event.getEventTargetType());
 		Statement tStmt = event.getTypeStatement();
-		assertEquals(RMAP.EVENT, tStmt.getObject());
+		assertEquals(RMAP.EVENT.toString(), tStmt.getObject().toString());
 		Model eventModel = event.getAsModel();
 		assertEquals(10, eventModel.size());
 		assertEquals(oldDiscoId,ORAdapter.rMapUri2OpenRdfUri(event.getSourceObjectId()));

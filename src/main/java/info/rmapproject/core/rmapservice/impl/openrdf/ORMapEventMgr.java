@@ -723,8 +723,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts
 	 * @return
 	 */
-	public List<URI> getRelatedResources (URI eventId, ORMapDiSCOMgr discomgr,
-			SesameTriplestore ts){
+	public List<URI> getRelatedResources (URI eventId,SesameTriplestore ts){
 		Set<URI> resources = new HashSet<URI>();
 		// get DiSCO resources
 		Set<URI> relatedDiSCOs = new HashSet<URI>();

@@ -100,7 +100,18 @@ public class RMAP {
 	/**
 	 * 
 	 */
-	public static final URI PROVIDERID;
+	public static final URI IDENTITY_PROVIDER;
+	/**
+	 * 
+	 */
+	public static final URI USER_AUTH_ID;
+	/**
+	 * 
+	 */
+	public static final URI PROVIDER_ID;
+	/**
+	 * 
+	 */
 	/**
 	* rmap:Status
 	*/
@@ -126,8 +137,10 @@ public class RMAP {
 		EVENT_INACTIVATED_OBJECT = f.createURI(NAMESPACE, "inactivatedObject");
 		EVENT_DERIVED_OBJECT = f.createURI(NAMESPACE, "derivedObject");
 		EVENT_TARGET_TOMBSTONED = f.createURI(NAMESPACE, "tombstonedObject");
-		EVENT_TARGET_DELETED = f.createURI(NAMESPACE, "deletedObject");		  
-		PROVIDERID = f.createURI(NAMESPACE, "providerId");
-		HAS_STATUS = f.createURI(NAMESPACE, "hasStatus");
+		EVENT_TARGET_DELETED = f.createURI(NAMESPACE, "deletedObject");	
+		HAS_STATUS = f.createURI(NAMESPACE, "hasStatus");  
+		PROVIDER_ID = f.createURI(NAMESPACE, "providerId");
+		IDENTITY_PROVIDER = f.createURI(NAMESPACE, "identityProvider");	
+		USER_AUTH_ID = f.createURI(NAMESPACE, "userAuthId");	
 	}
 }

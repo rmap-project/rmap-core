@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
+import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdServiceFactoryIOC;
 import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.RMapUri;
@@ -108,14 +110,16 @@ public class ORMapEventDeletionTest {
 		assertEquals(RMapEventType.DELETION, event.getEventType());
 		assertEquals(RMapEventTargetType.DISCO, event.getEventTargetType());
 		Statement tStmt = event.getTypeStatement();
-		assertEquals(RMAP.EVENT, tStmt.getObject());
+		assertEquals(RMAP.EVENT.toString(), tStmt.getObject().toString());
 	}
 
 	/**
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventDeletion#ORMapEventDeletion(info.rmapproject.core.model.RMapUri, info.rmapproject.core.model.event.RMapEventTargetType, info.rmapproject.core.model.RMapValue)}.
+	 * @throws RMapDefectiveArgumentException 
+	 * @throws RMapException 
 	 */
 	@Test
-	public void testORMapEventDeletionRMapUriRMapEventTargetTypeRMapValue() {
+	public void testORMapEventDeletionRMapUriRMapEventTargetTypeRMapValue() throws RMapException, RMapDefectiveArgumentException {
 		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
 		try {
 			URI creatorUri = vf.createURI("http://orcid.org/0000-0003-2069-1219");

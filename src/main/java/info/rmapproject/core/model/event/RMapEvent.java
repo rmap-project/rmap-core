@@ -3,6 +3,7 @@
  */
 package info.rmapproject.core.model.event;
 
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapObject;
 import info.rmapproject.core.model.RMapUri;
@@ -38,6 +39,7 @@ public interface RMapEvent extends RMapObject{
 	/**
 	 * @return the description
 	 * @throws RMapException 
+	 * @throws RMapDefectiveArgumentException 
 	 */
 	public RMapValue getDescription() throws RMapException;
 

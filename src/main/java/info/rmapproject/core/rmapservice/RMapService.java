@@ -11,7 +11,6 @@ import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.RMapTriple;
-import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.disco.RMapDiSCO;
@@ -192,7 +191,7 @@ public interface RMapService {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<URI> getStatementRelatedAgents(java.net.URI subject, java.net.URI predicate, RMapValue object) 
+	public List<URI> getStatementRelatedAgents(URI subject, URI predicate, RMapValue object) 
 							throws RMapException, RMapDefectiveArgumentException;
 
 	/**
@@ -207,7 +206,7 @@ public interface RMapService {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<URI> getStatementRelatedAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, 
+	public List<URI> getStatementRelatedAgents(URI subject, URI predicate, RMapValue object, 
 							List<URI> systemAgents, Date dateFrom, Date dateTo) 
 							throws RMapException, RMapDefectiveArgumentException;
 
@@ -223,7 +222,7 @@ public interface RMapService {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<URI> getStatementAssertingAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, 
+	public List<URI> getStatementAssertingAgents(URI subject, URI predicate, RMapValue object, 
 												RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
 
 	/**
@@ -238,7 +237,7 @@ public interface RMapService {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<URI> getStatementAssertingAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, 
+	public List<URI> getStatementAssertingAgents(URI subject, URI predicate, RMapValue object, 
 												RMapStatus statusCode, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
 	
 	
@@ -269,7 +268,7 @@ public interface RMapService {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public RMapEvent createDiSCO(RMapUri systemAgent, RMapDiSCO disco)  throws RMapException, RMapDefectiveArgumentException;
+	public RMapEvent createDiSCO(URI systemAgent, RMapDiSCO disco)  throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * 
 	 * @param discoId
@@ -287,7 +286,7 @@ public interface RMapService {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public RMapEvent updateDiSCO(RMapUri systemAgent, URI oldDiscoId, RMapDiSCO disco) throws RMapException, RMapDefectiveArgumentException;
+	public RMapEvent updateDiSCO(URI systemAgent, URI oldDiscoId, RMapDiSCO disco) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Inactivate a DiSCO.  Can only be performed by same agent that created DiSCO
 	 * @param systemAgent
@@ -297,7 +296,7 @@ public interface RMapService {
 	 * @throws RMapDiSCONotFoundException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public RMapEvent inactivateDiSCO(RMapUri systemAgent, URI oldDiscoId) throws RMapException, RMapDiSCONotFoundException,
+	public RMapEvent inactivateDiSCO(URI systemAgent, URI oldDiscoId) throws RMapException, RMapDiSCONotFoundException,
 	RMapDefectiveArgumentException;
 	/**
 	 * Soft delete (tombstone) of a DiSCO
@@ -306,7 +305,7 @@ public interface RMapService {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public RMapEvent deleteDiSCO (URI discoID, RMapUri systemAgent) throws RMapException, RMapDefectiveArgumentException;
+	public RMapEvent deleteDiSCO (URI discoID, URI systemAgent) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Get all versions of a DiSCO whether created by original creator of DiSCO or by some
 	 * other agent
@@ -493,27 +492,6 @@ public interface RMapService {
 	 */
 	public List<URI> getAgentEvents(URI agentId) throws RMapException, RMapDefectiveArgumentException;
 	/**
-	 * Find all RMapAgents that are representations of an agent identified by some external (non-RMAP) uri
-	 * Include RMapAgents created by any RMapAgent
-	 * @param uri External (non-RMAP) identifier for an Agent
-	 * @return List of ids for Agents that represent the agent identified by external URI
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
-	 */
-	public List<URI> getAgentRepresentationsAnyCreator(URI uri) throws RMapException, RMapDefectiveArgumentException;
-	/**
-	 * Find all RMapAgents  that are representations of an agent identified by some external (non-RMAP) uri
-	 * and that were created by a particular RMapAgent
-	 * @param agentURI id of RMapAgent who created agents
-	 * @param repURI URI for some non-RMap identified agent
-	 * @return List of ids for RMapAgents that represent the agent identified by external URI
-	 * @throws RMapException
-	 * @throws RMapAgentNotFoundException
-	 * @throws RMapDefectiveArgumentException
-	 */
-	public List<URI> getAgentRepresentations(URI agentURI, URI repURI) throws RMapException, 
-	RMapAgentNotFoundException, RMapDefectiveArgumentException;
-	/**
 	 * 
 	 * @param agentId
 	 * @return
@@ -522,6 +500,29 @@ public interface RMapService {
 	 * @throws RMapAgentNotFoundException
 	 */
 	public RMapStatus getAgentStatus(URI agentId) throws RMapException, RMapDefectiveArgumentException, RMapAgentNotFoundException;
+	
+	/**
+	 * @param id
+	 * @return
+	 * @throws RMapException, RMapDefectiveArgumentException
+	 */
+	public boolean isAgentId(URI id) throws RMapException, RMapDefectiveArgumentException;
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 * @throws RMapException, RMapDefectiveArgumentException
+	 */
+	public boolean isDiSCOId(URI id) throws RMapException, RMapDefectiveArgumentException;
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 * @throws RMapException, RMapDefectiveArgumentException
+	 */
+	public boolean isEventId(URI id) throws RMapException, RMapDefectiveArgumentException;
+	
+	
 	/**
      * Closes triplestore connection if it is still open.
      * @throws RMapException

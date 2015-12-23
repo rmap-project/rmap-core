@@ -49,7 +49,7 @@ public class ORMapEventCreationTest {
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventCreation#ORMapEventCreation(info.rmapproject.core.model.RMapUri, info.rmapproject.core.model.event.RMapEventTargetType, info.rmapproject.core.model.RMapValue, java.util.List)}.
 	 */
 	@Test
-	public void testORMapEventCreationRMapUriRMapEventTargetTypeRMapValueListOfRMapUri() {
+	public void testORMapEventCreationRMapUriRMapEventTargetTypeRMapValueListOfRMapUri() throws Exception {
 		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
 		try {
 		    URI creatorUri = vf.createURI("http://orcid.org/0000-0003-2069-1219");

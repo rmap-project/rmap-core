@@ -8,6 +8,7 @@ import java.util.List;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.RMapUri;
@@ -57,9 +58,10 @@ public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMap
 	 * @param associatedAgent
 	 * @param targetType
 	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException 
 	 */
 	public ORMapEventCreation(RMapUri associatedAgent,
-			RMapEventTargetType targetType) throws RMapException {
+			RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
 		super(associatedAgent, targetType);
 		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.CREATION);
 	}
@@ -81,10 +83,11 @@ public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMap
 	 * @param targetType
 	 * @param desc
 	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException 
 	 */
 	public ORMapEventCreation(RMapUri associatedAgent,
 			RMapEventTargetType targetType, RMapValue desc)
-			throws RMapException {
+			throws RMapException, RMapDefectiveArgumentException {
 		super(associatedAgent, targetType, desc);
 		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.CREATION);
 	}
@@ -95,10 +98,11 @@ public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMap
 	 * @param desc
 	 * @param createdObjIds
 	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException 
 	 */
 	public ORMapEventCreation(RMapUri associatedAgent,
 			RMapEventTargetType targetType, RMapValue desc, List<RMapUri> createdObjIds)
-		throws RMapException{
+		throws RMapException, RMapDefectiveArgumentException{
 		this(associatedAgent, targetType, desc);
 		this.setCreatedObjectIds(createdObjIds);	
 	}

@@ -1,7 +1,8 @@
 package info.rmapproject.core.model.impl.openrdf;
 
 import static org.junit.Assert.*;
-
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
+import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdServiceFactoryIOC;
 import info.rmapproject.core.model.RMapBlankNode;
 import info.rmapproject.core.model.RMapLiteral;
@@ -53,7 +54,7 @@ public class ORAdapterTest {
 	}
 
 	@Test
-	public void testRMapUri2OpenRdfUri() {
+	public void testRMapUri2OpenRdfUri() throws RMapException, RMapDefectiveArgumentException {
 		String urString = "http://rmap-project.info/rmap/";
 		URI uri = null;
 		try {
@@ -87,7 +88,7 @@ public class ORAdapterTest {
 	}
 
 	@Test
-	public void testRMapNonLiteral2OpenRdfResource() {
+	public void testRMapNonLiteral2OpenRdfResource() throws Exception {
 		String bnId = null;
 		try {
 			bnId = IdServiceFactoryIOC.getFactory().createService().createId().toASCIIString();
@@ -114,7 +115,7 @@ public class ORAdapterTest {
 	}
 
 	@Test
-	public void testRMapLiteral2OpenRdfLiteral() {
+	public void testRMapLiteral2OpenRdfLiteral() throws Exception {
 		RMapLiteral lit = new RMapLiteral("RMapLiteral");
 		org.openrdf.model.Literal oLit = ORAdapter.rMapLiteral2OpenRdfLiteral(lit);
 		assertEquals (lit.getStringValue(),oLit.stringValue());
@@ -122,7 +123,7 @@ public class ORAdapterTest {
 	}
 
 	@Test
-	public void testRMapResource2OpenRdfValue() {
+	public void testRMapResource2OpenRdfValue() throws Exception {
 		String bnId = null;
 		try {
 			bnId = IdServiceFactoryIOC.getFactory().createService().createId().toASCIIString();
@@ -170,7 +171,7 @@ public class ORAdapterTest {
 	}
 
 	@Test
-	public void testOpenRdfBNode2RMapBlankNode() {
+	public void testOpenRdfBNode2RMapBlankNode() throws Exception {
 		String bnId = null;
 		try {
 			bnId = IdServiceFactoryIOC.getFactory().createService().createId().toASCIIString();
@@ -185,7 +186,7 @@ public class ORAdapterTest {
 	}
 
 	@Test
-	public void testOpenRdfResource2NonLiteralResource() {
+	public void testOpenRdfResource2NonLiteralResource() throws Exception {
 		String bnId = null;
 		try {
 			bnId = IdServiceFactoryIOC.getFactory().createService().createId().toASCIIString();
@@ -202,10 +203,7 @@ public class ORAdapterTest {
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			fail();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			fail();
-		}
+		} 
 		String urString = "http://rmap-project.info/rmap/";
 		org.openrdf.model.URI rUri =ORAdapter.getValueFactory().createURI(urString);
 		try {
@@ -215,21 +213,18 @@ public class ORAdapterTest {
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			fail();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			fail();
-		}
+		} 
 	}
 
 	@Test
-	public void testOpenRdfLiteral2RMapLiteral() {
+	public void testOpenRdfLiteral2RMapLiteral() throws Exception {
 		org.openrdf.model.Literal oLit = ORAdapter.getValueFactory().createLiteral("OpenRDF Literal");
 		RMapLiteral rLit = ORAdapter.openRdfLiteral2RMapLiteral(oLit);
 		assertEquals(oLit.stringValue(), rLit.getStringValue());
 	}
 
 	@Test
-	public void testOpenRdfValue2RMapResource() {
+	public void testOpenRdfValue2RMapResource() throws Exception {
 		Value value = ORAdapter.getValueFactory().createLiteral("OpenRDF Literal");
 		RMapValue rmr = null;
 		try {
@@ -240,10 +235,7 @@ public class ORAdapterTest {
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			fail();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			fail();
-		}
+		} 
 		String bnId = null;
 		try {
 			bnId = IdServiceFactoryIOC.getFactory().createService().createId().toASCIIString();
@@ -259,10 +251,7 @@ public class ORAdapterTest {
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			fail();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			fail();
-		}
+		} 
 		String urString = "http://rmap-project.info/rmap/";
 		value = ORAdapter.getValueFactory().createURI(urString);
 		try {
@@ -272,10 +261,7 @@ public class ORAdapterTest {
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			fail();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			fail();
-		}
+		} 
 	}
 
 }

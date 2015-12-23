@@ -8,6 +8,7 @@ import static org.junit.Assert.*;
 import java.net.URISyntaxException;
 import java.util.Date;
 
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdServiceFactoryIOC;
 import info.rmapproject.core.model.RMapLiteral;
@@ -52,9 +53,11 @@ public class ORMapEventInactivationTest {
 
 	/**
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventInactivation#ORMapEventInactivation(org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.URI, org.openrdf.model.Statement, org.openrdf.model.Statement)}.
+	 * @throws RMapDefectiveArgumentException 
+	 * @throws RMapException 
 	 */
 	@Test
-	public void testORMapEventInactivationStatementStatementStatementStatementStatementStatementURIStatementStatement() {
+	public void testORMapEventInactivationStatementStatementStatementStatementStatementStatementURIStatementStatement() throws RMapException, RMapDefectiveArgumentException {
 		java.net.URI id1 = null, id2 = null;
 		try {
 			// id for event
@@ -107,7 +110,7 @@ public class ORMapEventInactivationTest {
 		assertEquals(RMapEventType.INACTIVATION, event.getEventType());
 		assertEquals(RMapEventTargetType.DISCO, event.getEventTargetType());
 		Statement tStmt = event.getTypeStatement();
-		assertEquals(RMAP.EVENT, tStmt.getObject());
+		assertEquals(RMAP.EVENT.toString(), tStmt.getObject().toString());
 		Model eventModel = event.getAsModel();
 		assertEquals(8, eventModel.size());
 		assertEquals(oldDiscoId,ORAdapter.rMapUri2OpenRdfUri(event.getInactivatedObjectId()));		
@@ -123,9 +126,11 @@ public class ORMapEventInactivationTest {
 
 	/**
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventInactivation#ORMapEventInactivation(info.rmapproject.core.model.RMapUri, info.rmapproject.core.model.event.RMapEventTargetType, info.rmapproject.core.model.RMapValue)}.
+	 * @throws RMapDefectiveArgumentException 
+	 * @throws RMapException 
 	 */
 	@Test
-	public void testORMapEventInactivationRMapUriRMapEventTargetTypeRMapValue() {
+	public void testORMapEventInactivationRMapUriRMapEventTargetTypeRMapValue() throws RMapException, RMapDefectiveArgumentException {
 		RMapUri associatedAgent= null;
 		try {
 			associatedAgent = new RMapUri(

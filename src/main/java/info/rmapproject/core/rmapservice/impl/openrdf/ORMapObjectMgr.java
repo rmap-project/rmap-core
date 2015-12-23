@@ -209,16 +209,15 @@ public abstract class ORMapObjectMgr {
 	 * Confirm 2 identifiers refer to the same creating agent
 	 * @param uri
 	 * @param systemAgentId
-	 * @param eventmgr
 	 * @param ts
 	 * @return
 	 * @throws RMapException
 	 */
-	protected boolean isSameCreatorAgent (URI uri, URI systemAgentId, 
-			ORMapEventMgr eventmgr, SesameTriplestore ts) 
+	protected boolean isSameCreatorAgent (URI uri, URI systemAgentId, SesameTriplestore ts) 
 			throws RMapException {
 		boolean isSame = false;
-		Statement stmt = eventmgr.getRMapObjectCreateEventStatement(uri, ts);
+		ORMapEventMgr eventMgr = new ORMapEventMgr();		
+		Statement stmt = eventMgr.getRMapObjectCreateEventStatement(uri, ts);
 		do {
 			if (stmt==null){
 				break;
@@ -227,7 +226,7 @@ public abstract class ORMapObjectMgr {
 				throw new RMapException ("Event ID is not URI: " + stmt.getSubject().stringValue());
 			}
 			URI eventId = (URI)stmt.getSubject();
-			URI createAgent = eventmgr.getEventAssocAgent(eventId, ts);
+			URI createAgent = eventMgr.getEventAssocAgent(eventId, ts);
 			isSame = (systemAgentId.stringValue().equals(createAgent.stringValue()));
 		}while (false);
 		return isSame;

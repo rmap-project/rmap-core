@@ -3,6 +3,7 @@
  */
 package info.rmapproject.core.rdfhandler;
 
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.agent.RMapAgent;
@@ -13,7 +14,6 @@ import info.rmapproject.core.model.event.RMapEvent;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.util.List;
 
 /**
@@ -28,18 +28,19 @@ public interface RDFHandler {
 	 * @param rdfFormat name of RDF format 
 	 * @return RMapDiSCO built from RDF statements in InputStream
 	 * @throws RMapException if InputStream cannot be converted to valid DiSCO
+	 * @throws RMapDefectiveArgumentException 
 	 */
-	public RMapDiSCO rdf2RMapDiSCO(InputStream rdfIn, String baseUri, String rdfFormat) throws RMapException;
+	public RMapDiSCO rdf2RMapDiSCO(InputStream rdfIn, String baseUri, String rdfFormat) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Deserialize an RDF InputStream into an RMapAgent
-	 * @param systemAgent 
 	 * @param rdfIn
 	 * @param baseUri; empty string if no relative URIs in stream
 	 * @param rdfFormat
 	 * @return
 	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException 
 	 */
-	public RMapAgent rdf2RMapAgent(URI systemAgent, InputStream rdfIn, String baseUri, String rdfFormat) throws RMapException;
+	public RMapAgent rdf2RMapAgent(InputStream rdfIn, String baseUri, String rdfFormat) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Serialize RMapTriple list as RDF
@@ -47,8 +48,9 @@ public interface RDFHandler {
 	 * @param rdfFormat RDF Format to be used in serialization
 	 * @return OutputStream with serialized RDF
 	 * @throws RMapException if RMapTriple list cannot be serialized as RDF
+	 * @throws RMapDefectiveArgumentException 
 	 */
-	public OutputStream triples2Rdf(List<RMapTriple> triples, String rdfFormat)	throws RMapException;
+	public OutputStream triples2Rdf(List<RMapTriple> triples, String rdfFormat)	throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Serialize RMapDiSCO as RDF

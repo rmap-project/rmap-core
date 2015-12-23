@@ -16,6 +16,7 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
 
 import java.net.URISyntaxException;
+import java.util.List;
 
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
@@ -80,10 +81,10 @@ public class ORAdapter {
 	 * @return  org.openrdf.model.URI equivalent
 	 * @throws Exception
 	 */
-	public static URI rMapUri2OpenRdfUri (RMapUri rUri)  throws RMapException {
+	public static URI rMapUri2OpenRdfUri (RMapUri rUri) throws RMapDefectiveArgumentException {
 		URI uri = null;
 		if (rUri==null){
-			throw new IllegalArgumentException("RMapUri is null");
+			throw new RMapDefectiveArgumentException("RMapUri is null");
 		}
 		else {
 			uri = uri2OpenRdfUri(rUri.getIri());
@@ -96,8 +97,7 @@ public class ORAdapter {
 	 * @return org.openrdf.model.Bnode
 	 * @throws RMapException
 	 */
-	public static BNode rMapBlankNode2OpenRdfBNode (RMapBlankNode blank) 
-			throws RMapException {
+	public static BNode rMapBlankNode2OpenRdfBNode (RMapBlankNode blank) {
 		BNode newBlankNode = getValueFactory().createBNode(blank.getId());
 		return newBlankNode;
 	}
@@ -108,11 +108,10 @@ public class ORAdapter {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Resource rMapNonLiteral2OpenRdfResource(RMapResource nonLiteral) 
-			throws RMapException {
+	public static Resource rMapNonLiteral2OpenRdfResource(RMapResource nonLiteral) throws RMapDefectiveArgumentException {
 		Resource resource = null;
 		if (nonLiteral==null){
-			throw new IllegalArgumentException("RMapNonLiteral is null");
+			throw new RMapDefectiveArgumentException("RMapNonLiteral is null");
 		}				
 		else if (nonLiteral instanceof RMapBlankNode){
 			RMapBlankNode rb = (RMapBlankNode)nonLiteral;
@@ -125,7 +124,7 @@ public class ORAdapter {
 			resource = uri;
 		}
 		else {
-			throw new IllegalArgumentException("Unrecognized RMapNonLiteral type");
+			throw new RMapDefectiveArgumentException("Unrecognized RMapNonLiteral type");
 		}
 		return resource;
 	}
@@ -135,10 +134,10 @@ public class ORAdapter {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Literal rMapLiteral2OpenRdfLiteral(RMapLiteral rLiteral) throws RMapException {
+	public static Literal rMapLiteral2OpenRdfLiteral(RMapLiteral rLiteral) throws RMapDefectiveArgumentException {
 		Literal literal = null;
 		if (rLiteral == null){
-			throw new IllegalArgumentException ("Null RMapLiteral");
+			throw new RMapDefectiveArgumentException ("Null RMapLiteral");
 		}
 		String litString = rLiteral.getStringValue();
 		if (rLiteral.getDatatype() != null){ //has a datatype associated with the literal
@@ -154,10 +153,10 @@ public class ORAdapter {
 		return literal;
 	}
 	
-	public static Value rMapValue2OpenRdfValue (RMapValue resource) throws RMapException {
+	public static Value rMapValue2OpenRdfValue (RMapValue resource) throws RMapDefectiveArgumentException {
 		Value value = null;
 		if (resource==null){
-			throw new IllegalArgumentException ("Null RMapLiteral");
+			throw new RMapDefectiveArgumentException ("Null RMapLiteral");
 		}
 		if (resource instanceof RMapResource){
 			value = rMapNonLiteral2OpenRdfResource((RMapResource)resource);
@@ -166,7 +165,7 @@ public class ORAdapter {
 			value = rMapLiteral2OpenRdfLiteral((RMapLiteral)resource);
 		}
 		else {
-			throw new IllegalArgumentException("Unrecognized RMapResourceType");
+			throw new RMapDefectiveArgumentException("Unrecognized RMapResourceType");
 		}
 		return value;
 	}
@@ -203,12 +202,12 @@ public class ORAdapter {
 	 * 
 	 * @param b
 	 * @return
-	 * @throws IllegalArgumentException
+	 * @throws RMapDefectiveArgumentException
 	 */
-	public static RMapBlankNode openRdfBNode2RMapBlankNode (BNode b) throws IllegalArgumentException{
+	public static RMapBlankNode openRdfBNode2RMapBlankNode (BNode b) throws RMapDefectiveArgumentException{
 		RMapBlankNode rnode= null;
 		if (b==null) {
-			throw new IllegalArgumentException("BNode is null");
+			throw new RMapDefectiveArgumentException("BNode is null");
 		}
 		rnode = new RMapBlankNode(b.getID());
 		return rnode;
@@ -217,14 +216,14 @@ public class ORAdapter {
 	 * 
 	 * @param resource
 	 * @return
-	 * @throws IllegalArgumentException
+	 * @throws RMapDefectiveArgumentException
 	 * @throws URISyntaxException
 	 */
-	public static RMapResource openRdfResource2NonLiteral(Resource resource)
-	throws IllegalArgumentException, URISyntaxException {
+	public static RMapResource openRdfResource2NonLiteral(Resource resource) 
+			throws RMapException, RMapDefectiveArgumentException {
 		RMapResource nlResource = null;
 		if (resource==null){
-			throw new IllegalArgumentException("Resource is null");
+			throw new RMapDefectiveArgumentException("Resource is null");
 		}				
 		else if (resource instanceof BNode){
 			RMapBlankNode bnode = openRdfBNode2RMapBlankNode((BNode) resource);
@@ -235,16 +234,16 @@ public class ORAdapter {
 			nlResource = uri;
 		}
 		else {
-			throw new IllegalArgumentException("Unrecognized Resource type");
+			throw new RMapDefectiveArgumentException("Unrecognized Resource type");
 		}
 		return nlResource;
 	}
 	
 	public static  RMapLiteral openRdfLiteral2RMapLiteral(Literal literal)
-	throws IllegalArgumentException{
+			throws RMapException, RMapDefectiveArgumentException {
 		RMapLiteral rLiteral = null;
 		if (literal==null){
-			throw new IllegalArgumentException("Literal is null");
+			throw new RMapDefectiveArgumentException("Literal is null");
 		}
 
 		String litString = literal.getLabel();
@@ -264,14 +263,14 @@ public class ORAdapter {
 	 * 
 	 * @param value
 	 * @return
-	 * @throws URISyntaxException
-	 * @throws IllegalArgumentException
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
 	 */
 	public static RMapValue openRdfValue2RMapValue (Value value) 
-			throws URISyntaxException, IllegalArgumentException{
+			throws RMapException, RMapDefectiveArgumentException {
 		RMapValue resource = null;
 		if (value==null){
-			throw new IllegalArgumentException("Resource is null");
+			throw new RMapDefectiveArgumentException("Resource is null");
 		}				
 		else if (value instanceof Literal){			
 			RMapLiteral rLiteral = openRdfLiteral2RMapLiteral((Literal)value);
@@ -282,11 +281,11 @@ public class ORAdapter {
 			resource = bnode;
 		}
 		else if (value instanceof URI){		
-			RMapUri uri =openRdfUri2RMapUri((URI)value);
+			RMapUri uri = openRdfUri2RMapUri((URI)value);
 			resource = uri;
 		}
 		else {
-			throw new IllegalArgumentException("Unrecognized Resource type");
+			throw new RMapDefectiveArgumentException("Unrecognized Resource type");
 		}
 		return resource;
 	}
@@ -302,39 +301,62 @@ public class ORAdapter {
 		if (stmt==null){
 			throw new RMapDefectiveArgumentException("null stmt");
 		}
-		RMapResource subject = null;
-		RMapUri predicate = null;
-		RMapValue object = null;
-		try {
-			subject = openRdfResource2NonLiteral(stmt.getSubject());
-			predicate=openRdfUri2RMapUri(stmt.getPredicate());
-			object = openRdfValue2RMapValue(stmt.getObject());
-		} catch (IllegalArgumentException | URISyntaxException e) {
-			throw new RMapException(e);
-		}
+		
+		RMapResource subject = openRdfResource2NonLiteral(stmt.getSubject());
+		RMapUri predicate = openRdfUri2RMapUri(stmt.getPredicate());
+		RMapValue object = openRdfValue2RMapValue(stmt.getObject());		
 		RMapTriple rtriple = new RMapTriple(subject, predicate, object);		
 		return rtriple;
 	}
 	
 	/**
-	 * Attempt to convert URIs in openRdf Statement to a java.net.URI to see if it is compatible
+	 * Attempt to convert URIs in openRdf URI to a java.net.URI to see if it is compatible
 	 * openRdf is more relaxed about what characters to allow in the URI e.g. "/n" can be put in openRdfUri. 
 	 * This ensures URIs in the statement are compatible with the narrower URI definition in java.net.URI.
+	 * @param uri
+	 * @return boolean
+	 * @throws RMapException
+	 */
+	public static boolean checkOpenRdfUri2UriCompatibility(URI uri) throws RMapException {
+		try {
+			new java.net.URI(uri.toString());
+		} catch (URISyntaxException e) {
+			throw new RMapException("Cannot convert stmt resource reference to a URI: " );
+		}
+		return true;
+	}
+	
+	/**
+	 * Checks each openRDF URI in a statement for compatibility with java.net.URI. 
 	 * @param stmt
 	 * @return boolean
 	 * @throws RMapException
 	 */
-	public static boolean isOpenRdfStatementCompatibleWithUri (Statement stmt) throws RMapException {
-		try {			
-			if (stmt.getSubject() instanceof URI) {
-				new java.net.URI(stmt.getSubject().toString());
+	public static boolean checkOpenRdfUri2UriCompatibility (Statement stmt) throws RMapException {
+		if (stmt.getSubject() instanceof URI) {
+			checkOpenRdfUri2UriCompatibility((URI)stmt.getSubject());
+		}
+		
+		checkOpenRdfUri2UriCompatibility((URI)stmt.getPredicate());
+		
+		if (stmt.getObject() instanceof URI) {
+			checkOpenRdfUri2UriCompatibility((URI)stmt.getObject());
+		}	
+		return true;
+	}
+	
+	/**
+	 * Checks each openRDF URI in a list statement for compatibility with java.net.URI. 
+	 * @param stmts
+	 * @return
+	 * @throws RMapException
+	 */
+	public static boolean checkOpenRdfUri2UriCompatibility (List<Statement> stmts) throws RMapException{
+		for (Statement stmt : stmts){
+			boolean isCompatible = checkOpenRdfUri2UriCompatibility(stmt);
+			if (!isCompatible){
+				return false;
 			}
-			new java.net.URI(stmt.getPredicate().toString()); 
-			if (stmt.getObject() instanceof URI) {
-				new java.net.URI(stmt.getObject().toString());
-			}		
-		} catch (URISyntaxException e) {
-			return false;
 		}
 		return true;
 	}

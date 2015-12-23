@@ -1,6 +1,7 @@
 package info.rmapproject.core.rdfhandler.impl.openrdf;
 
 
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.agent.RMapAgent;
@@ -103,22 +104,22 @@ public class RioRDFHandler implements RDFHandler {
 
 	@Override
 	public RMapDiSCO rdf2RMapDiSCO(InputStream rdfIn, String baseUri, String rdfFormat)
-			throws RMapException {
+			throws RMapException, RMapDefectiveArgumentException {
 		List <Statement> stmts = this.convertRDFToStmtList(rdfIn, rdfFormat, baseUri);
 		ORMapDiSCO disco = new ORMapDiSCO(stmts);
 		return disco;
 	}
 	
 	@Override
-	public RMapAgent rdf2RMapAgent(java.net.URI systemAgent, InputStream rdfIn,
-			String baseUri, String rdfFormat) throws RMapException {
+	public RMapAgent rdf2RMapAgent(InputStream rdfIn, String baseUri, String rdfFormat) 
+			throws RMapException, RMapDefectiveArgumentException {
 		List <Statement> stmts = this.convertRDFToStmtList(rdfIn, rdfFormat, baseUri);
-		ORMapAgent agent = new ORMapAgent(stmts, ORAdapter.uri2OpenRdfUri(systemAgent));
+		ORMapAgent agent = new ORMapAgent(stmts);
 		return agent;
 	}
 	
 	@Override
-	public OutputStream triples2Rdf(List<RMapTriple> triples, String rdfFormat) throws RMapException	{
+	public OutputStream triples2Rdf(List<RMapTriple> triples, String rdfFormat) throws RMapException, RMapDefectiveArgumentException	{
 		if (triples == null){
 			throw new RMapException("Null triple list");			
 		}

@@ -7,6 +7,7 @@ import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.RMapValue;
@@ -77,7 +78,7 @@ public class ORMapEventInactivation extends ORMapEvent implements
 	 */
 	public ORMapEventInactivation(RMapUri associatedAgent,
 			RMapEventTargetType targetType, RMapValue desc)
-			throws RMapException {
+			throws RMapException, RMapDefectiveArgumentException  {
 		super(associatedAgent, targetType, desc);
 		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.INACTIVATION);
 	}
@@ -108,7 +109,7 @@ public class ORMapEventInactivation extends ORMapEvent implements
 	}
 
 	@Override
-	public void setInactivatedObjectId(RMapUri uri) throws RMapException {
+	public void setInactivatedObjectId(RMapUri uri) throws RMapException, RMapDefectiveArgumentException {
 		URI inactiveUri = ORAdapter.rMapUri2OpenRdfUri(uri);
 		this.setInactivatedObjectStmt(inactiveUri);
 	}

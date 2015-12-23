@@ -3,6 +3,7 @@
  */
 package info.rmapproject.core.model.event;
 
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapUri;
 
@@ -26,6 +27,6 @@ public interface RMapEventDeletion extends RMapEvent {
 	 * @param deletedObjectIds the deletedObjectIds to set
 	 * @throws RMapException 
 	 */
-	public void setDeletedObjectIds(List<RMapUri> deletedObjectIds) throws RMapException;
+	public void setDeletedObjectIds(List<RMapUri> deletedObjectIds) throws RMapException, RMapDefectiveArgumentException;
 
 }

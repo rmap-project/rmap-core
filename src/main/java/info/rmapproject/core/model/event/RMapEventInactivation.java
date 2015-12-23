@@ -3,6 +3,7 @@
  */
 package info.rmapproject.core.model.event;
 
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapUri;
 
@@ -21,6 +22,8 @@ public interface RMapEventInactivation extends RMapEvent {
 	 * 
 	 * @param uri
 	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
 	 */
-	public void setInactivatedObjectId(RMapUri uri) throws RMapException;
+	public void setInactivatedObjectId(RMapUri uri) throws RMapException, RMapDefectiveArgumentException;
+	
 }
