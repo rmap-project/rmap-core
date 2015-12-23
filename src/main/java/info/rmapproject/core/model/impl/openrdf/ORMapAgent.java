@@ -173,11 +173,15 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	}
 
 	@Override
-	public RMapValue getName() throws RMapException, RMapDefectiveArgumentException {
+	public RMapValue getName() throws RMapException {
 		RMapValue name = null;
 		if (this.nameStmt!= null){
 			Value value = this.nameStmt.getObject();
+			try {
 			name = ORAdapter.openRdfValue2RMapValue(value);
+			} catch(RMapDefectiveArgumentException e) {
+				throw new RMapException("Could not convert Name value [" + value.stringValue() + "] to RMapValue");
+			}
 		}
 		return name;
 	}

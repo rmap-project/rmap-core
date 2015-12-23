@@ -21,7 +21,7 @@ public interface RMapAgent extends RMapObject {
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapValue getName() throws RMapException, RMapDefectiveArgumentException;
+	public RMapValue getName() throws RMapException;
 	/**
 	 * Get ID of provider used to authenticate the RMap user that is associated with the Agent
 	 * @return
