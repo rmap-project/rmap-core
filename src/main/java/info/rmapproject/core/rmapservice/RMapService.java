@@ -112,15 +112,7 @@ public interface RMapService {
 	 */
 	public List<URI> getResourceRelatedDiSCOs (URI uri, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
 	/**
-	 * Get all RMapAgents with a specified status code related to a Resource URI 
-	 * @param uri
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
-	 */
-	public List<URI> getResourceRelatedAgents (URI uri) throws RMapException, RMapDefectiveArgumentException;
-	/**
-	 * Get all RMapAgents related to a Resource URI that match the filters specified
+	 * Get all RMapAgents that asserted a statement containing the Resource URI provided that match the filters specified
 	 * @param uri
 	 * @param systemAgents
 	 * @param dateFrom
@@ -129,7 +121,7 @@ public interface RMapService {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public List<URI> getResourceRelatedAgents (URI uri, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getResourceAssertingAgents (URI uri, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Determine what types are associated with a given resource in a specific context (e.g. within a DiSCO)
 	 * @param resourceUri URI for resource whose type is being checked

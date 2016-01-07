@@ -4,7 +4,7 @@
 package info.rmapproject.core.exception;
 
 /**
- * @author khansen
+ * @author khanson
  *
  */
 @SuppressWarnings("serial")

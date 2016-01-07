@@ -3,7 +3,6 @@
  */
 package info.rmapproject.core.model.agent;
 
-import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapObject;
 import info.rmapproject.core.model.RMapUri;

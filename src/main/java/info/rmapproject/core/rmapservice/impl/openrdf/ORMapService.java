@@ -81,7 +81,7 @@ public class ORMapService implements RMapService {
 		}
 		List<URI>uris = new ArrayList<URI>();
 		uris.addAll(this.getResourceRelatedDiSCOs(uri, statusCode, systemAgents, dateFrom, dateTo));
-		uris.addAll(this.getResourceRelatedAgents(uri, systemAgents, dateFrom, dateTo));
+		uris.addAll(this.getResourceAssertingAgents(uri, systemAgents, dateFrom, dateTo));
 		uris.addAll(this.getResourceRelatedEvents(uri, systemAgents, dateFrom, dateTo));
 		return uris;
 	}
@@ -200,18 +200,11 @@ public class ORMapService implements RMapService {
 		}
 		return uris;		
 	}
-
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRelatedAgents (URI)
-	 */
-	public List<URI> getResourceRelatedAgents (URI uri) throws RMapException, RMapDefectiveArgumentException{
-		return getResourceRelatedAgents (uri, null, null, null);
-	}
 	
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRelatedAgents (URI, RMapStatus, List<URI>, Date, Date)
 	 */
-	public List<URI> getResourceRelatedAgents (URI uri, List<URI> systemAgents, Date dateFrom, Date dateTo)
+	public List<URI> getResourceAssertingAgents (URI uri, List<URI> systemAgents, Date dateFrom, Date dateTo)
 			throws RMapException, RMapDefectiveArgumentException {
 		if (uri==null){
 			throw new RMapDefectiveArgumentException("null uri");
