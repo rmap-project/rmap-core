@@ -102,7 +102,7 @@ public class ORMapStatementMgrTest {
 			
 			//create new test agent
 			RMapAgent agent = new ORMapAgent(AGENT_URI, ID_PROVIDER_URI, AUTH_ID_URI, NAME);
-			rmapService.createAgent(agent.getId().getIri(), agent);
+			rmapService.createAgent(agent, agent.getId().getIri());
 			java.net.URI agentId=agent.getId().getIri();
 			if (rmapService.isAgentId(agentId)){
 				System.out.println("Test Agent successfully created!  URI is " + agentId);
@@ -163,7 +163,7 @@ public class ORMapStatementMgrTest {
 			
 			//create new test agent
 			RMapAgent agent = new ORMapAgent(AGENT_URI, ID_PROVIDER_URI, AUTH_ID_URI, NAME);
-			rmapService.createAgent(agent.getId().getIri(), agent);
+			rmapService.createAgent(agent, agent.getId().getIri());
 			java.net.URI agentId=agent.getId().getIri();
 			if (rmapService.isAgentId(agentId)){
 				System.out.println("Test Agent successfully created!  URI is " + agentId);

@@ -456,14 +456,31 @@ public interface RMapService {
 	 */
 	public RMapAgent readAgent (URI agentID) throws RMapException, RMapAgentNotFoundException, RMapDefectiveArgumentException;
 	/**
-	 * Create a new agent
-	 * @param agentID ID of (system) agent creating this new Agent
+	 * Create a new agent. Note: In most instances the agentID should match the URI in agent.getId()
+	 * - in other words agents typically create their own record if they registered through the GUI.  
+	 * There is an option to indicate that an agent wasn't created by themselves, which might be used for batch loading etc.
 	 * @param agent RMapAgent object to be instantiated in system
+	 * @param creatingAgentID ID of (system) agent creating this new Agent
 	 * @return RMapEvent associated with creation of Agent
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public RMapEvent createAgent(URI agentID, RMapAgent agent) throws RMapException, RMapDefectiveArgumentException;
+	public RMapEvent createAgent(RMapAgent agent, URI creatingAgentID) throws RMapException, RMapDefectiveArgumentException;
+	
+	/**
+	 * Create a new agent using the agent properties. Note: In most instances the agentID should match the URI in agent.getId()
+	 * - in other words agents typically create their own record if they registered through the GUI.  
+	 * There is an option to indicate that an agent wasn't created by themselves, which might be used for batch loading etc.
+	 * @param agentID
+	 * @param name
+	 * @param identityProvider
+	 * @param authKeyUri
+	 * @param creatingAgentID
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public RMapEvent createAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, URI creatingAgentID) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Tombstone an existing agent

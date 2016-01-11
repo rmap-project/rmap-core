@@ -150,28 +150,38 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	/**
 	 * 
 	 * @param agent
-	 * @param systemAgentId 
+	 * @param creatingAgentUri 
 	 * @param ts
 	 * @return
 	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapEvent createAgent (ORMapAgent agent, URI systemAgentId, SesameTriplestore ts)
-	throws RMapException {
+	public ORMapEvent createAgent (ORMapAgent agent, URI creatingAgentUri, SesameTriplestore ts)
+	throws RMapException, RMapDefectiveArgumentException {
 		if (agent==null){
 			throw new RMapException ("null agent");
 		}
-		if (systemAgentId==null){
+		if (creatingAgentUri==null){
 			throw new RMapException("System Agent ID required: was null");
 		}
 		if (ts==null){
 			throw new RMapException ("null triplestore");
 		}
-		// Confirm systemAgentId (not null, is Agent)... only if agent is not creating self.
-		if (!systemAgentId.toString().equals(agent.getId().toString()) && !this.isAgentId(systemAgentId, ts)){
-			throw new RMapAgentNotFoundException("No agent with id " + systemAgentId.stringValue());
+
+		URI newAgentId = ORAdapter.rMapUri2OpenRdfUri(agent.getId());
+		
+		// Usually agents create themselves, where this isn't the case we need to check the creating agent exists already
+		if (!creatingAgentUri.toString().equals(newAgentId.toString()) && !this.isAgentId(creatingAgentUri, ts)){
+			throw new RMapAgentNotFoundException("No agent with id " + creatingAgentUri.stringValue());
 		}		
-		// get the event started
-		ORMapEventCreation event = new ORMapEventCreation(systemAgentId, RMapEventTargetType.AGENT);
+		
+		// Confirm that the agent being created doesn't already exist
+		if (isAgentId(newAgentId,ts)) {
+			throw new RMapException("The Agent being created already exists");
+		}
+		
+		// Get the event started
+		ORMapEventCreation event = new ORMapEventCreation(creatingAgentUri, RMapEventTargetType.AGENT);
 		// set up triplestore and start transaction
 		boolean doCommitTransaction = false;
 		try {
@@ -212,7 +222,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 */
 	public RMapEvent tombstoneAgent(URI systemAgentId,URI oldAgentId, SesameTriplestore ts) 
 	throws RMapException {
-		// confirm non-null old disco
+		// confirm non-null old agent
 		if (oldAgentId==null){
 			throw new RMapException ("Null value for id of Agent to be tombstoned");
 		}
@@ -223,7 +233,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		if (!(this.isAgentId(systemAgentId, ts))){
 			throw new RMapAgentNotFoundException("No agent with id " + systemAgentId.stringValue());
 		}
-		// make sure same Agent created the DiSCO now being inactivated
+		// make sure same Agent created the Agent now being inactivated
 		if (! this.isSameCreatorAgent(oldAgentId, systemAgentId, ts)){
 			throw new RMapException(
 					"Agent attempting to tombstone Agent is not same as its creating Agent");
@@ -258,7 +268,6 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}
 		return event;
 	}
-
 	
 	/**
 	 * 

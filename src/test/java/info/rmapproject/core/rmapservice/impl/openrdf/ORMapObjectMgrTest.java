@@ -184,7 +184,7 @@ public class ORMapObjectMgrTest {
 			RMapService rmapService=RMapServiceFactoryIOC.getFactory().createService();
 			SesameTriplestore ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
 			RMapAgent agent = new ORMapAgent(AGENT_URI, ID_PROVIDER_URI, AUTH_ID_URI, NAME);
-			rmapService.createAgent(agent.getId().getIri(), agent);
+			rmapService.createAgent(agent, agent.getId().getIri());
 			RMapUri agentId=agent.getId();
 			ORMapAgentMgr agentMgr = new ORMapAgentMgr();
 			assertTrue(agentMgr.isAgentId(ORAdapter.rMapUri2OpenRdfUri(agentId), ts));

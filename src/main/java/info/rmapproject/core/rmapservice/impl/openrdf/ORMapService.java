@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
 
 /**
  *  @author khanson, smorrissey
@@ -909,7 +910,7 @@ public class ORMapService implements RMapService {
 	}
 	
 	@Override
-	public RMapEvent createAgent(URI systemAgent, RMapAgent agent)
+	public RMapEvent createAgent(RMapAgent agent, URI creatingAgentID) 
 			throws RMapException, RMapDefectiveArgumentException {
 		if (agent==null){
 			throw new RMapDefectiveArgumentException("null agent");
@@ -917,16 +918,44 @@ public class ORMapService implements RMapService {
 		if (!(agent instanceof ORMapAgent)){
 			throw new RMapDefectiveArgumentException("unrecognized type for agent");
 		}
-		if (systemAgent==null){
+		if (creatingAgentID==null){
 			throw new RMapDefectiveArgumentException("null system agent");
 		}
 		ORMapAgentMgr agentmgr = new ORMapAgentMgr();
-		org.openrdf.model.URI systemAgentUri = ORAdapter.uri2OpenRdfUri(systemAgent);
+		org.openrdf.model.URI creatingAgentUri = ORAdapter.uri2OpenRdfUri(creatingAgentID);
 		ORMapAgent orAgent = (ORMapAgent)agent;
-		RMapEvent event = agentmgr.createAgent(orAgent, systemAgentUri, ts);
+		RMapEvent event = agentmgr.createAgent(orAgent, creatingAgentUri, ts);
 		return event;
 	}
-
+		
+	@Override
+	public RMapEvent createAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, URI creatingAgentID) 
+			throws RMapException, RMapDefectiveArgumentException {
+		if (agentID==null){
+			throw new RMapDefectiveArgumentException("null Agent ID");
+		}
+		if (name==null){
+			throw new RMapDefectiveArgumentException("null Agent name");
+		}
+		if (identityProvider==null){
+			throw new RMapDefectiveArgumentException("null Agent identity provider");
+		}
+		if (authKeyUri==null){
+			throw new RMapDefectiveArgumentException("null Agent authorization ID");
+		}
+		if (creatingAgentID==null){
+			throw new RMapDefectiveArgumentException("null creating agent");
+		}
+		
+		Value nameValue = ORAdapter.getValueFactory().createLiteral(name);
+		org.openrdf.model.URI oAgentId = ORAdapter.uri2OpenRdfUri(agentID);
+		org.openrdf.model.URI oIdentityProvider = ORAdapter.uri2OpenRdfUri(identityProvider);
+		org.openrdf.model.URI oAuthKeyUri = ORAdapter.uri2OpenRdfUri(authKeyUri);
+		RMapAgent agent = new ORMapAgent(oAgentId, oIdentityProvider, oAuthKeyUri, nameValue);
+		RMapEvent event = createAgent(agent, agentID);
+		return event;
+	}
+	
 	@Override
 	public RMapEvent deleteAgent(URI systemAgentId, URI targetAgentID)
 			throws RMapException, RMapAgentNotFoundException,
