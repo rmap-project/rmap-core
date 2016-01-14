@@ -68,6 +68,10 @@ public class RMAP {
 	/**
 	 * 
 	 */
+	public static final URI EVENT_TYPE_REPLACE;
+	/**
+	 * 
+	 */
 	public static final URI EVENT_TYPE_TOMBSTONE;
 	/**
 	 * 
@@ -92,11 +96,15 @@ public class RMAP {
 	/**
 	 * 
 	 */
-	public static final URI EVENT_TARGET_TOMBSTONED;
+	public static final URI EVENT_TOMBSTONED_OBJECT;
 	/**
 	 * 
 	 */
-	public static final URI EVENT_TARGET_DELETED;
+	public static final URI EVENT_DELETED_OBJECT;
+	/**
+	 * 
+	 */
+	public static final URI EVENT_UPDATED_OBJECT;
 	/**
 	 * 
 	 */
@@ -132,12 +140,16 @@ public class RMAP {
 		EVENT_TYPE_DERIVATION = f.createURI(NAMESPACE, "derivation");
 		EVENT_TYPE_TOMBSTONE = f.createURI(NAMESPACE, "tombstone");
 		EVENT_TYPE_DELETION = f.createURI(NAMESPACE, "deletion");
+		EVENT_TYPE_REPLACE = f.createURI(NAMESPACE, "replace");
 		EVENT_TARGET_TYPE = f.createURI(NAMESPACE, "eventTargetType");
+		
 		EVENT_SOURCE_OBJECT = f.createURI(NAMESPACE, "sourceObject");
 		EVENT_INACTIVATED_OBJECT = f.createURI(NAMESPACE, "inactivatedObject");
 		EVENT_DERIVED_OBJECT = f.createURI(NAMESPACE, "derivedObject");
-		EVENT_TARGET_TOMBSTONED = f.createURI(NAMESPACE, "tombstonedObject");
-		EVENT_TARGET_DELETED = f.createURI(NAMESPACE, "deletedObject");	
+		EVENT_TOMBSTONED_OBJECT = f.createURI(NAMESPACE, "tombstonedObject");
+		EVENT_DELETED_OBJECT = f.createURI(NAMESPACE, "deletedObject");	
+		EVENT_UPDATED_OBJECT = f.createURI(NAMESPACE, "updatedObject");	
+		
 		HAS_STATUS = f.createURI(NAMESPACE, "hasStatus");  
 		PROVIDER_ID = f.createURI(NAMESPACE, "providerId");
 		IDENTITY_PROVIDER = f.createURI(NAMESPACE, "identityProvider");	

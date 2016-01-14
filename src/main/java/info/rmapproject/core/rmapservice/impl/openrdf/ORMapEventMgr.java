@@ -17,6 +17,7 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventInactivation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdateWithReplace;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
@@ -138,6 +139,13 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 				}
 			}
 		}
+		else if (event instanceof ORMapEventUpdateWithReplace){
+			ORMapEventUpdateWithReplace replEvent = (ORMapEventUpdateWithReplace)event;
+			Statement updatedObjectStmt = replEvent.getUpdatedObjectStmt();
+			if (updatedObjectStmt != null){
+				this.createTriple(ts, updatedObjectStmt);
+			}
+		}
 		else {
 			throw new RMapException ("Unrecognized event type");
 		}
@@ -195,6 +203,8 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		Statement sourceObjectStatement = null;
 		Statement derivationStatement = null;
 		Statement inactivatedObjectStatement = null;
+		//For update events the do a replace
+		Statement replacedObjectStatement = null;
 		// for Tombstone events
 		Statement tombstoned = null;
 		// for Delete events
@@ -253,12 +263,16 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 				inactivatedObjectStatement = stmt;
 				continue;
 			}
-			if (predicate.equals(RMAP.EVENT_TARGET_TOMBSTONED)){
+			if (predicate.equals(RMAP.EVENT_TOMBSTONED_OBJECT)){
 				tombstoned = stmt;
 				continue;
 			}
-			if (predicate.equals(RMAP.EVENT_TARGET_DELETED)){
+			if (predicate.equals(RMAP.EVENT_DELETED_OBJECT)){
 				deletedObjects.add(stmt);
+				continue;
+			}
+			if (predicate.equals(RMAP.EVENT_UPDATED_OBJECT)){
+				replacedObjectStatement=stmt;
 				continue;
 			}
 		}
@@ -275,6 +289,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		boolean isDerivationEvent = false;
 		boolean isTombstoneEvent = false;
 		boolean isDeleteEvent = false;
+		boolean isReplaceEvent = false;
 		if (eventTypeStmt==null){
 			throw new RMapException ("No event type in event graph " + context.stringValue());
 		}
@@ -303,6 +318,10 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 				}
 				if (type.equals(RMapEventType.DELETION.getTypeString())){
 					isDeleteEvent = true;
+					break;
+				}
+				if (type.equals(RMapEventType.REPLACE.getTypeString())){
+					isReplaceEvent = true;
 					break;
 				}
 				throw new RMapException ("Unrecognized event type: " + type
@@ -401,6 +420,14 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			}
 			event = new ORMapEventDeletion(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt, 
 					descriptionStmt, startTimeStmt,endTimeStmt, context, typeStatement,deletedObjects);
+		}
+		else if (isReplaceEvent){
+			if (replacedObjectStatement==null){
+				throw new RMapException("Update event missing replaced object statement");
+			}
+			event = new ORMapEventUpdateWithReplace(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt, 
+					descriptionStmt, startTimeStmt, endTimeStmt, context, typeStatement,
+					replacedObjectStatement);
 		}
 		else {
 			throw new RMapException ("Unrecognized event type");
@@ -563,7 +590,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 				break;	
 			case TOMBSTONE:
 				try {
-					Statement stmt = ts.getStatement(eventId, RMAP.EVENT_TARGET_TOMBSTONED, null, eventId);
+					Statement stmt = ts.getStatement(eventId, RMAP.EVENT_TOMBSTONED_OBJECT, null, eventId);
 					if (stmt != null){
 						Value obj = stmt.getObject();
 						if (obj instanceof URI){
@@ -580,7 +607,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 				break;
 			case DELETION:
 				try {
-					List<Statement> createdObjects= ts.getStatements(eventId, RMAP.EVENT_TARGET_DELETED, null, eventId);
+					List<Statement> createdObjects= ts.getStatements(eventId, RMAP.EVENT_DELETED_OBJECT, null, eventId);
 					for (Statement stmt:createdObjects){
 						Value obj = stmt.getObject();
 						if (obj instanceof URI){
@@ -633,10 +660,11 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		do {
 			List<Statement> eventStmts = new ArrayList<Statement>();
 			try {
-				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_TARGET_DELETED, id));
-				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_TARGET_TOMBSTONED, id));
+				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_DELETED_OBJECT, id));
+				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_TOMBSTONED_OBJECT, id));
 				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_INACTIVATED_OBJECT, id));
 				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_DERIVED_OBJECT, id));
+				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_UPDATED_OBJECT, id));
 				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_SOURCE_OBJECT, id));
 				eventStmts.addAll(ts.getStatements(null, PROV.GENERATED, id));
 				if (eventStmts.isEmpty()){
@@ -673,11 +701,10 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		}	
 		List<URI> events = new ArrayList<URI>();
 		do {
-			// get events where Agent created, tombstoned, deleted
+			// get events where Agent created or updated
 			List<Statement> eventStmts = new ArrayList<Statement>();
 			try {
-				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_TARGET_DELETED, id));
-				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_TARGET_TOMBSTONED, id));
+				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_UPDATED_OBJECT, id));
 				eventStmts.addAll(ts.getStatements(null, PROV.GENERATED, id));
 				if (eventStmts.isEmpty()){
 					break;
@@ -735,6 +762,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		lResources.addAll(resources);
 		return lResources;
 	}
+	
 	/**
 	 * Get Event's associated Agent
 	 * Currently ONLY getting single system agent
@@ -748,13 +776,27 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		URI agentId =  this.getEventAssocAgent(eventId, ts);
 		List<URI> agents = new ArrayList<URI>();
 		agents.add(agentId);
+				
 		ORMapEvent event = this.readEvent(eventId, ts);
+		
 		if (event.getEventTargetType().equals(RMapEventTargetType.AGENT)){
 			RMapEventType eventType = event.getEventType();
 			switch (eventType){
-			case CREATION:
-				ORMapEventCreation crEvent = (ORMapEventCreation)event;
-				for (Statement stmt:crEvent.getCreatedObjectStatements()){
+				case CREATION:
+					ORMapEventCreation crEvent = (ORMapEventCreation)event;
+					for (Statement stmt:crEvent.getCreatedObjectStatements()){
+						Value object = stmt.getObject();
+						if (object instanceof URI){
+							URI uri = (URI)object;
+							if (this.isAgentId(uri, ts)){
+								agents.add(uri);
+							}
+						}
+					}
+					break;
+				case REPLACE:
+					ORMapEventUpdateWithReplace updEvent = (ORMapEventUpdateWithReplace)event;
+					Statement stmt = updEvent.getUpdatedObjectStmt();
 					Value object = stmt.getObject();
 					if (object instanceof URI){
 						URI uri = (URI)object;
@@ -762,33 +804,9 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 							agents.add(uri);
 						}
 					}
-				}
-				break;
-			case TOMBSTONE:
-				ORMapEventTombstone tEvent = (ORMapEventTombstone)event;
-				Statement stmt = tEvent.getTombstonedResourceStmt();
-				Value object = stmt.getObject();
-				if (object instanceof URI){
-					URI uri = (URI)object;
-					if (this.isAgentId(uri, ts)){
-						agents.add(uri);
-					}
-				}
-				break;
-			case DELETION:
-				ORMapEventDeletion dEvent = (ORMapEventDeletion)event;
-				for (Statement stment:dEvent.getDeletedObjectStmts()){
-					Value obj = stment.getObject();
-					if (obj instanceof URI){
-						URI uri = (URI)obj;
-						if (this.isAgentId(uri, ts)){
-							agents.add(uri);
-						}
-					}
-				}
-				break;
-			default:
-				break;			
+					break;
+				default:
+					break;			
 			}
 		}
 		return agents;

@@ -6,7 +6,7 @@ package info.rmapproject.core.model.event;
 import info.rmapproject.core.exception.RMapException;
 
 /**
- * @author smorrissey
+ * @author smorrissey, khanson
  *
  */
 public enum RMapEventType {
@@ -15,7 +15,8 @@ public enum RMapEventType {
 	UPDATE("update"),
 	DERIVATION("derivation"),
 	TOMBSTONE("tombstone"),
-	DELETION("deletion");
+	DELETION("deletion"),
+	REPLACE("replace");
 	
 	private String typeString;
 	
@@ -48,6 +49,9 @@ public enum RMapEventType {
 		}
 		else if (et.equals(DELETION.getTypeString())){
 			return DELETION;
+		}
+		else if (et.equals(REPLACE.getTypeString())){
+			return REPLACE;
 		}
 		else {
 			throw new RMapException("Unrecognized RMapEvent type: " + et);

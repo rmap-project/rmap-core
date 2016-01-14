@@ -44,6 +44,12 @@ public interface RMapEvent extends RMapObject{
 	public RMapValue getDescription() throws RMapException;
 
 	/**
+	 * @param endTime the endTime to set
+	 * @throws RMapException
+	 */
+	public void setDescription(RMapValue description) throws RMapException, RMapDefectiveArgumentException;
+	
+	/**
 	 * Start time will be set by the constructor
 	 * @return the startTime
 	 * @throws RMapException

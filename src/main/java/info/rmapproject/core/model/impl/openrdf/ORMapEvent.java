@@ -159,9 +159,11 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 */
 	protected Statement makeEventTypeStatement (RMapEventType eventType) 
 			throws RMapException{
+		//TODO: the event type was going into the triplestore as a string, changed it to go in as a URI... 
+		// need to revisit the way this is done... have both EventType and EventTargetType do things the same way
 		Statement et = null;
 		et = this.getValueFactory().createStatement(context, RMAP.EVENT_TYPE, 
-				this.getValueFactory().createLiteral(eventType.getTypeString()),context);
+				this.getValueFactory().createURI(RMAP.PREFIX + eventType.getTypeString()),context);
 		return et;
 	}
 	
@@ -289,6 +291,20 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 				dateLiteral, this.context);
 		this.endTimeStmt = endTimeStmt;
 	}
+	
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.RMapEvent#setDescription(java.util.Date)
+	 */
+	public void setDescription(RMapValue description) 
+			throws RMapException, RMapDefectiveArgumentException {
+		if (description != null){
+			Statement descSt = this.getValueFactory().createStatement(this.context, 
+					DC.DESCRIPTION, ORAdapter.rMapValue2OpenRdfValue(description), this.context);
+			this.descriptionStmt = descSt;
+		}
+	}
+	
 	/**
 	 * @return the context
 	 */

@@ -37,21 +37,21 @@ public abstract class SesameTriplestore  {
 	
 	protected SesameTriplestore()	{}
 
-	protected Repository getRepository() throws Exception {
+	protected Repository getRepository() throws RepositoryException {
 		if (repository==null){
 			intitializeRepository();
 		}
 		return repository;		
 	}
 	
-	public RepositoryConnection getConnection()	throws Exception {
+	public RepositoryConnection getConnection()	throws RepositoryException {
 		if (connection==null || !hasConnectionOpen()){
 			openConnection();
 		}
 		return connection;		
 	}
 	
-	public void openConnection() throws Exception {
+	public void openConnection() throws RepositoryException {
     	if (repository == null)	{
     		intitializeRepository();
     	}    	    	
@@ -61,53 +61,53 @@ public abstract class SesameTriplestore  {
 		setConnectionOpen(true);
 	}
 	
-	public void closeConnection() throws Exception {
+	public void closeConnection() throws RepositoryException {
 		if (connection != null)	{
 			connection.close(); 
 			setConnectionOpen(false);
 			}
 	}
 	
-	public void beginTransaction() throws Exception {
+	public void beginTransaction() throws RepositoryException {
 		getConnection().begin();
 		setTransactionOpen(true);
 	}
 	
-	public void rollbackTransaction() throws Exception{
+	public void rollbackTransaction() throws RepositoryException{
 		if (hasTransactionOpen()){
 			getConnection().rollback();
 		}
 		setTransactionOpen(false);
 	}
 	
-	public void commitTransaction() throws Exception{
+	public void commitTransaction() throws RepositoryException{
 		if (hasTransactionOpen()){
 			getConnection().commit();
 		}
 		setTransactionOpen(false);
 	}
 
-	public void addStatement(Statement stmt) throws Exception {
+	public void addStatement(Statement stmt) throws RepositoryException {
 		getConnection().add(stmt);
 		return;
 	}
 	
-	public void addStatement(Resource subj, URI pred, Value obj) throws Exception	{
+	public void addStatement(Resource subj, URI pred, Value obj) throws RepositoryException	{
 		getConnection().add(subj,pred,obj);
 		return;
 	}
 	
-	public void addStatement(Resource subj, URI pred, Value obj, Resource context) throws Exception	{
+	public void addStatement(Resource subj, URI pred, Value obj, Resource context) throws RepositoryException	{
 		getConnection().add(subj,pred,obj,context);
 		return;
 	}
 	
-	public List <Statement> getStatements(Resource subj, URI pred, Value obj) throws Exception {
+	public List <Statement> getStatements(Resource subj, URI pred, Value obj) throws RepositoryException {
 		return getStatements(subj, pred, obj, false, null);
 	}
 	
 	public List<Statement> getStatements(Resource subj, URI pred, Value obj, boolean includeInferred, 
-			Resource context) throws Exception {
+			Resource context) throws RepositoryException {
 		RepositoryResult<Statement> resultset = null;
 		List <Statement> stmts = new ArrayList <Statement>();
 		if (context==null)	{
@@ -124,7 +124,7 @@ public abstract class SesameTriplestore  {
 		return stmts;
 	}
 	
-	public List<Statement> getStatements(Resource subj, URI pred, Value obj,Resource context) throws Exception{
+	public List<Statement> getStatements(Resource subj, URI pred, Value obj,Resource context) throws RepositoryException{
 		return this.getStatements(subj, pred, obj, false, context);
 	}
 	
@@ -140,7 +140,7 @@ public abstract class SesameTriplestore  {
 		return stmts;
 	}
 	
-	public Statement getStatementAnyContext (Resource subj, URI pred, Value obj) throws Exception {
+	public Statement getStatementAnyContext (Resource subj, URI pred, Value obj) throws RepositoryException {
 		RepositoryResult<Statement> resultset = null;
 		Statement stmt = null;
 		resultset = getConnection().getStatements(subj, pred, obj, false);// I think we want true here
@@ -151,7 +151,7 @@ public abstract class SesameTriplestore  {
 	}
 
 	//TODO  does this make sense?  you are looking for a single statement
-	public Statement getStatement(Resource subj, URI pred, Value obj, Resource context) throws Exception {
+	public Statement getStatement(Resource subj, URI pred, Value obj, Resource context) throws RepositoryException {
 		RepositoryResult<Statement> resultset = null;
 		Statement stmt = null;
 		resultset = getConnection().getStatements(subj, pred, obj, false, context);// I think we want true here
@@ -161,7 +161,7 @@ public abstract class SesameTriplestore  {
 		return stmt;
 	}
 	
-	public Statement getStatement(Resource subj, URI pred, Value obj) throws Exception {
+	public Statement getStatement(Resource subj, URI pred, Value obj) throws RepositoryException {
 		return getStatement(subj,pred,obj,null);
 	}
 	
@@ -203,6 +203,10 @@ public abstract class SesameTriplestore  {
 		TupleQueryResult resultset = tupleQuery.evaluate();
 		return resultset;
 	}
+
+	public void removeStatements(List<Statement> stmts, Resource...contexts) throws RepositoryException{
+		this.getConnection().remove(stmts, contexts);;
+	}
 	
 	public BNode getBNode() throws Exception {
 		// USE RMAP ids for all bnode ids
@@ -227,7 +231,7 @@ public abstract class SesameTriplestore  {
 		return (this.connectionOpen && connection!=null);
 	}
 		
-	public boolean hasTransactionOpen() throws Exception {
+	public boolean hasTransactionOpen() {
 		return this.transactionOpen;
 	}
 

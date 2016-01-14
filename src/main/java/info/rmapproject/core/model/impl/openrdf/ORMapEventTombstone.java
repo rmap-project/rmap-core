@@ -87,7 +87,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	 */
 	private void setTombstonedResourceIdStmt(URI tombstonedResource) throws RMapException {
 		if (tombstonedResource != null){
-			Statement stmt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_TARGET_TOMBSTONED,
+			Statement stmt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_TOMBSTONED_OBJECT,
 					tombstonedResource, this.context);
 			this.tombstoned = stmt;
 		}

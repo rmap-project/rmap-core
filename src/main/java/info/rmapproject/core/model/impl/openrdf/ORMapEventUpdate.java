@@ -74,16 +74,16 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	 * 
 	 * @param associatedAgent
 	 * @param targetType
-	 * @param intactivatedObject
+	 * @param inactivatedObject
 	 * @param derivedObject
 	 * @throws RMapException
 	 */
 	public ORMapEventUpdate(URI associatedAgent,
-			RMapEventTargetType targetType, URI intactivatedObject, URI derivedObject) 
+			RMapEventTargetType targetType, URI inactivatedObject, URI derivedObject) 
 	throws RMapException {
 		super(associatedAgent, targetType);
 		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.UPDATE);
-		this.setInactivatedObjectStmt(intactivatedObject);
+		this.setInactivatedObjectStmt(inactivatedObject);
 		this.setDerivationStmt(derivedObject);
 	}
 

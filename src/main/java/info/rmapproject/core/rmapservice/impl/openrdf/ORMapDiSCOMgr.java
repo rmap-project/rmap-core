@@ -257,6 +257,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapAgentNotFoundException
 	 * @throws RMapException
 	 */
+	//try to roll this back!
 	public RMapEvent updateDiSCO(URI systemAgentId,  boolean justInactivate, 
 			URI oldDiscoId, ORMapDiSCO disco, SesameTriplestore ts) 
 	throws RMapDefectiveArgumentException, RMapAgentNotFoundException, RMapException {
@@ -455,13 +456,13 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			List<Statement> eventStmts = null;
 			try {
 				//   ? RMap:Deletes discoId  done return deleted
-				eventStmts = ts.getStatements(null, RMAP.EVENT_TARGET_DELETED, discoId);
+				eventStmts = ts.getStatements(null, RMAP.EVENT_DELETED_OBJECT, discoId);
 				if (eventStmts!=null && ! eventStmts.isEmpty()){
 					status = RMapStatus.DELETED;
 					break;
 				}
 				//   ? RMap:TombStones discoID	done return tombstoned
-				eventStmts = ts.getStatements(null, RMAP.EVENT_TARGET_TOMBSTONED, discoId);
+				eventStmts = ts.getStatements(null, RMAP.EVENT_TOMBSTONED_OBJECT, discoId);
 				if (eventStmts!=null && ! eventStmts.isEmpty()){
 					status = RMapStatus.TOMBSTONED;
 					break;

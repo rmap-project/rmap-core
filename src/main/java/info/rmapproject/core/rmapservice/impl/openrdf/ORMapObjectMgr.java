@@ -49,6 +49,7 @@ public abstract class ORMapObjectMgr {
 		return;
 	}
 	
+	
 	public boolean isRMapType(SesameTriplestore ts, URI id, URI typeURI) throws RMapException {
 		if (ts==null || id==null || typeURI==null){
 			throw new RMapException("Null parameter passed");

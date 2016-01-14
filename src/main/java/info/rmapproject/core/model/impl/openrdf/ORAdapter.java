@@ -16,7 +16,10 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
@@ -344,6 +347,62 @@ public class ORAdapter {
 		}	
 		return true;
 	}
+	
+	/**
+	 * Converts a list of openRdf URIs to a list of java.net.URIs
+	 * @param openRdfUriList
+	 * @return
+	 */
+	public static List<java.net.URI> openRdfUriList2UriList(List<org.openrdf.model.URI> openRdfUriList) {
+		List<java.net.URI> javaUriList = new ArrayList<java.net.URI>();
+		if (openRdfUriList != null) {
+			for (org.openrdf.model.URI openRdfUri : openRdfUriList){
+				javaUriList.add(openRdfUri2URI(openRdfUri));
+			}
+		}
+		else {
+			javaUriList = null;
+		}
+		return javaUriList;
+	}
+	
+	/**
+	 * Converts a list of java.net.URIs to a list of openRdf URIs	  
+	 * @param javaUriList
+	 * @return
+	 */
+	public static List<org.openrdf.model.URI> uriList2OpenRdfUriList(List<java.net.URI> javaUriList) {
+		List<org.openrdf.model.URI> openRdfUriList = new ArrayList<org.openrdf.model.URI>();
+		if (javaUriList != null) {
+			for (java.net.URI sysAgent : javaUriList){
+				openRdfUriList.add(uri2OpenRdfUri(sysAgent));
+			}
+		}
+		else {
+			openRdfUriList = null;
+		}
+		return openRdfUriList;
+	}
+	
+
+	/**
+	 * Converts a set of openRdf URIs to a set of java.net.URIs
+	 * @param openRdfUriList
+	 * @return
+	 */
+	public static Set<java.net.URI> openRdfUriSet2UriSet(Set<org.openrdf.model.URI> openRdfUriList) {
+		Set<java.net.URI> javaUriList = new HashSet<java.net.URI>();
+		if (openRdfUriList != null) {
+			for (org.openrdf.model.URI openRdfUri : openRdfUriList){
+				javaUriList.add(openRdfUri2URI(openRdfUri));
+			}
+		}
+		else {
+			javaUriList = null;
+		}
+		return javaUriList;
+	}
+	
 	
 	/**
 	 * Checks each openRDF URI in a list statement for compatibility with java.net.URI. 

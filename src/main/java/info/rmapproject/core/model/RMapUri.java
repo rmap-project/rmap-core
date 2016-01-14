@@ -54,5 +54,4 @@ public class RMapUri extends RMapResource  {
 		return getStringValue();
 	}
 
-
 }

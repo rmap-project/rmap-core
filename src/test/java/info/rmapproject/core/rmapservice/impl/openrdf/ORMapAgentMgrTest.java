@@ -10,11 +10,14 @@ import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.agent.RMapAgent;
+import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.RMapServiceFactoryIOC;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
+
+import java.net.URISyntaxException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -59,8 +62,12 @@ public class ORMapAgentMgrTest{
 		try {
 			//create new test agent
 			RMapAgent agent = new ORMapAgent(AGENT_URI, ID_PROVIDER_URI, AUTH_ID_URI, NAME);
-			rmapService.createAgent(agent,agent.getId().getIri());
 			agentId=agent.getId().getIri();
+			
+			if (!rmapService.isAgentId(agentId)) {
+				rmapService.createAgent(agent,agent.getId().getIri());
+			}
+			
 			if (rmapService.isAgentId(agentId)){
 				System.out.println("Test Agent successfully created!  URI is " + agentId);
 			}
@@ -79,14 +86,85 @@ public class ORMapAgentMgrTest{
 			assertEquals(readagent.getAuthId().getStringValue(),AUTH_ID_URI.stringValue());
 		}
 		catch (RMapAgentNotFoundException e){
+			fail("agent not found. " + e.getMessage());
+		}
+		catch (RMapException e){
+			fail("exception" + e.getMessage());
+		}
+		finally {
+			rmapService.closeConnection();
+		}
+	}
+	
+	
+
+	/**
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#updateAgent(org.openrdf.model.URI, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * @throws RMapDefectiveArgumentException 
+	 * @throws RMapException 
+	 * @throws RMapAgentNotFoundException 
+	 */
+	@Test
+	public void testUpdateAgent() throws RMapAgentNotFoundException, RMapException, RMapDefectiveArgumentException {
+		
+		RMapService rmapService;
+		rmapService=RMapServiceFactoryIOC.getFactory().createService();
+		
+		java.net.URI agentId; //used to pass back into rmapService since all of these use java.net.URI
+		
+		try {
+			//create new test agent
+			RMapAgent agent = new ORMapAgent(AGENT_URI, ID_PROVIDER_URI, AUTH_ID_URI, NAME);
+			rmapService.createAgent(agent,agent.getId().getIri());
+			agentId=agent.getId().getIri();
+			if (rmapService.isAgentId(agentId)){
+				System.out.println("Test Agent successfully created!  URI is " + agentId);
+			}
+			
+			// Check the agent was created
+			assertTrue(rmapService.isAgentId(agentId));	
+			//(URI agentID, String name, URI identityProvider, URI authKeyUri, URI creatingAgentID)
+			RMapEvent event = rmapService.updateAgent(agentId, 
+										"RMap Test Name Change", 
+										new java.net.URI(ID_PROVIDER_URI.toString()), 
+										new java.net.URI(AUTH_ID_URI.toString()), 
+										agentId);
+			
+			assertTrue(event.getAssociatedAgent().toString().equals(agentId.toString()));
+			assertTrue(event.getDescription().toString().contains("foaf:name"));
+
+			//now read agent and check it was updated.
+			RMapAgent readagent = rmapService.readAgent(agentId);
+			String name1=readagent.getName().toString();
+			assertEquals(name1, "RMap Test Name Change");
+
+			rmapService.updateAgent(agentId, 
+										NAME.toString(), 
+										new java.net.URI(ID_PROVIDER_URI.toString()), 
+										new java.net.URI(AUTH_ID_URI.toString()), 
+										agentId);
+			
+			//now read agent and check it was updated.
+			readagent = rmapService.readAgent(agentId);
+			name1=readagent.getName().toString();
+			assertEquals(name1, NAME.toString());
+			
+			
+		}
+		catch (RMapAgentNotFoundException e){
 			fail("agent not found");
 		}
 		catch (RMapException e){
 			fail("exception");
 		}
+		catch (URISyntaxException e){
+			fail("agent not found");
+		}
 		finally {
 			rmapService.closeConnection();
 		}
+		
+		
 	}
 	
 

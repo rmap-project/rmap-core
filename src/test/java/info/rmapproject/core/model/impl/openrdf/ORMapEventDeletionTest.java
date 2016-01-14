@@ -90,7 +90,7 @@ public class ORMapEventDeletionTest {
 		List<Statement> deletedObjects= new ArrayList<Statement>();
 		URI dId = ORAdapter.uri2OpenRdfUri(id2);
 		
-		Statement delStmt = vf.createStatement(context, RMAP.EVENT_TARGET_DELETED, dId, context);
+		Statement delStmt = vf.createStatement(context, RMAP.EVENT_DELETED_OBJECT, dId, context);
 		deletedObjects.add(delStmt);
 		
 		Date end = new Date();

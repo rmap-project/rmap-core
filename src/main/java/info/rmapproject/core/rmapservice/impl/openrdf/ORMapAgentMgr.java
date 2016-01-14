@@ -11,14 +11,15 @@ import info.rmapproject.core.exception.RMapDiSCONotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.exception.RMapTombstonedObjectException;
+import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.RMapStatus;
-import info.rmapproject.core.model.event.RMapEvent;
+import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
-import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdateWithReplace;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
@@ -33,10 +34,12 @@ import java.util.Set;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.openrdf.model.vocabulary.FOAF;
 
 
 /**
- * @author smorrissey
+ * @author smorrissey, khanson0
  *
  */
 public class ORMapAgentMgr extends ORMapObjectMgr {
@@ -119,13 +122,13 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			List<Statement> eventStmts = null;
 			try {
 				//   ? RMap:Deletes discoId  done return deleted
-				eventStmts = ts.getStatements(null, RMAP.EVENT_TARGET_DELETED, agentId);
+				eventStmts = ts.getStatements(null, RMAP.EVENT_DELETED_OBJECT, agentId);
 				if (eventStmts!=null && ! eventStmts.isEmpty()){
 					status = RMapStatus.DELETED;
 					break;
 				}
 				//   ? RMap:TombStones discoID	done return tombstoned
-				eventStmts = ts.getStatements(null, RMAP.EVENT_TARGET_TOMBSTONED, agentId);
+				eventStmts = ts.getStatements(null, RMAP.EVENT_TOMBSTONED_OBJECT, agentId);
 				if (eventStmts!=null && ! eventStmts.isEmpty()){
 					status = RMapStatus.TOMBSTONED;
 					break;
@@ -212,37 +215,47 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}
 		return event;
 	}
+	
+
 	/**
-	 * Tombstone (soft-delete) an Agent
-	 * @param systemAgentId
-	 * @param oldAgentId
+	 * 
+	 * @param updatedAgent
+	 * @param creatingAgentUri 
 	 * @param ts
 	 * @return
 	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException 
 	 */
-	public RMapEvent tombstoneAgent(URI systemAgentId,URI oldAgentId, SesameTriplestore ts) 
-	throws RMapException {
-		// confirm non-null old agent
-		if (oldAgentId==null){
-			throw new RMapException ("Null value for id of Agent to be tombstoned");
+	public ORMapEvent updateAgent (ORMapAgent updatedAgent, URI creatingAgentUri, SesameTriplestore ts)
+	throws RMapException, RMapDefectiveArgumentException {
+		if (updatedAgent==null){
+			throw new RMapException ("null agent");
 		}
-		if (systemAgentId==null){
+		if (creatingAgentUri==null){
 			throw new RMapException("System Agent ID required: was null");
 		}
-		// Confirm systemAgentId (not null, is Agent)
-		if (!(this.isAgentId(systemAgentId, ts))){
-			throw new RMapAgentNotFoundException("No agent with id " + systemAgentId.stringValue());
+		if (ts==null){
+			throw new RMapException ("null triplestore");
 		}
-		// make sure same Agent created the Agent now being inactivated
-		if (! this.isSameCreatorAgent(oldAgentId, systemAgentId, ts)){
-			throw new RMapException(
-					"Agent attempting to tombstone Agent is not same as its creating Agent");
+		
+		URI agentId = ORAdapter.rMapUri2OpenRdfUri(updatedAgent.getId());
+				
+		//check Agent Id exists
+		if (!this.isAgentId(agentId, ts)){
+			throw new RMapAgentNotFoundException("No agent with id " + agentId.stringValue());			
 		}		
 		
-		// get the event started
-		ORMapEventTombstone event = new ORMapEventTombstone(systemAgentId, 
-				RMapEventTargetType.AGENT, oldAgentId);
+		// Usually agents create themselves, where this isn't the case we need to check the creating agent also exists
+		if (!creatingAgentUri.toString().equals(agentId.toString()) && !this.isAgentId(creatingAgentUri, ts)){
+			throw new RMapAgentNotFoundException("No agent with id " + creatingAgentUri.stringValue());
+		}		
 
+		//Get original agent
+		RMapAgent origAgent = this.readAgent(agentId, ts);
+		if (origAgent==null){
+			throw new RMapAgentNotFoundException("Could not retrieve agent " + agentId.stringValue());						
+		}
+		
 		// set up triplestore and start transaction
 		boolean doCommitTransaction = false;
 		try {
@@ -251,13 +264,62 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 				ts.beginTransaction();
 			}
 		} catch (Exception e) {
-			throw new RMapException("Unable to begin Sesame transaction: ", e);
+			throw new RMapException("Unable to begin Sesame transaction", e);
 		}
+				
+		// Get the event started
+		ORMapEventUpdateWithReplace event = new ORMapEventUpdateWithReplace(creatingAgentUri, 
+							RMapEventTargetType.AGENT, agentId);
 		
-		// end the event, write the event triples, and commit everything
-		ORMapEventMgr eventmgr = new ORMapEventMgr();
-		event.setEndTime(new Date());
-		eventmgr.createEvent(event, ts);
+		String sEventDescrip = "Updates: ";
+		boolean updatesFound = false;
+		
+		//Remove elements of original agent and replace them with new elements
+		try {
+			Value origName = ORAdapter.rMapValue2OpenRdfValue(origAgent.getName());
+			URI origIdProvider = ORAdapter.rMapUri2OpenRdfUri(origAgent.getIdProvider());
+			URI origAuthId = ORAdapter.rMapUri2OpenRdfUri(origAgent.getAuthId());
+			
+			Value newName = ORAdapter.rMapValue2OpenRdfValue(updatedAgent.getName());
+			URI newIdProvider = ORAdapter.rMapUri2OpenRdfUri(updatedAgent.getIdProvider());
+			URI newAuthId = ORAdapter.rMapUri2OpenRdfUri(updatedAgent.getAuthId());
+			
+			//as a precaution take one predicate at a time to make sure we don't delete anything we shouldn't
+			if (!origName.equals(newName)) {
+				List <Statement> stmts = ts.getStatements(agentId, FOAF.NAME, null, agentId);
+				ts.removeStatements(stmts);		
+				ts.addStatement(agentId, FOAF.NAME, newName, agentId);	
+				sEventDescrip=sEventDescrip + "foaf:name=" + origName + " -> " + newName + "; ";
+				updatesFound=true;
+			}
+			if (!origIdProvider.equals(newIdProvider)) {
+				List <Statement> stmts = ts.getStatements(agentId, RMAP.IDENTITY_PROVIDER, null, agentId);
+				ts.removeStatements(stmts);		
+				ts.addStatement(agentId, RMAP.IDENTITY_PROVIDER, newIdProvider, agentId);	
+				sEventDescrip=sEventDescrip + "rmap:identityProvider=" + origIdProvider + " -> " + newIdProvider + "; ";
+				updatesFound=true;
+			}
+			if (!origAuthId.equals(newAuthId)) {
+				List <Statement> stmts = ts.getStatements(agentId, RMAP.USER_AUTH_ID, null, agentId);
+				ts.removeStatements(stmts);	
+				ts.addStatement(agentId, RMAP.USER_AUTH_ID, newAuthId, agentId);
+				sEventDescrip=sEventDescrip + "rmap:userAuthId=" + origAuthId + " -> " + newAuthId + "; ";
+				updatesFound=true;
+			}
+		} catch (Exception e) {
+			throw new RMapException("Unable to remove previous version of Agent " + agentId.toString(), e);
+		}
+
+		if (updatesFound) {
+			// end the event, write the event triples, and commit everything
+			event.setDescription(new RMapLiteral("Updates: "+ sEventDescrip));
+			event.setEndTime(new Date());
+			ORMapEventMgr eventmgr = new ORMapEventMgr();
+			eventmgr.createEvent(event, ts);
+		}
+		else {
+			throw new RMapException("The Agent (" + agentId + " ) did not change and therefore does not need to be updated ");
+		}
 
 		if (doCommitTransaction){
 			try {
@@ -266,8 +328,68 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 				throw new RMapException("Exception thrown committing new triples to triplestore");
 			}
 		}
+
 		return event;
 	}
+	
+
+//  REMOVED - NOT CURRENTLY SUPPORTED
+//	/**
+//	 * Tombstone (soft-delete) an Agent
+//	 * @param systemAgentId
+//	 * @param oldAgentId
+//	 * @param ts
+//	 * @return
+//	 * @throws RMapException
+//	 */
+//	public RMapEvent tombstoneAgent(URI systemAgentId,URI oldAgentId, SesameTriplestore ts) 
+//	throws RMapException {
+//		// confirm non-null old agent
+//		if (oldAgentId==null){
+//			throw new RMapException ("Null value for id of Agent to be tombstoned");
+//		}
+//		if (systemAgentId==null){
+//			throw new RMapException("System Agent ID required: was null");
+//		}
+//		// Confirm systemAgentId (not null, is Agent)
+//		if (!(this.isAgentId(systemAgentId, ts))){
+//			throw new RMapAgentNotFoundException("No agent with id " + systemAgentId.stringValue());
+//		}
+//		// make sure same Agent created the Agent now being inactivated
+//		if (! this.isSameCreatorAgent(oldAgentId, systemAgentId, ts)){
+//			throw new RMapException(
+//					"Agent attempting to tombstone Agent is not same as its creating Agent");
+//		}		
+//		
+//		// get the event started
+//		ORMapEventTombstone event = new ORMapEventTombstone(systemAgentId, 
+//				RMapEventTargetType.AGENT, oldAgentId);
+//
+//		// set up triplestore and start transaction
+//		boolean doCommitTransaction = false;
+//		try {
+//			if (!ts.hasTransactionOpen())	{
+//				doCommitTransaction = true;
+//				ts.beginTransaction();
+//			}
+//		} catch (Exception e) {
+//			throw new RMapException("Unable to begin Sesame transaction: ", e);
+//		}
+//		
+//		// end the event, write the event triples, and commit everything
+//		ORMapEventMgr eventmgr = new ORMapEventMgr();
+//		event.setEndTime(new Date());
+//		eventmgr.createEvent(event, ts);
+//
+//		if (doCommitTransaction){
+//			try {
+//				ts.commitTransaction();
+//			} catch (Exception e) {
+//				throw new RMapException("Exception thrown committing new triples to triplestore");
+//			}
+//		}
+//		return event;
+//	}
 	
 	/**
 	 * 

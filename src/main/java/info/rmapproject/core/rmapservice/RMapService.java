@@ -27,29 +27,6 @@ import java.util.Set;
  *
  */
 public interface RMapService {
-	// Resource services
-	/**
-	 * Get URI of all RMap object types with a specified status code related to a Resource URI 
-	 * @param uri
-	 * @param statusCode
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
-	 */
-	public List<URI> getResourceRelatedAll (URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
-	
-	/**
-	 * Get URI of all RMap object types that are related to a Resource URI and match the filters specified
-	 * @param uri
-	 * @param statusCode
-	 * @param systemAgents
-	 * @param dateFrom
-	 * @param dateTo
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
-	 */
-	public List<URI> getResourceRelatedAll (URI uri, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Get the list of triples comprised by statements that reference a resource and whose status matches provided status code
 	 * @param uri Resource to be matched in statements
@@ -112,16 +89,26 @@ public interface RMapService {
 	 */
 	public List<URI> getResourceRelatedDiSCOs (URI uri, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
 	/**
-	 * Get all RMapAgents that asserted a statement containing the Resource URI provided that match the filters specified
+	 * Get all RMapAgents that asserted a statement containing the Resource URI provided 
 	 * @param uri
-	 * @param systemAgents
-	 * @param dateFrom
-	 * @param dateTo
+	 * @param statusCode - applies to DiSCO status
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public List<URI> getResourceAssertingAgents (URI uri, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getResourceAssertingAgents (URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	/**
+	 * Get all RMapAgents that asserted a statement containing the Resource URI provided that match the filters specified
+	 * @param uri
+	 * @param statusCode - applies to DiSCO status
+	 * @param systemAgents
+	 * @param dateFrom - applies to DiSCO status
+	 * @param dateTo - applies to DiSCO status
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException 
+	 */
+	public List<URI> getResourceAssertingAgents (URI uri, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Determine what types are associated with a given resource in a specific context (e.g. within a DiSCO)
 	 * @param resourceUri URI for resource whose type is being checked
@@ -174,40 +161,13 @@ public interface RMapService {
 							RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) 
 							throws RMapException, RMapDefectiveArgumentException;
 	
-	/**
-	 * Get a list of Agents that contain the statement passed in
-	 * @param subject of statement
-	 * @param predicate of statement
-	 * @param object of statement
-	 * @return URI list of Agents containing statement
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
-	 */
-	public List<URI> getStatementRelatedAgents(URI subject, URI predicate, RMapValue object) 
-							throws RMapException, RMapDefectiveArgumentException;
-
-	/**
-	 * Get a list of Agents that contain the statement passed in and match the filters provided
-	 * @param subject of statement
-	 * @param predicate of statement
-	 * @param object of statement
-	 * @param systemAgents
-	 * @param dateFrom
-	 * @param dateTos
-	 * @return URI list of Agents containing statement
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
-	 */
-	public List<URI> getStatementRelatedAgents(URI subject, URI predicate, RMapValue object, 
-							List<URI> systemAgents, Date dateFrom, Date dateTo) 
-							throws RMapException, RMapDefectiveArgumentException;
 
 	/**
 	 * Get a list of Agents that have asserted the statement passed in
 	 * @param subject of statement
 	 * @param predicate of statement
 	 * @param object of statement
-	 * @param statusCode to match Agent status
+	 * @param statusCode to match DiSCO status
 	 * @param dateFrom
 	 * @param dateTo
 	 * @return URI list of Agents containing statement
@@ -222,7 +182,7 @@ public interface RMapService {
 	 * @param subject of statement
 	 * @param predicate of statement
 	 * @param object of statement
-	 * @param statusCode to match Agent status
+	 * @param statusCode to match DiSCO status
 	 * @param dateFrom
 	 * @param dateTo
 	 * @return URI list of Agents containing statement
@@ -468,7 +428,7 @@ public interface RMapService {
 	public RMapEvent createAgent(RMapAgent agent, URI creatingAgentID) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
-	 * Create a new agent using the agent properties. Note: In most instances the agentID should match the URI in agent.getId()
+	 * Create a new agent using the agent properties. Note: In most instances the agentID should match the URI in creatingAgentId
 	 * - in other words agents typically create their own record if they registered through the GUI.  
 	 * There is an option to indicate that an agent wasn't created by themselves, which might be used for batch loading etc.
 	 * @param agentID
@@ -483,15 +443,46 @@ public interface RMapService {
 	public RMapEvent createAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, URI creatingAgentID) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
-	 * Tombstone an existing agent
-	 * @param systemAgentId
-	 * @param targetAgentID
+	 * Update existing agent using the agent properties. Note: In most instances the agentID should match the URI in agent.getId()
+	 * - in other words agents typically create their own record if they registered through the GUI.  
+	 * There is an option to indicate that an agent wasn't created by themselves, which might be used for batch loading etc.
+	 * @param agent RMapAgent object to be instantiated in system
+	 * @param creatingAgentID ID of (system) agent creating this new Agent
+	 * @return RMapEvent associated with creation of Agent
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public RMapEvent updateAgent(RMapAgent agent, URI creatingAgentID) throws RMapException, RMapDefectiveArgumentException;
+	
+	/**
+	 * Update existing agent using the agent properties. Note: In most instances the agentID should match the URI in agent.getId()
+	 * - in other words agents typically create their own record if they registered through the GUI.  
+	 * There is an option to indicate that an agent wasn't created by themselves, which might be used for batch loading etc.
+	 * @param agentID
+	 * @param name
+	 * @param identityProvider
+	 * @param authKeyUri
+	 * @param creatingAgentID
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public RMapEvent deleteAgent(URI systemAgentId, URI targetAgentID) throws RMapException, RMapAgentNotFoundException, 
-	RMapDefectiveArgumentException;	
+	public RMapEvent updateAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, URI creatingAgentID) throws RMapException, RMapDefectiveArgumentException;
+	
+	
+//	REMOVED FOR NOW - NOT CURRENTLY SUPPORTING AGENT DELETION	
+//	/**
+//	 * Tombstone an existing agent
+//	 * @param systemAgentId
+//	 * @param targetAgentID
+//	 * @return
+//	 * @throws RMapException
+//	 * @throws RMapDefectiveArgumentException
+//	 */
+//	public RMapEvent deleteAgent(URI systemAgentId, URI targetAgentID) throws RMapException, RMapAgentNotFoundException, 
+//	RMapDefectiveArgumentException;	
+	
+	
 	/**
 	 * 
 	 * @param agentId

@@ -107,7 +107,7 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 		if (deletedObjectIds != null){
 			List<Statement> stmts = new ArrayList<Statement>();
 			for (RMapUri rid:deletedObjectIds){
-				Statement stmt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_TARGET_DELETED,
+				Statement stmt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_DELETED_OBJECT,
 						ORAdapter.rMapUri2OpenRdfUri(rid), this.context);
 				stmts.add(stmt);
 			}

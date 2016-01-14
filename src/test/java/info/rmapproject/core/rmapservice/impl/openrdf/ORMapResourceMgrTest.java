@@ -198,7 +198,7 @@ public class ORMapResourceMgrTest {
 			Date dateFrom = dateFormat.parse("2014-1-1");
 			Date dateTo = dateFormat.parse("2050-1-1");
 		
-			Set <URI> agentUris = resourceMgr.getRelatedAgents(ORAdapter.uri2OpenRdfUri(agentId), sysAgents, dateFrom, dateTo, ts);
+			Set <URI> agentUris = resourceMgr.getResourceAssertingAgents(ORAdapter.uri2OpenRdfUri(agentId), RMapStatus.ACTIVE, sysAgents, dateFrom, dateTo, ts);
 			
 			assertTrue(agentUris.size()==1);
 			
@@ -216,62 +216,6 @@ public class ORMapResourceMgrTest {
 		
 	}
 	
-
-	@SuppressWarnings("unused")
-	@Test
-	public void testGetRelatedObjects() {	
-
-		RMapService rmapService=RMapServiceFactoryIOC.getFactory().createService();
-		ORMapResourceMgr resourceMgr = new ORMapResourceMgr();
-		ORMapDiSCOMgr discoMgr = new ORMapDiSCOMgr();
-		java.net.URI agentId; 
-		
-		try {
-
-			SesameTriplestore ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
-			
-			//create new test agent
-			RMapAgent agent = new ORMapAgent(AGENT_URI, ID_PROVIDER_URI, AUTH_ID_URI, NAME);
-			rmapService.createAgent(agent, agent.getId().getIri());
-			agentId=agent.getId().getIri();
-			if (rmapService.isAgentId(agentId)){
-				System.out.println("Test Agent successfully created!  URI is " + agentId);
-			}	
-		
-			//create disco				
-			InputStream stream = new ByteArrayInputStream(discoRDF.getBytes(StandardCharsets.UTF_8));
-			RioRDFHandler handler = new RioRDFHandler();	
-			List<Statement>stmts = handler.convertRDFToStmtList(
-					stream, "http://rmapdns.ddns.net:8080/api/disco/", "RDFXML");
-			ORMapDiSCO disco = new ORMapDiSCO(stmts);
-			ORMapEvent event = discoMgr.createDiSCO(ORAdapter.uri2OpenRdfUri(agentId), disco, ts);
-			
-			//get related objects
-			URI uri = ts.getValueFactory().createURI("http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip");
-			List <URI> sysAgents = new ArrayList<URI>();
-			sysAgents.add(ORAdapter.uri2OpenRdfUri(agentId));
-			
-			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			Date dateFrom = dateFormat.parse("2014-1-1");
-			Date dateTo = dateFormat.parse("2050-1-1");
-		
-			Set <URI> objectUris = resourceMgr.getAllRelatedObjects(uri, null, sysAgents, dateFrom, dateTo, ts);
-			
-			assertTrue(objectUris.size()==1);
-
-			Iterator<URI> iter = objectUris.iterator();
-			URI matchingUri = iter.next();
-			assertTrue(matchingUri.toString().equals(disco.getId().toString()));
-			rmapService.deleteDiSCO(disco.getId().getIri(), agentId);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail();
-		} finally {
-			rmapService.closeConnection();
-		}
-		
-	}
 
 	@Test
 	public void testGetRelatedEvents() {	

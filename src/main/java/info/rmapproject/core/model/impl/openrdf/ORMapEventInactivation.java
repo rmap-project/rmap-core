@@ -97,13 +97,13 @@ public class ORMapEventInactivation extends ORMapEvent implements
 	}
 	/**
 	 * 
-	 * @param intactivatedObject
+	 * @param inactivatedObject
 	 */
-	protected void setInactivatedObjectStmt(URI intactivatedObject) {
-		if (intactivatedObject != null){
+	protected void setInactivatedObjectStmt(URI inactivatedObject) {
+		if (inactivatedObject != null){
 			Statement stmt = this.getValueFactory().createStatement(this.context, 
 					RMAP.EVENT_INACTIVATED_OBJECT,
-					intactivatedObject, this.context);
+					inactivatedObject, this.context);
 			this.inactivatedObjectStatement = stmt;
 		}
 	}

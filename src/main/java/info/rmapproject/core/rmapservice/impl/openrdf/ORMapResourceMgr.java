@@ -94,22 +94,6 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		return discos;			
 	}
 	
-	
-	
-	/**
-	 * Get list of Agent URIs that have a statement containing the resource. 
-	 * @param uri
-	 * @param statusCode
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
-	 */
-	public Set<URI> getRelatedAgents(URI uri, SesameTriplestore ts) 
-	throws RMapException, RMapDefectiveArgumentException {
-		return getRelatedAgents(uri, null, null, null, ts);
-	}
-
 	/**
 	 * Get list of RMap Agent URIs that have a statement containing the resource.  
 	 * @param uri
@@ -119,28 +103,19 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public Set<URI> getRelatedAgents(URI resource, List<URI> systemAgents, Date dateFrom, Date dateTo, SesameTriplestore ts)
+	public Set<URI> getResourceAssertingAgents(URI resource, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo, SesameTriplestore ts)
 					throws RMapException, RMapDefectiveArgumentException {		
-		/*query gets agentIds and startDates of created Agents that contain Resource
-	    SELECT DISTINCT ?rmapObjId ?startDate 
-		WHERE { 
-		GRAPH ?rmapObjId 
-		  {
-		     {?s ?p <http://isni.org/isni/0000000406115044>} UNION 
-		        {<http://isni.org/isni/0000000406115044> ?p ?o} .
-		     ?agentId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Agent> .
-		  } .
-		GRAPH ?eventId {
-		 	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
-			?eventId <http://www.w3.org/ns/prov#generated> ?rmapObjId .
-		 	?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
-		 	{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2m3>} UNION
-		 	{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd3jq0>} .
-		 	}
-		  }
-		*/
-		//note - active is the only status that is visible, so that is the filter.
-		return getRelatedObjects(resource, RMapStatus.ACTIVE, systemAgents, dateFrom, dateTo, ts, RMAP.AGENT);
+
+		Set<URI> assertingAgents = new HashSet<URI>();
+		Set<URI> orDiscoIds = this.getRelatedObjects(resource, statusCode, systemAgents, dateFrom, dateTo, ts, RMAP.DISCO);
+		for (URI discoId : orDiscoIds) {
+			ORMapDiSCOMgr discomgr = new ORMapDiSCOMgr();
+			RMapStatus status = discomgr.getDiSCOStatus(discoId, ts);
+			if (status == statusCode){
+				assertingAgents.add(discoId);
+			}
+		}		
+		return assertingAgents;
 
 	}
 
@@ -218,41 +193,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	}
 	
 	
-	
-	/**
-	 * Get list of RMap Agent URIs that have a statement containing the resource.  
-	 * @param uri
-	 * @param statusCode  if null, match any status code
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 */
-	public Set<URI> getAllRelatedObjects(URI resource, RMapStatus statusCode,
-						List<URI> systemAgents, Date dateFrom, Date dateTo, SesameTriplestore ts)
-		throws RMapException, RMapDefectiveArgumentException {		
-		Set<URI> objects = new HashSet<URI>();
-		try{
-			Set<URI> discos = getRelatedDiSCOS(resource, statusCode, systemAgents, dateFrom, dateTo, ts);
-			if (discos!=null && discos.size()>0) {
-				objects.addAll(discos);
-			}
-
-			// Agents cannot be inactive, so if the status filter is set to this, no need to process Agents.
-			if (statusCode != RMapStatus.INACTIVE) {
-				Set<URI> agents = getRelatedAgents(resource, systemAgents, dateFrom, dateTo, ts);
-				if (agents!=null && agents.size()>0) {
-					objects.addAll(agents);
-				}
-			}
-		}	
-		catch (RMapException r){throw r;}
-		catch (Exception e){
-			throw new RMapException("Could not process results for resource's related objects", e);
-		}
-
-		return objects;		
-	}
-	
+		
 	/**
 	 * Get ids of Events related to resource.
 	 * @param resource

@@ -12,8 +12,8 @@ import info.rmapproject.core.exception.RMapException;
  */
 public enum RMapEventTargetType {
 	
-	DISCO("http://rmap-project.org/rmap/terms/1.0/DiSCO"),
-	AGENT("http://rmap-project.org/rmap/terms/1.0/Agent");
+	DISCO("http://rmap-project.org/rmap/terms/DiSCO"),
+	AGENT("http://rmap-project.org/rmap/terms/Agent");
 	
 	private String targetURI = null;
 	
