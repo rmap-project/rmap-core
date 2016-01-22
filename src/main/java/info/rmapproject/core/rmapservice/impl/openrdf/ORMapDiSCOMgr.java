@@ -274,9 +274,11 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}		
 		// get the event started
 		ORMapEvent event = null;	
+		boolean creatorSameAsOrig = this.isSameCreatorAgent(oldDiscoId, systemAgentId, ts);
+				
 		if (justInactivate){
 			// must be same agent
-			if (this.isSameCreatorAgent(oldDiscoId, systemAgentId, ts)){
+			if (creatorSameAsOrig){
 				ORMapEventInactivation iEvent = new ORMapEventInactivation(systemAgentId, RMapEventTargetType.DISCO);
 				iEvent.setInactivatedObjectId(ORAdapter.openRdfUri2RMapUri(oldDiscoId));
 				event = iEvent;
@@ -292,7 +294,15 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			if (disco==null){
 				throw new RMapDefectiveArgumentException("No new DiSCO provided for update");
 			}
-			if (this.isSameCreatorAgent(oldDiscoId, systemAgentId, ts)){
+			if (creatorSameAsOrig){
+				//check that they are updating the latest version of the DiSCO
+				//otherwise throw exception
+				Map<URI,URI>event2disco=this.getAllDiSCOVersions(oldDiscoId, true, ts);
+				URI latestDiscoUri = this.getLatestDiSCOUri(oldDiscoId, ts, event2disco);
+				if (!latestDiscoUri.stringValue().equals(oldDiscoId.stringValue())){
+					throw new RMapException("The DiSCO '" + oldDiscoId.toString() + "' has a newer version. "
+											+ "Only the latest version of the DiSCO can be updated.");
+				}				
 				ORMapEventUpdate uEvent = new ORMapEventUpdate(systemAgentId, RMapEventTargetType.DISCO,
 						oldDiscoId, disco.getDiscoContext());
 				event = uEvent;

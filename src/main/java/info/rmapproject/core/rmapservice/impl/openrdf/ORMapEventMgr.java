@@ -487,186 +487,117 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		return date2event;
 	}
 	/**
-	 * Get discos related to an event
+	 * Get DiSCOs that are impacted by the Event
 	 * @param eventId
 	 * @param ts
 	 * @return
 	 */
-	public List<URI> getRelatedDiSCOs(URI eventId, SesameTriplestore ts) 
-	throws RMapException{
+	public List<URI> getAffectedDiSCOs(URI eventId, SesameTriplestore ts) 
+			throws RMapException{
+
+		List<Statement> affectedObjects= new ArrayList<Statement>();
 		List<URI> relatedDiSCOs = new ArrayList<URI>();
-		RMapEventType eventType = this.getEventType(eventId, ts);
-		RMapEventTargetType targetType = this.getEventTargetType(eventId, ts);
-		switch (targetType){
-		case DISCO:
-			switch (eventType){
-			case CREATION :
-				try {
-					List<Statement> createdObjects= ts.getStatements(eventId, PROV.GENERATED, null, eventId);
-					for (Statement stmt:createdObjects){
-						Value obj = stmt.getObject();
-						if (obj instanceof URI){
-							URI uri = (URI)obj;
-							if (this.isDiscoId(uri, ts)){
-								relatedDiSCOs.add(uri);
-							}
-						}
-					}
-				} catch (Exception e) {
-					throw new RMapException("exception thrown getting created objects for event "
-							+ eventId.stringValue(), e);
-				}
-				break;
-			case UPDATE:
-				try {
-					List<Statement> createdObjects= ts.getStatements(eventId, PROV.GENERATED, null, eventId);
-					for (Statement stmt:createdObjects){
-						Value obj = stmt.getObject();
-						if (obj instanceof URI){
-							URI uri = (URI)obj;
-							if (this.isDiscoId(uri, ts)){
-								relatedDiSCOs.add(uri);
-							}
-						}
-					}
+
+		try {
+			RMapEventType eventType = this.getEventType(eventId, ts);
+			RMapEventTargetType targetType = this.getEventTargetType(eventId, ts);
+			
+			switch (targetType){
+			case DISCO:
+				switch (eventType){
+				case CREATION :
+					affectedObjects= ts.getStatements(eventId, PROV.GENERATED, null, eventId);
+					break;
+				case UPDATE:
+					affectedObjects= ts.getStatements(eventId, PROV.GENERATED, null, eventId);
 					Statement stmt = ts.getStatement(eventId, RMAP.EVENT_INACTIVATED_OBJECT, null, eventId);
 					if (stmt != null){
-						Value obj = stmt.getObject();
-						if (obj instanceof URI){
-							URI uri = (URI)obj;
-							if (this.isDiscoId(uri, ts)){
-								relatedDiSCOs.add(uri);
-							}
-						}
+						affectedObjects.add(stmt);
 					}
-				} catch (Exception e) {
-					throw new RMapException("exception thrown getting created/updated objects for event "
-							+ eventId.stringValue(), e);
+					break;	
+				case INACTIVATION:
+						Statement stmt2 = ts.getStatement(eventId,  RMAP.EVENT_INACTIVATED_OBJECT, null, eventId);
+						if (stmt2 != null){
+							affectedObjects.add(stmt2);
+						}
+					break;
+				case DERIVATION:
+					affectedObjects= ts.getStatements(eventId, PROV.GENERATED, null, eventId);
+					Statement stmt3 = ts.getStatement(eventId, RMAP.EVENT_SOURCE_OBJECT, null, eventId);
+					if (stmt3 != null){
+						affectedObjects.add(stmt3);
+					}
+					break;	
+				case TOMBSTONE:
+					Statement stmt4 = ts.getStatement(eventId, RMAP.EVENT_TOMBSTONED_OBJECT, null, eventId);
+					if (stmt4 != null){
+						affectedObjects.add(stmt4);
+					}
+					break;
+				case DELETION:
+					affectedObjects= ts.getStatements(eventId, RMAP.EVENT_DELETED_OBJECT, null, eventId);
+					break;
+				default:
+					throw new RMapException("Unrecognized event type");
 				}			
-				break;	
-			case INACTIVATION:
-				try {
-					Statement stmt = ts.getStatement(eventId,  RMAP.EVENT_INACTIVATED_OBJECT, null, eventId);
-					if (stmt != null){
-						Value obj = stmt.getObject();
-						if (obj instanceof URI){
-							URI uri = (URI)obj;
-							if (this.isDiscoId(uri, ts)){
-								relatedDiSCOs.add(uri);
-							}
-						}
-					}
-				} catch (Exception e) {
-					throw new RMapException("exception thrown getting created/inactivated objects for event "
-							+ eventId.stringValue(), e);
-				}
 				break;
-			case DERIVATION:
-				try {
-					List<Statement> createdObjects= ts.getStatements(eventId, PROV.GENERATED, null, eventId);
-					for (Statement stmt:createdObjects){
-						Value obj = stmt.getObject();
-						if (obj instanceof URI){
-							URI uri = (URI)obj;
-							if (this.isDiscoId(uri, ts)){
-								relatedDiSCOs.add(uri);
-							}
-						}
-					}
-					Statement stmt = ts.getStatement(eventId, RMAP.EVENT_SOURCE_OBJECT, null, eventId);
-					if (stmt != null){
-						Value obj = stmt.getObject();
-						if (obj instanceof URI){
-							URI uri = (URI)obj;
-							if (this.isDiscoId(uri, ts)){
-								relatedDiSCOs.add(uri);
-							}
-						}
-					}
-				} catch (Exception e) {
-					throw new RMapException("exception thrown getting created/updated objects for event "
-							+ eventId.stringValue(), e);
-				}			
-				break;	
-			case TOMBSTONE:
-				try {
-					Statement stmt = ts.getStatement(eventId, RMAP.EVENT_TOMBSTONED_OBJECT, null, eventId);
-					if (stmt != null){
-						Value obj = stmt.getObject();
-						if (obj instanceof URI){
-							URI uri = (URI)obj;
-							if (this.isDiscoId(uri, ts)){
-								relatedDiSCOs.add(uri);
-							}
-						}
-					}
-				} catch (Exception e) {
-					throw new RMapException("exception thrown getting tombstoned objects for event "
-							+ eventId.stringValue(), e);
-				}
-				break;
-			case DELETION:
-				try {
-					List<Statement> createdObjects= ts.getStatements(eventId, RMAP.EVENT_DELETED_OBJECT, null, eventId);
-					for (Statement stmt:createdObjects){
-						Value obj = stmt.getObject();
-						if (obj instanceof URI){
-							URI uri = (URI)obj;
-							if (this.isDiscoId(uri, ts)){
-								relatedDiSCOs.add(uri);
-							}
-						}
-					}
-				} catch (Exception e) {
-					throw new RMapException("exception thrown getting deleted objects for event "
-							+ eventId.stringValue(), e);
-				}
+			case AGENT:
 				break;
 			default:
-				throw new RMapException("Unrecognized event type");
-			}			
-			break;
-		case AGENT:
-			break;
-		default:
-			throw new RMapException ("Unrecognized event target type")	;
+				throw new RMapException ("Unrecognized event target type")	;
+			}
+		
+			for (Statement st:affectedObjects){
+				Value obj = st.getObject();
+				if (obj instanceof URI){
+					URI uri = (URI)obj;
+					if (this.isDiscoId(uri, ts)){
+						relatedDiSCOs.add(uri);
+					}
+				}
+			}
+	
+		} catch (Exception e) {
+			throw new RMapException("exception thrown getting created objects for event "
+					+ eventId.stringValue(), e);
 		}
+		
 		return relatedDiSCOs;
 	}
+	
 	/**
-	 * Get ids of all events associated with a DiSCO
-	 * "Associated" means the  id is the object of one of 4 predicates in triple whose subject
-	 * is an eventid.  Those predicates are:
-	 * 	RMAP.EVENT_TARGET_DELETED
-	 *  MAP.EVENT_TARGET_TOMBSTONED
-	 *  RMAP.EVENT_TARGET (update event)
-	 *  PROV.GENERATED (Create and Update events)
-	 * @param id
+	 * Get URIs of all events associated with a DiSCO
+	 * "Associated" means the id is the object of one of 5 predicates in triple whose subject
+	 * is an eventId.  Those predicates are:
+	 * 	RMAP.EVENT_DELETED_OBJECT
+	 *  RMAP.EVENT_TOMBSTONED_OBJECT
+	 *  RMAP.EVENT_INACTIVATED_OBJECT
+	 *  RMAP.EVENT_SOURCE_OBJECT
+	 * @param discoid
 	 * @param ts
 	 * @return
 	 * @throws RMapDiSCONotFoundException
 	 * @throws RMapException
 	 */
-	public Set<URI> getDiscoRelatedEventIds(URI id, SesameTriplestore ts) 
+	public Set<URI> getDiscoRelatedEventIds(URI discoid, SesameTriplestore ts) 
 			throws RMapDiSCONotFoundException, RMapException {
 		Set<URI> events = null;
-		if (id==null){
-			throw new RMapException ("Null disco");
+		if (discoid==null){
+			throw new RMapException ("Null DiSCO URI");
 		}
 		// first ensure Exists statement URI rdf:TYPE rmap:DISCO  if not: raise NOTFOUND exception
-		if (! this.isDiscoId(id, ts)){
-			throw new RMapDiSCONotFoundException ("No object found with id " + id.stringValue());
+		if (! this.isDiscoId(discoid, ts)){
+			throw new RMapDiSCONotFoundException ("No DiSCO found with id " + discoid.stringValue());
 		}
 		do {
 			List<Statement> eventStmts = new ArrayList<Statement>();
 			try {
-				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_DELETED_OBJECT, id));
-				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_TOMBSTONED_OBJECT, id));
-				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_INACTIVATED_OBJECT, id));
-				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_DERIVED_OBJECT, id));
-				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_UPDATED_OBJECT, id));
-				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_SOURCE_OBJECT, id));
-				eventStmts.addAll(ts.getStatements(null, PROV.GENERATED, id));
+				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_DELETED_OBJECT, discoid));
+				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_TOMBSTONED_OBJECT, discoid));
+				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_INACTIVATED_OBJECT, discoid));
+				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_DERIVED_OBJECT, discoid));
+				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_SOURCE_OBJECT, discoid));
+				eventStmts.addAll(ts.getStatements(null, PROV.GENERATED, discoid));
 				if (eventStmts.isEmpty()){
 					break;
 				}
@@ -683,32 +614,43 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		} while (false);
 		return events;
 	}
+	
+
 	/**
-	 * Find any events associated with an Agent ID
-	 * @param id
+	 * Get URIs of all events associated with an Agent
+	 * "Associated" means the URI is the object of one of 4 predicates in triple whose subject
+	 * is an eventId.  Those predicates are:
+	 *  PROV.GENERATED (Create Agent)
+	 *  RMAP.EVENT_UPDATED_OBJECT (Update Agent)
+	 *  RMAP.EVENT_TOMBSTONED_OBJECT - included to future proof possibility of agent deletion
+	 *  RMAP.EVENT_DELETED_OBJECT - included to future proof possibility of agent deletion
+	 * @param agentid
 	 * @param ts
 	 * @return
-	 * @throws RMapAgentNotFoundException
+	 * @throws RMapDiSCONotFoundException
 	 * @throws RMapException
 	 */
-	public List<URI> getAgentRelatedEventIds(URI id, SesameTriplestore ts) 
+	public Set<URI> getAgentRelatedEventIds(URI agentid, SesameTriplestore ts) 
 			throws RMapAgentNotFoundException, RMapException {
-		if (id==null){
-			throw new RMapException ("Null disco");
-		}		
-		if (! this.isAgentId(id, ts)){
-			throw new RMapAgentNotFoundException ("No agent object found with id " + id.stringValue());
-		}	
-		List<URI> events = new ArrayList<URI>();
+		Set<URI> events = null;
+		if (agentid==null){
+			throw new RMapException ("Null Agent URI");
+		}
+		// first ensure Exists statement URI rdf:TYPE rmap:DISCO  if not: raise NOTFOUND exception
+		if (! this.isAgentId(agentid, ts)){
+			throw new RMapAgentNotFoundException ("No Agent found with id " + agentid.stringValue());
+		}
 		do {
-			// get events where Agent created or updated
 			List<Statement> eventStmts = new ArrayList<Statement>();
 			try {
-				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_UPDATED_OBJECT, id));
-				eventStmts.addAll(ts.getStatements(null, PROV.GENERATED, id));
+				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_DELETED_OBJECT, agentid));
+				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_TOMBSTONED_OBJECT, agentid));
+				eventStmts.addAll(ts.getStatements(null, RMAP.EVENT_UPDATED_OBJECT, agentid));
+				eventStmts.addAll(ts.getStatements(null, PROV.GENERATED, agentid));
 				if (eventStmts.isEmpty()){
 					break;
-				}				
+				}
+				events = new HashSet<URI>();
 				for (Statement stmt:eventStmts){
 					URI eventId = (URI)stmt.getSubject();
 					if (this.isEventId(eventId,ts)){
@@ -718,29 +660,13 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			} catch (Exception e) {
 				throw new RMapException("Exception thrown querying triplestore for events", e);
 			}
-		} while (false);		
-		do {
-			// now get events where Agent is the associatedAgent
-			//stmt = ts.getStatement(event, PROV.WASASSOCIATEDWITH, null, event);
-			List<Statement> assocAgentStmts = new ArrayList<Statement>();
-			try {
-				assocAgentStmts.addAll(ts.getStatements(null,PROV.WASASSOCIATEDWITH,id,null));
-				for (Statement stmt:assocAgentStmts){
-					URI eventId = (URI)stmt.getSubject();
-					if (this.isEventId(eventId,ts)){
-						events.add(eventId);
-					}
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new RMapException("Exception thrown querying triplestore for events", e);
-			}
 		} while (false);
 		return events;
 	}
-
+	
+	
 	/**
-	 * Return ids of all resources associated with an Event
+	 * Return ids of all resources affected by an Event
 	 * Resources include DiSCOs associated with event
 	 * For creation and update events, includes statements associated with 
 	 * DiSCOs associated with event
@@ -750,32 +676,32 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts
 	 * @return
 	 */
-	public List<URI> getRelatedResources (URI eventId,SesameTriplestore ts){
+	public List<URI> getAffectedResources (URI eventId,SesameTriplestore ts){
 		Set<URI> resources = new HashSet<URI>();
 		// get DiSCO resources
 		Set<URI> relatedDiSCOs = new HashSet<URI>();
-		relatedDiSCOs.addAll(this.getRelatedDiSCOs(eventId, ts));;
+		relatedDiSCOs.addAll(this.getAffectedDiSCOs(eventId, ts));;
 		resources.addAll(relatedDiSCOs);
 		// get Agent resources
-		resources.addAll(this.getRelatedAgents(eventId, ts));
+		resources.addAll(this.getAffectedAgents(eventId, ts));
 		List<URI> lResources = new ArrayList<URI>();
 		lResources.addAll(resources);
 		return lResources;
 	}
 	
 	/**
-	 * Get Event's associated Agent
+	 * Get Agents affected by an Event
 	 * Currently ONLY getting single system agent
 	 * @param eventId
 	 * @param ts
 	 * @return
 	 * @throws RMapException
 	 */
-	public List<URI> getRelatedAgents (URI eventId, SesameTriplestore ts)
+	public List<URI> getAffectedAgents (URI eventId, SesameTriplestore ts)
     throws RMapException, RMapAgentNotFoundException, RMapEventNotFoundException {
-		URI agentId =  this.getEventAssocAgent(eventId, ts);
+
+		List<Statement> affectedObjects= new ArrayList<Statement>();
 		List<URI> agents = new ArrayList<URI>();
-		agents.add(agentId);
 				
 		ORMapEvent event = this.readEvent(eventId, ts);
 		
@@ -784,30 +710,29 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			switch (eventType){
 				case CREATION:
 					ORMapEventCreation crEvent = (ORMapEventCreation)event;
-					for (Statement stmt:crEvent.getCreatedObjectStatements()){
-						Value object = stmt.getObject();
-						if (object instanceof URI){
-							URI uri = (URI)object;
-							if (this.isAgentId(uri, ts)){
-								agents.add(uri);
-							}
-						}
-					}
+					affectedObjects=crEvent.getCreatedObjectStatements();
 					break;
 				case REPLACE:
 					ORMapEventUpdateWithReplace updEvent = (ORMapEventUpdateWithReplace)event;
 					Statement stmt = updEvent.getUpdatedObjectStmt();
-					Value object = stmt.getObject();
-					if (object instanceof URI){
-						URI uri = (URI)object;
-						if (this.isAgentId(uri, ts)){
-							agents.add(uri);
-						}
+					if (stmt!=null){
+						affectedObjects.add(stmt);
 					}
 					break;
 				default:
 					break;			
 			}
+			//check if objects are Agents
+			for (Statement st:affectedObjects){
+				Value object = st.getObject();
+				if (object instanceof URI){
+					URI uri = (URI)object;
+					if (this.isAgentId(uri, ts)){
+						agents.add(uri);
+					}
+				}
+			}
+			
 		}
 		return agents;
 	}
@@ -875,7 +800,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		else {
 			type = stmt.getObject();
 		}
-		RMapEventTargetType tType = RMapEventTargetType.getTargetTypeFromString(type.stringValue());
+		RMapEventTargetType tType = RMapEventTargetType.getTargetTypeFromString(type.toString());
 		return tType;
 	}
 	

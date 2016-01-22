@@ -79,8 +79,7 @@ public class ORMapEventInactivationTest {
 		Literal litStart = vf.createLiteral(startTime);
 		Statement startTimeStmt = vf.createStatement(context, PROV.STARTEDATTIME, litStart, context);		
 	
-		Literal eType = vf.createLiteral(RMapEventType.INACTIVATION.getTypeString());
-		Statement eventTypeStmt = vf.createStatement(context, RMAP.EVENT_TYPE_INACTIVATION, eType,context); 
+		Statement eventTypeStmt = vf.createStatement(context, RMAP.EVENT_TYPE, RMAP.EVENT_TYPE_INACTIVATION,context); 
 		
 		Literal eTType = vf.createLiteral(RMapEventTargetType.DISCO.uriString());
 		Statement eventTargetTypeStmt = vf.createStatement(context,
@@ -107,7 +106,7 @@ public class ORMapEventInactivationTest {
 		ORMapEventInactivation event = new ORMapEventInactivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
 				descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, 
 				sourceObjectStatement) ;
-		assertEquals(RMapEventType.INACTIVATION, event.getEventType());
+		assertEquals(RMAP.EVENT_TYPE_INACTIVATION, event.getEventType());
 		assertEquals(RMapEventTargetType.DISCO, event.getEventTargetType());
 		Statement tStmt = event.getTypeStatement();
 		assertEquals(RMAP.EVENT.toString(), tStmt.getObject().toString());

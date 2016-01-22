@@ -27,7 +27,7 @@ import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.DC;
 
 /**
- * @author khansen, smorrissey
+ * @author khanson, smorrissey
  *
  */
 public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
@@ -129,7 +129,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 				associatedAgent, this.context);
 		this.associatedAgentStmt=agent;
 		Statement tt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_TARGET_TYPE, 
-				this.getValueFactory().createLiteral(targetType.uriString()),
+				this.getValueFactory().createURI(targetType.uriString()),
 				this.context);
 		this.eventTargetTypeStmt = tt;
 	}
@@ -163,7 +163,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		// need to revisit the way this is done... have both EventType and EventTargetType do things the same way
 		Statement et = null;
 		et = this.getValueFactory().createStatement(context, RMAP.EVENT_TYPE, 
-				this.getValueFactory().createURI(RMAP.PREFIX + eventType.getTypeString()),context);
+				this.getValueFactory().createURI(eventType.getTypeString()),context);
 		return et;
 	}
 	

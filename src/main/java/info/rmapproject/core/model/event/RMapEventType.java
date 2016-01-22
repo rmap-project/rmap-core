@@ -10,13 +10,13 @@ import info.rmapproject.core.exception.RMapException;
  *
  */
 public enum RMapEventType {
-	CREATION ("creation"),
-	INACTIVATION("inactivation"),
-	UPDATE("update"),
-	DERIVATION("derivation"),
-	TOMBSTONE("tombstone"),
-	DELETION("deletion"),
-	REPLACE("replace");
+	CREATION ("http://rmap-project.org/rmap/terms/creation"),
+	INACTIVATION("http://rmap-project.org/rmap/terms/inactivation"),
+	UPDATE("http://rmap-project.org/rmap/terms/update"),
+	DERIVATION("http://rmap-project.org/rmap/terms/derivation"),
+	TOMBSTONE("http://rmap-project.org/rmap/terms/tombstone"),
+	DELETION("http://rmap-project.org/rmap/terms/deletion"),
+	REPLACE("http://rmap-project.org/rmap/terms/replace");
 	
 	private String typeString;
 	

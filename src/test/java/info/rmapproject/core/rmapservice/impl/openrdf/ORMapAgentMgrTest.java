@@ -69,7 +69,7 @@ public class ORMapAgentMgrTest{
 			}
 			
 			if (rmapService.isAgentId(agentId)){
-				System.out.println("Test Agent successfully created!  URI is " + agentId);
+				System.out.println("Test Agent successfully created!  URI is " + agentId.toString());
 			}
 			
 			// Check the agent was created
@@ -78,12 +78,12 @@ public class ORMapAgentMgrTest{
 			//now read agent and check it.
 			RMapAgent readagent = rmapService.readAgent(agentId);
 
-			String name1=readagent.getName().getStringValue();
-			String name2=NAME.stringValue();
+			String name1=readagent.getName().toString();
+			String name2=NAME.toString();
 			assertEquals(name1, name2);
-			assertEquals(readagent.getType().getStringValue(), RMAP.AGENT.stringValue());
-			assertEquals(readagent.getIdProvider().getStringValue(),ID_PROVIDER_URI.stringValue());
-			assertEquals(readagent.getAuthId().getStringValue(),AUTH_ID_URI.stringValue());
+			assertEquals(readagent.getType().toString(), RMAP.AGENT.toString());
+			assertEquals(readagent.getIdProvider().toString(),ID_PROVIDER_URI.toString());
+			assertEquals(readagent.getAuthId().toString(),AUTH_ID_URI.toString());
 		}
 		catch (RMapAgentNotFoundException e){
 			fail("agent not found. " + e.getMessage());
@@ -104,6 +104,7 @@ public class ORMapAgentMgrTest{
 	 * @throws RMapException 
 	 * @throws RMapAgentNotFoundException 
 	 */
+	@SuppressWarnings("unused")
 	@Test
 	public void testUpdateAgent() throws RMapAgentNotFoundException, RMapException, RMapDefectiveArgumentException {
 		
@@ -115,7 +116,7 @@ public class ORMapAgentMgrTest{
 		try {
 			//create new test agent
 			RMapAgent agent = new ORMapAgent(AGENT_URI, ID_PROVIDER_URI, AUTH_ID_URI, NAME);
-			rmapService.createAgent(agent,agent.getId().getIri());
+			RMapEvent event1 = rmapService.createAgent(agent,agent.getId().getIri());
 			agentId=agent.getId().getIri();
 			if (rmapService.isAgentId(agentId)){
 				System.out.println("Test Agent successfully created!  URI is " + agentId);
@@ -138,7 +139,7 @@ public class ORMapAgentMgrTest{
 			String name1=readagent.getName().toString();
 			assertEquals(name1, "RMap Test Name Change");
 
-			rmapService.updateAgent(agentId, 
+			RMapEvent event2 = rmapService.updateAgent(agentId, 
 										NAME.toString(), 
 										new java.net.URI(ID_PROVIDER_URI.toString()), 
 										new java.net.URI(AUTH_ID_URI.toString()), 

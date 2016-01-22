@@ -141,5 +141,74 @@ public class ORMapDiSCOMgrTest  {
 			fail();
 		}	
 	}
+	
+
+	/**
+	 * Test method first creates a DiSCO and then attempts to update it twice.
+	 * The second update should be rejected as you can only update the latest version.
+	 * @throws RMapDefectiveArgumentException 
+	 * @throws RMapException 
+	 */
+	@Test
+	public void testCreateAndUpdateDiSCO() throws RMapException, RMapDefectiveArgumentException {
+		
+		RMapService rmapService=RMapServiceFactoryIOC.getFactory().createService();
+		
+		java.net.URI agentId; //used to pass back into rmapService since all of these use java.net.URI
+		
+		try {
+			
+			SesameTriplestore ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
+			//create new test agent
+			RMapAgent agent = new ORMapAgent(AGENT_URI, ID_PROVIDER_URI, AUTH_ID_URI, NAME);
+			rmapService.createAgent(agent,agent.getId().getIri());
+			agentId=agent.getId().getIri();
+			if (rmapService.isAgentId(agentId)){
+				System.out.println("Test Agent successfully created!  URI is " + agentId);
+			}
+			
+			// Check the agent was created
+			assertTrue(rmapService.isAgentId(agentId));	
+		
+			// now create DiSCO	
+			InputStream stream = new ByteArrayInputStream(discoRDF.getBytes(StandardCharsets.UTF_8));
+			RioRDFHandler handler = new RioRDFHandler();	
+			List<Statement>stmts = handler.convertRDFToStmtList(stream, "http://rmapdns.ddns.net:8080/api/disco/", "RDFXML");
+			ORMapDiSCO disco = new ORMapDiSCO(stmts);
+			RMapUri idURI = disco.getId();
+			ORMapDiSCOMgr discoMgr = new ORMapDiSCOMgr();
+			discoMgr.createDiSCO(ORAdapter.uri2OpenRdfUri(agentId), disco, ts);
+			
+			//read DiSCO back
+			URI dUri = ORAdapter.rMapUri2OpenRdfUri(idURI);
+			ORMapDiSCO rDisco = discoMgr.readDiSCO(dUri, true, null, null, ts).getDisco();
+			RMapUri rIdURI = rDisco.getId();
+			assertEquals(idURI.toString(),rIdURI.toString());
+			String description2 = rDisco.getDescription().toString();
+			assertEquals(description,description2);
+
+			boolean correctErrorThrown = false;
+			// now update DiSCO	
+			ORMapDiSCO disco2 = new ORMapDiSCO(stmts);
+			discoMgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(agentId), false, dUri, disco2, ts);
+			ORMapDiSCO disco3 = new ORMapDiSCO(stmts);
+			try{
+				discoMgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(agentId), false, dUri, disco3, ts);
+			} catch(RMapException ex){
+				if (ex.getMessage().contains("latest version")){
+					correctErrorThrown=true;
+				}
+			}
+			if (!correctErrorThrown)	{
+				fail("A 'not latest version' exception should have been thrown!"); 
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}	
+	}
+	
+	
 
 }

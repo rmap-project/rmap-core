@@ -443,6 +443,21 @@ public interface RMapService {
 	public RMapEvent createAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, URI creatingAgentID) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
+	 * Create a new agent using the agent properties. The agentId will be generated on creation, and will be assigned as the creatingAgent as well
+	 * To have the system create a URI and assign to both, set the agentID and creatingAgentId as null
+	 * There is an option to indicate that an agent wasn't created by themselves, which might be used for batch loading etc.
+	 * @param agentID
+	 * @param name
+	 * @param identityProvider
+	 * @param authKeyUri
+	 * @param creatingAgentID
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public RMapEvent createAgent(String name, URI identityProvider, URI authKeyUri) throws RMapException, RMapDefectiveArgumentException;
+	
+	/**
 	 * Update existing agent using the agent properties. Note: In most instances the agentID should match the URI in agent.getId()
 	 * - in other words agents typically create their own record if they registered through the GUI.  
 	 * There is an option to indicate that an agent wasn't created by themselves, which might be used for batch loading etc.
@@ -484,13 +499,59 @@ public interface RMapService {
 	
 	
 	/**
-	 * 
+	 * Retrieves a list of Events that affected the Agent record.
 	 * @param agentId
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
 	public List<URI> getAgentEvents(URI agentId) throws RMapException, RMapDefectiveArgumentException;
+	
+	/**
+	 * Retrieves a list of all Events that were initiated by the Agent
+	 * @param agentId
+	 * @param dateFrom
+	 * @param dateTo
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public List<URI> getAgentEventsInitiated(URI agentId) throws RMapException, RMapDefectiveArgumentException;
+		
+	/**
+	 * Retrieves a list of Events that were initiated by the Agent between the dates provided.
+	 * @param agentId
+	 * @param dateFrom
+	 * @param dateTo
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public List<URI> getAgentEventsInitiated(URI agentId, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
+	
+	/**
+	 * Retrieves a list of URIs of DiSCOs created by the Agent
+	 * @param agentId
+	 * @param statusCode
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public List<URI> getAgentDiSCOs(URI agentId, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+		
+	/**
+	 * Retrieves a list of URIs of DiSCOs created by the Agent
+	 * @param agentId
+	 * @param statusCode
+	 * @param dateFrom
+	 * @param dateTo
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public List<URI> getAgentDiSCOs(URI agentId, RMapStatus statusCode, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
+		
+	
 	/**
 	 * 
 	 * @param agentId

@@ -142,7 +142,7 @@ public class ORAdapter {
 		if (rLiteral == null){
 			throw new RMapDefectiveArgumentException ("Null RMapLiteral");
 		}
-		String litString = rLiteral.getStringValue();
+		String litString = rLiteral.toString();
 		if (rLiteral.getDatatype() != null){ //has a datatype associated with the literal
 			URI datatype = rMapUri2OpenRdfUri(rLiteral.getDatatype());
 			literal = getValueFactory().createLiteral(litString,datatype);			

@@ -17,8 +17,6 @@ import java.util.Date;
  */
 public interface RMapEvent extends RMapObject{
 
-
-
 	/**
 	 * @return the eventType
 	 * @throws RMapException

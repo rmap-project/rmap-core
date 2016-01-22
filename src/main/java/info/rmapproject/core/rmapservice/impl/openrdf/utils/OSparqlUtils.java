@@ -80,6 +80,7 @@ public class OSparqlUtils {
 		
 		return sysAgentSparql;
 	}
+
 	
 	/**
 	 * Converts an RMapStatus code to an appropriate SPARQL filter

@@ -7,7 +7,6 @@ import info.rmapproject.core.controlledlist.AgentPredicate;
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapDeletedObjectException;
-import info.rmapproject.core.exception.RMapDiSCONotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.exception.RMapTombstonedObjectException;
@@ -21,8 +20,10 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdateWithReplace;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.openrdf.utils.OSparqlUtils;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
 import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
+import info.rmapproject.core.utils.DateUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,11 +32,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.FOAF;
+import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.TupleQueryResult;
 
 
 /**
@@ -271,7 +276,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		ORMapEventUpdateWithReplace event = new ORMapEventUpdateWithReplace(creatingAgentUri, 
 							RMapEventTargetType.AGENT, agentId);
 		
-		String sEventDescrip = "Updates: ";
+		String sEventDescrip = "";
 		boolean updatesFound = false;
 		
 		//Remove elements of original agent and replace them with new elements
@@ -392,6 +397,162 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 //	}
 	
 	/**
+	 * Get DiSCOs that were created by the Agent provided
+	 * @param agentId
+	 * @param status
+	 * @param dateFrom
+	 * @param dateTo
+	 * @param ts
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public List<URI> getAgentDiSCOs(URI agentId, RMapStatus status, Date dateFrom, Date dateTo, SesameTriplestore ts) 
+			throws RMapException, RMapDefectiveArgumentException {
+		if (agentId==null){
+			throw new RMapDefectiveArgumentException ("null agentId");
+		}
+		
+		/*
+		 * Query gets DiSCOs created by a specific agent.
+		 * SELECT DISTINCT ?rmapObjId ?startDate 
+			WHERE { 
+			GRAPH ?rmapObjId  
+				{
+				?rmapObjId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/DiSCO> .						} . 
+			 GRAPH ?eventId {
+				?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
+				{?eventId <http://www.w3.org/ns/prov#generated> ?rmapObjId} UNION 
+				{?eventId <http://rmap-project.org/rmap/terms/derivedObject> ?rmapObjId} .
+				?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
+				?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmaptestagent> .
+			} .
+			FILTER NOT EXISTS {?statusChangeEventId <http://rmap-project.org/rmap/terms/tombstonedObject> ?rmapObjId} .
+			FILTER NOT EXISTS {?statusChangeEventId <http://rmap-project.org/rmap/terms/inactivatedObject> ?rmapObjId}
+			}
+		 */
+		
+		String statusFilterSparql = OSparqlUtils.convertRMapStatusToSparqlFilter(status);
+
+		String sparqlQuery = "SELECT DISTINCT ?rmapObjId ?startDate "
+							+ "WHERE { "
+							+ " GRAPH ?rmapObjId "
+							+ "	  {"
+							+ "     ?rmapObjId <" + RDF.TYPE + "> <" + RMAP.DISCO + "> . "							
+							+ "	  } . "
+							+ " GRAPH ?eventId {"
+							+ "   ?eventId <" + RDF.TYPE + "> <" + RMAP.EVENT + "> ."
+							+ "   {?eventId <" + PROV.GENERATED + "> ?rmapObjId} UNION "
+							+ "   {?eventId <" + RMAP.EVENT_DERIVED_OBJECT + "> ?rmapObjId} ."
+							+ "   ?eventId <" + PROV.STARTEDATTIME + "> ?startDate ."
+							+ "	  ?eventId <" + PROV.WASASSOCIATEDWITH + "> <" + agentId.toString() + "> . "
+							+ "  } "
+							+ statusFilterSparql
+							+ "} ";
+		
+		TupleQueryResult resultset = null;
+		try {
+			resultset = ts.getSPARQLQueryResults(sparqlQuery);
+		}
+		catch (Exception e) {
+			throw new RMapException("Could not retrieve SPARQL query results using " + sparqlQuery, e);
+		}
+		
+		List<URI> discos = new ArrayList<URI>();
+		
+		try{
+			while (resultset.hasNext()) {
+				BindingSet bindingSet = resultset.next();
+				URI discoid = (URI) bindingSet.getBinding("rmapObjId").getValue();
+				Literal startDateLiteral = (Literal) bindingSet.getBinding("startDate").getValue();
+				Date startDate = DateUtils.xmlGregorianCalendarToDate(startDateLiteral.calendarValue());
+					
+				if ((dateFrom != null && startDate.before(dateFrom))
+						|| (dateTo != null && startDate.after(dateTo))) { 
+					continue; // don't include out of range date
+				}
+				discos.add(discoid);
+			}
+		}	
+		catch (RMapException r){throw r;}
+		catch (Exception e){
+			throw new RMapException("Could not process SPARQL results for DiSCOs created by Agent", e);
+		}
+				
+		return discos;
+	}
+	
+	/**
+	 * Get a list of URIs for Events initiated by the Agent provided.
+	 * @param agentId
+	 * @param dateFrom
+	 * @param dateTo
+	 * @param ts
+	 * @return
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */	
+	public List<URI> getAgentEventsInitiated(URI agentId, Date dateFrom, Date dateTo, SesameTriplestore ts) 
+			throws RMapException, RMapDefectiveArgumentException {
+		if (agentId==null){
+			throw new RMapDefectiveArgumentException ("null agentId");
+		}
+
+		//query gets eventIds and startDates of Events initiated by agent
+		/*  SELECT DISTINCT ?eventId ?startDate 
+			WHERE {
+			GRAPH ?eventId {
+			 	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
+			 	?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
+			 	?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmaptestagent> .
+			 	}
+			}
+			*/
+		String sparqlQuery = "SELECT DISTINCT ?eventId ?startDate "
+							+ "WHERE { "
+							+ " GRAPH ?eventId {"
+							+ "   ?eventId <" + RDF.TYPE + "> <" + RMAP.EVENT + "> ."
+							+ "   ?eventId <" + PROV.STARTEDATTIME + "> ?startDate ."
+							+ "	  ?eventId <" + PROV.WASASSOCIATEDWITH + "> <" + agentId.toString() + ">} . "
+							+ "  } "
+							+ "} ";
+		
+		TupleQueryResult resultset = null;
+		try {
+			resultset = ts.getSPARQLQueryResults(sparqlQuery);
+		}
+		catch (Exception e) {
+			throw new RMapException("Could not retrieve SPARQL query results using " + sparqlQuery, e);
+		}
+		
+		List<URI> events = new ArrayList<URI>();
+		
+		try{
+			while (resultset.hasNext()) {
+				BindingSet bindingSet = resultset.next();
+				URI eventId = (URI) bindingSet.getBinding("eventId").getValue();
+				Literal startDateLiteral = (Literal) bindingSet.getBinding("startDate").getValue();
+				Date startDate = DateUtils.xmlGregorianCalendarToDate(startDateLiteral.calendarValue());
+					
+				if ((dateFrom != null && startDate.before(dateFrom))
+						|| (dateTo != null && startDate.after(dateTo))) { 
+					continue; // don't include out of range date
+				}
+				events.add(eventId);
+			}
+		}	
+		catch (RMapException r){throw r;}
+		catch (Exception e){
+			throw new RMapException("Could not process results for Agent's initiated Events", e);
+		}
+
+		return events;		
+	}
+	
+	
+	
+	
+	/**
 	 * 
 	 * @param agent
 	 * @param ts
@@ -408,51 +569,4 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		return;
 	}
 		
-	/**
-	 * Get ids of any Agents that asserted an Agent i.e isAssociatedWith the create event
-	 * @param uri ID of Agent
-	 * @param statusCode
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDiSCONotFoundException
-	 * @throws RMapObjectNotFoundException
-	 */
-	public Set<URI> getAssertingAgents(URI uri, RMapStatus statusCode, Date dateFrom, Date dateTo, SesameTriplestore ts) 
-	throws RMapException, RMapDiSCONotFoundException, RMapObjectNotFoundException {
-		Set<URI>agents = new HashSet<URI>();
-		do {
-			//don't get agent if DiSCO status doesn't match OR the DiSCO should be hidden from public view.
-			RMapStatus dStatus = this.getAgentStatus(uri, ts);
-			if ((statusCode != null && !dStatus.equals(statusCode))
-					|| dStatus.equals(RMapStatus.DELETED)
-					|| dStatus.equals(RMapStatus.TOMBSTONED)){
-					break;
-			}
-
-			ORMapEventMgr eventmgr = new ORMapEventMgr();
-			List<URI> events = eventmgr.getMakeObjectEvents(uri, ts);
-			
-           //For each event associated with Agent, return AssociatedAgent
-			for (URI event:events){
-				URI assocAgent = eventmgr.getEventAssocAgent(event, ts);
-				if (assocAgent==null) {
-					continue;
-				}
-				if (dateFrom != null || dateTo != null) { //if a date is passed, checked within the range.
-					Date eventDate = eventmgr.getEventStartDate(event, ts);
-					if ((dateFrom != null && eventDate.before(dateFrom))
-							|| (dateTo != null && eventDate.after(dateTo))) {
-						continue;
-					}
-				}
-				//all ok
-				agents.add(assocAgent);
-				
-			}
-		} while (false);		
-		return agents;
-	}
-	
-
 }
