@@ -56,7 +56,7 @@ public class ORMapDiSCOMgrTest  {
 			+ "</dc:description>"  
 			+ "<ore:aggregates rdf:resource=\"http://dx.doi.org/10.1109/ACCESS.2014.2332453\"/>"  
 			+ "<ore:aggregates rdf:resource=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip\"/>"  
-	    	+ "</rmap:DiSCO>"  
+			+ "</rmap:DiSCO>"  
 	    	+ "<fabio:JournalArticle rdf:about=\"http://dx.doi.org/10.1109/ACCESS.2014.2332453\">"  
 	    	+ "<dc:title>Toward Scalable Systems for Big Data Analytics: A Technology Tutorial</dc:title>"  
 	    	+ "<dc:creator>Yonggang Wen</dc:creator>"  
@@ -76,6 +76,61 @@ public class ORMapDiSCOMgrTest  {
 	    	+ "<dc:format>video/x-msvideo</dc:format>"  
 	    	+ "<dc:extent>194KB</dc:extent>"  
 	    	+ "</rdf:Description>"  
+	    	+ "</rdf:RDF>";
+
+	
+	protected String discoRDFBnodes = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> "  
+			+ "<rdf:RDF "  
+			+ " xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\""  
+			+ " xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\""  
+			+ " xmlns:rmap=\"http://rmap-project.org/rmap/terms/\""  		
+			+ " xmlns:ore=\"http://www.openarchives.org/ore/terms/\""
+			+ " xmlns:dcterms=\"http://purl.org/dc/terms/\""  
+			+ " xmlns:dc=\"http://purl.org/dc/elements/1.1/\""  
+			+ " xmlns:foaf=\"http://xmlns.com/foaf/0.1/\""  
+			+ " xmlns:fabio=\"http://purl.org/spar/fabio/\">"  
+			+ "<rmap:DiSCO>"  
+			+ "<dcterms:creator rdf:resource=\"http://orcid.org/0000-0000-0000-0000\"/>"
+			+ "<dc:description>"  
+			+ description  
+			+ "</dc:description>"  
+			+ "<ore:aggregates rdf:resource=\"http://dx.doi.org/10.1109/ACCESS.2014.2332453\"/>"  
+			+ "<ore:aggregates rdf:resource=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip\"/>"  
+			+ "<ore:aggregates rdf:nodeID=\"N65570\" />"
+			+ "<ore:aggregates rdf:nodeID=\"N65575\" />"
+			+ "<ore:aggregates rdf:nodeID=\"N65580\" />"
+			+ "</rmap:DiSCO>"  
+	    	+ "<fabio:JournalArticle rdf:about=\"http://dx.doi.org/10.1109/ACCESS.2014.2332453\">"  
+	    	+ "<dc:title>Toward Scalable Systems for Big Data Analytics: A Technology Tutorial</dc:title>"  
+			+ "<dcterms:creator rdf:nodeID=\"N65570\" />"
+			+ "<dcterms:creator rdf:nodeID=\"N65575\" />"
+			+ "<dcterms:creator rdf:nodeID=\"N65580\" />" 
+	    	+ "<dc:subject>Hadoop</dc:subject>"  
+	    	+ "<dc:subject>Big data analytics</dc:subject>"  
+	    	+ "<dc:subject>data acquisition</dc:subject>"  
+	    	+ "</fabio:JournalArticle>"  
+	    	+ "<rdf:Description rdf:about=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip\">"  
+	    	+ "<dc:format>application/zip</dc:format>"  
+	    	+ "<dc:description>Zip file containing an AVI movie and a README file in Word format.</dc:description>"  
+	    	+ "<dc:hasPart rdf:resource=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip#big%32data%32intro.avi\"/>"  
+	    	+ "<dc:hasPart rdf:resource=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip#README.docx\"/>"  
+	    	+ "</rdf:Description>"  
+	    	+ "<rdf:Description rdf:about=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip#big%32data%32intro.avi\">"  
+	    	+ "<dc:format>video/x-msvideo</dc:format>"  
+	    	+ "<dc:extent>194KB</dc:extent>"  
+	    	+ "</rdf:Description>"
+	    	+ "<rdf:Description rdf:nodeID=\"N65570\">"
+	    	+ "<foaf:name>Carlchristian Eckert</foaf:name>"
+	    	+ "<rdf:type rdf:resource=\"http://purl.org/dc/terms/Agent\" />"
+		    + "</rdf:Description>"
+	    	+ "<rdf:Description rdf:nodeID=\"N65575\">"
+	    	+ "<foaf:name>Axel Huebl</foaf:name>"
+	    	+ "<rdf:type rdf:resource=\"http://purl.org/dc/terms/Agent\" />"
+		    + "</rdf:Description>"
+	    	+ "<rdf:Description rdf:nodeID=\"N65580\">"
+	    	+ "<foaf:name>René Widera</foaf:name>"
+	    	+ "<rdf:type rdf:resource=\"http://purl.org/dc/terms/Agent\" />"
+	    	+ "</rdf:Description>"	    	
 	    	+ "</rdf:RDF>";
 
 	
@@ -173,7 +228,7 @@ public class ORMapDiSCOMgrTest  {
 			// now create DiSCO	
 			InputStream stream = new ByteArrayInputStream(discoRDF.getBytes(StandardCharsets.UTF_8));
 			RioRDFHandler handler = new RioRDFHandler();	
-			List<Statement>stmts = handler.convertRDFToStmtList(stream, "http://rmapdns.ddns.net:8080/api/disco/", "RDFXML");
+			List<Statement>stmts = handler.convertRDFToStmtList(stream, "RDFXML", "http://rmapdns.ddns.net:8080/api/disco/");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
 			RMapUri idURI = disco.getId();
 			ORMapDiSCOMgr discoMgr = new ORMapDiSCOMgr();
@@ -208,7 +263,54 @@ public class ORMapDiSCOMgrTest  {
 			fail();
 		}	
 	}
-	
+
+	/**
+	 * Test method creates a DiSCO with blank nodes in the body and as aggregates, 
+	 * it then updates with the same DiSCO to confirm Update works too
+	 * @throws RMapDefectiveArgumentException 
+	 * @throws RMapException 
+	 */
+	/*@Test
+	public void testCreateAndUpdateDiSCOWithBNodes() throws RMapException, RMapDefectiveArgumentException {
+		
+		RMapService rmapService=RMapServiceFactoryIOC.getFactory().createService();
+		
+		java.net.URI agentId; //used to pass back into rmapService since all of these use java.net.URI
+		
+		try {
+			
+			SesameTriplestore ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
+			//check test agent ok
+			agentId=ORAdapter.openRdfUri2URI(AGENT_URI);
+			// Check the agent was created
+			assertTrue(rmapService.isAgentId(agentId));	
+		
+			// now create DiSCO	with bnodes
+			InputStream stream = new ByteArrayInputStream(discoRDFBnodes.getBytes(StandardCharsets.UTF_8));
+			RioRDFHandler handler = new RioRDFHandler();	
+			List<Statement>stmts = handler.convertRDFToStmtList(stream, "RDFXML", "http://rmapdns.ddns.net:8080/api/disco/");
+			ORMapDiSCO disco = new ORMapDiSCO(stmts);
+			RMapUri idURI = disco.getId();
+			ORMapDiSCOMgr discoMgr = new ORMapDiSCOMgr();
+			discoMgr.createDiSCO(ORAdapter.uri2OpenRdfUri(agentId), disco, ts);
+			
+			//read DiSCO back
+			URI dUri = ORAdapter.rMapUri2OpenRdfUri(idURI);
+			ORMapDiSCO rDisco = discoMgr.readDiSCO(dUri, true, null, null, ts).getDisco();
+			RMapUri rIdURI = rDisco.getId();
+			assertEquals(idURI.toString(),rIdURI.toString());
+			String description2 = rDisco.getDescription().toString();
+			assertEquals(description,description2);
+			
+			// now update with Bnodes	
+			ORMapDiSCO disco2 = new ORMapDiSCO(stmts);
+			discoMgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(agentId), false, dUri, disco2, ts);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}	
+	}*/
 	
 
 }

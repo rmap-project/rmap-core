@@ -56,6 +56,9 @@ public class ORMapService implements RMapService {
 		}	
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#closeConnection()
+	 */
 	@Override
 	public void closeConnection() throws RMapException {
 		try {
@@ -69,6 +72,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRelatedTriples(URI, RMapStatus)
 	 */
+	@Override
 	public List<RMapTriple> getResourceRelatedTriples(URI uri, RMapStatus statusCode) 
 			throws RMapException, RMapDefectiveArgumentException {
 		return getResourceRelatedTriples(uri, statusCode, null, null, null);
@@ -77,6 +81,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRelatedTriples(URI, RMapStatus, List<URI>, Date, Date)
 	 */
+	@Override
 	public List<RMapTriple> getResourceRelatedTriples(URI uri, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo)
 			throws RMapException, RMapDefectiveArgumentException {
 		
@@ -103,6 +108,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRelatedEvents(java.net.URI)
 	 */
+	@Override
 	public List<URI> getResourceRelatedEvents (URI uri) 
 			throws RMapException, RMapDefectiveArgumentException {
 		return getResourceRelatedEvents(uri, null, null, null);
@@ -111,6 +117,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRelatedEvents(java.net.URI, List<URI>, Date, Date)
 	 */
+	@Override
 	public List<URI> getResourceRelatedEvents (URI uri, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException {
 		if (uri==null){
 			throw new RMapDefectiveArgumentException("null uri");
@@ -134,6 +141,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getRelatedDiSCOs(java.net.URI, info.rmapproject.core.model.RMapStatus)
 	 */
+	@Override
 	public List<URI> getResourceRelatedDiSCOs (URI uri, RMapStatus statusCode)
 			throws RMapException, RMapDefectiveArgumentException {
 		return getResourceRelatedDiSCOs(uri, statusCode, null, null, null);
@@ -142,6 +150,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getRelatedDiSCOs(java.net.URI, info.rmapproject.core.model.RMapStatus, List<URI>, Date, Date)
 	 */
+	@Override
 	public List<URI> getResourceRelatedDiSCOs (URI uri, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo)
 			throws RMapException, RMapDefectiveArgumentException {
 		if (uri==null){
@@ -163,11 +172,10 @@ public class ORMapService implements RMapService {
 		return uris;		
 	}
 	
-	
-
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceAssertingAgents(URI, RMapStatus)
 	 */
+	@Override
 	public List<URI> getResourceAssertingAgents(URI uri, RMapStatus statusCode) 
 			throws RMapException, RMapDefectiveArgumentException {
 		return getResourceAssertingAgents(uri, statusCode, null, null, null);
@@ -176,6 +184,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceAssertingAgents (URI, RMapStatus, List<URI>, Date, Date)
 	 */
+	@Override
 	public List<URI> getResourceAssertingAgents (URI uri, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo)
 			throws RMapException, RMapDefectiveArgumentException {
 		if (uri==null){
@@ -196,7 +205,10 @@ public class ORMapService implements RMapService {
 		
 		return uris;
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRdfTypes(java.net.URI, java.net.URI)
+	 */
 	@Override
 	public Set<URI> getResourceRdfTypes(URI resourceUri, URI contextURI)
 			throws RMapException, RMapDefectiveArgumentException {
@@ -217,6 +229,9 @@ public class ORMapService implements RMapService {
 		return returnSet;
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRdfTypesAllContexts(java.net.URI, RMapStatus)
+	 */
 	@Override
 	public Map<URI, Set<URI>> getResourceRdfTypesAllContexts(URI resourceUri, RMapStatus statusCode)
 			throws RMapException, RMapDefectiveArgumentException {
@@ -245,6 +260,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getStmtRelatedDiSCOs(java.net.URI, java.net.URI, RMapValue, RMapStatus)
 	 */
+	@Override
 	public List<URI> getStatementRelatedDiSCOs(URI subject, URI predicate, RMapValue object, 
 												RMapStatus statusCode) 
 												throws RMapException, RMapDefectiveArgumentException {
@@ -255,6 +271,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getStmtRelatedDiSCOs(java.net.URI, java.net.URI, RMapValue, RMapStatus, List<java.net.URI>, Date, Date)
 	 */
+	@Override
 	public List<URI> getStatementRelatedDiSCOs(URI subject, URI predicate, RMapValue object, 
 												RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) 
 												throws RMapException, RMapDefectiveArgumentException {
@@ -289,6 +306,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getStmtAssertingAgents(java.net.URI, java.net.URI, RMapValue, RMapStatus)
 	 */
+	@Override
 	public List<URI> getStatementAssertingAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, 
 											RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException {
 		return getStatementAssertingAgents(subject, predicate, object, statusCode, null, null);
@@ -297,6 +315,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getStmtAssertingAgents(java.net.URI, java.net.URI, RMapValue, RMapStatus, Date, Date)
 	 */
+	@Override
 	public List<URI> getStatementAssertingAgents(java.net.URI subject, java.net.URI predicate, RMapValue object, 
 											RMapStatus statusCode, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException {
 		if (subject==null){
@@ -330,6 +349,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#readDiSCO(java.net.URI)
 	 */
+	@Override
 	public RMapDiSCO readDiSCO(URI discoID) 
 	throws RMapException, RMapDiSCONotFoundException, RMapDefectiveArgumentException {
 		if (discoID == null){
@@ -343,6 +363,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#readDiSCODTO(java.net.URI)
 	 */
+	@Override
 	public RMapDiSCODTO readDiSCODTO (URI discoID)
 	throws RMapException, RMapDiSCONotFoundException, RMapDefectiveArgumentException {
 		if (discoID == null){
@@ -353,6 +374,9 @@ public class ORMapService implements RMapService {
 		return dto;
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#createDiSCO(java.net.URI, RMapDiSCO)
+	 */
 	@Override
 	public RMapEvent createDiSCO(URI systemAgent, RMapDiSCO disco)
 			throws RMapException, RMapDefectiveArgumentException {
@@ -370,44 +394,11 @@ public class ORMapService implements RMapService {
 		return createEvent;
 	}
 
-	/**
-	 * Create DiSCO from list of OpenRdf Statements
-	 * @param systemAgent Agent creating DiSCO
-	 * @param stmts List of Statements making up DiSCO
-	 * @return Creation Event for successfully created DiSCO
-	 * @throws RMapException if Statements do not comprise a valid DiSCO, or
-	 * if the DiSCO cannot be created in the triplestore
-	 * @throws RMapDefectiveArgumentException 
-	 */
-	public RMapEvent createDisco(URI systemAgent, List<Statement> stmts )
-	throws RMapException, RMapDefectiveArgumentException{
-		if (systemAgent==null){
-			throw new RMapDefectiveArgumentException("Null Agent id provided");
-		}
-		if (stmts==null || stmts.size()==0){
-			throw new RMapDefectiveArgumentException("Null or empty Statement List provided");
-		}
-		RMapEvent createEvent = null;
-		try {
-			ORMapDiSCOMgr discomgr = new ORMapDiSCOMgr();
-			ORMapDiSCO disco = new ORMapDiSCO(stmts);
-			createEvent = discomgr.createDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent), disco, ts);
-		} catch (RMapException | RMapDefectiveArgumentException ex) {
-			try {
-				//there has been an error during an update so try to rollback the transaction
-				ts.rollbackTransaction();
-			} catch(RepositoryException rollbackException) {
-				throw new RMapException("Could not rollback changes after error. Please check your DiSCO record for errors.", ex);
-			}
-			throw ex;	
-		}	
-		
-		return createEvent;
-	}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCOStatus(java.net.URI)
 	 */
+	@Override
 	public RMapStatus getDiSCOStatus(URI discoId) throws RMapException, RMapDefectiveArgumentException {
 		if (discoId ==null){
 			throw new RMapDefectiveArgumentException("Null DiSCO id provided");
@@ -417,6 +408,9 @@ public class ORMapService implements RMapService {
 		return status;
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#updateDiSCO(java.net.URI, java.net.URI, RMapDiSCO)
+	 */
 	@Override
 	public RMapEvent updateDiSCO(URI systemAgent, URI oldDiscoId, RMapDiSCO disco)
 			throws RMapException, RMapDefectiveArgumentException {
@@ -455,48 +449,10 @@ public class ORMapService implements RMapService {
 		return updateEvent;
 	}
 
-	/**
-	 * Update DiSCO with new DiSCO provided as list of OpenRdf Statements.
-	 * If list of Statements is null, then just inactivate old DiSCO.
-	 * @param systemAgent
-	 * @param oldDiscoId
-	 * @param stmts
-	 * @param justInactivate 
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#inactivateDiSCO(java.net.URI, java.net.URI)
 	 */
-	public RMapEvent updateDiSCO(URI systemAgent, URI oldDiscoId, 
-			List<Statement> stmts, boolean justInactivate)
-	throws RMapException, RMapDefectiveArgumentException {
-		if (systemAgent==null){
-			throw new RMapDefectiveArgumentException ("null system agent");
-		}
-		if (oldDiscoId==null){
-			throw new RMapDefectiveArgumentException ("null id for old DiSCO");
-		}
-		if (stmts==null || stmts.size()==0){
-			throw new RMapDefectiveArgumentException("Null or empty Statement List provided");
-		}
-		RMapEvent updateEvent = null;
-		try {
-			ORMapDiSCOMgr discomgr = new ORMapDiSCOMgr();
-			ORMapDiSCO disco = new ORMapDiSCO(stmts);
-			updateEvent = discomgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(systemAgent),
-							false, ORAdapter.uri2OpenRdfUri(oldDiscoId), disco, ts);
-
-		} catch (RMapException | RMapDefectiveArgumentException ex) {
-			try {
-				//there has been an error during an update so try to rollback the transaction
-				ts.rollbackTransaction();
-			} catch(RepositoryException rollbackException) {
-				throw new RMapException("Could not rollback changes after error. Please check your DiSCO record for errors.", ex);
-			}
-			throw ex;	
-		}	
-		return updateEvent;
-	}
-
 	@Override
 	public RMapEvent inactivateDiSCO(URI systemAgent, URI oldDiscoId)
 			throws RMapException, RMapDiSCONotFoundException,
@@ -528,6 +484,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#deleteDiSCO(java.net.URI, java.net.URI)
 	 */
+	@Override
 	public RMapEvent deleteDiSCO(URI discoID, URI systemAgent) 
 			throws RMapException, RMapDefectiveArgumentException {
 		if (discoID ==null){
@@ -556,6 +513,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getAllDiSCOVersions(java.net.URI)
 	 */
+	@Override
 	public List<URI> getDiSCOAllVersions(URI discoID) 
 	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
 		if (discoID ==null){
@@ -576,6 +534,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getAllAgentDiSCOVersions(java.net.URI)
 	 */
+	@Override
 	public List<URI> getDiSCOAllAgentVersions(URI discoID) 
 	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
 		if (discoID ==null){
@@ -595,6 +554,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getLatestVersionDiSCO(java.net.URI)
 	 */
+	@Override
 	public RMapDiSCO getDiSCOLatestVersion(URI discoID) 
 	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {			
 		if (discoID == null){
@@ -615,7 +575,10 @@ public class ORMapService implements RMapService {
 		}
 		return disco;
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCODTOLatestVersion(java.net.URI)
+	 */
 	@Override
 	public RMapDiSCODTO getDiSCODTOLatestVersion(URI discoID)
 			throws RMapException, RMapObjectNotFoundException,
@@ -634,7 +597,10 @@ public class ORMapService implements RMapService {
 		}
 		return latestDisco;
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCOIdLatestVersion(java.net.URI)
+	 */
 	@Override
 	public URI getDiSCOIdLatestVersion(URI discoID) throws RMapException,
 			RMapObjectNotFoundException, RMapDefectiveArgumentException {
@@ -657,6 +623,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getPreviousVersionDiSCO(java.net.URI)
 	 */
+	@Override
 	public RMapDiSCO getDiSCOPreviousVersion(URI discoID) 
 	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
 		RMapDiSCO nextDisco = null;
@@ -676,7 +643,6 @@ public class ORMapService implements RMapService {
 		}
 		return nextDisco;
 	}
-
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCODTOPreviousVersion(java.net.URI)
@@ -700,6 +666,9 @@ public class ORMapService implements RMapService {
 		return dto;
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCOIdPreviousVersion(java.net.URI)
+	 */
 	@Override
 	public URI getDiSCOIdPreviousVersion(URI discoID)
 			throws RMapException, RMapObjectNotFoundException,
@@ -722,6 +691,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getNextVersionDiSCO(java.net.URI)
 	 */
+	@Override
 	public RMapDiSCO getDiSCONextVersion(URI discoID) 
 	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
 		if (discoID ==null){
@@ -742,6 +712,9 @@ public class ORMapService implements RMapService {
 	}
 	
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCODTONextVersion(java.net.URI)
+	 */
 	@Override
 	public RMapDiSCODTO getDiSCODTONextVersion(URI discoID)
 			throws RMapException, RMapObjectNotFoundException,
@@ -761,6 +734,10 @@ public class ORMapService implements RMapService {
 		return dto;
 	}
 	
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCOIdNextVersion(java.net.URI)
+	 */
 	@Override
 	public URI getDiSCOIdNextVersion(URI discoID) throws RMapException,
 			RMapObjectNotFoundException, RMapDefectiveArgumentException {
@@ -782,6 +759,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCOEvents(java.net.URI)
 	 */
+	@Override
 	public List<URI> getDiSCOEvents(URI discoID) throws RMapException, RMapDefectiveArgumentException {
 		if (discoID ==null){
 			throw new RMapDefectiveArgumentException ("null DiSCO id");
@@ -798,6 +776,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#readEvent(java.net.URI)
 	 */
+	@Override
 	public RMapEvent readEvent(URI eventId) 
 	throws RMapException, RMapEventNotFoundException, RMapDefectiveArgumentException {
 		if (eventId ==null){
@@ -810,6 +789,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getEventRelatedResources(java.net.URI)
 	 */
+	@Override
 	public List<URI> getEventRelatedResources(URI eventID) throws RMapException, RMapDefectiveArgumentException {
 		if (eventID ==null){
 			throw new RMapDefectiveArgumentException ("null event id");
@@ -826,6 +806,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getEventRelatedDiSCOS(java.net.URI)
 	 */
+	@Override
 	public List<URI> getEventRelatedDiSCOS(URI eventID) throws RMapException, RMapDefectiveArgumentException {
 		if (eventID ==null){
 			throw new RMapDefectiveArgumentException ("null event id");
@@ -843,6 +824,7 @@ public class ORMapService implements RMapService {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getEventRelatedAgents(java.net.URI)
 	 */
+	@Override
 	public List<URI> getEventRelatedAgents(URI eventID) throws RMapException, RMapDefectiveArgumentException {
 		if (eventID ==null){
 			throw new RMapDefectiveArgumentException ("null event id");
@@ -854,6 +836,10 @@ public class ORMapService implements RMapService {
 		return agentIds;
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#readAgent(java.net.URI)
+	 */
+	@Override
 	public RMapAgent readAgent(URI agentId) 
 	throws RMapException, RMapAgentNotFoundException, RMapDefectiveArgumentException {
 		if (agentId==null){
@@ -863,7 +849,10 @@ public class ORMapService implements RMapService {
 		ORMapAgent agent = agentmgr.readAgent(ORAdapter.uri2OpenRdfUri(agentId), ts);
 		return agent;
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#readAgent(RMapAgent, java.net.URI)
+	 */
 	@Override
 	public RMapEvent createAgent(RMapAgent agent, URI creatingAgentID) 
 			throws RMapException, RMapDefectiveArgumentException {
@@ -894,7 +883,10 @@ public class ORMapService implements RMapService {
 		
 		return event;
 	}
-		
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#createAgent(java.net.URI, String, java.net.URI, java.net.URI, java.net.URI)
+	 */
 	@Override
 	public RMapEvent createAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, URI creatingAgentID) 
 			throws RMapException, RMapDefectiveArgumentException {
@@ -922,8 +914,10 @@ public class ORMapService implements RMapService {
 		RMapEvent event = createAgent(agent, creatingAgentID);
 		return event;
 	}
-	
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#createAgent(String, java.net.URI, java.net.URI)
+	 */
 	@Override
 	public RMapEvent createAgent(String name, URI identityProvider, URI authKeyUri) 
 			throws RMapException, RMapDefectiveArgumentException {
@@ -959,7 +953,10 @@ public class ORMapService implements RMapService {
 		return event;
 		
 	}
-
+	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#createAgent(RMapAgent, java.net.URI)
+	 */
 	@Override
 	public RMapEvent updateAgent(RMapAgent agent, URI creatingAgentID) 
 			throws RMapException, RMapDefectiveArgumentException {
@@ -989,7 +986,10 @@ public class ORMapService implements RMapService {
 		}	
 		return event;
 	}
-		
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#createAgent(java.net.URI, String, java.net.URI, java.net.URI, java.net.URI)
+	 */
 	@Override
 	public RMapEvent updateAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, URI creatingAgentID) 
 			throws RMapException, RMapDefectiveArgumentException {
@@ -1039,12 +1039,18 @@ public class ORMapService implements RMapService {
 	
 	
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getAgentDiSCOs(java.net.URI, RMapStatus)
+	 */
 	@Override
 	public List<URI> getAgentDiSCOs(URI agentId, RMapStatus statusCode)
 			throws RMapException, RMapDefectiveArgumentException {
 		return getAgentDiSCOs(agentId, statusCode, null, null);
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getAgentDiSCOs(java.net.URI, RMapStatus, Date, Date)
+	 */
 	@Override
 	public List<URI> getAgentDiSCOs(URI agentId, RMapStatus statusCode,
 									Date dateFrom, Date dateTo) throws RMapException,
@@ -1059,6 +1065,9 @@ public class ORMapService implements RMapService {
 		return discoUris;
 	}
 	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getAgentEvents(java.net.URI)
+	 */
 	@Override
 	public List<URI> getAgentEvents(URI agentId) throws RMapException,
 			RMapDefectiveArgumentException, RMapAgentNotFoundException {
@@ -1074,13 +1083,19 @@ public class ORMapService implements RMapService {
 		}
 		return eventUris;
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getAgentEventsInitiated(java.net.URI)
+	 */
 	@Override
 	public List<URI> getAgentEventsInitiated (URI agentId) 
 			throws RMapException, RMapDefectiveArgumentException {
 		return getAgentEventsInitiated(agentId, null, null);
 	}
 	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getAgentEventsInitiated(java.net.URI, Date, Date)
+	 */
 	@Override
 	public List<URI> getAgentEventsInitiated(URI agentId, Date dateFrom, Date dateTo) throws RMapException,
 			RMapDefectiveArgumentException, RMapAgentNotFoundException {
@@ -1094,6 +1109,9 @@ public class ORMapService implements RMapService {
 		return eventUris;
 	}
 	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getAgentStatus(java.net.URI)
+	 */
 	@Override
 	public RMapStatus getAgentStatus(URI agentId) throws RMapException,
 			RMapDefectiveArgumentException, RMapAgentNotFoundException {
@@ -1106,6 +1124,10 @@ public class ORMapService implements RMapService {
 		return status;
 	}
 
+	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#isAgentId(java.net.URI)
+	 */
 	@Override
 	public boolean isAgentId(URI agentId) throws RMapException, RMapDefectiveArgumentException {
 		if (agentId==null){
@@ -1117,6 +1139,9 @@ public class ORMapService implements RMapService {
 		return isAgentId;
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#isEventId(java.net.URI)
+	 */
 	@Override
 	public boolean isEventId(URI eventId) throws RMapException, RMapDefectiveArgumentException {
 		if (eventId==null){
@@ -1127,7 +1152,10 @@ public class ORMapService implements RMapService {
 		boolean isEventId = eventmgr.isEventId(id, ts);
 		return isEventId;
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#isDiSCOId(java.net.URI)
+	 */
 	@Override
 	public boolean isDiSCOId(URI discoId) throws RMapException, RMapDefectiveArgumentException {
 		if (discoId==null){

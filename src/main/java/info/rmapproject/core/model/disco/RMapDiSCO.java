@@ -51,6 +51,19 @@ public interface RMapDiSCO extends RMapObject  {
 	 * @return
 	 * @throws RMapException
 	 */
+	public RMapUri getProvGeneratedBy() throws RMapException;
+	/**
+	 * 
+	 * @param provGeneratedBy
+	 * @throws RMapException
+	 */
+	public void setProvGeneratedBy(RMapUri provGeneratedBy) throws RMapException;
+
+	/**
+	 * 
+	 * @return
+	 * @throws RMapException
+	 */
 	public RMapUri getCreator() throws RMapException;
 	/**
 	 * 
@@ -58,7 +71,7 @@ public interface RMapDiSCO extends RMapObject  {
 	 * @throws RMapException
 	 */
 	public void setCreator(RMapUri creator) throws RMapException;
-
+	
 	/**
 	 * 
 	 * @return
