@@ -10,6 +10,8 @@ import info.rmapproject.core.exception.RMapDeletedObjectException;
 import info.rmapproject.core.exception.RMapDiSCONotFoundException;
 import info.rmapproject.core.exception.RMapEventNotFoundException;
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.exception.RMapInactiveVersionException;
+import info.rmapproject.core.exception.RMapNotLatestVersionException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.exception.RMapTombstonedObjectException;
 import info.rmapproject.core.model.RMapStatus;
@@ -254,6 +256,25 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		if (! this.isAgentId(systemAgentId, ts)){
 			throw new RMapAgentNotFoundException("No agent with id " + systemAgentId.stringValue());
 		}		
+		
+		//check that they are updating the latest version of the DiSCO otherwise throw exception
+		Map<URI,URI>event2disco=this.getAllDiSCOVersions(oldDiscoId, true, ts);
+		URI latestDiscoUri = this.getLatestDiSCOUri(oldDiscoId, ts, event2disco);
+		if (!latestDiscoUri.stringValue().equals(oldDiscoId.stringValue())){
+			//NOTE:the URI of the latest DiSCO should always appear in angle brackets at the end of the message
+			//so that it can be parsed as needed
+			throw new RMapNotLatestVersionException("The DiSCO '" + oldDiscoId.toString() + "' has a newer version. "
+									+ "Only the latest version of the DiSCO can be updated. The latest version can be found at "
+									+ "<" + latestDiscoUri.stringValue() +">");
+		}		
+		
+		//check that they are updating an active DiSCO
+		if (getDiSCOStatus(oldDiscoId,ts)!=RMapStatus.ACTIVE) {
+			throw new RMapInactiveVersionException("The DiSCO '" + oldDiscoId.toString() + "' is inactive. "
+									+ "Only active DiSCOs can be updated.");				
+		}
+		
+		
 		// get the event started
 		ORMapEvent event = null;	
 		boolean creatorSameAsOrig = this.isSameCreatorAgent(oldDiscoId, systemAgentId, ts);
@@ -277,14 +298,6 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				throw new RMapDefectiveArgumentException("No new DiSCO provided for update");
 			}
 			if (creatorSameAsOrig){
-				//check that they are updating the latest version of the DiSCO
-				//otherwise throw exception
-				Map<URI,URI>event2disco=this.getAllDiSCOVersions(oldDiscoId, true, ts);
-				URI latestDiscoUri = this.getLatestDiSCOUri(oldDiscoId, ts, event2disco);
-				if (!latestDiscoUri.stringValue().equals(oldDiscoId.stringValue())){
-					throw new RMapException("The DiSCO '" + oldDiscoId.toString() + "' has a newer version. "
-											+ "Only the latest version of the DiSCO can be updated.");
-				}				
 				ORMapEventUpdate uEvent = new ORMapEventUpdate(systemAgentId, RMapEventTargetType.DISCO,
 						oldDiscoId, disco.getDiscoContext());
 				event = uEvent;
