@@ -3,6 +3,8 @@
  */
 package info.rmapproject.core.model;
 
+import info.rmapproject.core.utils.Terms;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -13,21 +15,39 @@ import java.net.URISyntaxException;
  *
  */
 public enum RMapStatus {
-	ACTIVE ("http://rmap-project.org/rmap/terms/1.0/status/active"),
-	INACTIVE ("http://rmap-project.org/rmap/terms/1.0/status/inactive"),
-	TOMBSTONED ("http://rmap-project.org/rmap/terms/1.0/status/tombstoned"),
-	DELETED("http://rmap-project.org/rmap/terms/1.0/status/deleted");
+	ACTIVE (Terms.RMAP_ACTIVE_PATH, Terms.RMAP_ACTIVE),
+	INACTIVE (Terms.RMAP_INACTIVE_PATH, Terms.RMAP_INACTIVE),
+	TOMBSTONED (Terms.RMAP_TOMBSTONED_PATH, Terms.RMAP_TOMBSTONED),
+	DELETED(Terms.RMAP_DELETED_PATH, Terms.RMAP_DELETED);
 
+	private  URI statusPath= null ;
+	private  String statusTerm= null ;
 
-	@SuppressWarnings("unused")
-	private  URI statusDescription= null ;
-
-	RMapStatus(String desc){		
+	RMapStatus(String statusPath, String statusTerm){		
 		try {
-			this.statusDescription = new URI(desc);
+			this.statusPath = new URI(statusPath);
+			this.statusTerm = statusTerm;
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public URI getPath()  {
+		return this.statusPath;
+	}
+	
+	public String getTerm()  {
+		return this.statusTerm;
+	}
+	
+	public static RMapStatus getStatusFromTerm(String term){
+		for (RMapStatus stat: RMapStatus.values()){
+			String statTerm = stat.getTerm().toLowerCase();
+			if (statTerm.equals(term.toLowerCase())){
+				return stat;
+			}
+		}
+		return null;
 	}
 	
 

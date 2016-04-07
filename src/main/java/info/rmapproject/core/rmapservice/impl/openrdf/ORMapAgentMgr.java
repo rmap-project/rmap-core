@@ -3,7 +3,6 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
-import info.rmapproject.core.controlledlist.AgentPredicate;
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapDeletedObjectException;
@@ -19,12 +18,15 @@ import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdateWithReplace;
+import info.rmapproject.core.model.request.OrderBy;
+import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RMapSearchParams;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSparqlUtils;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
-import info.rmapproject.core.rmapservice.impl.openrdf.utils.OSparqlUtils;
-import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
-import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
-import info.rmapproject.core.utils.DateUtils;
+import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
+import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -32,38 +34,25 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.openrdf.model.Literal;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.FOAF;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.BindingSet;
-import org.openrdf.query.TupleQueryResult;
 
 
 /**
- * @author smorrissey, khanson0
+ * @author smorrissey, khanson
  *
  */
 public class ORMapAgentMgr extends ORMapObjectMgr {
-
-	static List<URI> agentPredicates = new ArrayList<URI>();
-	static {
-		List<java.net.URI>preds = AgentPredicate.getAgentPredicates();
-		for (java.net.URI uri:preds){
-			URI aPred = ORAdapter.uri2OpenRdfUri(uri);
-			agentPredicates.add(aPred);
-		}
-	}
-	/**
-	 * 
-	 */
-	public ORMapAgentMgr() {
+	
+	public ORMapAgentMgr() throws RMapException {
 		super();
 	}
-	
+
 	/**
 	 * 
 	 * @param agentId
@@ -73,16 +62,15 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapAgent readAgent(URI agentId, SesameTriplestore ts)
-	throws RMapAgentNotFoundException, RMapException,  RMapTombstonedObjectException, 
+	public ORMapAgent readAgent(IRI agentId, SesameTriplestore ts)
+			throws RMapAgentNotFoundException, RMapException,  RMapTombstonedObjectException, 
 	       RMapDeletedObjectException, RMapDefectiveArgumentException {		
 		if (agentId == null){
 			throw new RMapException("null agentId");
 		}
 		if (ts==null){
 			throw new RMapException("null triplestore");
-		}
-		
+		}		
 		if (!(this.isAgentId(agentId, ts))){
 			throw new RMapAgentNotFoundException("Not an agentID: " + agentId.stringValue());
 		}
@@ -113,13 +101,12 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @throws RMapException
 	 * @throws RMapAgentNotFoundException
 	 */
-	public RMapStatus getAgentStatus(URI agentId, SesameTriplestore ts) 
-	throws RMapException, RMapAgentNotFoundException {
+	public RMapStatus getAgentStatus(IRI agentId, SesameTriplestore ts) throws RMapException, RMapAgentNotFoundException {
 		RMapStatus status = null;
 		if (agentId==null){
 			throw new RMapException ("Null disco");
 		}
-		// first ensure Exists statement URI rdf:TYPE RMAP:AGENT  if not: raise NOTFOUND exception
+		// first ensure Exists statement IRI rdf:TYPE RMAP:AGENT  if not: raise NOTFOUND exception
 		if (! this.isAgentId(agentId, ts)){
 			throw new RMapAgentNotFoundException ("No Agent found with id " + agentId.stringValue());
 		}
@@ -127,13 +114,13 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			List<Statement> eventStmts = null;
 			try {
 				//   ? RMap:Deletes discoId  done return deleted
-				eventStmts = ts.getStatements(null, RMAP.EVENT_DELETED_OBJECT, agentId);
+				eventStmts = ts.getStatements(null, RMAP.DELETEDOBJECT, agentId);
 				if (eventStmts!=null && ! eventStmts.isEmpty()){
 					status = RMapStatus.DELETED;
 					break;
 				}
 				//   ? RMap:TombStones discoID	done return tombstoned
-				eventStmts = ts.getStatements(null, RMAP.EVENT_TOMBSTONED_OBJECT, agentId);
+				eventStmts = ts.getStatements(null, RMAP.TOMBSTONEDOBJECT, agentId);
 				if (eventStmts!=null && ! eventStmts.isEmpty()){
 					status = RMapStatus.TOMBSTONED;
 					break;
@@ -156,40 +143,38 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	}
 
 	/**
-	 * 
 	 * @param agent
-	 * @param creatingAgentUri 
+	 * @param creatingAgentIri 
 	 * @param ts
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapEvent createAgent (ORMapAgent agent, URI creatingAgentUri, SesameTriplestore ts)
+	public ORMapEvent createAgent (ORMapAgent agent, RMapRequestAgent requestAgent, SesameTriplestore ts)
 	throws RMapException, RMapDefectiveArgumentException {
 		if (agent==null){
 			throw new RMapException ("null agent");
 		}
-		if (creatingAgentUri==null){
-			throw new RMapException("System Agent ID required: was null");
-		}
 		if (ts==null){
 			throw new RMapException ("null triplestore");
 		}
+				
+		ORAdapter typeAdapter = new ORAdapter(ts);
+		IRI newAgentId = typeAdapter.rMapIri2OpenRdfIri(agent.getId());
+		IRI requestAgentId = typeAdapter.uri2OpenRdfIri(requestAgent.getSystemAgent());
 
-		URI newAgentId = ORAdapter.rMapUri2OpenRdfUri(agent.getId());
-		
-		// Usually agents create themselves, where this isn't the case we need to check the creating agent exists already
-		if (!creatingAgentUri.toString().equals(newAgentId.toString()) && !this.isAgentId(creatingAgentUri, ts)){
-			throw new RMapAgentNotFoundException("No agent with id " + creatingAgentUri.stringValue());
-		}		
-		
+		if (!newAgentId.equals(requestAgentId)){
+			// Usually agents create themselves, where this isn't the case we need to check the creating agent exists already
+			this.validateRequestAgent(requestAgent,ts);
+		}
+
 		// Confirm that the agent being created doesn't already exist
 		if (isAgentId(newAgentId,ts)) {
 			throw new RMapException("The Agent being created already exists");
 		}
 		
-		// Get the event started
-		ORMapEventCreation event = new ORMapEventCreation(creatingAgentUri, RMapEventTargetType.AGENT);
+		// Get the event started (key is null for agent creates since only done through bootstrap)
+		ORMapEventCreation event = new ORMapEventCreation(requestAgent, RMapEventTargetType.AGENT, null);
 		// set up triplestore and start transaction
 		boolean doCommitTransaction = false;
 		try {
@@ -201,11 +186,11 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			throw new RMapException("Unable to begin Sesame transaction: ", e);
 		}
 		// keep track of objects created during this event
-		Set<URI> created = new HashSet<URI>();
+		Set<IRI> created = new HashSet<IRI>();
 		created.add(agent.getContext());
 		this.createAgentTriples(agent, ts);
 		// update the event with created object IDS
-		event.setCreatedObjectIdsFromURI(created);		
+		event.setCreatedObjectIdsFromIRI(created);		
 		// end the event, write the event triples, and commit everything
 		event.setEndTime(new Date());
 		ORMapEventMgr eventmgr = new ORMapEventMgr();
@@ -225,36 +210,34 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	/**
 	 * 
 	 * @param updatedAgent
-	 * @param creatingAgentUri 
+	 * @param creatingAgentIri 
 	 * @param ts
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapEvent updateAgent (ORMapAgent updatedAgent, URI creatingAgentUri, SesameTriplestore ts)
+	public ORMapEvent updateAgent (ORMapAgent updatedAgent, RMapRequestAgent requestAgent, SesameTriplestore ts)
 	throws RMapException, RMapDefectiveArgumentException {
 		if (updatedAgent==null){
 			throw new RMapException ("null agent");
 		}
-		if (creatingAgentUri==null){
-			throw new RMapException("System Agent ID required: was null");
+		if (requestAgent==null){
+			throw new RMapException("System Agent required: was null");
 		}
 		if (ts==null){
 			throw new RMapException ("null triplestore");
 		}
-		
-		URI agentId = ORAdapter.rMapUri2OpenRdfUri(updatedAgent.getId());
+		ORAdapter typeAdapter = new ORAdapter(ts);
+		IRI agentId = typeAdapter.rMapIri2OpenRdfIri(updatedAgent.getId());
 				
 		//check Agent Id exists
 		if (!this.isAgentId(agentId, ts)){
 			throw new RMapAgentNotFoundException("No agent with id " + agentId.stringValue());			
 		}		
-		
-		// Usually agents create themselves, where this isn't the case we need to check the creating agent also exists
-		if (!creatingAgentUri.toString().equals(agentId.toString()) && !this.isAgentId(creatingAgentUri, ts)){
-			throw new RMapAgentNotFoundException("No agent with id " + creatingAgentUri.stringValue());
-		}		
 
+		//make sure request agent is valid
+		this.validateRequestAgent(requestAgent, ts);	
+		
 		//Get original agent
 		RMapAgent origAgent = this.readAgent(agentId, ts);
 		if (origAgent==null){
@@ -273,42 +256,42 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}
 				
 		// Get the event started
-		ORMapEventUpdateWithReplace event = new ORMapEventUpdateWithReplace(creatingAgentUri, 
-							RMapEventTargetType.AGENT, agentId);
+		ORMapEventUpdateWithReplace event = 
+				new ORMapEventUpdateWithReplace(requestAgent, RMapEventTargetType.AGENT, agentId);
 		
 		String sEventDescrip = "";
 		boolean updatesFound = false;
 		
 		//Remove elements of original agent and replace them with new elements
 		try {
-			Value origName = ORAdapter.rMapValue2OpenRdfValue(origAgent.getName());
-			URI origIdProvider = ORAdapter.rMapUri2OpenRdfUri(origAgent.getIdProvider());
-			URI origAuthId = ORAdapter.rMapUri2OpenRdfUri(origAgent.getAuthId());
+			Value origName = typeAdapter.rMapValue2OpenRdfValue(origAgent.getName());
+			IRI origIdProvider = typeAdapter.rMapIri2OpenRdfIri(origAgent.getIdProvider());
+			IRI origAuthId = typeAdapter.rMapIri2OpenRdfIri(origAgent.getAuthId());
 			
-			Value newName = ORAdapter.rMapValue2OpenRdfValue(updatedAgent.getName());
-			URI newIdProvider = ORAdapter.rMapUri2OpenRdfUri(updatedAgent.getIdProvider());
-			URI newAuthId = ORAdapter.rMapUri2OpenRdfUri(updatedAgent.getAuthId());
+			Value newName = typeAdapter.rMapValue2OpenRdfValue(updatedAgent.getName());
+			IRI newIdProvider = typeAdapter.rMapIri2OpenRdfIri(updatedAgent.getIdProvider());
+			IRI newAuthId = typeAdapter.rMapIri2OpenRdfIri(updatedAgent.getAuthId());
 			
 			//as a precaution take one predicate at a time to make sure we don't delete anything we shouldn't
 			if (!origName.equals(newName)) {
 				List <Statement> stmts = ts.getStatements(agentId, FOAF.NAME, null, agentId);
 				ts.removeStatements(stmts);		
 				ts.addStatement(agentId, FOAF.NAME, newName, agentId);	
-				sEventDescrip=sEventDescrip + "foaf:name=" + origName + " -> " + newName + "; ";
+				sEventDescrip=sEventDescrip + "foaf:name=" + origName.stringValue() + " -> " + newName.stringValue() + "; ";
 				updatesFound=true;
 			}
 			if (!origIdProvider.equals(newIdProvider)) {
-				List <Statement> stmts = ts.getStatements(agentId, RMAP.IDENTITY_PROVIDER, null, agentId);
+				List <Statement> stmts = ts.getStatements(agentId, RMAP.IDENTITYPROVIDER, null, agentId);
 				ts.removeStatements(stmts);		
-				ts.addStatement(agentId, RMAP.IDENTITY_PROVIDER, newIdProvider, agentId);	
-				sEventDescrip=sEventDescrip + "rmap:identityProvider=" + origIdProvider + " -> " + newIdProvider + "; ";
+				ts.addStatement(agentId, RMAP.IDENTITYPROVIDER, newIdProvider, agentId);	
+				sEventDescrip=sEventDescrip + "rmap:identityProvider=" + origIdProvider.stringValue() + " -> " + newIdProvider.stringValue() + "; ";
 				updatesFound=true;
 			}
 			if (!origAuthId.equals(newAuthId)) {
-				List <Statement> stmts = ts.getStatements(agentId, RMAP.USER_AUTH_ID, null, agentId);
+				List <Statement> stmts = ts.getStatements(agentId, RMAP.USERAUTHID, null, agentId);
 				ts.removeStatements(stmts);	
-				ts.addStatement(agentId, RMAP.USER_AUTH_ID, newAuthId, agentId);
-				sEventDescrip=sEventDescrip + "rmap:userAuthId=" + origAuthId + " -> " + newAuthId + "; ";
+				ts.addStatement(agentId, RMAP.USERAUTHID, newAuthId, agentId);
+				sEventDescrip=sEventDescrip + "rmap:userAuthId=" + origAuthId.stringValue() + " -> " + newAuthId.stringValue() + "; ";
 				updatesFound=true;
 			}
 		} catch (Exception e) {
@@ -337,77 +320,16 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		return event;
 	}
 	
-
-//  REMOVED - NOT CURRENTLY SUPPORTED
-//	/**
-//	 * Tombstone (soft-delete) an Agent
-//	 * @param systemAgentId
-//	 * @param oldAgentId
-//	 * @param ts
-//	 * @return
-//	 * @throws RMapException
-//	 */
-//	public RMapEvent tombstoneAgent(URI systemAgentId,URI oldAgentId, SesameTriplestore ts) 
-//	throws RMapException {
-//		// confirm non-null old agent
-//		if (oldAgentId==null){
-//			throw new RMapException ("Null value for id of Agent to be tombstoned");
-//		}
-//		if (systemAgentId==null){
-//			throw new RMapException("System Agent ID required: was null");
-//		}
-//		// Confirm systemAgentId (not null, is Agent)
-//		if (!(this.isAgentId(systemAgentId, ts))){
-//			throw new RMapAgentNotFoundException("No agent with id " + systemAgentId.stringValue());
-//		}
-//		// make sure same Agent created the Agent now being inactivated
-//		if (! this.isSameCreatorAgent(oldAgentId, systemAgentId, ts)){
-//			throw new RMapException(
-//					"Agent attempting to tombstone Agent is not same as its creating Agent");
-//		}		
-//		
-//		// get the event started
-//		ORMapEventTombstone event = new ORMapEventTombstone(systemAgentId, 
-//				RMapEventTargetType.AGENT, oldAgentId);
-//
-//		// set up triplestore and start transaction
-//		boolean doCommitTransaction = false;
-//		try {
-//			if (!ts.hasTransactionOpen())	{
-//				doCommitTransaction = true;
-//				ts.beginTransaction();
-//			}
-//		} catch (Exception e) {
-//			throw new RMapException("Unable to begin Sesame transaction: ", e);
-//		}
-//		
-//		// end the event, write the event triples, and commit everything
-//		ORMapEventMgr eventmgr = new ORMapEventMgr();
-//		event.setEndTime(new Date());
-//		eventmgr.createEvent(event, ts);
-//
-//		if (doCommitTransaction){
-//			try {
-//				ts.commitTransaction();
-//			} catch (Exception e) {
-//				throw new RMapException("Exception thrown committing new triples to triplestore");
-//			}
-//		}
-//		return event;
-//	}
-	
 	/**
 	 * Get DiSCOs that were created by the Agent provided
 	 * @param agentId
-	 * @param status
-	 * @param dateFrom
-	 * @param dateTo
+	 * @param params
 	 * @param ts
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<URI> getAgentDiSCOs(URI agentId, RMapStatus status, Date dateFrom, Date dateTo, SesameTriplestore ts) 
+	public List<IRI> getAgentDiSCOs(IRI agentId, RMapSearchParams params, SesameTriplestore ts) 
 			throws RMapException, RMapDefectiveArgumentException {
 		if (agentId==null){
 			throw new RMapDefectiveArgumentException ("null agentId");
@@ -419,7 +341,8 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			WHERE { 
 			GRAPH ?rmapObjId  
 				{
-				?rmapObjId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/DiSCO> .						} . 
+				?rmapObjId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/DiSCO> .	
+				} . 
 			 GRAPH ?eventId {
 				?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
 				{?eventId <http://www.w3.org/ns/prov#generated> ?rmapObjId} UNION 
@@ -432,9 +355,12 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			}
 		 */
 		
-		String statusFilterSparql = OSparqlUtils.convertRMapStatusToSparqlFilter(status);
-
-		String sparqlQuery = "SELECT DISTINCT ?rmapObjId ?startDate "
+		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
+		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
+		String limitFiltersSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimit(), params.getOffset());
+		
+		StringBuilder sparqlQuery = 
+				new StringBuilder("SELECT DISTINCT ?rmapObjId "
 							+ "WHERE { "
 							+ " GRAPH ?rmapObjId "
 							+ "	  {"
@@ -443,34 +369,33 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 							+ " GRAPH ?eventId {"
 							+ "   ?eventId <" + RDF.TYPE + "> <" + RMAP.EVENT + "> ."
 							+ "   {?eventId <" + PROV.GENERATED + "> ?rmapObjId} UNION "
-							+ "   {?eventId <" + RMAP.EVENT_DERIVED_OBJECT + "> ?rmapObjId} ."
-							+ "   ?eventId <" + PROV.STARTEDATTIME + "> ?startDate ."
-							+ "	  ?eventId <" + PROV.WASASSOCIATEDWITH + "> <" + agentId.toString() + "> . "
-							+ "  } "
+							+ "   {?eventId <" + RMAP.DERIVEDOBJECT + "> ?rmapObjId} ."
+							+ "	  ?eventId <" + PROV.WASASSOCIATEDWITH + "> <" + agentId.toString() + "> . ");
+		if (dateFilterSparql.length()>0){
+			sparqlQuery.append("   ?eventId <" + PROV.STARTEDATTIME + "> ?startDate .");			
+		}
+		sparqlQuery.append("  } "
 							+ statusFilterSparql
-							+ "} ";
+							+ dateFilterSparql
+							+ "} ");
+		if (params.getOrderBy()==OrderBy.SELECT_ORDER){
+			sparqlQuery.append("ORDER BY ?rmapObjId");
+		}
+		sparqlQuery.append(limitFiltersSparql);
 		
-		TupleQueryResult resultset = null;
+		List<BindingSet> resultset = null;
 		try {
-			resultset = ts.getSPARQLQueryResults(sparqlQuery);
+			resultset = ts.getSPARQLQueryResults(sparqlQuery.toString());
 		}
 		catch (Exception e) {
 			throw new RMapException("Could not retrieve SPARQL query results using " + sparqlQuery, e);
 		}
 		
-		List<URI> discos = new ArrayList<URI>();
+		List<IRI> discos = new ArrayList<IRI>();
 		
 		try{
-			while (resultset.hasNext()) {
-				BindingSet bindingSet = resultset.next();
-				URI discoid = (URI) bindingSet.getBinding("rmapObjId").getValue();
-				Literal startDateLiteral = (Literal) bindingSet.getBinding("startDate").getValue();
-				Date startDate = DateUtils.xmlGregorianCalendarToDate(startDateLiteral.calendarValue());
-					
-				if ((dateFrom != null && startDate.before(dateFrom))
-						|| (dateTo != null && startDate.after(dateTo))) { 
-					continue; // don't include out of range date
-				}
+			for (BindingSet bindingSet : resultset) {
+				IRI discoid = (IRI) bindingSet.getBinding("rmapObjId").getValue();
 				discos.add(discoid);
 			}
 		}	
@@ -483,7 +408,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	}
 	
 	/**
-	 * Get a list of URIs for Events initiated by the Agent provided.
+	 * Get a list of IRIs for Events initiated by the Agent provided.
 	 * @param agentId
 	 * @param dateFrom
 	 * @param dateTo
@@ -492,52 +417,61 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */	
-	public List<URI> getAgentEventsInitiated(URI agentId, Date dateFrom, Date dateTo, SesameTriplestore ts) 
+	public List<IRI> getAgentEventsInitiated(IRI agentId, RMapSearchParams params, SesameTriplestore ts) 
 			throws RMapException, RMapDefectiveArgumentException {
 		if (agentId==null){
 			throw new RMapDefectiveArgumentException ("null agentId");
 		}
 
+		String sAgentId = SesameSparqlUtils.convertIriToSparqlParam(agentId);
+		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
+		String limitOffsetSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimit(), params.getOffset());
+		
 		//query gets eventIds and startDates of Events initiated by agent
-		/*  SELECT DISTINCT ?eventId ?startDate 
+		/*  PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+		SELECT DISTINCT ?eventId 
 			WHERE {
-			GRAPH ?eventId {
-			 	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
-			 	?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
-			 	?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmaptestagent> .
-			 	}
-			}
-			*/
-		String sparqlQuery = "SELECT DISTINCT ?eventId ?startDate "
+					GRAPH ?eventId {
+					 	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
+					 	?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
+					 	?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/27927/rmp2543q5> .
+					 	}
+			        FILTER (?startDate >= "2016-03-22T13:51:30Z"^^xsd:dateTime) .     
+			        FILTER (?startDate <= "2016-03-22T13:51:31Z"^^xsd:dateTime) .
+					}
+					ORDER BY ?eventId
+					LIMIT 100 OFFSET 0
+					*/
+		StringBuilder sparqlQuery = 
+				new StringBuilder("SELECT DISTINCT ?eventId "
 							+ "WHERE { "
 							+ " GRAPH ?eventId {"
 							+ "   ?eventId <" + RDF.TYPE + "> <" + RMAP.EVENT + "> ."
-							+ "   ?eventId <" + PROV.STARTEDATTIME + "> ?startDate ."
-							+ "	  ?eventId <" + PROV.WASASSOCIATEDWITH + "> <" + agentId.toString() + ">} . "
-							+ "  } "
-							+ "} ";
+							+ "	  ?eventId <" + PROV.WASASSOCIATEDWITH + "> <" + sAgentId + "> . ");
+		if (dateFilterSparql.length()>0){
+			sparqlQuery.append("   ?eventId <" + PROV.STARTEDATTIME + "> ?startDate .");			
+		}
+		sparqlQuery.append("  } "
+							+ dateFilterSparql
+							+ "} ");
+		if (params.getOrderBy()==OrderBy.SELECT_ORDER){
+			sparqlQuery.append("ORDER BY ?eventId");
+		}
+		sparqlQuery.append(limitOffsetSparql);
 		
-		TupleQueryResult resultset = null;
+		List<BindingSet> resultset = null;
 		try {
-			resultset = ts.getSPARQLQueryResults(sparqlQuery);
+			resultset = ts.getSPARQLQueryResults(sparqlQuery.toString());
 		}
 		catch (Exception e) {
 			throw new RMapException("Could not retrieve SPARQL query results using " + sparqlQuery, e);
 		}
 		
-		List<URI> events = new ArrayList<URI>();
+		List<IRI> events = new ArrayList<IRI>();
 		
 		try{
-			while (resultset.hasNext()) {
-				BindingSet bindingSet = resultset.next();
-				URI eventId = (URI) bindingSet.getBinding("eventId").getValue();
-				Literal startDateLiteral = (Literal) bindingSet.getBinding("startDate").getValue();
-				Date startDate = DateUtils.xmlGregorianCalendarToDate(startDateLiteral.calendarValue());
-					
-				if ((dateFrom != null && startDate.before(dateFrom))
-						|| (dateTo != null && startDate.after(dateTo))) { 
-					continue; // don't include out of range date
-				}
+			for (BindingSet bindingSet:resultset) {
+				IRI eventId = (IRI) bindingSet.getBinding("eventId").getValue();
 				events.add(eventId);
 			}
 		}	
@@ -549,7 +483,33 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		return events;		
 	}
 	
-	
+	/**
+	 * Checks the request agent exists in RMap and has a valid URI
+	 * @param requestAgent
+	 * @param ts
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 * @throws RMapAgentNotFoundException
+	 */
+	public void validateRequestAgent(RMapRequestAgent requestAgent, SesameTriplestore ts) 
+			throws RMapException, RMapDefectiveArgumentException, RMapAgentNotFoundException{
+		if (requestAgent==null){
+			throw new RMapException("A request agent is required, it's value was null");
+		}
+		
+		ORAdapter adapter = new ORAdapter(ts);
+		URI agentUri = requestAgent.getSystemAgent();		
+		IRI agentIri = null;
+		try {
+			agentIri = adapter.uri2OpenRdfIri(agentUri);
+		} catch(RMapException ex){
+			throw new RMapException("The requesting agent parameter is invalid. System Agent could not be converted to an IRI.");
+		}
+		
+		if (!this.isAgentId(agentIri, ts)){
+			throw new RMapAgentNotFoundException("The requesting agent is invalid. No Agent exists with IRI " + agentIri.stringValue());
+		}
+	}
 	
 	
 	/**

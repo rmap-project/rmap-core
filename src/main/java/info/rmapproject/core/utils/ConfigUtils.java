@@ -23,8 +23,8 @@ public class ConfigUtils {
 	/**
 	 * Convenience method for extracting a single property name/value pair from a property file
 	 * @param propFileName base name for property file
-	 * @param propKey propery name
-	 * @return String containing proerty value, or null if not found
+	 * @param propKey property name
+	 * @return String containing property value, or null if not found
 	 * @throws MissingResourceException
 	 */
 	public static String getPropertyValue(String propFileName, String propKey) throws NullPointerException, MissingResourceException {

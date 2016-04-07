@@ -11,6 +11,8 @@ import java.util.List;
 
 
 /**
+ * NOTE: this class is unused at the moment, but leaving it here because we will use this for identifying data, agent,
+ * physical object, text etc.
  * @author smorrissey
  *
  */

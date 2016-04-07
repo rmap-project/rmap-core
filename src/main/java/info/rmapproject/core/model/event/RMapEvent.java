@@ -6,7 +6,7 @@ package info.rmapproject.core.model.event;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapObject;
-import info.rmapproject.core.model.RMapUri;
+import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapValue;
 
 import java.util.Date;
@@ -32,21 +32,14 @@ public interface RMapEvent extends RMapObject{
 	/**
 	 * @return the associatedAgent
 	 */
-	public RMapUri getAssociatedAgent() throws RMapException;
+	public RMapIri getAssociatedAgent() throws RMapException;
 
 	/**
-	 * @return the description
+	 * @return associatedKey - the ID for the Api Key associated with the event
 	 * @throws RMapException 
-	 * @throws RMapDefectiveArgumentException 
 	 */
-	public RMapValue getDescription() throws RMapException;
+	public RMapIri getAssociatedKey() throws RMapException;
 
-	/**
-	 * @param endTime the endTime to set
-	 * @throws RMapException
-	 */
-	public void setDescription(RMapValue description) throws RMapException, RMapDefectiveArgumentException;
-	
 	/**
 	 * Start time will be set by the constructor
 	 * @return the startTime
@@ -66,5 +59,18 @@ public interface RMapEvent extends RMapObject{
 	 */
 	public void setEndTime(Date endTime) throws RMapException;
 
+	/**
+	 * @return the description
+	 * @throws RMapException 
+	 * @throws RMapDefectiveArgumentException 
+	 */
+	public RMapValue getDescription() throws RMapException;
+
+	/**
+	 * @param endTime the endTime to set
+	 * @throws RMapException
+	 */
+	public void setDescription(RMapValue description) throws RMapException, RMapDefectiveArgumentException;
+	
 	
 }

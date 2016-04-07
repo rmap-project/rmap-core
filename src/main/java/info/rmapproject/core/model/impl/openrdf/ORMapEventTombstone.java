@@ -5,17 +5,18 @@ package info.rmapproject.core.model.impl.openrdf;
 
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapUri;
+import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventTombstone;
 import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
+import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
- *  @author khansen, smorrissey
+ *  @author khanson, smorrissey
  *
  */
 public class ORMapEventTombstone extends ORMapEvent implements
@@ -28,18 +29,17 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	 */
 	protected ORMapEventTombstone() throws RMapException {
 		super();
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.TOMBSTONE);
+		this.setEventTypeStatement(RMapEventType.TOMBSTONE);
 	}
 	
 	public ORMapEventTombstone(Statement eventTypeStmt, 
 			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
 			Statement descriptionStmt, Statement startTimeStmt,  
-			Statement endTimeStmt, URI context, Statement typeStatement, 
+			Statement endTimeStmt, IRI context, Statement typeStatement, Statement associatedKeyStmt,
 			Statement tombstoned) throws RMapException {
 		
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
-				startTimeStmt, endTimeStmt,context,typeStatement);
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.TOMBSTONE);
+				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt);
 		this.tombstoned = tombstoned;
 	}
 
@@ -49,10 +49,9 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	 * @param targetType
 	 * @throws RMapException
 	 */
-	public ORMapEventTombstone(URI associatedAgent,
-			RMapEventTargetType targetType, URI tombstonedResource) throws RMapException {
+	public ORMapEventTombstone(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI tombstonedResource) throws RMapException {
 		super(associatedAgent, targetType);
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.TOMBSTONE);
+		this.setEventTypeStatement(RMapEventType.TOMBSTONE);
 		this.setTombstonedResourceIdStmt(tombstonedResource);
 	}
 
@@ -65,13 +64,13 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEventTombstone#getTombstonedResourceId()
 	 */
-	public RMapUri getTombstonedResourceId() throws RMapException {
-		RMapUri uri = null;
+	public RMapIri getTombstonedResourceId() throws RMapException {
+		RMapIri iri = null;
 		if (this.tombstoned!= null){
-			URI tUri = (URI) this.tombstoned.getObject();
-			uri = ORAdapter.openRdfUri2RMapUri(tUri);
+			IRI tIri = (IRI) this.tombstoned.getObject();
+			iri = typeAdapter.openRdfIri2RMapIri(tIri);
 		}
-		return uri;
+		return iri;
 	}
 	/**
 	 * 
@@ -85,9 +84,9 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	 * @param tombstonedResource
 	 * @throws RMapException
 	 */
-	private void setTombstonedResourceIdStmt(URI tombstonedResource) throws RMapException {
+	private void setTombstonedResourceIdStmt(IRI tombstonedResource) throws RMapException {
 		if (tombstonedResource != null){
-			Statement stmt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_TOMBSTONED_OBJECT,
+			Statement stmt = typeAdapter.getValueFactory().createStatement(this.context, RMAP.TOMBSTONEDOBJECT,
 					tombstonedResource, this.context);
 			this.tombstoned = stmt;
 		}

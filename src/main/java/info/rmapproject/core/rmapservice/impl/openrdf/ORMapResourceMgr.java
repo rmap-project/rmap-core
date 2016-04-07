@@ -2,29 +2,28 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapStatus;
+import info.rmapproject.core.model.impl.openrdf.ORAdapter;
+import info.rmapproject.core.model.request.OrderBy;
+import info.rmapproject.core.model.request.RMapSearchParams;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSparqlUtils;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
-import info.rmapproject.core.rmapservice.impl.openrdf.utils.OSparqlUtils;
-import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
-import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
-import info.rmapproject.core.utils.DateUtils;
+import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
+import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.openrdf.model.Literal;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
 import org.openrdf.model.Value;
-import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
-import org.openrdf.query.TupleQueryResult;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 
@@ -32,42 +31,25 @@ import org.openrdf.query.TupleQueryResult;
  *
  */
 public class ORMapResourceMgr extends ORMapObjectMgr {
-
-	/**
-	 * 
-	 */
-	public ORMapResourceMgr() {
+	
+	private ORMapDiSCOMgr discomgr;
+	
+	@Autowired
+	public ORMapResourceMgr(ORMapDiSCOMgr discomgr) throws RMapException {
 		super();
-	}
+		this.discomgr = discomgr;
+	} 
 	
 	/**
-	 * Get list of DiSCO URIs that have a statement containing the resource.  
-	 * @param uri
-	 * @param statusCode
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
-	 */
-	public Set<URI> getRelatedDiSCOs(URI resource, RMapStatus statusCode, SesameTriplestore ts) 
-	throws RMapException, RMapDefectiveArgumentException {
-		return getRelatedDiSCOS(resource, statusCode, null, null, null, ts);
-	}
-	
-	/**
-	 * Get list of DiSCO URIs that have a statement containing the resource. 
+	 * Get list of DiSCO IRIs that have a statement containing the resource. 
 	 * @param resource
-	 * @param statusCode
-	 * @param systemAgents
-	 * @param dateFrom
-	 * @param dateTo
+	 * @params params
 	 * @param ts
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public Set<URI> getRelatedDiSCOS(URI resource, RMapStatus statusCode,
-						List<URI> systemAgents, Date dateFrom, Date dateTo, SesameTriplestore ts)
+	public Set<IRI> getResourceRelatedDiSCOS(IRI resource, RMapSearchParams params, SesameTriplestore ts)
 						throws RMapException, RMapDefectiveArgumentException {		
 		
 	//query gets discoIds and startDates of created DiSCOs that contain Resource
@@ -90,37 +72,36 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		  }
 		*/
 
-		Set<URI> discos = getRelatedObjects(resource, statusCode, systemAgents, dateFrom, dateTo, ts, RMAP.DISCO);
+		Set<IRI> discos = getRelatedObjects(resource, params, ts, RMAP.DISCO);
 		return discos;			
 	}
 	
 	/**
-	 * Get list of RMap Agent URIs that have a statement containing the resource.  
-	 * @param uri
+	 * Get list of RMap Agent IRIs that have a statement containing the resource.  
+	 * @param iri
 	 * @param statusCode  if null, match any status code
 	 * @param ts
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public Set<URI> getResourceAssertingAgents(URI resource, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo, SesameTriplestore ts)
+	public Set<IRI> getResourceAssertingAgents(IRI resource, RMapSearchParams params, SesameTriplestore ts)
 					throws RMapException, RMapDefectiveArgumentException {		
-
-		Set<URI> assertingAgents = new HashSet<URI>();
-		Set<URI> orDiscoIds = this.getRelatedObjects(resource, statusCode, systemAgents, dateFrom, dateTo, ts, RMAP.DISCO);
-		for (URI discoId : orDiscoIds) {
-			ORMapDiSCOMgr discomgr = new ORMapDiSCOMgr();
-			RMapStatus status = discomgr.getDiSCOStatus(discoId, ts);
-			if (status == statusCode){
-				assertingAgents.add(discoId);
-			}
+				
+		Set<IRI> assertingAgents = new HashSet<IRI>();
+		Set<IRI> orDiscoIds = this.getRelatedObjects(resource, params, ts, RMAP.DISCO);
+		for (IRI discoId : orDiscoIds) {
+			IRI discoasserter=discomgr.getDiSCOAssertingAgent(discoId, ts);
+			if (discoasserter!=null){
+				assertingAgents.add(discoasserter);
+			}		
 		}		
 		return assertingAgents;
 
 	}
 
 	/**
-	 * Get list of RMap object URIs that have a statement containing the resource, filtered by type DiSCO or Agent.  
+	 * Get list of RMap object IRIs that have a statement containing the resource, filtered by type DiSCO or Agent.  
 	 * @param resource
 	 * @param statusCode
 	 * @param systemAgents
@@ -128,59 +109,64 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @param dateTo
 	 * @param ts
 	 * @param rmapType
-	 * @return Set<URI>
+	 * @return Set<IRI>
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	protected Set<URI> getRelatedObjects(URI resource, RMapStatus statusCode, List<URI> systemAgents, 
-					Date dateFrom, Date dateTo, SesameTriplestore ts, URI rmapType)
+	protected Set<IRI> getRelatedObjects(IRI resource, RMapSearchParams params, SesameTriplestore ts, IRI rmapType)
 					throws RMapException, RMapDefectiveArgumentException {	
 		if (resource==null){
-			throw new RMapDefectiveArgumentException ("Null value provided for the Resource URI");
+			throw new RMapDefectiveArgumentException ("Null value provided for the Resource IRI");
 		}
+		
+		ORAdapter typeAdapter = new ORAdapter(ts);
+		Set<org.openrdf.model.IRI> systemAgents = typeAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
 	
-		Set<URI> rmapObjectIds = new HashSet<URI>();
-		String sResource = OSparqlUtils.convertUriToSparqlParam(resource);
-		String sysAgentSparql = OSparqlUtils.convertSysAgentUriListToSparqlFilter(systemAgents);
-		String statusFilterSparql = OSparqlUtils.convertRMapStatusToSparqlFilter(statusCode);
+		Set<IRI> rmapObjectIds = new HashSet<IRI>();
+		String sResource = SesameSparqlUtils.convertIriToSparqlParam(resource);
+		String sysAgentSparql = SesameSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
+		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
+		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
+		String limitOffsetSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimit(), params.getOffset());
 
-		String sparqlQuery = "SELECT DISTINCT ?rmapObjId ?startDate "
+		StringBuilder sparqlQuery = 
+				new StringBuilder("SELECT DISTINCT ?rmapObjId "
 							+ "WHERE { "
 							+ " GRAPH ?rmapObjId "
 							+ "	  {"
 							+ "		{?s ?p " + sResource + "} UNION "
 							+ "		  {" + sResource + " ?p ?o} ."
 							+ "     ?rmapObjId <" + RDF.TYPE + "> <" + rmapType + "> . "							
-							+ "	  } . "
+							+ "	  } . "	
 							+ " GRAPH ?eventId {"
 							+ "   ?eventId <" + RDF.TYPE + "> <" + RMAP.EVENT + "> ."
-							+ "   {?eventId <" + PROV.GENERATED + "> ?rmapObjId} UNION "
-							+ "   {?eventId <" + RMAP.EVENT_DERIVED_OBJECT + "> ?rmapObjId} ."
-							+ "   ?eventId <" + PROV.STARTEDATTIME + "> ?startDate ."
-							+     sysAgentSparql
+							+ "   {?eventId <" + PROV.GENERATED + "> ?rmapObjId} UNION"
+							+ "   {?eventId <" + RMAP.DERIVEDOBJECT + "> ?rmapObjId} .");
+		
+		if (dateFilterSparql.length()>0){
+			sparqlQuery.append("   ?eventId <" + PROV.STARTEDATTIME + "> ?startDate .");			
+		}
+		sparqlQuery.append(sysAgentSparql 
 							+ "  } "
 							+ statusFilterSparql
-							+ "} ";
+							+ dateFilterSparql
+							+ "} ");
+		if (params.getOrderBy()==OrderBy.SELECT_ORDER){
+			sparqlQuery.append("ORDER BY ?rmapObjId");
+		}
+		sparqlQuery.append(limitOffsetSparql);
 		
-		TupleQueryResult resultset = null;
+		List<BindingSet> resultset = null;
 		try {
-			resultset = ts.getSPARQLQueryResults(sparqlQuery);
+			resultset = ts.getSPARQLQueryResults(sparqlQuery.toString());
 		}
 		catch (Exception e) {
 			throw new RMapException("Could not retrieve SPARQL query results using " + sparqlQuery, e);
 		}
 		
 		try{
-			while (resultset.hasNext()) {
-				BindingSet bindingSet = resultset.next();
-				URI rmapObjId = (URI) bindingSet.getBinding("rmapObjId").getValue();
-				Literal startDateLiteral = (Literal) bindingSet.getBinding("startDate").getValue();
-				Date startDate = DateUtils.xmlGregorianCalendarToDate(startDateLiteral.calendarValue());
-					
-				if ((dateFrom != null && startDate.before(dateFrom))
-						|| (dateTo != null && startDate.after(dateTo))) { 
-					continue; // don't include out of range date
-				}
+			for (BindingSet bindingSet:resultset) {
+				IRI rmapObjId = (IRI) bindingSet.getBinding("rmapObjId").getValue();
 				rmapObjectIds.add(rmapObjId);
 			}
 		}	
@@ -192,24 +178,9 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		return rmapObjectIds;		
 	}
 	
-	
 		
 	/**
-	 * Get ids of Events related to resource.
-	 * @param resource
-	 * @param systemAgents
-	 * @param ts
-	 * @return
-	 * @throws RMapException 
-	 * @throws RMapDefectiveArgumentException
-	 */
-	public Set<URI> getRelatedEvents(URI resource, List<URI> systemAgents, SesameTriplestore ts)
-			throws RMapException, RMapDefectiveArgumentException {		
-		return getRelatedEvents(resource,systemAgents, null, null, ts);
-	}
-	
-	/**
-	 * Get list of Events URIs that are associated with an object that references the resource passed in.  
+	 * Get list of Events IRIs that are associated with an object that references the resource passed in.  
 	 * @param resource
 	 * @param systemAgents
 	 * @param dateFrom
@@ -219,18 +190,21 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public Set<URI> getRelatedEvents(URI resource, List<URI> systemAgents, Date dateFrom, 
-						Date dateTo, SesameTriplestore ts)
+	public Set<IRI> getResourceRelatedEvents(IRI resource, RMapSearchParams params, SesameTriplestore ts)
 						throws RMapException, RMapDefectiveArgumentException {		
 		if (resource==null){
-			throw new RMapDefectiveArgumentException ("null URI");
+			throw new RMapDefectiveArgumentException ("null IRI");
 		}
-
-		Set<URI> events = new HashSet<URI>();
-		String sResource = OSparqlUtils.convertUriToSparqlParam(resource);
-		String sysAgentSparql = OSparqlUtils.convertSysAgentUriListToSparqlFilter(systemAgents);
-		// default filter excludes tombstoned objects... applying this so tombstoned object events don't show up.
-		String statusFilterSparql = OSparqlUtils.convertRMapStatusToSparqlFilter(null);
+		Set<IRI> events = new HashSet<IRI>();
+		
+		ORAdapter typeAdapter = new ORAdapter(ts);
+		String sResource = SesameSparqlUtils.convertIriToSparqlParam(resource);
+		
+		Set<org.openrdf.model.IRI> systemAgents = typeAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
+		String sysAgentSparql = SesameSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
+		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
+		String limitOffsetSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimit(), params.getOffset());
+		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
 		
 		//query gets eventIds and startDates of created DiSCOs that contain Resource
 		/*  SELECT DISTINCT ?eventId ?startDate 
@@ -248,8 +222,11 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			 	{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2p4>} .
 			 	}
 			}
+			ORDER BY ?startDate ?eventId 
+			LIMIT 10 OFFSET 10
 			*/
-		String sparqlQuery = "SELECT DISTINCT ?eventId ?startDate "
+		StringBuilder sparqlQuery = 
+				new StringBuilder("SELECT DISTINCT ?eventId "
 							+ "WHERE { "
 							+ " GRAPH ?rmapObjId "
 							+ "	  {"
@@ -258,32 +235,32 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 							+ "	  } . "
 							+ " GRAPH ?eventId {"
 							+ "   ?eventId <" + RDF.TYPE + "> <" + RMAP.EVENT + "> ."
-							+ "   ?eventId ?eventtype ?rmapObjId . "
-							+ "   ?eventId <" + PROV.STARTEDATTIME + "> ?startDate ."
-							+     sysAgentSparql
+							+ "   {?eventId ?eventType ?rmapObjId} .");
+		
+		if (dateFilterSparql.length()>0){
+			sparqlQuery.append("   ?eventId <" + PROV.STARTEDATTIME + "> ?startDate .");			
+		}
+		sparqlQuery.append(sysAgentSparql 
 							+ "  } "
 							+ statusFilterSparql
-							+ "} ";
+							+ dateFilterSparql
+							+ "} ");
+		if (params.getOrderBy()==OrderBy.SELECT_ORDER){
+			sparqlQuery.append("ORDER BY ?eventId");
+		}
+		sparqlQuery.append(limitOffsetSparql);
 		
-		TupleQueryResult resultset = null;
+		List<BindingSet> resultset = null;
 		try {
-			resultset = ts.getSPARQLQueryResults(sparqlQuery);
+			resultset = ts.getSPARQLQueryResults(sparqlQuery.toString());
 		}
 		catch (Exception e) {
 			throw new RMapException("Could not retrieve SPARQL query results using " + sparqlQuery, e);
 		}
 		
 		try{
-			while (resultset.hasNext()) {
-				BindingSet bindingSet = resultset.next();
-				URI eventId = (URI) bindingSet.getBinding("eventId").getValue();
-				Literal startDateLiteral = (Literal) bindingSet.getBinding("startDate").getValue();
-				Date startDate = DateUtils.xmlGregorianCalendarToDate(startDateLiteral.calendarValue());
-					
-				if ((dateFrom != null && startDate.before(dateFrom))
-						|| (dateTo != null && startDate.after(dateTo))) { 
-					continue; // don't include out of range date
-				}
+			for (BindingSet bindingSet : resultset) {
+				IRI eventId = (IRI) bindingSet.getBinding("eventId").getValue();
 				events.add(eventId);
 			}
 		}	
@@ -296,7 +273,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	}
 
 	/**
-	 * Get Statements referencing a URI in subject or object, whose Subject, Predicate, and Object comprise an RMapStatement, 
+	 * Get Statements referencing a IRI in subject or object, whose Subject, Predicate, and Object comprise an RMapStatement, 
 	 * and (if statusCode is not null), whose status matches statusCode, agent, and date filters
 	 * @param resource
 	 * @param statusCode
@@ -308,23 +285,28 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapDefectiveArgumentException
 	 * @throws RMapException
 	 */
-	public Set<Statement> getRelatedTriples(URI resource, RMapStatus statusCode, 			List<URI> systemAgents, Date dateFrom, Date dateTo, SesameTriplestore ts) 
+	public Set<Statement> getRelatedTriples(IRI resource, RMapSearchParams params, SesameTriplestore ts) 
 			throws RMapDefectiveArgumentException, RMapException {
 		if (resource==null){
 			throw new RMapDefectiveArgumentException ("null URI");
 		}
-		Set<Statement> relatedStmts = new HashSet<Statement>();		
-		String sResource = OSparqlUtils.convertUriToSparqlParam(resource);
-		String sysAgentSparql = OSparqlUtils.convertSysAgentUriListToSparqlFilter(systemAgents);
-		String statusFilterSparql = OSparqlUtils.convertRMapStatusToSparqlFilter(statusCode);
+		Set<Statement> relatedStmts = new HashSet<Statement>();	
+
+		ORAdapter typeAdapter = new ORAdapter(ts);
+		Set<IRI> systemAgents = typeAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
+		String sResource = SesameSparqlUtils.convertIriToSparqlParam(resource);
+		String sysAgentSparql = SesameSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
+		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
+		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
+		String limitOffsetFilterSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimit(), params.getOffset());
 		
 		//query gets eventIds and startDates of created DiSCOs that contain Resource
 		/*  SELECT DISTINCT ?s ?p ?o ?startDate 
 			WHERE {
 			GRAPH ?rmapObjId 
 			 {
-			     {BIND(<http://dx.doi.org/10.1109/InPar.2012.6339604> as ?o) . ?s ?p ?o} UNION 
-			     {BIND(<http://dx.doi.org/10.1109/InPar.2012.6339604> as ?s) . ?s ?p ?o} .
+				 {?s ?p <http://dx.doi.org/10.1109/InPar.2012.6339604>} UNION 
+				 {<http://dx.doi.org/10.1109/InPar.2012.6339604> ?p ?o} .	
 			  } .
 			GRAPH ?eventId {
 			 	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
@@ -335,49 +317,75 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			 	{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2p4>} .
 			 	} . 				
 				FILTER NOT EXISTS {?statusChangeEventId <http://rmap-project.org/rmap/terms/tombstonedObject> ?rmapObjId} .
-				FILTER NOT EXISTS {?statusChangeEventId <http://rmap-project.org/rmap/terms/inactivatedObject> ?rmapObjId} 
+				FILTER NOT EXISTS {?statusChangeEventId <http://rmap-project.org/rmap/terms/inactivatedObject> ?rmapObjId} .
+				FILTER (?startDate >= "2016-03-22T10:20:13"^^xsd:dateTime) .        
+                FILTER (?startDate <= "2016-03-23T10:20:13"^^xsd:dateTime)
+                                             }
+				}
+				ORDER BY ?startDate ?s ?p ?o
+				LIMIT 10 OFFSET 10
+
+			}
 			}
 			*/
-		String sparqlQuery = "SELECT DISTINCT ?s ?p ?o ?startDate "
+		StringBuilder sparqlQuery = 
+				new StringBuilder("SELECT DISTINCT ?s ?p ?o "
 							+ "WHERE { "
 							+ " GRAPH ?rmapObjId "
 							+ "	  {"
-							+ "		{BIND(" + sResource + " as ?o) . ?s ?p ?o} UNION"
-							+ "		{BIND(" + sResource + " as ?s) . ?s ?p ?o} . "						
+							+ "		{?s ?p " + sResource + "} UNION "
+							+ "		{" + sResource + " ?p ?o} ."						
 							+ "	  } . "
 							+ " GRAPH ?eventId {"
 							+ "   ?eventId <" + RDF.TYPE + "> <" + RMAP.EVENT + "> ."
 							+ "   {?eventId <" + PROV.GENERATED + "> ?rmapObjId} UNION"
-							+ "   {?eventId <" + RMAP.EVENT_DERIVED_OBJECT + "> ?rmapObjId} ."
-							+ "   ?eventId <" + PROV.STARTEDATTIME + "> ?startDate ."
-							+     sysAgentSparql
-							+ "  } "
-							+ statusFilterSparql
-							+ "} ";
+							+ "   {?eventId <" + RMAP.DERIVEDOBJECT + "> ?rmapObjId} .");
 		
-		TupleQueryResult resultset = null;
+		if (dateFilterSparql.length()>0){
+			sparqlQuery.append("   ?eventId <" + PROV.STARTEDATTIME + "> ?startDate .");			
+		}
+		sparqlQuery.append(sysAgentSparql 
+							+ "  } "
+							+ dateFilterSparql
+							+ statusFilterSparql
+							+ "} ");
+
+		if (params.getOrderBy()==OrderBy.SELECT_ORDER){
+			sparqlQuery.append("ORDER BY ?s ?p ?o");
+		}
+		sparqlQuery.append(limitOffsetFilterSparql);
+		
+		List<BindingSet> resultset = null;
 		try {
-			resultset = ts.getSPARQLQueryResults(sparqlQuery);
+			resultset = ts.getSPARQLQueryResults(sparqlQuery.toString());
 		}
 		catch (Exception e) {
 			throw new RMapException("Could not retrieve SPARQL query results using " + sparqlQuery, e);
 		}
 		
 		try{
-			while (resultset.hasNext()) {
-				BindingSet bindingSet = resultset.next();
-				Resource subj = (Resource) bindingSet.getBinding("s").getValue();
-				URI pred = (URI) bindingSet.getBinding("p").getValue();
-				Value obj = (Value) bindingSet.getBinding("o").getValue();
-				Literal startDateLiteral = (Literal) bindingSet.getBinding("startDate").getValue();
-				Date startDate = DateUtils.xmlGregorianCalendarToDate(startDateLiteral.calendarValue());
-				
-				if ((dateFrom != null && startDate.before(dateFrom))
-						|| (dateTo != null && startDate.after(dateTo))) { 
-					continue; // don't include out of range date
+			for (BindingSet bindingSet : resultset){
+				// subject or object will come in as empty where the resource matched, so need to 
+				// fill in empty field with resource being searched for
+				Resource subj = null;
+				Binding subjBinding = bindingSet.getBinding("s");
+				if (subjBinding==null || subjBinding.toString().length()==0) {
+					subj = resource;
 				}
-						
-				Statement stmt = new StatementImpl(subj, pred, obj);	
+				else {					
+					subj = (Resource) subjBinding.getValue();
+				}
+				IRI pred = (IRI) bindingSet.getBinding("p").getValue();
+				Value obj = null;
+				Binding objBinding = bindingSet.getBinding("o");
+				if (objBinding==null || objBinding.toString().length()==0) {
+					obj = resource;
+				}
+				else {					
+					obj = objBinding.getValue();
+				}				
+
+				Statement stmt = ts.getValueFactory().createStatement(subj, pred, obj);	
 				relatedStmts.add(stmt);
 			}
 		}	
@@ -392,88 +400,158 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	
 	/**
 	 * Find types of resource in specific context
-	 * @param rUri resource whose type is being checked
-	 * @param cUri context in which to check
+	 * @param rIri resource whose type is being checked
+	 * @param cIri context in which to check
 	 * @param ts Triplestore
-	 * @return Set of URIs that are type(s) of resource in given context, or null if none found
+	 * @return Set of IRIs that are type(s) of resource in given context, or null if none found
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public Set<URI> getResourceRdfTypes(URI rUri, URI cUri,  SesameTriplestore ts)
+	public Set<IRI> getResourceRdfTypes(IRI rIri, IRI cIri,  SesameTriplestore ts)
 			throws RMapException, RMapDefectiveArgumentException {
-		if (rUri==null || cUri == null || ts == null){
+		if (rIri==null || cIri == null || ts == null){
 			throw new RMapDefectiveArgumentException ("Null parameter");
 		}
 		List<Statement> triples = null;
 		try {
-			triples = ts.getStatements(rUri, RDF.TYPE, null, cUri);
+			triples = ts.getStatements(rIri, RDF.TYPE, null, cIri);
 		} catch (Exception e) {
 			throw new RMapException (e);
 		}	
-		Set<URI> returnSet = null;
+		Set<IRI> returnSet = null;
 		if (triples!=null && triples.size()>0){
-			returnSet = new HashSet<URI>();
+			returnSet = new HashSet<IRI>();
 			for (Statement stmt:triples){
 				Value object = stmt.getObject();
-				if (object instanceof URI){
-					returnSet.add((URI)object);
+				if (object instanceof IRI){
+					returnSet.add((IRI)object);
 				}
 			}
-			// correct if only triples found had non-URI objects
+			// correct if only triples found had non-IRI objects
 			if (returnSet.size()==0){
 				returnSet = null;
 			}
 		}
 		return returnSet;
 	}
+	
 	/**
-	 * Find types of resource in specific context
-	 * @param rUri resource whose type is being checked
+	 * Find types of resource in any context
+	 * @param rIri resource whose type is being checked
 	 * @param ts TripleStore
 	 * @return Map from context to any types found for that resource in that context, or null if no type statement
 	 * found for resource in any context
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public Map<URI, Set<URI>> getResourceRdfTypesAllContexts(URI rUri, SesameTriplestore ts) 
+	public Map<IRI, Set<IRI>> getResourceRdfTypesAllContexts(IRI resourceIri, RMapSearchParams params, SesameTriplestore ts) 
 			throws RMapException, RMapDefectiveArgumentException {
-		if (rUri==null || ts == null){
+		if (resourceIri==null || ts == null || params == null){
 			throw new RMapDefectiveArgumentException ("Null parameter");
 		}
-		List<Statement> triples = null;	
-		try {
-			triples = ts.getStatementsAnyContext(rUri, RDF.TYPE, null, false);
-		} catch (Exception e) {
-			throw new RMapException (e);
-		}	
-		Map<URI, Set<URI>> map = null;
-		if (triples !=null && triples.size()>0){
-			map = new HashMap<URI, Set<URI>>();
-			for (Statement stmt:triples){
-				Resource context = stmt.getContext();
-				if (!(context instanceof URI)){
-					continue;
-				}
-				Value object = stmt.getObject();
-				if (!(object instanceof URI)){
-					continue;
-				}
-				URI uContext = (URI)context;
-				URI uObject = (URI)object;
-				if (map.containsKey(uContext)){
-					Set<URI>types = map.get(uContext);
-					types.add(uObject);
-				}
-				else {
-					Set<URI>types = new HashSet<URI>();
-					types.add(uObject);
-					map.put(uContext, types);
-				}
+		
+		/*		
+		PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+			SELECT DISTINCT ?rmapObjId ?type
+						WHERE {
+						GRAPH ?rmapObjId 
+						 {
+							 {<http://dx.doi.org/10.1109/ACSSC.1994.471497> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?type} .	
+						  } .			    
+						GRAPH ?eventId {
+						 	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
+							{?eventId <http://www.w3.org/ns/prov#generated> ?rmapObjId} UNION
+							{?eventId <http://rmap-project.org/rmap/terms/derivedObject> ?rmapObjId} .
+							?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
+						 	{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18m7mj4>} . #UNION
+						 	{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2p4>} .
+						 	} . 				
+							FILTER NOT EXISTS {?statusChangeEventId <http://rmap-project.org/rmap/terms/tombstonedObject> ?rmapObjId} .
+							FILTER NOT EXISTS {?statusChangeEventId <http://rmap-project.org/rmap/terms/inactivatedObject> ?rmapObjId} .
+							FILTER (?startDate >= "2011-03-22T10:20:13"^^xsd:dateTime) .        
+			                FILTER (?startDate <= "2016-03-25T10:20:13"^^xsd:dateTime)    
 			}
-			if (map.keySet().size()==0){
-				map = null;
+			ORDER BY ?rmapObjId ?type
+			LIMIT 30 OFFSET 0
+		 */
+
+		
+		ORAdapter typeAdapter = new ORAdapter(ts);
+		Set<org.openrdf.model.IRI> systemAgents = typeAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
+		String sResourceIri = SesameSparqlUtils.convertIriToSparqlParam(resourceIri);
+		String sysAgentSparql = SesameSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
+		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
+		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
+
+		
+		String limitOffsetFilterSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimit(), params.getOffset());
+		
+		StringBuilder sparqlQuery = 
+				new StringBuilder("SELECT DISTINCT ?rmapObjId ?type "
+									+ "WHERE { "
+									+ " GRAPH ?rmapObjId "
+									+ "	  {"
+									+ "		{" + sResourceIri + " <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?type} ."						
+									+ "	  } . "
+									+ " GRAPH ?eventId {"
+									+ "   ?eventId <" + RDF.TYPE + "> <" + RMAP.EVENT + "> ."
+									+ "   {?eventId <" + PROV.GENERATED + "> ?rmapObjId} UNION"
+									+ "   {?eventId <" + RMAP.DERIVEDOBJECT + "> ?rmapObjId} .");
+
+		if (dateFilterSparql.length()>0){
+			sparqlQuery.append("   ?eventId <" + PROV.STARTEDATTIME + "> ?startDate .");			
+		}
+		sparqlQuery.append(sysAgentSparql 
+							+ "  } "
+							+ statusFilterSparql
+							+ dateFilterSparql
+							+ "} ");
+
+		if (params.getOrderBy()==OrderBy.SELECT_ORDER){
+			sparqlQuery.append("ORDER BY ?rmapObjId ?type");
+		}
+		sparqlQuery.append(limitOffsetFilterSparql);	
+
+		List<BindingSet> resultset = null;
+		try {
+			resultset = ts.getSPARQLQueryResults(sparqlQuery.toString());
+		}
+		catch (Exception e) {
+			throw new RMapException("Could not retrieve SPARQL query results using " + sparqlQuery, e);
+		}
+
+		Map<IRI, Set<IRI>> map = null;
+		
+		try{
+			if (resultset !=null && resultset.size()>0){
+				map = new HashMap<IRI, Set<IRI>>();
+				for (BindingSet bindingSet:resultset) {
+					IRI rmapObjId = (IRI) bindingSet.getBinding("rmapObjId").getValue();
+					Value typeVal = (Value) bindingSet.getBinding("type").getValue();
+					if (!(typeVal instanceof IRI)){
+						continue;
+					}
+					IRI type = (IRI)typeVal;
+					if (map.containsKey(rmapObjId)){
+						Set<IRI>types = map.get(rmapObjId);
+						types.add(type);
+					}
+					else {
+						Set<IRI>types = new HashSet<IRI>();
+						types.add(type);
+						map.put(rmapObjId, types);
+					}
+				}
+				if (map.keySet().size()==0){
+					map = null;
+				}
 			}
 		}
+		catch (RMapException r){throw r;}
+		catch (Exception e){
+			throw new RMapException("Could not process SPARQL results for resource's associated Objects", e);
+		}
+	
 		return map;
 	}
 	

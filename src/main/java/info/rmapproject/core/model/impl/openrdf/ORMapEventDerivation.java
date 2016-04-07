@@ -7,18 +7,19 @@ import java.util.List;
 
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapUri;
+import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.event.RMapEventDerivation;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
+import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
- * @author smorrissey
+ * @author smorrissey, khanson
  *
  */
 public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
@@ -32,7 +33,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	 */
 	protected ORMapEventDerivation() throws RMapException {
 		super();
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.DERIVATION);
+		this.setEventTypeStatement(RMapEventType.DERIVATION);
 	}
 
 
@@ -44,11 +45,10 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	 * @param derivedObject
 	 * @throws RMapException
 	 */
-	public ORMapEventDerivation(URI associatedAgent,
-			RMapEventTargetType targetType, URI sourceObject, URI derivedObject) 
+	public ORMapEventDerivation(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI sourceObject, IRI derivedObject) 
 	throws RMapException {
 		super(associatedAgent, targetType);
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.DERIVATION);
+		this.setEventTypeStatement(RMapEventType.DERIVATION);
 		this.setSourceObjectStmt(sourceObject);
 		this.setDerivationStmt(derivedObject);
 	}
@@ -69,13 +69,12 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	 */
 	public ORMapEventDerivation(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
 			Statement associatedAgentStmt,  Statement descriptionStmt, 
-			Statement startTimeStmt,  Statement endTimeStmt, URI context, 
-			Statement typeStatement, List<Statement> createdObjects,
+			Statement startTimeStmt,  Statement endTimeStmt, IRI context, 
+			Statement typeStatement, Statement associatedKeyStmt, List<Statement> createdObjects,
 			Statement derivationStatement, Statement sourceObjectStatement) 
 	throws RMapException {
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
-				startTimeStmt, endTimeStmt,context,typeStatement);
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.DERIVATION);
+				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt);
 		
 		if (createdObjects==null || createdObjects.size()==0){
 			throw new RMapException ("Null or empty list of created object in Update");
@@ -106,11 +105,11 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEventUpdate#getDerivationSourceObjectId()
 	 */
-	public RMapUri getDerivedObjectId() throws RMapException {
-		RMapUri rid = null;
+	public RMapIri getDerivedObjectId() throws RMapException {
+		RMapIri rid = null;
 		if (this.derivationStatement!= null){
-			URI uri = (URI) this.derivationStatement.getObject();
-			rid = ORAdapter.openRdfUri2RMapUri(uri);
+			IRI iri = (IRI) this.derivationStatement.getObject();
+			rid = typeAdapter.openRdfIri2RMapIri(iri);
 		}
 		return rid;
 	}
@@ -123,30 +122,30 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	}
 	
 	@Override
-	public void setDerivedObjectId(RMapUri uri) throws RMapException, RMapDefectiveArgumentException {
-		URI derivedURI = ORAdapter.rMapUri2OpenRdfUri(uri);
-		this.setDerivationStmt(derivedURI);
+	public void setDerivedObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
+		IRI derivedIRI = typeAdapter.rMapIri2OpenRdfIri(iri);
+		this.setDerivationStmt(derivedIRI);
 	}
 	/**
 	 * 
 	 * @param derivedObject
 	 * @throws RMapException
 	 */
-	protected void setDerivationStmt(URI derivedObject) throws RMapException {
+	protected void setDerivationStmt(IRI derivedObject) throws RMapException {
 		if (derivedObject != null){
-			Statement stmt = this.getValueFactory().createStatement(this.context, 
-					RMAP.EVENT_DERIVED_OBJECT,
+			Statement stmt = typeAdapter.getValueFactory().createStatement(this.context, 
+					RMAP.DERIVEDOBJECT,
 					derivedObject, this.context);
 			this.derivationStatement = stmt;
 		}
 	}
 
 	@Override
-	public RMapUri getSourceObjectId() throws RMapException {
-		RMapUri rid = null;
+	public RMapIri getSourceObjectId() throws RMapException {
+		RMapIri rid = null;
 		if (this.sourceObjectStatement != null){
-			URI uri = (URI) this.sourceObjectStatement.getObject();
-			rid = ORAdapter.openRdfUri2RMapUri(uri);
+			IRI iri = (IRI) this.sourceObjectStatement.getObject();
+			rid = typeAdapter.openRdfIri2RMapIri(iri);
 		}
 		return rid;
 	}
@@ -155,19 +154,19 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	 * @param sourceObject
 	 * @throws RMapException
 	 */
-	protected void setSourceObjectStmt (URI sourceObject) throws RMapException {
-		if (sourceObjectStatement != null){
-			Statement stmt = this.getValueFactory().createStatement(this.context, 
-					RMAP.EVENT_SOURCE_OBJECT,
+	protected void setSourceObjectStmt (IRI sourceObject) throws RMapException {
+		if (sourceObject != null){
+			Statement stmt = typeAdapter.getValueFactory().createStatement(this.context, 
+					RMAP.HASSOURCEOBJECT,
 					sourceObject, this.context);
 			this.sourceObjectStatement = stmt;
 		}
 	}
 
 	@Override
-	public void setSourceObjectId(RMapUri uri) throws RMapException, RMapDefectiveArgumentException {
-		URI sourceUri = ORAdapter.rMapUri2OpenRdfUri(uri);
-		this.setSourceObjectStmt(sourceUri);
+	public void setSourceObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
+		IRI sourceIRI = typeAdapter.rMapIri2OpenRdfIri(iri);
+		this.setSourceObjectStmt(sourceIRI);
 	}
 
 	/**

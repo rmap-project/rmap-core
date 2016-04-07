@@ -5,7 +5,7 @@ package info.rmapproject.core.model.event;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapUri;
+import info.rmapproject.core.model.RMapIri;
 
 
 /**
@@ -20,7 +20,7 @@ public interface RMapEventUpdate extends RMapEventWithNewObjects {
 	 * @return the inactivatedObject
 	 * @throws RMapException 
 	 */
-	public RMapUri getInactivatedObjectId() throws RMapException;
+	public RMapIri getInactivatedObjectId() throws RMapException;
 	
 	/**
 	 * 
@@ -28,19 +28,19 @@ public interface RMapEventUpdate extends RMapEventWithNewObjects {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public void setInactivatedObjectId(RMapUri uri) throws RMapException, RMapDefectiveArgumentException;
+	public void setInactivatedObjectId(RMapIri uri) throws RMapException, RMapDefectiveArgumentException;
 
 	/**
 	 * 
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapUri getDerivedObjectId() throws RMapException;
+	public RMapIri getDerivedObjectId() throws RMapException;
 	/**
 	 * 
 	 * @param uri
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public void setDerivedObjectId(RMapUri uri) throws RMapException, RMapDefectiveArgumentException;
+	public void setDerivedObjectId(RMapIri uri) throws RMapException, RMapDefectiveArgumentException;
 }

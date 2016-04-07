@@ -8,38 +8,59 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapUri;
+import info.rmapproject.core.exception.RMapNotLatestVersionException;
+import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.agent.RMapAgent;
+import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
+import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.rdfhandler.RDFType;
 import info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.RMapServiceFactoryIOC;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 
 /**
  * @author smorrissey, khanson
  *
  */
+
+@RunWith( SpringJUnit4ClassRunner.class )
+@ContextConfiguration({ "classpath*:/spring-rmapcore-testcontext.xml" })
 public class ORMapDiSCOMgrTest  {
 	
-	protected String description = "This is an example DiSCO aggregating different file formats for an article on IEEE Xplore as well as multimedia content related to the article.";
-	protected String discoRDF = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> "  
+	@Autowired
+	RMapService rmapService;
+	
+	@Autowired 
+	SesameTriplestore triplestore;
+	
+	@Autowired 
+	ORMapDiSCOMgr discomgr;
+	
+	ORAdapter typeAdapter;
+	
+	private String description = "This is an example DiSCO aggregating different file formats for an article on IEEE Xplore as well as multimedia content related to the article.";
+	private String discoRDF = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> "  
 			+ "<rdf:RDF "  
 			+ " xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\""  
 			+ " xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\""  
@@ -134,39 +155,52 @@ public class ORMapDiSCOMgrTest  {
 	    	+ "</rdf:RDF>";
 
 	
-	private URI AGENT_URI = null; 
-	private URI ID_PROVIDER_URI = null;
-	private URI AUTH_ID_URI = null;
+	private IRI AGENT_IRI = null; 
+	private IRI ID_PROVIDER_IRI = null;
+	private IRI AUTH_ID_IRI = null;
 	private Value NAME = null;
+	private IRI AGENT_IRI2 = null; 
+	private IRI ID_PROVIDER_IRI2 = null;
+	private IRI AUTH_ID_IRI2 = null;
+	private Value NAME2 = null;
+	private RMapRequestAgent requestAgent = null;
+	private RMapRequestAgent requestAgent2 = null;
 	
 	@Before
 	public void setUp() throws Exception {
+		typeAdapter = new ORAdapter(triplestore);
 		//these will be used for a test agent.
-		this.AGENT_URI = ORAdapter.getValueFactory().createURI("ark:/22573/rmaptestagent");
-		this.ID_PROVIDER_URI = ORAdapter.getValueFactory().createURI("http://orcid.org/");
-		this.AUTH_ID_URI = ORAdapter.getValueFactory().createURI("http://rmap-project.org/identities/rmaptestauthid");
-		this.NAME = ORAdapter.getValueFactory().createLiteral("RMap test Agent");		
+		this.AGENT_IRI = typeAdapter.getValueFactory().createIRI("ark:/22573/rmaptestagent");
+		this.ID_PROVIDER_IRI = typeAdapter.getValueFactory().createIRI("http://orcid.org/");
+		this.AUTH_ID_IRI = typeAdapter.getValueFactory().createIRI("http://rmap-project.org/identities/rmaptestauthid");
+		this.NAME = typeAdapter.getValueFactory().createLiteral("RMap test Agent");	
+		
+		this.AGENT_IRI2 = typeAdapter.getValueFactory().createIRI("ark:/22573/rmaptestagent2");
+		this.ID_PROVIDER_IRI2 = typeAdapter.getValueFactory().createIRI("http://orcid.org/");
+		this.AUTH_ID_IRI2 = typeAdapter.getValueFactory().createIRI("http://rmap-project.org/identities/rmaptestauthid2");
+		this.NAME2 = typeAdapter.getValueFactory().createLiteral("RMap test Agent 2");		
+		
+		requestAgent = new RMapRequestAgent(new URI(AGENT_IRI.stringValue()));
+		requestAgent2 = new RMapRequestAgent(new URI(AGENT_IRI2.stringValue()));
 	}
 	
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr#readDiSCO(org.openrdf.model.URI, boolean, Map, Map, ORMapEventMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr#readDiSCO(org.openrdf.model.IRI, boolean, Map, Map, ORMapEventMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
 	 * @throws RMapDefectiveArgumentException 
 	 * @throws RMapException 
 	 */
 	@Test
 	public void testReadDiSCO() throws RMapException, RMapDefectiveArgumentException {
-		
-		RMapService rmapService=RMapServiceFactoryIOC.getFactory().createService();
-		
+				
 		java.net.URI agentId; //used to pass back into rmapService since all of these use java.net.URI
 		
 		try {
-			
-			SesameTriplestore ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
 			//create new test agent
-			RMapAgent agent = new ORMapAgent(AGENT_URI, ID_PROVIDER_URI, AUTH_ID_URI, NAME);
-			rmapService.createAgent(agent,agent.getId().getIri());
+			RMapAgent agent = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
 			agentId=agent.getId().getIri();
+			if (!rmapService.isAgentId(agentId)) {
+				rmapService.createAgent(agent,requestAgent);
+			}
 			if (rmapService.isAgentId(agentId)){
 				System.out.println("Test Agent successfully created!  URI is " + agentId);
 			}
@@ -177,20 +211,24 @@ public class ORMapDiSCOMgrTest  {
 			// now create DiSCO	
 			InputStream stream = new ByteArrayInputStream(discoRDF.getBytes(StandardCharsets.UTF_8));
 			RioRDFHandler handler = new RioRDFHandler();	
-			List<Statement>stmts = handler.convertRDFToStmtList(stream, "http://rmapdns.ddns.net:8080/api/disco/", "RDFXML");
+			List<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
-			RMapUri idURI = disco.getId();
-			ORMapDiSCOMgr discoMgr = new ORMapDiSCOMgr();
-			discoMgr.createDiSCO(ORAdapter.uri2OpenRdfUri(agentId), disco, ts);
+			RMapIri idIRI = disco.getId();
+			
+			requestAgent.setAgentKeyId(new java.net.URI("ark:/29297/testkey"));
+			
+			discomgr.createDiSCO(disco, requestAgent, triplestore);
 			
 			//read DiSCO back
-			URI dUri = ORAdapter.rMapUri2OpenRdfUri(idURI);
-			ORMapDiSCO rDisco = discoMgr.readDiSCO(dUri, true, null, null, ts).getDisco();
-			RMapUri idURI2 = rDisco.getId();
-			assertEquals(idURI.toString(),idURI2.toString());
+			IRI dIri = typeAdapter.rMapIri2OpenRdfIri(idIRI);
+			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri, true, null, null, triplestore).getDisco();
+			RMapIri idIRI2 = rDisco.getId();
+			assertEquals(idIRI.toString(),idIRI2.toString());
 			String description2 = rDisco.getDescription().toString();
 			assertEquals(description,description2);
-			rmapService.deleteDiSCO(new java.net.URI(idURI.toString()), agentId);
+						
+			rmapService.deleteDiSCO(new java.net.URI(idIRI.toString()), requestAgent);
+									
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail();
@@ -207,19 +245,28 @@ public class ORMapDiSCOMgrTest  {
 	@Test
 	public void testCreateAndUpdateDiSCO() throws RMapException, RMapDefectiveArgumentException {
 		
-		RMapService rmapService=RMapServiceFactoryIOC.getFactory().createService();
-		
 		java.net.URI agentId; //used to pass back into rmapService since all of these use java.net.URI
+		java.net.URI agentId2; //used to pass back into rmapService since all of these use java.net.URI
 		
 		try {
-			
-			SesameTriplestore ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
 			//create new test agent
-			RMapAgent agent = new ORMapAgent(AGENT_URI, ID_PROVIDER_URI, AUTH_ID_URI, NAME);
-			rmapService.createAgent(agent,agent.getId().getIri());
+			RMapAgent agent = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
 			agentId=agent.getId().getIri();
+			if (!rmapService.isAgentId(agentId)) {
+				rmapService.createAgent(agent,requestAgent);
+			}
 			if (rmapService.isAgentId(agentId)){
 				System.out.println("Test Agent successfully created!  URI is " + agentId);
+			}
+			
+			//create second test agent
+			RMapAgent agent2 = new ORMapAgent(AGENT_IRI2, ID_PROVIDER_IRI2, AUTH_ID_IRI2, NAME2);
+			agentId2=agent2.getId().getIri();
+			if (!rmapService.isAgentId(agentId2)) {
+				rmapService.createAgent(agent2,requestAgent2);
+			}
+			if (rmapService.isAgentId(agentId2)){
+				System.out.println("Test Agent 2 successfully created!  URI is " + agentId2);
 			}
 			
 			// Check the agent was created
@@ -228,28 +275,33 @@ public class ORMapDiSCOMgrTest  {
 			// now create DiSCO	
 			InputStream stream = new ByteArrayInputStream(discoRDF.getBytes(StandardCharsets.UTF_8));
 			RioRDFHandler handler = new RioRDFHandler();	
-			List<Statement>stmts = handler.convertRDFToStmtList(stream, "RDFXML", "http://rmapdns.ddns.net:8080/api/disco/");
+			List<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
-			RMapUri idURI = disco.getId();
-			ORMapDiSCOMgr discoMgr = new ORMapDiSCOMgr();
-			discoMgr.createDiSCO(ORAdapter.uri2OpenRdfUri(agentId), disco, ts);
+			RMapIri idIRI = disco.getId();
+			
+			URI keyId = new URI("ark:/29297/testkey");
+			requestAgent.setAgentKeyId(keyId);
+			RMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
 			
 			//read DiSCO back
-			URI dUri = ORAdapter.rMapUri2OpenRdfUri(idURI);
-			ORMapDiSCO rDisco = discoMgr.readDiSCO(dUri, true, null, null, ts).getDisco();
-			RMapUri rIdURI = rDisco.getId();
-			assertEquals(idURI.toString(),rIdURI.toString());
-			String description2 = rDisco.getDescription().toString();
-			assertEquals(description,description2);
-
+			IRI dIri = typeAdapter.rMapIri2OpenRdfIri(idIRI);
+			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri, true, null, null, triplestore).getDisco();
+			RMapIri rIdIRI = rDisco.getId();
+			assertEquals(idIRI.toString(),rIdIRI.toString());
+			//check key is associated with event
+			String keyfromevent = event.getAssociatedKey().toString();
+			String keyused = keyId.toString();
+			
+			assertEquals(keyfromevent,keyused);
+			
 			boolean correctErrorThrown = false;
 			// now update DiSCO	
 			ORMapDiSCO disco2 = new ORMapDiSCO(stmts);
-			discoMgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(agentId), false, dUri, disco2, ts);
+			discomgr.updateDiSCO(dIri, disco2, requestAgent, false, triplestore);
 			ORMapDiSCO disco3 = new ORMapDiSCO(stmts);
 			try{
-				discoMgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(agentId), false, dUri, disco3, ts);
-			} catch(RMapException ex){
+				discomgr.updateDiSCO(dIri, disco3, requestAgent, false, triplestore);
+			} catch(RMapNotLatestVersionException ex){
 				if (ex.getMessage().contains("latest version")){
 					correctErrorThrown=true;
 				}
@@ -257,7 +309,27 @@ public class ORMapDiSCOMgrTest  {
 			if (!correctErrorThrown)	{
 				fail("A 'not latest version' exception should have been thrown!"); 
 			}
+			//now update with different agent using latest id
+			try{
+				IRI dIri2 = typeAdapter.rMapIri2OpenRdfIri(disco2.getId());
+				discomgr.updateDiSCO(dIri2, disco3, requestAgent2, false, triplestore);
+			} catch(Exception ex){
+				ex.printStackTrace();
+			}
+			//read back derived disco
+			ORMapDiSCO rDisco2 = discomgr.readDiSCO(dIri, true, null, null, triplestore).getDisco();
+			RMapIri rIdIRI2 = rDisco2.getId();
+			assertEquals(idIRI.toString(),rIdIRI2.toString());
+			String description3 = rDisco2.getDescription().toString();
+			assertEquals(description,description3);
+
+			List<java.net.URI> agentVersions = rmapService.getDiSCOAllAgentVersions(rIdIRI2.getIri());
+			assertTrue(agentVersions.size()==2);
 			
+			rmapService.deleteDiSCO(disco.getId().getIri(), requestAgent);
+			rmapService.deleteDiSCO(disco2.getId().getIri(), requestAgent);
+			rmapService.deleteDiSCO(disco3.getId().getIri(), requestAgent2);
+						
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail();
@@ -281,7 +353,7 @@ public class ORMapDiSCOMgrTest  {
 			
 			SesameTriplestore ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
 			//check test agent ok
-			agentId=ORAdapter.openRdfUri2URI(AGENT_URI);
+			agentId=ORAdapter.openRdfIri2URI(AGENT_IRI);
 			// Check the agent was created
 			assertTrue(rmapService.isAgentId(agentId));	
 		
@@ -290,21 +362,21 @@ public class ORMapDiSCOMgrTest  {
 			RioRDFHandler handler = new RioRDFHandler();	
 			List<Statement>stmts = handler.convertRDFToStmtList(stream, "RDFXML", "http://rmapdns.ddns.net:8080/api/disco/");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
-			RMapUri idURI = disco.getId();
+			RMapIri idIRI = disco.getId();
 			ORMapDiSCOMgr discoMgr = new ORMapDiSCOMgr();
-			discoMgr.createDiSCO(ORAdapter.uri2OpenRdfUri(agentId), disco, ts);
+			discoMgr.createDiSCO(ORAdapter.uri2OpenRdfIri(agentId), disco, ts);
 			
 			//read DiSCO back
-			URI dUri = ORAdapter.rMapUri2OpenRdfUri(idURI);
-			ORMapDiSCO rDisco = discoMgr.readDiSCO(dUri, true, null, null, ts).getDisco();
-			RMapUri rIdURI = rDisco.getId();
-			assertEquals(idURI.toString(),rIdURI.toString());
+			IRI dIri = ORAdapter.rMapIri2OpenRdfIri(idIRI);
+			ORMapDiSCO rDisco = discoMgr.readDiSCO(dIri, true, null, null, ts).getDisco();
+			RMapIri rIdIRI = rDisco.getId();
+			assertEquals(idIRI.toString(),rIdIRI.toString());
 			String description2 = rDisco.getDescription().toString();
 			assertEquals(description,description2);
 			
 			// now update with Bnodes	
 			ORMapDiSCO disco2 = new ORMapDiSCO(stmts);
-			discoMgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(agentId), false, dUri, disco2, ts);
+			discoMgr.updateDiSCO(ORAdapter.uri2OpenRdfIri(agentId), false, dIri, disco2, ts);
 
 		} catch (Exception e) {
 			e.printStackTrace();

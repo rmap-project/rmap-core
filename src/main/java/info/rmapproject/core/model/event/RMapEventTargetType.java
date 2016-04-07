@@ -3,40 +3,46 @@
  */
 package info.rmapproject.core.model.event;
 
-import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.utils.Terms;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+
 
 
 /**
- * @author smorrissey
+ * @author smorrissey, khanson
  *
  */
 public enum RMapEventTargetType {
+	DISCO(Terms.RMAP_DISCO_PATH),
+	AGENT(Terms.RMAP_AGENT_PATH);	
 	
-	DISCO("http://rmap-project.org/rmap/terms/DiSCO"),
-	AGENT("http://rmap-project.org/rmap/terms/Agent");
-	
-	private String targetURI = null;
-	
-	RMapEventTargetType(String target){
-		this.targetURI = target;
-	}
-	
-	public String uriString(){
-		return targetURI; 
-	}
-	
-	public static RMapEventTargetType getTargetTypeFromString (String tt) throws RMapException {
-		if (tt==null){
-			throw new RMapException ("Null Event Target Type string");
-		}
-		else if (tt.equals(DISCO.uriString())){
-			return DISCO;
-		}
-		else if (tt.equals(AGENT.uriString())){
-			return AGENT;
-		}
-		else {
-			throw new RMapException ("Unrecognized Event Target Type: " + tt);
+	private RMapIri eventTargetTypePath= null ;
+
+	RMapEventTargetType(String path){		
+		try {
+			this.eventTargetTypePath = new RMapIri(new URI(path));
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
 		}
 	}
+
+	public RMapIri getPath()  {
+		return this.eventTargetTypePath;
+	}
+
+    public static RMapEventTargetType getEventTargetType(String path) { 
+    	Map<String, RMapEventTargetType> lookup = new HashMap<String, RMapEventTargetType>();
+        for(RMapEventTargetType eventtargettype : EnumSet.allOf(RMapEventTargetType.class)) {
+            lookup.put(eventtargettype.getPath().toString(), eventtargettype);
+        }
+        return lookup.get(path); 
+    }
+	
+	
 }

@@ -12,7 +12,7 @@ public class RMapLiteral implements RMapValue {
 	
 	String value;
 	String language;
-	RMapUri datatype;
+	RMapIri datatype;
 
 	/**
 	 * 
@@ -32,11 +32,12 @@ public class RMapLiteral implements RMapValue {
 		this.language = language;
 	}
 
-	public RMapLiteral(String value, RMapUri datatype){
+	public RMapLiteral(String value, RMapIri datatype){
 		this();
 		this.value = value;
 		this.datatype = datatype;
 	}
+
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.Resource#getStringValue()
 	 */
@@ -52,7 +53,7 @@ public class RMapLiteral implements RMapValue {
 		return language;
 	}
 
-	public RMapUri getDatatype() {
+	public RMapIri getDatatype() {
 		return datatype;
 	}
 	

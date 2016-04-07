@@ -5,7 +5,7 @@ package info.rmapproject.core.model.event;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapUri;
+import info.rmapproject.core.model.RMapIri;
 
 
 /**
@@ -19,26 +19,26 @@ public interface RMapEventDerivation extends RMapEventWithNewObjects {
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapUri getDerivedObjectId() throws RMapException;
+	public RMapIri getDerivedObjectId() throws RMapException;
 	/**
 	 * 
 	 * @param uri
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public void setDerivedObjectId(RMapUri uri) throws RMapException, RMapDefectiveArgumentException;
+	public void setDerivedObjectId(RMapIri uri) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * 
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapUri getSourceObjectId() throws RMapException;
+	public RMapIri getSourceObjectId() throws RMapException;
 	
 	/**
 	 * 
 	 * @throws RMapException
 	 */
-	public void setSourceObjectId(RMapUri uri) throws RMapException, RMapDefectiveArgumentException;
+	public void setSourceObjectId(RMapIri uri) throws RMapException, RMapDefectiveArgumentException;
 		
 
 }

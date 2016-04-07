@@ -16,11 +16,11 @@ public interface RMapObject {
 	 * 
 	 * @return
 	 */
-	public RMapUri getId();
+	public RMapIri getId();
 	/**
 	 * 
 	 * @return
 	 */
-	public RMapUri getType() throws RMapException;
+	public RMapObjectType getType() throws RMapException;
 
 }

@@ -10,8 +10,9 @@ import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.rmapservice.RMapDiSCODTO;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 
 /**
  * @author smorrissey
@@ -19,17 +20,20 @@ import org.openrdf.model.URI;
  */
 public class ORMapDiSCODTO implements RMapDiSCODTO {
 	
+	protected ORAdapter typeAdapter;
+	
 	protected ORMapDiSCO disco;
 	protected RMapStatus status;
-	protected URI previous;
-	protected URI next;
-	protected URI latest;
+	protected IRI previous;
+	protected IRI next;
+	protected IRI latest;
 
 	/**
 	 * 
 	 */
-	public ORMapDiSCODTO() {
+	public ORMapDiSCODTO(SesameTriplestore ts) {
 		super();
+		typeAdapter = new ORAdapter(ts);
 	}
 
 	/* (non-Javadoc)
@@ -55,7 +59,7 @@ public class ORMapDiSCODTO implements RMapDiSCODTO {
 	public java.net.URI getPreviousURI() {
 		java.net.URI uri = null;
 		if (this.previous!=null){
-			uri = ORAdapter.openRdfUri2URI(this.previous);
+			uri = typeAdapter.openRdfIri2URI(this.previous);
 		}
 		return uri;
 	}
@@ -67,7 +71,7 @@ public class ORMapDiSCODTO implements RMapDiSCODTO {
 	public java.net.URI getNextURI() {
 		java.net.URI uri = null;
 		if (this.next!=null){
-			uri = ORAdapter.openRdfUri2URI(this.next);
+			uri = typeAdapter.openRdfIri2URI(this.next);
 		}
 		return uri;
 	}
@@ -79,7 +83,7 @@ public class ORMapDiSCODTO implements RMapDiSCODTO {
 	public java.net.URI getLatestURI() {
 		java.net.URI uri = null;
 		if (this.latest!=null){
-			uri = ORAdapter.openRdfUri2URI(this.latest);
+			uri = typeAdapter.openRdfIri2URI(this.latest);
 		}
 		return uri;
 	}
@@ -101,42 +105,42 @@ public class ORMapDiSCODTO implements RMapDiSCODTO {
 	/**
 	 * @return the previous
 	 */
-	public URI getPrevious() {
+	public IRI getPrevious() {
 		return previous;
 	}
 
 	/**
 	 * @param previous the previous to set
 	 */
-	public void setPrevious(URI previous) {
+	public void setPrevious(IRI previous) {
 		this.previous = previous;
 	}
 
 	/**
 	 * @return the next
 	 */
-	public URI getNext() {
+	public IRI getNext() {
 		return next;
 	}
 
 	/**
 	 * @param next the next to set
 	 */
-	public void setNext(URI next) {
+	public void setNext(IRI next) {
 		this.next = next;
 	}
 
 	/**
 	 * @return the latest
 	 */
-	public URI getLatest() {
+	public IRI getLatest() {
 		return latest;
 	}
 
 	/**
 	 * @param latest the latest to set
 	 */
-	public void setLatest(URI latest) {
+	public void setLatest(IRI latest) {
 		this.latest = latest;
 	}
 

@@ -1,20 +1,18 @@
 package info.rmapproject.core.rmapservice.impl.openrdf.triplestore;
 
 
-import info.rmapproject.core.idservice.IdServiceFactoryIOC;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.openrdf.model.BNode;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ContextStatementImpl;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.QueryResults;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.Repository;
@@ -92,21 +90,21 @@ public abstract class SesameTriplestore  {
 		return;
 	}
 	
-	public void addStatement(Resource subj, URI pred, Value obj) throws RepositoryException	{
+	public void addStatement(Resource subj, IRI pred, Value obj) throws RepositoryException	{
 		getConnection().add(subj,pred,obj);
 		return;
 	}
 	
-	public void addStatement(Resource subj, URI pred, Value obj, Resource context) throws RepositoryException	{
+	public void addStatement(Resource subj, IRI pred, Value obj, Resource context) throws RepositoryException	{
 		getConnection().add(subj,pred,obj,context);
 		return;
 	}
 	
-	public List <Statement> getStatements(Resource subj, URI pred, Value obj) throws RepositoryException {
+	public List <Statement> getStatements(Resource subj, IRI pred, Value obj) throws RepositoryException {
 		return getStatements(subj, pred, obj, false, null);
 	}
 	
-	public List<Statement> getStatements(Resource subj, URI pred, Value obj, boolean includeInferred, 
+	public List<Statement> getStatements(Resource subj, IRI pred, Value obj, boolean includeInferred, 
 			Resource context) throws RepositoryException {
 		RepositoryResult<Statement> resultset = null;
 		List <Statement> stmts = new ArrayList <Statement>();
@@ -116,19 +114,18 @@ public abstract class SesameTriplestore  {
 		else	{
 			resultset = getConnection().getStatements(subj, pred, obj, includeInferred, context);
 		}
-			
-			while (resultset.hasNext()) {
+		while (resultset.hasNext()) {
 			Statement stmt = resultset.next();
 			stmts.add(stmt);
 		}		
 		return stmts;
 	}
 	
-	public List<Statement> getStatements(Resource subj, URI pred, Value obj,Resource context) throws RepositoryException{
+	public List<Statement> getStatements(Resource subj, IRI pred, Value obj,Resource context) throws RepositoryException{
 		return this.getStatements(subj, pred, obj, false, context);
 	}
 	
-	public List<Statement> getStatementsAnyContext(Resource subj, URI pred, Value obj, boolean includeInferred) 
+	public List<Statement> getStatementsAnyContext(Resource subj, IRI pred, Value obj, boolean includeInferred) 
 			throws Exception {
 		RepositoryResult<Statement> resultset = null;
 		List <Statement> stmts = new ArrayList <Statement>();
@@ -140,7 +137,7 @@ public abstract class SesameTriplestore  {
 		return stmts;
 	}
 	
-	public Statement getStatementAnyContext (Resource subj, URI pred, Value obj) throws RepositoryException {
+	public Statement getStatementAnyContext (Resource subj, IRI pred, Value obj) throws RepositoryException {
 		RepositoryResult<Statement> resultset = null;
 		Statement stmt = null;
 		resultset = getConnection().getStatements(subj, pred, obj, false);// I think we want true here
@@ -151,7 +148,7 @@ public abstract class SesameTriplestore  {
 	}
 
 	//TODO  does this make sense?  you are looking for a single statement
-	public Statement getStatement(Resource subj, URI pred, Value obj, Resource context) throws RepositoryException {
+	public Statement getStatement(Resource subj, IRI pred, Value obj, Resource context) throws RepositoryException {
 		RepositoryResult<Statement> resultset = null;
 		Statement stmt = null;
 		resultset = getConnection().getStatements(subj, pred, obj, false, context);// I think we want true here
@@ -161,7 +158,7 @@ public abstract class SesameTriplestore  {
 		return stmt;
 	}
 	
-	public Statement getStatement(Resource subj, URI pred, Value obj) throws RepositoryException {
+	public Statement getStatement(Resource subj, IRI pred, Value obj) throws RepositoryException {
 		return getStatement(subj,pred,obj,null);
 	}
 	
@@ -180,8 +177,8 @@ public abstract class SesameTriplestore  {
 		TupleQueryResult resultset = tupleQuery.evaluate();
 		while (resultset.hasNext()) {
 			BindingSet bindingSet = resultset.next();
-			Statement stmt = new ContextStatementImpl((Resource) bindingSet.getBinding("s").getValue(),
-												(URI)bindingSet.getBinding("p").getValue(),
+			Statement stmt = getValueFactory().createStatement((Resource) bindingSet.getBinding("s").getValue(),
+												(IRI)bindingSet.getBinding("p").getValue(),
 												bindingSet.getBinding("o").getValue(),
 												(Resource) bindingSet.getBinding("c").getValue());
 			stmts.add(stmt);
@@ -197,23 +194,25 @@ public abstract class SesameTriplestore  {
 	 * @return list of matching URIs
 	 * @throws Exception
 	 */
-	public TupleQueryResult getSPARQLQueryResults(String sparqlQuery)
+	public List<BindingSet> getSPARQLQueryResults(String sparqlQuery)
 			throws Exception {
+		
 		TupleQuery tupleQuery = getConnection().prepareTupleQuery(QueryLanguage.SPARQL, sparqlQuery);
 		TupleQueryResult resultset = tupleQuery.evaluate();
-		return resultset;
+		List<BindingSet> bs = QueryResults.stream(resultset).collect(Collectors.toList());
+		return bs;
 	}
 
 	public void removeStatements(List<Statement> stmts, Resource...contexts) throws RepositoryException{
 		this.getConnection().remove(stmts, contexts);;
 	}
 	
-	public BNode getBNode() throws Exception {
+	/**public BNode getBNode() throws Exception {
 		// USE RMAP ids for all bnode ids
-		String id = IdServiceFactoryIOC.getFactory().createService().createId().toASCIIString();
+		String id = rmapIdService.createId().toASCIIString();
 		BNode bnode = this.getValueFactory().createBNode(id);
 		return bnode;
-	}
+	}**/
 
 	protected abstract Repository intitializeRepository() throws RepositoryException;
 	

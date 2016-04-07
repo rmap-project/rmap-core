@@ -15,9 +15,10 @@ import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
+import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RMapSearchParams;
 
 import java.net.URI;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,85 +31,39 @@ public interface RMapService {
 	/**
 	 * Get the list of triples comprised by statements that reference a resource and whose status matches provided status code
 	 * @param uri Resource to be matched in statements
-	 * @param statusCode
+	 * @param params
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<RMapTriple>getResourceRelatedTriples(URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
-	/**
-	 * Get the list of triples comprised by statements that reference a resource and whose properties match the filters provided
-	 * @param uri Resource to be matched in statements
-	 * @param statusCode
-	 * @param systemAgents
-	 * @param dateFrom
-	 * @param dateTo
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
-	 */
-	public List<RMapTriple>getResourceRelatedTriples(URI uri, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
-	/**
-	 * Get all RMapEvents related to a Resource URI
-	 * @param uri
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
-	 */
-	public List<URI> getResourceRelatedEvents (URI uri) throws RMapException, RMapDefectiveArgumentException;
+	public List<RMapTriple>getResourceRelatedTriples(URI uri, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Get all RMapEvents related to a Resource URI that match the filters provided
 	 * @param uri
-	 * @param systemAgents
-	 * @param dateFrom
-	 * @param dateTo
+	 * @param params
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public List<URI> getResourceRelatedEvents (URI uri, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getResourceRelatedEvents (URI uri, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Get all RMapDiSCOs with a specified status code related to a Resource URI 
 	 * @param uri
-	 * @param statusCode
+	 * @param params
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public List<URI> getResourceRelatedDiSCOs (URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
-	/**
-	 * Get all RMapDiSCOs related to a Resource URI that match the filters provided
-	 * @param uri
-	 * @param statusCode
-	 * @param systemAgents
-	 * @param dateFrom
-	 * @param dateTo
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
-	 */
-	public List<URI> getResourceRelatedDiSCOs (URI uri, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
-	/**
-	 * Get all RMapAgents that asserted a statement containing the Resource URI provided 
-	 * @param uri
-	 * @param statusCode - applies to DiSCO status
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
-	 */
-	public List<URI> getResourceAssertingAgents (URI uri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getResourceRelatedDiSCOs (URI uri, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Get all RMapAgents that asserted a statement containing the Resource URI provided that match the filters specified
 	 * @param uri
-	 * @param statusCode - applies to DiSCO status
-	 * @param systemAgents
-	 * @param dateFrom - applies to DiSCO status
-	 * @param dateTo - applies to DiSCO status
+	 * @param params
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public List<URI> getResourceAssertingAgents (URI uri, RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getResourceAssertingAgents (URI uri, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Determine what types are associated with a given resource in a specific context (e.g. within a DiSCO)
 	 * @param resourceUri URI for resource whose type is being checked
@@ -117,18 +72,18 @@ public interface RMapService {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public Set<URI> getResourceRdfTypes(URI resourceUri, URI contextURI) throws RMapException, RMapDefectiveArgumentException;
+	public Set<URI> getResourceRdfTypesInDiSCO(URI resourceUri, URI discoUri) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Determine what types are associated with a given resource in any context
 	 * @param resourceUri URI for resource whose type is being checked
-	 * @param statusCode
+	 * @param params
 	 * @return Map from context to set of any type statements in that context for that resources, or null if no type statement
 	 * for resource is found in any context
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public Map<URI, Set<URI>> getResourceRdfTypesAllContexts(URI resourceUri, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
+	public Map<URI, Set<URI>> getResourceRdfTypesAllContexts(URI resourceUri, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
 	
 	
 	//Statement Services
@@ -137,45 +92,13 @@ public interface RMapService {
 	 * @param subject of statement
 	 * @param predicate of statement
 	 * @param object of statement
-	 * @param statusCode to match DiSCO status
+	 * @param params
 	 * @return URI list of DiSCOs containing statement
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<URI> getStatementRelatedDiSCOs(URI subject, URI predicate, RMapValue object, RMapStatus statusCode) 
+	public List<URI> getStatementRelatedDiSCOs(URI subject, URI predicate, RMapValue object, RMapSearchParams params) 
 							throws RMapException, RMapDefectiveArgumentException;
-	/**
-	 * Get a list of DiSCOs that contain the statement passed in and match the filters provided
-	 * @param subject of statement
-	 * @param predicate of statement
-	 * @param object of statement
-	 * @param statusCode to match DiSCO status
-	 * @param systemAgents
-	 * @param dateFrom
-	 * @param dateTo
-	 * @return URI list of DiSCOs containing statement
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
-	 */
-	public List<URI> getStatementRelatedDiSCOs(URI subject, URI predicate, RMapValue object, 
-							RMapStatus statusCode, List<URI> systemAgents, Date dateFrom, Date dateTo) 
-							throws RMapException, RMapDefectiveArgumentException;
-	
-
-	/**
-	 * Get a list of Agents that have asserted the statement passed in
-	 * @param subject of statement
-	 * @param predicate of statement
-	 * @param object of statement
-	 * @param statusCode to match DiSCO status
-	 * @param dateFrom
-	 * @param dateTo
-	 * @return URI list of Agents containing statement
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
-	 */
-	public List<URI> getStatementAssertingAgents(URI subject, URI predicate, RMapValue object, 
-												RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
 
 	/**
 	 * Get a list of Agents that have asserted the statement passed and were asserted within the date range provided
@@ -189,8 +112,8 @@ public interface RMapService {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<URI> getStatementAssertingAgents(URI subject, URI predicate, RMapValue object, 
-												RMapStatus statusCode, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getStatementAssertingAgents(URI subject, URI predicate, RMapValue object, RMapSearchParams params) 
+							throws RMapException, RMapDefectiveArgumentException;
 	
 	
 	// DiSCO services
@@ -213,14 +136,14 @@ public interface RMapService {
 	 */
 	public RMapDiSCODTO readDiSCODTO (URI discoID) throws RMapException, RMapDiSCONotFoundException, RMapDefectiveArgumentException;
 	/**
-	 * 
-	 * @param systemAgent
 	 * @param disco
+	 * @param requestAgent
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public RMapEvent createDiSCO(URI systemAgent, RMapDiSCO disco)  throws RMapException, RMapDefectiveArgumentException;
+	public RMapEvent createDiSCO(RMapDiSCO disco, RMapRequestAgent requestAgent)  throws RMapException, RMapDefectiveArgumentException;
+
 	/**
 	 * 
 	 * @param discoId
@@ -231,33 +154,38 @@ public interface RMapService {
 	public RMapStatus getDiSCOStatus(URI discoId) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * 
-	 * @param systemAgent
 	 * @param oldDiscoId
 	 * @param disco
+	 * @param systemAgent
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public RMapEvent updateDiSCO(URI systemAgent, URI oldDiscoId, RMapDiSCO disco) throws RMapException, RMapDefectiveArgumentException;
+	public RMapEvent updateDiSCO(URI oldDiscoId, RMapDiSCO disco, RMapRequestAgent requestAgent) throws RMapException, RMapDefectiveArgumentException;
+	
 	/**
 	 * Inactivate a DiSCO.  Can only be performed by same agent that created DiSCO
-	 * @param systemAgent
 	 * @param oldDiscoId
+	 * @param requestAgent
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDiSCONotFoundException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public RMapEvent inactivateDiSCO(URI systemAgent, URI oldDiscoId) throws RMapException, RMapDiSCONotFoundException,
+	public RMapEvent inactivateDiSCO(URI oldDiscoId, RMapRequestAgent requestAgent) throws RMapException, RMapDiSCONotFoundException,
 	RMapDefectiveArgumentException;
+	
+
 	/**
 	 * Soft delete (tombstone) of a DiSCO
 	 * @param discoID
+	 * @param requestAgent
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public RMapEvent deleteDiSCO (URI discoID, URI systemAgent) throws RMapException, RMapDefectiveArgumentException;
+	public RMapEvent deleteDiSCO (URI discoID, RMapRequestAgent requestAgent) throws RMapException, RMapDefectiveArgumentException;
+
 	/**
 	 * Get all versions of a DiSCO whether created by original creator of DiSCO or by some
 	 * other agent
@@ -420,12 +348,12 @@ public interface RMapService {
 	 * - in other words agents typically create their own record if they registered through the GUI.  
 	 * There is an option to indicate that an agent wasn't created by themselves, which might be used for batch loading etc.
 	 * @param agent RMapAgent object to be instantiated in system
-	 * @param creatingAgentID ID of (system) agent creating this new Agent
+	 * @param requestAgent agent creating this new Agent
 	 * @return RMapEvent associated with creation of Agent
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public RMapEvent createAgent(RMapAgent agent, URI creatingAgentID) throws RMapException, RMapDefectiveArgumentException;
+	public RMapEvent createAgent(RMapAgent agent, RMapRequestAgent requestAgent) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Create a new agent using the agent properties. Note: In most instances the agentID should match the URI in creatingAgentId
@@ -440,7 +368,7 @@ public interface RMapService {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public RMapEvent createAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, URI creatingAgentID) throws RMapException, RMapDefectiveArgumentException;
+	public RMapEvent createAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, RMapRequestAgent requestAgent) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Create a new agent using the agent properties. The agentId will be generated on creation, and will be assigned as the creatingAgent as well
@@ -462,12 +390,12 @@ public interface RMapService {
 	 * - in other words agents typically create their own record if they registered through the GUI.  
 	 * There is an option to indicate that an agent wasn't created by themselves, which might be used for batch loading etc.
 	 * @param agent RMapAgent object to be instantiated in system
-	 * @param creatingAgentID ID of (system) agent creating this new Agent
+	 * @param requestAgent creating this new Agent
 	 * @return RMapEvent associated with creation of Agent
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public RMapEvent updateAgent(RMapAgent agent, URI creatingAgentID) throws RMapException, RMapDefectiveArgumentException;
+	public RMapEvent updateAgent(RMapAgent agent, RMapRequestAgent requestAgent) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Update existing agent using the agent properties. Note: In most instances the agentID should match the URI in agent.getId()
@@ -482,7 +410,7 @@ public interface RMapService {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public RMapEvent updateAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, URI creatingAgentID) throws RMapException, RMapDefectiveArgumentException;
+	public RMapEvent updateAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, RMapRequestAgent requestAgent) throws RMapException, RMapDefectiveArgumentException;
 	
 	
 //	REMOVED FOR NOW - NOT CURRENTLY SUPPORTING AGENT DELETION	
@@ -506,28 +434,16 @@ public interface RMapService {
 	 * @throws RMapDefectiveArgumentException
 	 */
 	public List<URI> getAgentEvents(URI agentId) throws RMapException, RMapDefectiveArgumentException;
-	
-	/**
-	 * Retrieves a list of all Events that were initiated by the Agent
-	 * @param agentId
-	 * @param dateFrom
-	 * @param dateTo
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
-	 */
-	public List<URI> getAgentEventsInitiated(URI agentId) throws RMapException, RMapDefectiveArgumentException;
-		
+
 	/**
 	 * Retrieves a list of Events that were initiated by the Agent between the dates provided.
 	 * @param agentId
-	 * @param dateFrom
-	 * @param dateTo
+	 * @param params
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<URI> getAgentEventsInitiated(URI agentId, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getAgentEventsInitiated(URI agentId, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Retrieves a list of URIs of DiSCOs created by the Agent
@@ -537,20 +453,7 @@ public interface RMapService {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 */
-	public List<URI> getAgentDiSCOs(URI agentId, RMapStatus statusCode) throws RMapException, RMapDefectiveArgumentException;
-		
-	/**
-	 * Retrieves a list of URIs of DiSCOs created by the Agent
-	 * @param agentId
-	 * @param statusCode
-	 * @param dateFrom
-	 * @param dateTo
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
-	 */
-	public List<URI> getAgentDiSCOs(URI agentId, RMapStatus statusCode, Date dateFrom, Date dateTo) throws RMapException, RMapDefectiveArgumentException;
-		
+	public List<URI> getAgentDiSCOs(URI agentId, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * 

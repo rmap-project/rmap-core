@@ -8,19 +8,20 @@ import java.util.List;
 
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapValue;
-import info.rmapproject.core.model.RMapUri;
+import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.event.RMapEventDeletion;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
+import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
- *  @author khansen, smorrissey
+ *  @author khanson, smorrissey
  *
  */
 public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion {
@@ -31,7 +32,7 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	 */
 	protected ORMapEventDeletion() throws RMapException {
 		super();
-		this.makeEventTypeStatement(RMapEventType.DELETION);
+		this.setEventTypeStatement(RMapEventType.DELETION);
 	}
 	/**
 	 * Most likely use is to construct Event for read() method in RMapService from statements
@@ -50,11 +51,11 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	public ORMapEventDeletion(Statement eventTypeStmt, 
 			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
 			Statement descriptionStmt, Statement startTimeStmt,  
-			Statement endTimeStmt, URI context, Statement typeStatement, 
+			Statement endTimeStmt, IRI context, Statement typeStatement, Statement associatedKeyStmt, 
 			List<Statement> deletedObjects) throws RMapException {
 		
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
-				startTimeStmt, endTimeStmt,context,typeStatement);
+				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt);
 		this.deletedObjects = deletedObjects;
 	}
 
@@ -64,11 +65,11 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	 * @param desc
 	 * @throws RMapException
 	 */
-	public ORMapEventDeletion(RMapUri associatedAgent,
+	public ORMapEventDeletion(RMapRequestAgent associatedAgent, 
 			RMapEventTargetType targetType, RMapValue desc)
 			throws RMapException, RMapDefectiveArgumentException {
 		super(associatedAgent, targetType, desc);
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.DELETION);
+		this.setEventTypeStatement(RMapEventType.DELETION);
 	}
 	
 	@Override
@@ -83,16 +84,16 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEventDelete#getDeletedObjectIds()
 	 */
-	public List<RMapUri> getDeletedObjectIds() throws RMapException {
-		List<RMapUri> uris = null;
+	public List<RMapIri> getDeletedObjectIds() throws RMapException {
+		List<RMapIri> iris = null;
 		if (this.deletedObjects!= null){
-			uris = new ArrayList<RMapUri>();
+			iris = new ArrayList<RMapIri>();
 			for (Statement stmt:this.deletedObjects){
-				URI deletedUri = (URI) stmt.getObject();
-				uris.add(ORAdapter.openRdfUri2RMapUri(deletedUri));
+				IRI deletedIri = (IRI) stmt.getObject();
+				iris.add(typeAdapter.openRdfIri2RMapIri(deletedIri));
 			}
 		}
-		return uris;
+		return iris;
 	}
 	
 	public List<Statement> getDeletedObjectStmts(){
@@ -102,13 +103,13 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEventDelete#setDeletedObjectIds(java.util.List)
 	 */
-	public void setDeletedObjectIds(List<RMapUri> deletedObjectIds) 
+	public void setDeletedObjectIds(List<RMapIri> deletedObjectIds) 
 			throws RMapException, RMapDefectiveArgumentException {
 		if (deletedObjectIds != null){
 			List<Statement> stmts = new ArrayList<Statement>();
-			for (RMapUri rid:deletedObjectIds){
-				Statement stmt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_DELETED_OBJECT,
-						ORAdapter.rMapUri2OpenRdfUri(rid), this.context);
+			for (RMapIri rid:deletedObjectIds){
+				Statement stmt = typeAdapter.getValueFactory().createStatement(this.context, RMAP.DELETEDOBJECT,
+						typeAdapter.rMapIri2OpenRdfIri(rid), this.context);
 				stmts.add(stmt);
 			}
 			this.deletedObjects = stmts;

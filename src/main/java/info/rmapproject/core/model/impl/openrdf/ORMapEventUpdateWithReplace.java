@@ -5,15 +5,16 @@ package info.rmapproject.core.model.impl.openrdf;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapUri;
+import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.event.RMapEventUpdateWithReplace;
-import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
+import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
+import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
 
 /**
  *  @author khanson, smorrissey
@@ -27,7 +28,7 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 	 */
 	protected ORMapEventUpdateWithReplace() throws RMapException {
 		super();
-		this.makeEventTypeStatement(RMapEventType.REPLACE);
+		this.setEventTypeStatement(RMapEventType.REPLACE);
 	}
 	/**
 	 * Most likely use is to construct Event for read() method in RMapService from statements
@@ -46,11 +47,11 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 	public ORMapEventUpdateWithReplace(Statement eventTypeStmt, 
 			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
 			Statement descriptionStmt, Statement startTimeStmt,  
-			Statement endTimeStmt, URI context, Statement typeStatement, 
+			Statement endTimeStmt, IRI context, Statement typeStatement, Statement associatedKeyStmt,
 			Statement updatedObjectIdStmt) throws RMapException {
 		
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
-				startTimeStmt, endTimeStmt,context,typeStatement);
+				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt);
 		this.updatedObjectIdStmt = updatedObjectIdStmt;
 	}
 
@@ -59,27 +60,23 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 	 * @param targetType
 	 * @throws RMapException
 	 */
-	public ORMapEventUpdateWithReplace(URI associatedAgent,
-			RMapEventTargetType targetType) throws RMapException {
+	public ORMapEventUpdateWithReplace(RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException {
 		super(associatedAgent, targetType);
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.REPLACE);
+		this.setEventTypeStatement(RMapEventType.REPLACE);
 	}
 	
-
 	/**
 	 * @param associatedAgent
 	 * @param targetType
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapEventUpdateWithReplace(URI associatedAgent,	RMapEventTargetType targetType, URI updateObjectId) 
+	public ORMapEventUpdateWithReplace(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI updateObjectId) 
 				throws RMapException, RMapDefectiveArgumentException {
-		super(associatedAgent, targetType);
-		this.eventTypeStmt = this.makeEventTypeStatement(RMapEventType.REPLACE);
-		this.setUpdatedObjectId(ORAdapter.openRdfUri2RMapUri(updateObjectId));
+		this(associatedAgent, targetType);
+		this.setUpdatedObjectId(typeAdapter.openRdfIri2RMapIri(updateObjectId));
 	}
 	
-
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model model = super.getAsModel();
@@ -92,13 +89,13 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEventUpdateWithReplace#getReplacedObjectIds()
 	 */
-	public RMapUri getUpdatedObjectId() throws RMapException {
-		RMapUri updatedObjectUri = null;
+	public RMapIri getUpdatedObjectId() throws RMapException {
+		RMapIri updatedObjectIri = null;
 		if (this.updatedObjectIdStmt!= null){
-			URI uri = (URI) this.updatedObjectIdStmt.getObject();
-			updatedObjectUri = ORAdapter.openRdfUri2RMapUri(uri);
+			IRI iri = (IRI) this.updatedObjectIdStmt.getObject();
+			updatedObjectIri = typeAdapter.openRdfIri2RMapIri(iri);
 		}
-		return updatedObjectUri;
+		return updatedObjectIri;
 	}
 	
 	public Statement getUpdatedObjectStmt(){
@@ -108,11 +105,11 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEventUpdateWithReplace#setUpdatedObjectIds(java.util.List)
 	 */
-	public void setUpdatedObjectId(RMapUri updatedObjectId) 
+	public void setUpdatedObjectId(RMapIri updatedObjectId) 
 			throws RMapException, RMapDefectiveArgumentException {
 		if (updatedObjectId != null){
-			Statement stmt = this.getValueFactory().createStatement(this.context, RMAP.EVENT_UPDATED_OBJECT,
-						ORAdapter.rMapUri2OpenRdfUri(updatedObjectId), this.context);
+			Statement stmt = typeAdapter.getValueFactory().createStatement(this.context, RMAP.UPDATEDOBJECT,
+					typeAdapter.rMapIri2OpenRdfIri(updatedObjectId), this.context);
 			this.updatedObjectIdStmt = stmt;
 		}
 	}

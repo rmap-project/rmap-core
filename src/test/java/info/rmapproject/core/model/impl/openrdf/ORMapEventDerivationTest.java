@@ -3,8 +3,21 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
+import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.idservice.IdService;
+import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.event.RMapEventTargetType;
+import info.rmapproject.core.model.event.RMapEventType;
+import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.utils.DateUtils;
+import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
+import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,63 +25,67 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import info.rmapproject.core.exception.RMapDefectiveArgumentException;
-import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.idservice.IdServiceFactoryIOC;
-import info.rmapproject.core.model.RMapUri;
-import info.rmapproject.core.model.event.RMapEventTargetType;
-import info.rmapproject.core.model.event.RMapEventType;
-//import info.rmapproject.core.rmapservice.impl.openrdf.ORMapStatementMgr;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
-import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.PROV;
-import info.rmapproject.core.rmapservice.impl.openrdf.vocabulary.RMAP;
-import info.rmapproject.core.utils.DateUtils;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.RDF;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+//import info.rmapproject.core.rmapservice.impl.openrdf.ORMapStatementMgr;
 
 /**
  * @author smorrissey
  *
  */
+
+@RunWith( SpringJUnit4ClassRunner.class )
+@ContextConfiguration({ "classpath*:/spring-rmapcore-testcontext.xml" })
 public class ORMapEventDerivationTest {
-	protected ValueFactory vf = null;
-	protected SesameTriplestore ts = null;
+
+	@Autowired
+	SesameTriplestore triplestore;
+	
+	ORAdapter typeAdapter;
+	
+	@Autowired
+	private IdService rmapIdService;
+	
+	private ValueFactory vf;
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
-		vf = ORAdapter.getValueFactory();
-		ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
+		typeAdapter = new ORAdapter(triplestore);
+		vf = typeAdapter.getValueFactory();
 	}
 
 
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation#ORMapEventDerivation(org.openrdf.model.URI, info.rmapproject.core.model.event.RMapEventTargetType, org.openrdf.model.URI, org.openrdf.model.URI)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation#ORMapEventDerivation(org.openrdf.model.IRI, info.rmapproject.core.model.event.RMapEventTargetType, org.openrdf.model.IRI, org.openrdf.model.IRI)}.
 	 * @throws RMapDefectiveArgumentException 
 	 * @throws RMapException 
+	 * @throws URISyntaxException 
 	 */
 	@Test
-	public void testORMapEventDerivationURIRMapEventTargetTypeURIURI() throws RMapException, RMapDefectiveArgumentException { 
-		URI associatedAgent = vf.createURI("http://orcid.org/0000-0000-0000-0000");
+	public void testORMapEventDerivationIRIRMapEventTargetTypeIRIIRI() throws RMapException, RMapDefectiveArgumentException, URISyntaxException { 
+		IRI associatedAgent = vf.createIRI("http://orcid.org/0000-0000-0000-0000");
 		java.net.URI id1 = null;
 		try {
 			// id for old disco (source object)
-			id1 = IdServiceFactoryIOC.getFactory().createService().createId();
+			id1 = rmapIdService.createId();
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("unable to create id");
 		} 
-		URI sourceObject = ORAdapter.uri2OpenRdfUri(id1);
+		IRI sourceObject = typeAdapter.uri2OpenRdfIri(id1);
 		
 		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
 		try {
@@ -79,49 +96,51 @@ public class ORMapEventDerivationTest {
 			e.printStackTrace();
 			fail("unable to create resources");
 		}	
-		ORMapDiSCO newDisco = new ORMapDiSCO(ORAdapter.openRdfUri2RMapUri(associatedAgent), resourceList);
-		URI derivedObject = newDisco.getDiscoContext();
-		
-		ORMapEventDerivation event = new ORMapEventDerivation(associatedAgent, RMapEventTargetType.DISCO,
-				sourceObject, derivedObject);
+		ORMapDiSCO newDisco = new ORMapDiSCO(typeAdapter.openRdfIri2RMapIri(associatedAgent), resourceList);
+		IRI derivedObject = newDisco.getDiscoContext();
+
+		RMapRequestAgent requestAgent = new RMapRequestAgent(new URI(associatedAgent.stringValue()), new URI("ark:/29297/testkey"));
+		ORMapEventDerivation event = new ORMapEventDerivation(requestAgent, RMapEventTargetType.DISCO,sourceObject, derivedObject);
 		Model model = event.getAsModel();
-		assertEquals(6,model.size());
+		int modelSize = model.size();
+		assertEquals(8,modelSize);
 		
 		// Make list of created objects
-		Set<URI> uris = new LinkedHashSet<URI>();
-		URI newDiscoContext = newDisco.getDiscoContext();
-		uris.add(newDiscoContext);
-		event.setCreatedObjectIdsFromURI(uris);
+		Set<IRI> iris = new LinkedHashSet<IRI>();
+		IRI newDiscoContext = newDisco.getDiscoContext();
+		iris.add(newDiscoContext);
+		event.setCreatedObjectIdsFromIRI(iris);
 		model = event.getAsModel();
-		assertEquals(7,model.size());
+		assertEquals(9,model.size());
 		Date end = new Date();
 		event.setEndTime(end);
 		model = event.getAsModel();
-		assertEquals(8,model.size());
+		assertEquals(10,model.size());
 		assertEquals(RMapEventType.DERIVATION, event.getEventType());
 		assertEquals(RMapEventTargetType.DISCO, event.getEventTargetType());
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation#ORMapEventDerivation(org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.URI, org.openrdf.model.Statement, java.util.List, org.openrdf.model.Statement, org.openrdf.model.Statement)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation#ORMapEventDerivation(org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.IRI, org.openrdf.model.Statement, java.util.List, org.openrdf.model.Statement, org.openrdf.model.Statement)}.
 	 * @throws RMapDefectiveArgumentException 
 	 * @throws RMapException 
+	 * @throws URISyntaxException 
 	 */
 	@Test
-	public void testORMapEventDerivationStatementStatementStatementStatementStatementStatementURIStatementListOfStatementStatementStatement() throws RMapException, RMapDefectiveArgumentException {
+	public void testORMapEventDerivationStatementStatementStatementStatementStatementStatementIRIStatementListOfStatementStatementStatement() throws RMapException, RMapDefectiveArgumentException, URISyntaxException {
 		java.net.URI id1 = null, id2 = null;
 		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
 		try {
 			// id for event
-			id1 = IdServiceFactoryIOC.getFactory().createService().createId();
+			id1 = rmapIdService.createId();
 			// id for old disco
-			id2 = IdServiceFactoryIOC.getFactory().createService().createId();
+			id2 = rmapIdService.createId();
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("unable to create id");
 		} 
 		// create new disco
-		URI creatorUri = vf.createURI("http://orcid.org/0000-0000-0000-0000");
+		IRI creatorIRI = vf.createIRI("http://orcid.org/0000-0000-0000-0000");
 		try {
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
 			resourceList.add(new java.net.URI
@@ -130,47 +149,47 @@ public class ORMapEventDerivationTest {
 			e.printStackTrace();
 			fail("unable to create resources");
 		}	
-		RMapUri associatedAgent = ORAdapter.openRdfUri2RMapUri(creatorUri);
+		RMapIri associatedAgent = typeAdapter.openRdfIri2RMapIri(creatorIRI);
 		ORMapDiSCO newDisco = new ORMapDiSCO(associatedAgent, resourceList);
 		// Make list of created objects
-		List<URI> uris = new ArrayList<URI>();
-		URI newDiscoContext = newDisco.getDiscoContext();
-		uris.add(newDiscoContext);
+		List<IRI> iris = new ArrayList<IRI>();
+		IRI newDiscoContext = newDisco.getDiscoContext();
+		iris.add(newDiscoContext);
 		Model model = newDisco.getAsModel();
 		assertEquals(4,model.size());
-		URI context = ORAdapter.uri2OpenRdfUri(id1);		
+		IRI context = typeAdapter.uri2OpenRdfIri(id1);		
 		Date start = new Date();
 		String startTime = DateUtils.getIsoStringDate(start);
 		
 		// make list of statements out of list of created object IDS
 		List<Statement> createdObjects = new ArrayList<Statement>();
-		for (URI uri:uris){
-			createdObjects.add(vf.createStatement(context, PROV.GENERATED, uri, context));
+		for (IRI iri:iris){
+			createdObjects.add(vf.createStatement(context, PROV.GENERATED, iri, context));
 		}		
 		
 		Literal litStart = vf.createLiteral(startTime);
 		Statement startTimeStmt = vf.createStatement(context, PROV.STARTEDATTIME, litStart, context);		
 	
-		Literal eType = vf.createLiteral(RMapEventType.DERIVATION.getTypeString());
-		Statement eventTypeStmt = vf.createStatement(context, RMAP.EVENT_TYPE_DERIVATION, eType,context); 
+		Statement eventTypeStmt = vf.createStatement(context, RMAP.EVENTTYPE, RMAP.DERIVATION,context); 
 		
-		Literal eTType = vf.createLiteral(RMapEventTargetType.DISCO.uriString());
 		Statement eventTargetTypeStmt = vf.createStatement(context,
-				RMAP.EVENT_TARGET_TYPE, eTType,context);
+				RMAP.TARGETTYPE, RMAP.DISCO,context);
 		
 		Statement associatedAgentStmt= vf.createStatement(context,
-				PROV.WASASSOCIATEDWITH, creatorUri,context);
+				PROV.WASASSOCIATEDWITH, creatorIRI,context);
 		
 		Literal desc = vf.createLiteral("This is a delete event");
-		
-		Statement descriptionStmt = vf.createStatement(context, DC.DESCRIPTION, desc, context);		
+		Statement descriptionStmt = vf.createStatement(context, DC.DESCRIPTION, desc, context);	
+
+		IRI associatedKey = typeAdapter.uri2OpenRdfIri(new java.net.URI("ark:/29297/testkey"));
+		Statement associatedKeyStmt = vf.createStatement(context, PROV.USED, associatedKey, context);			
 		
 		Statement typeStatement = vf.createStatement(context, RDF.TYPE, RMAP.EVENT, context);
 		
-		URI oldDiscoId = ORAdapter.uri2OpenRdfUri(id2);
-		Statement sourceObjectStatement = vf.createStatement(context, RMAP.EVENT_SOURCE_OBJECT, oldDiscoId, context);
+		IRI oldDiscoId = typeAdapter.uri2OpenRdfIri(id2);
+		Statement sourceObjectStatement = vf.createStatement(context, RMAP.HASSOURCEOBJECT, oldDiscoId, context);
 		
-		Statement derivationStatement = vf.createStatement(context, RMAP.EVENT_DERIVED_OBJECT, newDiscoContext,
+		Statement derivationStatement = vf.createStatement(context, RMAP.DERIVEDOBJECT, newDiscoContext,
 				 context);
 		
 		Date end = new Date();
@@ -179,7 +198,7 @@ public class ORMapEventDerivationTest {
 		Statement endTimeStmt = vf.createStatement(context, PROV.ENDEDATTIME, litEnd, context);
 		
 		ORMapEventDerivation event = new ORMapEventDerivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
-				descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, 
+				descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt,
 				createdObjects, derivationStatement, sourceObjectStatement) ;
 		assertEquals(1,event.getCreatedObjectStatements().size());
 		assertEquals(1,event.getCreatedObjectIds().size());
@@ -188,32 +207,32 @@ public class ORMapEventDerivationTest {
 		Statement tStmt = event.getTypeStatement();
 		assertEquals(RMAP.EVENT.toString(), tStmt.getObject().toString());
 		Model eventModel = event.getAsModel();
-		assertEquals(10, eventModel.size());
-		assertEquals(oldDiscoId,ORAdapter.rMapUri2OpenRdfUri(event.getSourceObjectId()));
-		assertEquals(newDiscoContext,ORAdapter.rMapUri2OpenRdfUri(event.getDerivedObjectId()));		
+		assertEquals(11, eventModel.size());
+		assertEquals(oldDiscoId,typeAdapter.rMapIri2OpenRdfIri(event.getSourceObjectId()));
+		assertEquals(newDiscoContext,typeAdapter.rMapIri2OpenRdfIri(event.getDerivedObjectId()));		
 		assertEquals(desc.stringValue(), event.getDescription().getStringValue());
 		
 		try{
 			event = new ORMapEventDerivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
-					descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, 
+					descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt,
 					null, derivationStatement, sourceObjectStatement) ;
 			fail("Should not allow null created objects");
 		}catch(RMapException r){}
 		try{
 			event = new ORMapEventDerivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
-					descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, 
+					descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt, 
 					new ArrayList<Statement>(), derivationStatement, sourceObjectStatement) ;
 			fail("Should not allow empty created objects");
 		}catch(RMapException r){}
 		try{
 			event = new ORMapEventDerivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
-					descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, 
+					descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt, 
 					createdObjects, null, sourceObjectStatement) ;
 			fail("Should not allow null derived object");
 		}catch(RMapException r){}
 		try{
 			event = new ORMapEventDerivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
-					descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, 
+					descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt, 
 					createdObjects, derivationStatement, null) ;
 			fail("Should not allow null source object");
 		}catch(RMapException r){}		

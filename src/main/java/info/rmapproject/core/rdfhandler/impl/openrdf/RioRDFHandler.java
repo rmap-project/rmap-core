@@ -15,9 +15,9 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventDeletion;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
-//import info.rmapproject.core.model.impl.openrdf.ORMapStatement;
-//import info.rmapproject.core.model.statement.RMapStatement;
 import info.rmapproject.core.rdfhandler.RDFHandler;
+import info.rmapproject.core.rdfhandler.RDFType;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -29,18 +29,27 @@ import java.util.List;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.impl.LinkedHashModel;
-import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 public class RioRDFHandler implements RDFHandler {
 	
+	SesameTriplestore triplestore;
+	ORAdapter typeAdapter;
 
+	@Autowired
+	private void setSesameTriplestore(SesameTriplestore triplestore){
+		this.triplestore = triplestore;
+		this.typeAdapter = new ORAdapter(triplestore);
+	}
+	
+	
 	public RioRDFHandler() {}
 	/**
 	 * Convert Model of RMap object to an OutputStream of RDF
@@ -49,7 +58,7 @@ public class RioRDFHandler implements RDFHandler {
 	 * @return OutputStream containing RDF serialization of RMap object
 	 * @throws RMapException
 	 */
-	public OutputStream convertStmtListToRDF(Model model, String rdfType) 
+	public OutputStream convertStmtListToRDF(Model model, RDFType rdfType) 
 	throws RMapException	{
 		if (model==null){
 			throw new RMapException("Null or empty Statement model");
@@ -60,7 +69,7 @@ public class RioRDFHandler implements RDFHandler {
 		RDFFormat rdfFormat = null;
 		OutputStream bOut = new ByteArrayOutputStream();
 		try {
-			rdfFormat = RioUtil.getRDFFormatConstant(rdfType);
+			rdfFormat = this.getRDFFormatConstant(rdfType);
 			Rio.write(model, bOut, rdfFormat);
 		} catch (Exception e) {
 			throw new RMapException("Exception thrown creating RDF from statement list",e);
@@ -75,8 +84,7 @@ public class RioRDFHandler implements RDFHandler {
 	 * @return List of Statements created from RDF InputStsream
 	 * @throws RMapException if null parameters, or invalid rdfType, or error parsing stream
 	 */
-	public List <Statement> convertRDFToStmtList(InputStream rdfIn, String rdfType,
-			String baseUri) 
+	public List <Statement> convertRDFToStmtList(InputStream rdfIn, RDFType rdfType, String baseUri) 
 	throws RMapException	{
 		if (rdfIn==null){
 			throw new RMapException("Null rdf input stream");
@@ -87,7 +95,7 @@ public class RioRDFHandler implements RDFHandler {
 		List <Statement> stmts = new ArrayList<Statement>();
 		RDFFormat rdfFormat = null;
 		try {
-			rdfFormat = RioUtil.getRDFFormatConstant(rdfType);
+			rdfFormat = this.getRDFFormatConstant(rdfType);
 		} catch (Exception e1) {
 			throw new RMapException("Unable to match rdfType: " + rdfType, e1);
 		}
@@ -103,7 +111,7 @@ public class RioRDFHandler implements RDFHandler {
 	}
 
 	@Override
-	public RMapDiSCO rdf2RMapDiSCO(InputStream rdfIn, String baseUri, String rdfFormat)
+	public RMapDiSCO rdf2RMapDiSCO(InputStream rdfIn, RDFType rdfFormat, String baseUri)
 			throws RMapException, RMapDefectiveArgumentException {
 		List <Statement> stmts = this.convertRDFToStmtList(rdfIn, rdfFormat, baseUri);
 		ORMapDiSCO disco = new ORMapDiSCO(stmts);
@@ -111,7 +119,7 @@ public class RioRDFHandler implements RDFHandler {
 	}
 	
 	@Override
-	public RMapAgent rdf2RMapAgent(InputStream rdfIn, String baseUri, String rdfFormat) 
+	public RMapAgent rdf2RMapAgent(InputStream rdfIn, RDFType rdfFormat, String baseUri) 
 			throws RMapException, RMapDefectiveArgumentException {
 		List <Statement> stmts = this.convertRDFToStmtList(rdfIn, rdfFormat, baseUri);
 		ORMapAgent agent = new ORMapAgent(stmts);
@@ -119,26 +127,26 @@ public class RioRDFHandler implements RDFHandler {
 	}
 	
 	@Override
-	public OutputStream triples2Rdf(List<RMapTriple> triples, String rdfFormat) throws RMapException, RMapDefectiveArgumentException	{
+	public OutputStream triples2Rdf(List<RMapTriple> triples, RDFType rdfFormat) throws RMapException, RMapDefectiveArgumentException	{
 		if (triples == null){
 			throw new RMapException("Null triple list");			
 		}
 		if (rdfFormat==null){
 			throw new RMapException("null rdf format name");
 		}
-		Model model = new LinkedHashModel();
+		Model model = new LinkedHashModel();		
 		
 		for (RMapTriple triple:triples){
-			model.add(new StatementImpl(ORAdapter.rMapNonLiteral2OpenRdfResource(triple.getSubject()), 
-										ORAdapter.rMapUri2OpenRdfUri(triple.getPredicate()), 
-										ORAdapter.rMapValue2OpenRdfValue(triple.getObject())));
+			model.add(typeAdapter.rMapNonLiteral2OpenRdfResource(triple.getSubject()), 
+						typeAdapter.rMapIri2OpenRdfIri(triple.getPredicate()), 
+						typeAdapter.rMapValue2OpenRdfValue(triple.getObject()));
 		}
 		OutputStream rdf = this.convertStmtListToRDF(model, rdfFormat);
 		return rdf;
 	}
 
 	@Override
-	public OutputStream disco2Rdf(RMapDiSCO disco, String rdfFormat)
+	public OutputStream disco2Rdf(RMapDiSCO disco, RDFType rdfFormat)
 			throws RMapException {
 		if (disco==null){
 			throw new RMapException("Null DiSCO");
@@ -156,7 +164,7 @@ public class RioRDFHandler implements RDFHandler {
 	}
 
 	@Override
-	public OutputStream event2Rdf(RMapEvent event, String rdfFormat)
+	public OutputStream event2Rdf(RMapEvent event, RDFType rdfFormat)
 			throws RMapException {
 		if (event==null){
 			throw new RMapException("Null Event");
@@ -189,7 +197,7 @@ public class RioRDFHandler implements RDFHandler {
 	}
 
 	@Override
-	public OutputStream agent2Rdf(RMapAgent agent, String rdfFormat)
+	public OutputStream agent2Rdf(RMapAgent agent, RDFType rdfFormat)
 			throws RMapException {
 		if (agent==null){
 			throw new RMapException("Null agent");
@@ -206,4 +214,19 @@ public class RioRDFHandler implements RDFHandler {
 		return os;
 	}
 
+	public RDFFormat getRDFFormatConstant(RDFType rdfType) throws Exception	{
+		RDFFormat rdfFormat = null;		
+        switch (rdfType) {
+            case RDFXML:  rdfFormat = RDFFormat.RDFXML;
+                     break;
+            case TURTLE:  rdfFormat = RDFFormat.TURTLE;
+                     break;
+            case JSONLD:  rdfFormat = RDFFormat.JSONLD;
+                     break;
+            default: rdfFormat = RDFFormat.TURTLE;
+                     break;
+        }
+        return rdfFormat;
+	
+	}
 }

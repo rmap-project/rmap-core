@@ -5,7 +5,7 @@ package info.rmapproject.core.model.event;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapUri;
+import info.rmapproject.core.model.RMapIri;
 
 /**
  * Update event for objects that are overwritten by a new version without being assigned a new ID.
@@ -20,12 +20,12 @@ public interface RMapEventUpdateWithReplace extends RMapEvent {
 	 * @return the updatedObjectId
 	 * @throws RMapException 
 	 */
-	public RMapUri getUpdatedObjectId() throws RMapException;
+	public RMapIri getUpdatedObjectId() throws RMapException;
 
 	/**
 	 * @param updatedObjectId ID of replaced object
 	 * @throws RMapException 
 	 */
-	public void setUpdatedObjectId(RMapUri updatedObjectId) throws RMapException, RMapDefectiveArgumentException;
+	public void setUpdatedObjectId(RMapIri updatedObjectId) throws RMapException, RMapDefectiveArgumentException;
 
 }

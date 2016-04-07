@@ -10,7 +10,7 @@ package info.rmapproject.core.model;
 public class RMapTriple {
 
 	protected RMapResource subject;
-	protected RMapUri predicate;
+	protected RMapIri predicate;
 	protected RMapValue object;
 	/**
 	 * 
@@ -19,7 +19,7 @@ public class RMapTriple {
 		super();
 	}
 	
-	public RMapTriple(RMapResource subject, RMapUri predicate, RMapValue object){
+	public RMapTriple(RMapResource subject, RMapIri predicate, RMapValue object){
 		this();
 		this.subject = subject;
 		this.predicate = predicate;
@@ -36,7 +36,7 @@ public class RMapTriple {
 	/**
 	 * @return the predicate
 	 */
-	public RMapUri getPredicate() {
+	public RMapIri getPredicate() {
 		return predicate;
 	}
 

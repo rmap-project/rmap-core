@@ -2,37 +2,60 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapStatus;
-import info.rmapproject.core.model.RMapUri;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
+import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RMapSearchParams;
+import info.rmapproject.core.rdfhandler.RDFType;
 import info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.RMapServiceFactoryIOC;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestoreFactoryIOC;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+
+@RunWith( SpringJUnit4ClassRunner.class )
+@ContextConfiguration({ "classpath*:/spring-rmapcore-testcontext.xml" })
 public class ORMapStatementMgrTest {
+	
+	@Autowired
+	RMapService rmapService;
+
+	@Autowired
+	SesameTriplestore triplestore;
+	
+	@Autowired
+	ORMapDiSCOMgr discomgr;
+	
+	@Autowired
+	ORMapStatementMgr stmtmgr;
+
+	ORAdapter typeAdapter;
 
 	protected String discoRDF = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> "  
 			+ "<rdf:RDF "  
@@ -74,36 +97,36 @@ public class ORMapStatementMgrTest {
 	    	+ "</rdf:RDF>";
 
 
-	private URI AGENT_URI = null; 
-	private URI ID_PROVIDER_URI = null;
-	private URI AUTH_ID_URI = null;
-	private Value NAME = null;
+	private IRI AGENT_IRI = null; 
+	private IRI ID_PROVIDER_IRI = null;
+	private IRI AUTH_ID_IRI = null;
+	private Value NAME = null;	
+	RMapRequestAgent requestAgent;
 	
 	@Before
 	public void setUp() throws Exception {
 		//these will be used for a test agent.
-		this.AGENT_URI = ORAdapter.getValueFactory().createURI("ark:/22573/rmaptestagent");
-		this.ID_PROVIDER_URI = ORAdapter.getValueFactory().createURI("http://orcid.org/");
-		this.AUTH_ID_URI = ORAdapter.getValueFactory().createURI("http://rmap-project.org/identities/rmaptestauthid");
-		this.NAME = ORAdapter.getValueFactory().createLiteral("RMap test Agent");		
+		typeAdapter = new ORAdapter(triplestore);
+		this.AGENT_IRI = typeAdapter.getValueFactory().createIRI("ark:/22573/rmaptestagent");
+		this.ID_PROVIDER_IRI = typeAdapter.getValueFactory().createIRI("http://orcid.org/");
+		this.AUTH_ID_IRI = typeAdapter.getValueFactory().createIRI("http://rmap-project.org/identities/rmaptestauthid");
+		this.NAME = typeAdapter.getValueFactory().createLiteral("RMap test Agent");	
+		this.requestAgent = new RMapRequestAgent(new URI(this.AGENT_IRI.stringValue()));
 	}
 
 	
 	
 	@Test
 	public void testGetRelatedDiSCOs() {
-
-		RMapService rmapService=RMapServiceFactoryIOC.getFactory().createService();
-		ORMapDiSCOMgr discoMgr = new ORMapDiSCOMgr();
 		
 		try {
 
-			SesameTriplestore ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
-			
 			//create new test agent
-			RMapAgent agent = new ORMapAgent(AGENT_URI, ID_PROVIDER_URI, AUTH_ID_URI, NAME);
-			rmapService.createAgent(agent, agent.getId().getIri());
+			RMapAgent agent = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
 			java.net.URI agentId=agent.getId().getIri();
+			if (!rmapService.isAgentId(agentId)) {
+				rmapService.createAgent(agent,requestAgent);
+			}
 			if (rmapService.isAgentId(agentId)){
 				System.out.println("Test Agent successfully created!  URI is " + agentId);
 			}	
@@ -111,36 +134,42 @@ public class ORMapStatementMgrTest {
 			//create disco				
 			InputStream stream = new ByteArrayInputStream(discoRDF.getBytes(StandardCharsets.UTF_8));
 			RioRDFHandler handler = new RioRDFHandler();	
-			List<Statement>stmts = handler.convertRDFToStmtList(
-					stream, "http://rmapdns.ddns.net:8080/api/disco/", "RDFXML");
+			List<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
-			discoMgr.createDiSCO(ORAdapter.uri2OpenRdfUri(agentId), disco, ts);
-			RMapUri discoId = disco.getId();
+			requestAgent.setAgentKeyId(new java.net.URI("ark:/29297/testkey"));
+			discomgr.createDiSCO(disco, requestAgent, triplestore);
+			RMapIri discoId = disco.getId();
 			
 			//get related discos
-			List <URI> sysAgents = new ArrayList<URI>();
-			sysAgents.add(ORAdapter.uri2OpenRdfUri(agentId));
+			Set <URI> sysAgents = new HashSet<URI>();
+			sysAgents.add(agentId);
 			
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			Date dateFrom = dateFormat.parse("2014-1-1");
 			Date dateTo = dateFormat.parse("2050-1-1");
-			URI subject = ts.getValueFactory().createURI("http://dx.doi.org/10.1109/ACCESS.2014.2332453");
-			URI predicate = ts.getValueFactory().createURI("http://purl.org/dc/elements/1.1/subject");
-			Value object = ts.getValueFactory().createLiteral("Hadoop");
-			ORMapStatementMgr stmtMgr = new ORMapStatementMgr();
-			List <URI> discoIds = stmtMgr.getRelatedDiSCOs(subject, predicate, object, RMapStatus.ACTIVE, sysAgents, dateFrom, dateTo, ts);
+			IRI subject = triplestore.getValueFactory().createIRI("http://dx.doi.org/10.1109/ACCESS.2014.2332453");
+			IRI predicate = triplestore.getValueFactory().createIRI("http://purl.org/dc/elements/1.1/subject");
+			Value object = triplestore.getValueFactory().createLiteral("Hadoop");
+			
+			RMapSearchParams params = new RMapSearchParams();
+			params.setStatusCode(RMapStatus.ACTIVE);
+			params.setDateRange(dateFrom, dateTo);
+			
+			List <IRI> discoIds = stmtmgr.getRelatedDiSCOs(subject, predicate, object, params, triplestore);
 			assertTrue(discoIds.size()==1);
-			Iterator<URI> iter = discoIds.iterator();
-			URI matchingDiscoId = iter.next();
+			Iterator<IRI> iter = discoIds.iterator();
+			IRI matchingDiscoId = iter.next();
 			assertTrue(matchingDiscoId.toString().equals(discoId.toString()));
 			
-			discoMgr.updateDiSCO(ORAdapter.uri2OpenRdfUri(agentId), true, matchingDiscoId, null, ts);
-			discoIds = stmtMgr.getRelatedDiSCOs(subject, predicate, object, RMapStatus.ACTIVE, sysAgents, dateFrom, dateTo, ts);
+			
+			discomgr.updateDiSCO(matchingDiscoId, null, requestAgent, true, triplestore);
+			discoIds = stmtmgr.getRelatedDiSCOs(subject, predicate, object, params, triplestore);
 			assertTrue(discoIds.size()==0);
 			
-			discoIds = stmtMgr.getRelatedDiSCOs(subject, predicate, object, RMapStatus.INACTIVE, sysAgents, dateFrom, dateTo, ts);
+			params.setStatusCode(RMapStatus.INACTIVE);
+			discoIds = stmtmgr.getRelatedDiSCOs(subject, predicate, object, params, triplestore);
 			assertTrue(discoIds.size()==1);
-			rmapService.deleteDiSCO(disco.getId().getIri(), agentId);
+			rmapService.deleteDiSCO(disco.getId().getIri(), requestAgent);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -151,20 +180,15 @@ public class ORMapStatementMgrTest {
 
 	@SuppressWarnings("unused")
 	@Test
-	public void testGetAssertingAgents() {
-
-
-		RMapService rmapService=RMapServiceFactoryIOC.getFactory().createService();
-		ORMapDiSCOMgr discoMgr = new ORMapDiSCOMgr();
-		
+	public void testGetAssertingAgents() {		
 		try {
-
-			SesameTriplestore ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
-			
+		
 			//create new test agent
-			RMapAgent agent = new ORMapAgent(AGENT_URI, ID_PROVIDER_URI, AUTH_ID_URI, NAME);
-			rmapService.createAgent(agent, agent.getId().getIri());
+			RMapAgent agent = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
 			java.net.URI agentId=agent.getId().getIri();
+			if (!rmapService.isAgentId(agentId)) {
+				rmapService.createAgent(agent,requestAgent);
+			}
 			if (rmapService.isAgentId(agentId)){
 				System.out.println("Test Agent successfully created!  URI is " + agentId);
 			}	
@@ -172,30 +196,33 @@ public class ORMapStatementMgrTest {
 			//create disco				
 			InputStream stream = new ByteArrayInputStream(discoRDF.getBytes(StandardCharsets.UTF_8));
 			RioRDFHandler handler = new RioRDFHandler();	
-			List<Statement>stmts = handler.convertRDFToStmtList(
-					stream, "http://rmapdns.ddns.net:8080/api/disco/", "RDFXML");
+			List<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
-			ORMapEvent event = discoMgr.createDiSCO(ORAdapter.uri2OpenRdfUri(agentId), disco, ts);
+			IRI keyId = typeAdapter.uri2OpenRdfIri(new java.net.URI("ark:/29297/testkey"));
+			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
 			
-			List <URI> sysAgents = new ArrayList<URI>();
-			sysAgents.add(ORAdapter.uri2OpenRdfUri(agentId));
+			Set <URI> sysAgents = new HashSet<URI>();
+			sysAgents.add(agentId);
 			
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			Date dateFrom = dateFormat.parse("2014-1-1");
 			Date dateTo = dateFormat.parse("2050-1-1");
-			URI subject = ts.getValueFactory().createURI("http://dx.doi.org/10.1109/ACCESS.2014.2332453");
-			URI predicate = ts.getValueFactory().createURI("http://purl.org/dc/elements/1.1/subject");
-			Value object = ts.getValueFactory().createLiteral("Hadoop");
-			
+			IRI subject = triplestore.getValueFactory().createIRI("http://dx.doi.org/10.1109/ACCESS.2014.2332453");
+			IRI predicate = triplestore.getValueFactory().createIRI("http://purl.org/dc/elements/1.1/subject");
+			Value object = triplestore.getValueFactory().createLiteral("Hadoop");
+			RMapSearchParams params = new RMapSearchParams();
+			params.setDateRange(dateFrom, dateTo);
+			params.setSystemAgents(sysAgents);
+						
 			ORMapStatementMgr stmtMgr = new ORMapStatementMgr();
-			Set <URI> agentIds = stmtMgr.getAssertingAgents(subject, predicate, object, null, dateFrom, dateTo, ts);
+			Set <IRI> agentIds = stmtMgr.getAssertingAgents(subject, predicate, object, params, triplestore);
 			
 			assertTrue(agentIds.size()==1);
 
-			Iterator<URI> iter = agentIds.iterator();
-			URI matchingAgentId = iter.next();
+			Iterator<IRI> iter = agentIds.iterator();
+			IRI matchingAgentId = iter.next();
 			assertTrue(matchingAgentId.toString().equals(agentId.toString()));
-			rmapService.deleteDiSCO(disco.getId().getIri(), agentId);
+			rmapService.deleteDiSCO(disco.getId().getIri(), requestAgent);
 
 		} catch (Exception e) {
 			e.printStackTrace();

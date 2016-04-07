@@ -24,23 +24,23 @@ public interface RDFHandler {
 	/**
 	 * Deserialize an RDF InputStream into an RMapDiSCO
 	 * @param rdfIn an RDF InputStream
-	 * @param baseUri for resolving relative URIs; empty string if no relative URIs in stream
 	 * @param rdfFormat name of RDF format 
+	 * @param baseUri for resolving relative URIs; empty string if no relative URIs in stream
 	 * @return RMapDiSCO built from RDF statements in InputStream
 	 * @throws RMapException if InputStream cannot be converted to valid DiSCO
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public RMapDiSCO rdf2RMapDiSCO(InputStream rdfIn, String baseUri, String rdfFormat) throws RMapException, RMapDefectiveArgumentException;
+	public RMapDiSCO rdf2RMapDiSCO(InputStream rdfIn, RDFType rdfFormat, String baseUri) throws RMapException, RMapDefectiveArgumentException;
 	/**
 	 * Deserialize an RDF InputStream into an RMapAgent
 	 * @param rdfIn
-	 * @param baseUri; empty string if no relative URIs in stream
 	 * @param rdfFormat
+	 * @param baseUri; empty string if no relative URIs in stream
 	 * @return
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public RMapAgent rdf2RMapAgent(InputStream rdfIn, String baseUri, String rdfFormat) throws RMapException, RMapDefectiveArgumentException;
+	public RMapAgent rdf2RMapAgent(InputStream rdfIn, RDFType rdfFormat, String baseUri) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Serialize RMapTriple list as RDF
@@ -50,7 +50,7 @@ public interface RDFHandler {
 	 * @throws RMapException if RMapTriple list cannot be serialized as RDF
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public OutputStream triples2Rdf(List<RMapTriple> triples, String rdfFormat)	throws RMapException, RMapDefectiveArgumentException;
+	public OutputStream triples2Rdf(List<RMapTriple> triples, RDFType rdfFormat)	throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Serialize RMapDiSCO as RDF
@@ -59,7 +59,7 @@ public interface RDFHandler {
 	 * @return OutputStream with serialized RDF
 	 * @throws RMapException if RMapDiSCO cannot be serialized as RDF
 	 */
-	public OutputStream disco2Rdf(RMapDiSCO disco, String rdfFormat) throws RMapException;
+	public OutputStream disco2Rdf(RMapDiSCO disco, RDFType rdfFormat) throws RMapException;
 	/**
 	 * Serialize RMapEvent as RDF
 	 * @param event RMapEvent to be serialized
@@ -67,7 +67,7 @@ public interface RDFHandler {
 	 * @return OutputStream with serialized RDF
 	 * @throws RMapException if RMapEvent cannot be serialized as RDF
 	 */
-	public OutputStream event2Rdf(RMapEvent event, String rdfFormat)throws RMapException;
+	public OutputStream event2Rdf(RMapEvent event, RDFType rdfFormat)throws RMapException;
 	/**
 	 *  Serialize RMapAgent as RDF
 	 * @param agent RMapAgent  to be serialized
@@ -75,6 +75,6 @@ public interface RDFHandler {
 	 * @return OutputStream with serialized RDF
 	 * @throws RMapException if RMapAgent cannot be serialized as RDF
 	 */
-	public OutputStream agent2Rdf(RMapAgent agent, String rdfFormat)throws RMapException;
+	public OutputStream agent2Rdf(RMapAgent agent, RDFType rdfFormat)throws RMapException;
 	
 }

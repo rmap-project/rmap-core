@@ -5,7 +5,7 @@ package info.rmapproject.core.model.agent;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapObject;
-import info.rmapproject.core.model.RMapUri;
+import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapValue;
 
 
@@ -26,12 +26,12 @@ public interface RMapAgent extends RMapObject {
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapUri getIdProvider() throws RMapException;
+	public RMapIri getIdProvider() throws RMapException;
 	/**
 	 * Get Auth URI of agent - this is generated using the id provider and idP username
 	 * @return
 	 * @throws RMapException
 	 */
-	public RMapUri getAuthId() throws RMapException;
+	public RMapIri getAuthId() throws RMapException;
 
 }

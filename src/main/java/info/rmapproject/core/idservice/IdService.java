@@ -7,12 +7,10 @@ import java.net.URI;
 
 
 /**
- * @author  khansen, smorrissey
+ * @author  khanson, smorrissey
  *
  */
 public interface IdService {
-	
 	public URI createId() throws Exception;
-	
 	public boolean isValidId(URI id) throws Exception;
 }
