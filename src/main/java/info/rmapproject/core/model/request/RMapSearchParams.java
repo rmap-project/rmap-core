@@ -62,22 +62,6 @@ public class RMapSearchParams  {
 	 * For more information on the ORDER BY options, see the OrderBy class.
 	 */
 	OrderBy orderBy;
-
-	/**
-	 * true if the default status is being used
-	 */
-	boolean usingDefaultStatus=true;
-	
-	/**
-	 * true if the default limit is being used
-	 */
-	boolean usingDefaultLimit=true;
-	
-	/**
-	 * true if the default orderby is being used
-	 */
-	boolean usingDefaultOrderBy=true;
-	
 	
 	public RMapSearchParams() {
 	}
@@ -105,44 +89,56 @@ public class RMapSearchParams  {
 	}
 
 	public void setLimit(Integer limit) throws RMapException{
-		if (limit != null) {
+		if (limit==null) {
+			this.limit=null;
+		} else if (limit > 0) {
 			Integer maxlimit=getMaxQueryLimit();
 			if (limit>maxlimit){
 				throw new RMapException("The maximum results that can be returned in one query is " 
 											+ maxlimit.toString() + ". Please adjust your parameters");
 			}
 			this.limit = limit;
-			this.usingDefaultLimit=false;
+		} else {
+			throw new RMapException("The limit must be an integer greater than 0");
 		}
 	}
 	
 	public void setLimit(String limit) throws RMapException {
-		try{
-			limit=limit.trim();
-			Integer iLimit = Integer.parseInt(limit);
-			setLimit(iLimit);
+		Integer iLimit = null;
+		if (limit!=null){
+			try{
+				limit=limit.trim();
+				iLimit = Integer.parseInt(limit);
+			}
+			catch (NumberFormatException ex) {
+				throw new RMapException ("The limit provided is not a valid integer.", ex);
+			}
 		}
-		catch (NumberFormatException ex) {
-			throw new RMapException ("The limit provided is not a valid integer.", ex);
-		}
+		setLimit(iLimit);
 	}	
 
-	public void setPage(Integer page) {
-		this.page = page;
+	public void setPage(Integer page) throws RMapException {
+		if (page==null) {
+			this.page=null;
+		} else if (page > 0) {
+			this.page = page;
+		} else {
+			throw new RMapException ("Page number must be greater than 0");
+		}
 	}
 	
-	public void setPage(String page) throws RMapDefectiveArgumentException {
-		if (page == null || page.length()==0) {
-			this.page=null;
-		} else {
+	public void setPage(String sPage) throws RMapDefectiveArgumentException {
+		Integer iPage = null;
+		if (sPage != null && sPage.length()>0) {
 			try{
-				page=page.trim();
-				this.page = Integer.parseInt(page);
+				sPage=sPage.trim();
+				iPage = Integer.parseInt(sPage);
 			}
 			catch (Exception ex) {
 				throw new RMapDefectiveArgumentException ("The page number provided is not a valid integer.", ex);
 			}
 		}
+		this.setPage(iPage);
 	}
 
 	public Integer getPage() {
@@ -195,20 +191,16 @@ public class RMapSearchParams  {
 		}
 	}
 
-	public void setStatusCode(RMapStatus statusCode) {
-		if (statusCode!=null){
-			this.status = statusCode;
-			this.usingDefaultStatus=false;
-		}
+	public void setStatusCode(RMapStatus status) {
+		this.status = status;
 	}
 
-	public void setStatusCode(String statusCode) {
-		if (statusCode==null || statusCode.length()==0){
-			this.status=null;
-		} else {
-			this.status = RMapStatus.getStatusFromTerm(statusCode);
-			this.usingDefaultStatus=false;
+	public void setStatusCode(String sStatus) {
+		RMapStatus status = null;
+		if (sStatus!=null){
+			status = RMapStatus.getStatusFromTerm(sStatus);
 		}
+		this.setStatusCode(status);		
 	}
 	
 	public Set<URI> getSystemAgents() {
@@ -260,10 +252,7 @@ public class RMapSearchParams  {
 	}
 
 	public void setOrderBy(OrderBy orderBy) {
-		if (orderBy!=null){
-			this.orderBy = orderBy;
-			this.usingDefaultOrderBy=false;
-		}
+		this.orderBy = orderBy;		
 	}
 	
 	public OrderBy getOrderBy() throws RMapException {
@@ -324,19 +313,5 @@ public class RMapSearchParams  {
 		}
 		return maxLimit;	
 	}
-	
-	
 		
-	public boolean isUsingDefaultStatus() {
-		return usingDefaultStatus;
-	}
-
-	public boolean isUsingDefaultLimit() {
-		return usingDefaultLimit;
-	}
-	
-	public boolean isUsingDefaultOrderBy() {
-		return usingDefaultOrderBy;
-	}
-	
 }

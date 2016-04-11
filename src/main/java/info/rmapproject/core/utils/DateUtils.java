@@ -19,7 +19,7 @@ public class DateUtils {
 	/**
 	 * Format string for ISO-8601 date
 	 */
-	 public static String ISO8601 = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+	 public static String ISO8601 = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 	/**
 	 * 
 	 */
