@@ -107,7 +107,6 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		default:
 			break;		
 		}		
-		
 		List<Statement> discoStmts = null;
 		try {
 			discoStmts = this.getNamedGraph(discoID, ts);		
@@ -117,7 +116,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}
 		disco = new ORMapDiSCO(discoStmts);
 		
-		ORMapDiSCODTO dto = new ORMapDiSCODTO(ts);
+		ORMapDiSCODTO dto = new ORMapDiSCODTO();
 		dto.setDisco(disco);
 		dto.setStatus(status);
 		
@@ -291,9 +290,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			// must be same agent
 			if (creatorSameAsOrig){
 				ORMapEventInactivation iEvent = new ORMapEventInactivation(requestAgent, RMapEventTargetType.DISCO);
-
-				ORAdapter typeAdapter = new ORAdapter(ts);
-				iEvent.setInactivatedObjectId(typeAdapter.openRdfIri2RMapIri(oldDiscoId));
+				iEvent.setInactivatedObjectId(ORAdapter.openRdfIri2RMapIri(oldDiscoId));
 				event = iEvent;
 			}
 			else {
@@ -306,6 +303,10 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			// in either case, must have non-null new DiSCO
 			if (disco==null){
 				throw new RMapDefectiveArgumentException("No new DiSCO provided for update");
+			}
+
+			if (oldDiscoId.stringValue().equals(disco.getDiscoContext().stringValue())){
+				throw new RMapDefectiveArgumentException("The DiSCO provided has the same identifier as the DiSCO being replaced.");
 			}
 			if (creatorSameAsOrig){
 				ORMapEventUpdate uEvent = new ORMapEventUpdate(requestAgent, RMapEventTargetType.DISCO, oldDiscoId, disco.getDiscoContext());
@@ -813,7 +814,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		if (stmts==null){
 			throw new RMapException ("null stmts");
 		}
-		ORAdapter typeAdapter = new ORAdapter(ts);
+
 		List<Statement>newStmts = new ArrayList<Statement>();
 		Map<BNode, IRI> bnode2iri = new HashMap<BNode, IRI>();
 		for (Statement stmt:stmts){
@@ -844,7 +845,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 						throw new RMapException (e);
 					}
 
-					bReplace = typeAdapter.uri2OpenRdfIri(newId);
+					bReplace = ORAdapter.uri2OpenRdfIri(newId);
 					bnode2iri.put(bSubject, bReplace);
 					newSubject = bReplace;
 				}
@@ -865,7 +866,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 					} catch (Exception e) {
 						throw new RMapException (e);
 					}
-					bReplace = typeAdapter.uri2OpenRdfIri(newId);
+					bReplace = ORAdapter.uri2OpenRdfIri(newId);
 					bnode2iri.put(bObject, bReplace);
 					newObject = bReplace;
 				}
@@ -879,7 +880,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			// now create new statement with bnodes replaced
 			Statement newStmt=null;
 			try {
-				newStmt = ts.getValueFactory().createStatement(newSubject, stmt.getPredicate(), newObject, stmt.getContext());
+				newStmt = ORAdapter.getValueFactory().createStatement(newSubject, stmt.getPredicate(), newObject, stmt.getContext());
 			} catch (RepositoryException e) {
 				e.printStackTrace();
 				throw new RMapException (e);

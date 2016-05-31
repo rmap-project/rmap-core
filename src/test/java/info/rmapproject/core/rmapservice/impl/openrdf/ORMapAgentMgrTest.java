@@ -44,10 +44,8 @@ public class ORMapAgentMgrTest{
 	
 	@Autowired
 	SesameTriplestore triplestore;
-	
-	ORAdapter typeAdapter;
-	
-	private IRI AGENT_IRI = null; 
+		
+	private IRI AGENT_IRI; 
 	private IRI ID_PROVIDER_IRI = null;
 	private IRI AUTH_ID_IRI = null;
 	private Value NAME = null;
@@ -55,12 +53,11 @@ public class ORMapAgentMgrTest{
 	
 	@Before
 	public void setUp() throws Exception {
-		typeAdapter = new ORAdapter(triplestore);
 		//these will be used for a test agent.
-		this.AGENT_IRI = typeAdapter.getValueFactory().createIRI("ark:/22573/rmaptestagent");
-		this.ID_PROVIDER_IRI = typeAdapter.getValueFactory().createIRI("http://orcid.org/");
-		this.AUTH_ID_IRI = typeAdapter.getValueFactory().createIRI("http://rmap-project.org/identities/rmaptestauthid");
-		this.NAME = typeAdapter.getValueFactory().createLiteral("RMap test Agent");		
+		AGENT_IRI = ORAdapter.getValueFactory().createIRI("ark:/22573/rmaptestagent");
+		ID_PROVIDER_IRI = ORAdapter.getValueFactory().createIRI("http://orcid.org/");
+		AUTH_ID_IRI = ORAdapter.getValueFactory().createIRI("http://rmap-project.org/identities/rmaptestauthid");
+		NAME = ORAdapter.getValueFactory().createLiteral("RMap test Agent");		
 		requestAgent = new RMapRequestAgent(new URI(AGENT_IRI.stringValue()));
 	}
 

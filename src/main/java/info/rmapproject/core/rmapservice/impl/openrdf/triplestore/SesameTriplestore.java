@@ -216,7 +216,7 @@ public abstract class SesameTriplestore  {
 
 	protected abstract Repository intitializeRepository() throws RepositoryException;
 	
-	public ValueFactory getValueFactory() throws RepositoryException{
+	private ValueFactory getValueFactory() throws RepositoryException{
 		if (valueFactory==null){
 			if (repository==null){
 				this.intitializeRepository();

@@ -109,7 +109,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 		RMapIri rid = null;
 		if (this.derivationStatement!= null){
 			IRI iri = (IRI) this.derivationStatement.getObject();
-			rid = typeAdapter.openRdfIri2RMapIri(iri);
+			rid = ORAdapter.openRdfIri2RMapIri(iri);
 		}
 		return rid;
 	}
@@ -123,7 +123,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	
 	@Override
 	public void setDerivedObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
-		IRI derivedIRI = typeAdapter.rMapIri2OpenRdfIri(iri);
+		IRI derivedIRI = ORAdapter.rMapIri2OpenRdfIri(iri);
 		this.setDerivationStmt(derivedIRI);
 	}
 	/**
@@ -133,7 +133,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	 */
 	protected void setDerivationStmt(IRI derivedObject) throws RMapException {
 		if (derivedObject != null){
-			Statement stmt = typeAdapter.getValueFactory().createStatement(this.context, 
+			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
 					RMAP.DERIVEDOBJECT,
 					derivedObject, this.context);
 			this.derivationStatement = stmt;
@@ -145,7 +145,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 		RMapIri rid = null;
 		if (this.sourceObjectStatement != null){
 			IRI iri = (IRI) this.sourceObjectStatement.getObject();
-			rid = typeAdapter.openRdfIri2RMapIri(iri);
+			rid = ORAdapter.openRdfIri2RMapIri(iri);
 		}
 		return rid;
 	}
@@ -156,7 +156,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	 */
 	protected void setSourceObjectStmt (IRI sourceObject) throws RMapException {
 		if (sourceObject != null){
-			Statement stmt = typeAdapter.getValueFactory().createStatement(this.context, 
+			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
 					RMAP.HASSOURCEOBJECT,
 					sourceObject, this.context);
 			this.sourceObjectStatement = stmt;
@@ -165,7 +165,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 
 	@Override
 	public void setSourceObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
-		IRI sourceIRI = typeAdapter.rMapIri2OpenRdfIri(iri);
+		IRI sourceIRI = ORAdapter.rMapIri2OpenRdfIri(iri);
 		this.setSourceObjectStmt(sourceIRI);
 	}
 

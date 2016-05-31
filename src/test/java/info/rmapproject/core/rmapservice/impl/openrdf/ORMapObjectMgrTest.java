@@ -62,9 +62,7 @@ public class ORMapObjectMgrTest {
 	
 	@Autowired 
 	ORMapDiSCOMgr discomgr;
-	
-	private ORAdapter typeAdapter;
-	
+		
 	private IRI AGENT_IRI = null; 
 	private IRI ID_PROVIDER_IRI = null;
 	private IRI AUTH_ID_IRI = null;
@@ -78,12 +76,11 @@ public class ORMapObjectMgrTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		typeAdapter = new ORAdapter(triplestore);
 		//these will be used for a test agent.
-		this.AGENT_IRI = typeAdapter.getValueFactory().createIRI("ark:/22573/rmaptestagent");
-		this.ID_PROVIDER_IRI = typeAdapter.getValueFactory().createIRI("http://orcid.org/");
-		this.AUTH_ID_IRI = typeAdapter.getValueFactory().createIRI("http://rmap-project.org/identities/rmaptestauthid");
-		this.NAME = typeAdapter.getValueFactory().createLiteral("RMap test Agent");	
+		this.AGENT_IRI = ORAdapter.getValueFactory().createIRI("ark:/22573/rmaptestagent");
+		this.ID_PROVIDER_IRI = ORAdapter.getValueFactory().createIRI("http://orcid.org/");
+		this.AUTH_ID_IRI = ORAdapter.getValueFactory().createIRI("http://rmap-project.org/identities/rmaptestauthid");
+		this.NAME = ORAdapter.getValueFactory().createLiteral("RMap test Agent");	
 		requestAgent = new RMapRequestAgent(new URI(AGENT_IRI.stringValue()));
 	}
 
@@ -98,7 +95,7 @@ public class ORMapObjectMgrTest {
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}
-		IRI subject = typeAdapter.uri2OpenRdfIri(id1);
+		IRI subject = ORAdapter.uri2OpenRdfIri(id1);
 		IRI predicate = RDF.TYPE;
 		IRI object = RMAP.DISCO;
 //		ORMapStatementMgr mgr = new ORMapStatementMgr();
@@ -107,7 +104,7 @@ public class ORMapObjectMgrTest {
 		IRI context = subject;
 
 		try {
-			Statement stmt = triplestore.getValueFactory().createStatement(subject, predicate, object,context);
+			Statement stmt = ORAdapter.getValueFactory().createStatement(subject, predicate, object,context);
 			discomgr.createTriple(triplestore, stmt);
 			Statement gStmt = null;
 			gStmt = triplestore.getStatement(subject, predicate, object, context);
@@ -133,12 +130,12 @@ public class ORMapObjectMgrTest {
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}
-		IRI subject = typeAdapter.uri2OpenRdfIri(id1);
+		IRI subject = ORAdapter.uri2OpenRdfIri(id1);
 		IRI predicate = RDF.TYPE;
 		Value object = RMAP.DISCO;
 		Statement stmt = null;
 		try {
-			stmt = triplestore.getValueFactory().createStatement(subject, predicate, object);
+			stmt = ORAdapter.getValueFactory().createStatement(subject, predicate, object);
 			triplestore.addStatement(stmt);
 			Statement stmt2 = triplestore.getStatement(subject, predicate, object);
 			assertNotNull(stmt2);
@@ -167,11 +164,11 @@ public class ORMapObjectMgrTest {
 	public void testIsEventId() throws RMapException, RMapDefectiveArgumentException {
 		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
 		try {
-		    IRI creatorIRI = triplestore.getValueFactory().createIRI("http://orcid.org/0000-0003-2069-1219");
+		    IRI creatorIRI = ORAdapter.getValueFactory().createIRI("http://orcid.org/0000-0003-2069-1219");
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
 			resourceList.add(new java.net.URI
 					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
-			RMapIri associatedAgent = typeAdapter.openRdfIri2RMapIri(creatorIRI);
+			RMapIri associatedAgent = ORAdapter.openRdfIri2RMapIri(creatorIRI);
 			ORMapDiSCO disco = new ORMapDiSCO(associatedAgent, resourceList);
 			// Make list of created objects
 			List<IRI> iris = new ArrayList<IRI>();
@@ -179,7 +176,7 @@ public class ORMapObjectMgrTest {
 			iris.add(discoContext);
 			List<RMapIri> createdObjIds = new ArrayList<RMapIri>();
 			for (IRI iri:iris){
-				createdObjIds.add(typeAdapter.openRdfIri2RMapIri(iri));
+				createdObjIds.add(ORAdapter.openRdfIri2RMapIri(iri));
 			}
 			
 			requestAgent.setAgentKeyId(new java.net.URI("ark:/29297/testkey"));
@@ -210,7 +207,7 @@ public class ORMapObjectMgrTest {
 				System.out.println("Test Agent successfully created!  URI is " + agentId);
 			}	
 			ORMapAgentMgr agentMgr = new ORMapAgentMgr();
-			assertTrue(agentMgr.isAgentId(typeAdapter.uri2OpenRdfIri(agentId), triplestore));
+			assertTrue(agentMgr.isAgentId(ORAdapter.uri2OpenRdfIri(agentId), triplestore));
 			rmapService.closeConnection();
 		} catch (Exception e) {
 			e.printStackTrace();

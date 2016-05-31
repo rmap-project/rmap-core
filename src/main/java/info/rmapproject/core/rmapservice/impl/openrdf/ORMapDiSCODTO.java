@@ -10,7 +10,6 @@ import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.rmapservice.RMapDiSCODTO;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 
 import org.openrdf.model.IRI;
 
@@ -19,9 +18,7 @@ import org.openrdf.model.IRI;
  *
  */
 public class ORMapDiSCODTO implements RMapDiSCODTO {
-	
-	protected ORAdapter typeAdapter;
-	
+		
 	protected ORMapDiSCO disco;
 	protected RMapStatus status;
 	protected IRI previous;
@@ -31,9 +28,8 @@ public class ORMapDiSCODTO implements RMapDiSCODTO {
 	/**
 	 * 
 	 */
-	public ORMapDiSCODTO(SesameTriplestore ts) {
+	public ORMapDiSCODTO() {
 		super();
-		typeAdapter = new ORAdapter(ts);
 	}
 
 	/* (non-Javadoc)
@@ -59,7 +55,7 @@ public class ORMapDiSCODTO implements RMapDiSCODTO {
 	public java.net.URI getPreviousURI() {
 		java.net.URI uri = null;
 		if (this.previous!=null){
-			uri = typeAdapter.openRdfIri2URI(this.previous);
+			uri = ORAdapter.openRdfIri2URI(this.previous);
 		}
 		return uri;
 	}
@@ -71,7 +67,7 @@ public class ORMapDiSCODTO implements RMapDiSCODTO {
 	public java.net.URI getNextURI() {
 		java.net.URI uri = null;
 		if (this.next!=null){
-			uri = typeAdapter.openRdfIri2URI(this.next);
+			uri = ORAdapter.openRdfIri2URI(this.next);
 		}
 		return uri;
 	}
@@ -83,7 +79,7 @@ public class ORMapDiSCODTO implements RMapDiSCODTO {
 	public java.net.URI getLatestURI() {
 		java.net.URI uri = null;
 		if (this.latest!=null){
-			uri = typeAdapter.openRdfIri2URI(this.latest);
+			uri = ORAdapter.openRdfIri2URI(this.latest);
 		}
 		return uri;
 	}

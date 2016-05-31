@@ -89,7 +89,7 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 			iris = new ArrayList<RMapIri>();
 			for (Statement stmt:this.createdObjects){
 				IRI idIRI = (IRI) stmt.getObject();
-				RMapIri rid = typeAdapter.openRdfIri2RMapIri(idIRI);
+				RMapIri rid = ORAdapter.openRdfIri2RMapIri(idIRI);
 				iris.add(rid);
 			}
 		}
@@ -106,8 +106,8 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 		if (createdObjects != null){
 			stmts = new ArrayList<Statement>();
 			for (RMapIri rIri:createdObjects){
-				IRI id = typeAdapter.rMapIri2OpenRdfIri(rIri);
-				Statement stmt = typeAdapter.getValueFactory().createStatement(this.context, PROV.GENERATED, id, this.context);
+				IRI id = ORAdapter.rMapIri2OpenRdfIri(rIri);
+				Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, PROV.GENERATED, id, this.context);
 				stmts.add(stmt);
 			}
 			this.createdObjects = stmts;
@@ -132,7 +132,7 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 		if (createdObjects != null){
 			stmts = new ArrayList<Statement>();
 			for (IRI id:createdObjects){
-				Statement stmt = typeAdapter.getValueFactory().createStatement(this.context, PROV.GENERATED, id, 
+				Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, PROV.GENERATED, id, 
 						this.context);
 				stmts.add(stmt);
 			}

@@ -5,7 +5,6 @@ package info.rmapproject.core.model.request;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.utils.ConfigUtils;
 import info.rmapproject.core.utils.Constants;
 
@@ -34,7 +33,7 @@ public class RMapSearchParams  {
 	 * will filter according to the status of the DiSCO. For example, if you are retrieving a list 
 	 * of triples that reference a resource, you can choose to only include triples from ACTIVE DiSCOs.
 	 */
-	RMapStatus status;
+	RMapStatusFilter status;
 
 	/**
 	 * Where searches involve returning DiSCO lists or the contents of DiSCOs, the SystemAgent list parameter 
@@ -51,11 +50,11 @@ public class RMapSearchParams  {
 	Integer limit;
 	
 	/** 
-	 * The page number will determine how many pages into the result set will be returned.  
+	 * The offset will determine how many records into the result set your query will start.  
 	 * If, for example, your result set has 500 records, and you have a limit of "200", 
-	 * requesting page 2 will return records 201-400. Page 3 will return 401-500.
+	 * requesting offset of 192 will return records 192-391. 
 	 */
-	Integer page;
+	Integer offset;
 	
 	/** 
 	 * Defines ORDER BY instructions.  The default can be set in the rmapcore properties file.
@@ -66,13 +65,13 @@ public class RMapSearchParams  {
 	public RMapSearchParams() {
 	}
 
-	public RMapSearchParams(String from, String until, String status, String systemAgentsCsv, String limit, String page) 
+	public RMapSearchParams(String from, String until, String status, String systemAgentsCsv, String limit, String offset) 
 			throws RMapDefectiveArgumentException {
 		setDateRange(new DateRange(from, until));
 		setStatusCode(status); 
 		setSystemAgents(systemAgentsCsv);	
 		setLimit(limit);
-		setPage(page);
+		setOffset(offset);
 		}
 	
 	/** 
@@ -117,58 +116,65 @@ public class RMapSearchParams  {
 		setLimit(iLimit);
 	}	
 
-	public void setPage(Integer page) throws RMapException {
-		if (page==null) {
-			this.page=null;
-		} else if (page > 0) {
-			this.page = page;
+	public void setOffset(Integer offset) throws RMapException {
+		if (offset==null) {
+			this.offset=null;
+		} else if (offset >= 0) {
+			this.offset = offset;
 		} else {
-			throw new RMapException ("Page number must be greater than 0");
+			throw new RMapException ("Offset number must be 0 or greater");
 		}
 	}
 	
-	public void setPage(String sPage) throws RMapDefectiveArgumentException {
-		Integer iPage = null;
-		if (sPage != null && sPage.length()>0) {
+	public void setOffset(String sOffset) throws RMapDefectiveArgumentException {
+		Integer iOffset = null;
+		if (sOffset != null && sOffset.length()>0) {
 			try{
-				sPage=sPage.trim();
-				iPage = Integer.parseInt(sPage);
+				sOffset=sOffset.trim();
+				iOffset = Integer.parseInt(sOffset);
 			}
 			catch (Exception ex) {
-				throw new RMapDefectiveArgumentException ("The page number provided is not a valid integer.", ex);
+				throw new RMapDefectiveArgumentException ("The offset provided is not a valid integer.", ex);
 			}
 		}
-		this.setPage(iPage);
+		this.setOffset(iOffset);
 	}
-
-	public Integer getPage() {
-		if (this.page!=null && this.page>0){
-			return this.page;			
+	
+	/**
+	 * For convenience when using pagination, this sets the offset based on 
+	 * the current limit given a page number. If limit is changed after using this
+	 * it will not automatically be reflected in offset.
+	 * @param page
+	 */
+	public void setOffsetByPage(String page) throws RMapDefectiveArgumentException {
+		Integer iPage = null;
+		if (page != null && page.length()>0) {
+			try{
+				page=page.trim();
+				iPage = Integer.parseInt(page);
+			}
+			catch (Exception ex) {
+				throw new RMapDefectiveArgumentException ("The page provided is not a valid integer.", ex);
+			}
+		}
+		Integer limit = this.getLimit();
+		if (iPage>1) {
+			this.setOffset((iPage-1)*limit);
 		}
 		else {
-			return 1;
+			this.setOffset(0);
 		}
 	}
 
-
-
-	/**
-	 * Calculates the offset based on the limit and page number
-	 * @return
-	 */
 	public Integer getOffset() {
-		//page=1, offset=0
-		//page=2, offset=limit
-		//page=3, offset=limit*2
-		Integer page = getPage();
-		Integer limit = getLimit();
-		if (page!=null && page>0){
-			return (page-1)*limit;
+		if (this.offset!=null && this.offset>=0){
+			return this.offset;			
 		}
 		else {
 			return 0;
 		}
 	}
+
 
 	public DateRange getDateRange() {
 		return dateRange;
@@ -182,7 +188,7 @@ public class RMapSearchParams  {
 		this.dateRange = new DateRange(from, until);
 	}	
 
-	public RMapStatus getStatusCode() throws RMapException {
+	public RMapStatusFilter getStatusCode() throws RMapException {
 		if (this.status!=null){
 			return this.status;
 		}
@@ -191,14 +197,14 @@ public class RMapSearchParams  {
 		}
 	}
 
-	public void setStatusCode(RMapStatus status) {
+	public void setStatusCode(RMapStatusFilter status) {
 		this.status = status;
 	}
 
 	public void setStatusCode(String sStatus) {
-		RMapStatus status = null;
+		RMapStatusFilter status = null;
 		if (sStatus!=null){
-			status = RMapStatus.getStatusFromTerm(sStatus);
+			status = RMapStatusFilter.getStatusFromTerm(sStatus);
 		}
 		this.setStatusCode(status);		
 	}
@@ -277,13 +283,13 @@ public class RMapSearchParams  {
 		return limit;	
 	}
 
-	public RMapStatus getDefaultStatusCode() throws RMapException {
+	public RMapStatusFilter getDefaultStatusCode() throws RMapException {
 		try {
 			String defaultStatus = ConfigUtils.getPropertyValue(Constants.RMAPCORE_PROPFILE, Constants.DEFAULT_STATUS_FILTER_KEY);
 			if (defaultStatus==null){
 				throw new RMapException("Default Status Code property is incorrectly configured");			
 			}		
-			return RMapStatus.getStatusFromTerm(defaultStatus);		
+			return RMapStatusFilter.getStatusFromTerm(defaultStatus);		
 		} catch (Exception ex){
 			throw new RMapException("Default Status Code property is incorrectly configured", ex);
 		}

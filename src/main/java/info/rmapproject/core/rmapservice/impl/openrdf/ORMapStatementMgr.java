@@ -132,9 +132,8 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 		if (object==null){
 			throw new RMapDefectiveArgumentException ("Null value provided for the object parameter");
 		}
-		ORAdapter adapter = new ORAdapter(ts);
-
-		Set<org.openrdf.model.IRI> systemAgents = adapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
+		
+		Set<IRI> systemAgents = ORAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
 		
 		List<IRI> rmapObjIds = new ArrayList<IRI>();
 		String sSubject = SesameSparqlUtils.convertIriToSparqlParam(subject);

@@ -8,7 +8,6 @@ import static org.junit.Assert.fail;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.idservice.IdService;
 import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
@@ -17,6 +16,7 @@ import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
 import info.rmapproject.core.model.request.RMapRequestAgent;
 import info.rmapproject.core.model.request.RMapSearchParams;
+import info.rmapproject.core.model.request.RMapStatusFilter;
 import info.rmapproject.core.rdfhandler.RDFType;
 import info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
@@ -66,9 +66,7 @@ public class ORMapResourceMgrTest {
 	
 	@Autowired 
 	ORMapDiSCOMgr discomgr;
-	
-	ORAdapter typeAdapter;
-	
+		
 	RMapRequestAgent requestAgent;
 	
 	protected String discoRDF = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> "  
@@ -119,11 +117,10 @@ public class ORMapResourceMgrTest {
 	@Before
 	public void setUp() throws Exception {
 		//these will be used for a test agent.
-		typeAdapter = new ORAdapter(triplestore);
-		this.AGENT_IRI = typeAdapter.getValueFactory().createIRI("ark:/22573/rmaptestagent");
-		this.ID_PROVIDER_IRI = typeAdapter.getValueFactory().createIRI("http://orcid.org/");
-		this.AUTH_ID_IRI = typeAdapter.getValueFactory().createIRI("http://rmap-project.org/identities/rmaptestauthid");
-		this.NAME = typeAdapter.getValueFactory().createLiteral("RMap test Agent");	
+		this.AGENT_IRI = ORAdapter.getValueFactory().createIRI("ark:/22573/rmaptestagent");
+		this.ID_PROVIDER_IRI = ORAdapter.getValueFactory().createIRI("http://orcid.org/");
+		this.AUTH_ID_IRI = ORAdapter.getValueFactory().createIRI("http://rmap-project.org/identities/rmaptestauthid");
+		this.NAME = ORAdapter.getValueFactory().createLiteral("RMap test Agent");	
 		this.requestAgent = new RMapRequestAgent(new URI(this.AGENT_IRI.stringValue()));
 		//create new test agent
 		RMapAgent agent = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
@@ -152,7 +149,7 @@ public class ORMapResourceMgrTest {
 			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
 		
 			//get related discos
-			IRI iri = triplestore.getValueFactory().createIRI("http://dx.doi.org/10.1109/ACCESS.2014.2332453");
+			IRI iri = ORAdapter.getValueFactory().createIRI("http://dx.doi.org/10.1109/ACCESS.2014.2332453");
 
 			Set <URI> sysAgents = new HashSet<URI>();
 			sysAgents.add(agentId);
@@ -173,13 +170,13 @@ public class ORMapResourceMgrTest {
 			IRI matchingIri = iter.next();
 			assertTrue(matchingIri.toString().equals(disco.getId().toString()));
 
-			params.setStatusCode(RMapStatus.ACTIVE);
+			params.setStatusCode(RMapStatusFilter.ACTIVE);
 			
 			discomgr.updateDiSCO(matchingIri, null, requestAgent, true, triplestore);
 			discoIris = resourcemgr.getResourceRelatedDiSCOS(iri, params, triplestore);
 			assertTrue(discoIris.size()==0);
 
-			params.setStatusCode(RMapStatus.INACTIVE);
+			params.setStatusCode(RMapStatusFilter.INACTIVE);
 			discoIris = resourcemgr.getResourceRelatedDiSCOS(iri, params, triplestore);
 			assertTrue(discoIris.size()==1);
 			rmapService.deleteDiSCO(disco.getId().getIri(), requestAgent);
@@ -205,7 +202,7 @@ public class ORMapResourceMgrTest {
 			RioRDFHandler handler = new RioRDFHandler();	
 			List<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
-			IRI keyId = typeAdapter.uri2OpenRdfIri(new java.net.URI("ark:/29297/testkey"));
+			IRI keyId = ORAdapter.uri2OpenRdfIri(new java.net.URI("ark:/29297/testkey"));
 			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
 		
 			Set <URI> sysAgents = new HashSet<URI>();
@@ -219,7 +216,7 @@ public class ORMapResourceMgrTest {
 			params.setDateRange(dateFrom, dateTo);
 			params.setSystemAgents(sysAgents);
 		
-			Set <IRI> agentIris = resourcemgr.getResourceAssertingAgents(typeAdapter.uri2OpenRdfIri(disco.getId().getIri()), params, triplestore);
+			Set <IRI> agentIris = resourcemgr.getResourceAssertingAgents(ORAdapter.uri2OpenRdfIri(disco.getId().getIri()), params, triplestore);
 			
 			assertTrue(agentIris.size()==1);
 			
@@ -247,17 +244,19 @@ public class ORMapResourceMgrTest {
 			RioRDFHandler handler = new RioRDFHandler();	
 			List<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
+
+			ORMapDiSCO disco2 = new ORMapDiSCO(stmts);
 			
 			requestAgent.setAgentKeyId(new java.net.URI("ark:/29297/testkey"));
 			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
 			
 			//get related events
 			RMapIri eventId = event.getId();
-			IRI discoId = typeAdapter.rMapIri2OpenRdfIri(disco.getId());
-			RMapEvent updateEvent = discomgr.updateDiSCO(discoId, disco, requestAgent, true, triplestore);
-			IRI updateEventId = typeAdapter.rMapIri2OpenRdfIri(updateEvent.getId());
+			IRI discoId = ORAdapter.rMapIri2OpenRdfIri(disco.getId());
+			RMapEvent updateEvent = discomgr.updateDiSCO(discoId, disco2, requestAgent, false, triplestore);
+			IRI updateEventId = ORAdapter.rMapIri2OpenRdfIri(updateEvent.getId());
 			
-			IRI iri = triplestore.getValueFactory().createIRI("http://dx.doi.org/10.1109/ACCESS.2014.2332453");
+			IRI iri = ORAdapter.getValueFactory().createIRI("http://dx.doi.org/10.1109/ACCESS.2014.2332453");
 			Set <URI> sysAgents = new HashSet<URI>();
 			sysAgents.add(agentId);
 			
@@ -267,7 +266,7 @@ public class ORMapResourceMgrTest {
 		
 			RMapSearchParams params = new RMapSearchParams();
 			params.setDateRange(dateFrom, dateTo);
-			params.setSystemAgents(sysAgents);
+			params.setStatusCode(RMapStatusFilter.ALL);
 			
 			Set <IRI> eventIris = resourcemgr.getResourceRelatedEvents(iri, params, triplestore);
 			
@@ -305,7 +304,7 @@ public class ORMapResourceMgrTest {
 			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
 		
 			//get related triples			
-			IRI iri = triplestore.getValueFactory().createIRI("http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip");
+			IRI iri = ORAdapter.getValueFactory().createIRI("http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip");
 			
 			Set <URI> sysAgents = new HashSet<URI>();
 			sysAgents.add(agentId);
@@ -348,11 +347,11 @@ public class ORMapResourceMgrTest {
 		try {		
 
 			java.net.URI context = rmapIdService.createId();
-			IRI resource01 = typeAdapter.uri2OpenRdfIri(context);
+			IRI resource01 = ORAdapter.uri2OpenRdfIri(context);
 			context = rmapIdService.createId();
-			IRI resource02 = triplestore.getValueFactory().createIRI("http://dx.doi.org/10.1109/ACCESS.2014.2332453/ORMapResourceMgrTest");
+			IRI resource02 = ORAdapter.getValueFactory().createIRI("http://dx.doi.org/10.1109/ACCESS.2014.2332453/ORMapResourceMgrTest");
 			
-			Statement s1 = triplestore.getValueFactory().createStatement(resource01, RDF.TYPE, RMAP.DISCO, resource01);
+			Statement s1 = ORAdapter.getValueFactory().createStatement(resource01, RDF.TYPE, RMAP.DISCO, resource01);
 			triplestore.addStatement(s1);
 			Set<IRI> iris = resourcemgr.getResourceRdfTypes(resource01, resource01, triplestore);
 			assertNotNull(iris);
@@ -395,20 +394,20 @@ public class ORMapResourceMgrTest {
 			ORMapEvent event2 = discomgr.createDiSCO(disco2, requestAgent, triplestore);
 		
 			RMapSearchParams params = new RMapSearchParams();
-			params.setStatusCode(RMapStatus.ACTIVE);
+			params.setStatusCode(RMapStatusFilter.ACTIVE);
 			
 			URI uri = new URI("http://dx.doi.org/10.1109/ACCESS.2014.2332453");
 			
-			Map<IRI, Set<IRI>> map = resourcemgr.getResourceRdfTypesAllContexts(typeAdapter.uri2OpenRdfIri(uri), params, triplestore);
+			Map<IRI, Set<IRI>> map = resourcemgr.getResourceRdfTypesAllContexts(ORAdapter.uri2OpenRdfIri(uri), params, triplestore);
 			assertNotNull(map);
 			assertEquals(2,map.keySet().size());
-			IRI discoid1 = triplestore.getValueFactory().createIRI(disco.getId().getStringValue());
-			IRI discoid2 = triplestore.getValueFactory().createIRI(disco2.getId().getStringValue());
+			IRI discoid1 = ORAdapter.getValueFactory().createIRI(disco.getId().getStringValue());
+			IRI discoid2 = ORAdapter.getValueFactory().createIRI(disco2.getId().getStringValue());
 			assertTrue(map.containsKey(discoid1));
 			assertTrue(map.containsKey(discoid2));
 			Set<IRI> values = map.get(discoid1);
 			assertEquals(1, values.size());
-			IRI fabioJournalType = triplestore.getValueFactory().createIRI("http://purl.org/spar/fabio/JournalArticle");
+			IRI fabioJournalType = ORAdapter.getValueFactory().createIRI("http://purl.org/spar/fabio/JournalArticle");
 			assertTrue(values.contains(fabioJournalType));
 			
 			Set<IRI> values2 = map.get(discoid2);

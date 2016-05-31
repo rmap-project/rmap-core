@@ -119,8 +119,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			throw new RMapDefectiveArgumentException ("Null value provided for the Resource IRI");
 		}
 		
-		ORAdapter typeAdapter = new ORAdapter(ts);
-		Set<org.openrdf.model.IRI> systemAgents = typeAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
+		Set<org.openrdf.model.IRI> systemAgents = ORAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
 	
 		Set<IRI> rmapObjectIds = new HashSet<IRI>();
 		String sResource = SesameSparqlUtils.convertIriToSparqlParam(resource);
@@ -196,11 +195,9 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			throw new RMapDefectiveArgumentException ("null IRI");
 		}
 		Set<IRI> events = new HashSet<IRI>();
-		
-		ORAdapter typeAdapter = new ORAdapter(ts);
 		String sResource = SesameSparqlUtils.convertIriToSparqlParam(resource);
 		
-		Set<org.openrdf.model.IRI> systemAgents = typeAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
+		Set<org.openrdf.model.IRI> systemAgents = ORAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
 		String sysAgentSparql = SesameSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
 		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
 		String limitOffsetSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimit(), params.getOffset());
@@ -292,8 +289,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		}
 		Set<Statement> relatedStmts = new HashSet<Statement>();	
 
-		ORAdapter typeAdapter = new ORAdapter(ts);
-		Set<IRI> systemAgents = typeAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
+		Set<IRI> systemAgents = ORAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
 		String sResource = SesameSparqlUtils.convertIriToSparqlParam(resource);
 		String sysAgentSparql = SesameSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
 		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
@@ -385,7 +381,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 					obj = objBinding.getValue();
 				}				
 
-				Statement stmt = ts.getValueFactory().createStatement(subj, pred, obj);	
+				Statement stmt = ORAdapter.getValueFactory().createStatement(subj, pred, obj);	
 				relatedStmts.add(stmt);
 			}
 		}	
@@ -475,9 +471,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			LIMIT 30 OFFSET 0
 		 */
 
-		
-		ORAdapter typeAdapter = new ORAdapter(ts);
-		Set<org.openrdf.model.IRI> systemAgents = typeAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
+		Set<org.openrdf.model.IRI> systemAgents = ORAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
 		String sResourceIri = SesameSparqlUtils.convertIriToSparqlParam(resourceIri);
 		String sysAgentSparql = SesameSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
 		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");

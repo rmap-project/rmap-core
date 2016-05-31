@@ -56,9 +56,7 @@ public class ORMapDiSCOMgrTest  {
 	
 	@Autowired 
 	ORMapDiSCOMgr discomgr;
-	
-	ORAdapter typeAdapter;
-	
+		
 	private String description = "This is an example DiSCO aggregating different file formats for an article on IEEE Xplore as well as multimedia content related to the article.";
 	private String discoRDF = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> "  
 			+ "<rdf:RDF "  
@@ -168,17 +166,16 @@ public class ORMapDiSCOMgrTest  {
 	
 	@Before
 	public void setUp() throws Exception {
-		typeAdapter = new ORAdapter(triplestore);
 		//these will be used for a test agent.
-		this.AGENT_IRI = typeAdapter.getValueFactory().createIRI("ark:/22573/rmaptestagent");
-		this.ID_PROVIDER_IRI = typeAdapter.getValueFactory().createIRI("http://orcid.org/");
-		this.AUTH_ID_IRI = typeAdapter.getValueFactory().createIRI("http://rmap-project.org/identities/rmaptestauthid");
-		this.NAME = typeAdapter.getValueFactory().createLiteral("RMap test Agent");	
+		this.AGENT_IRI = ORAdapter.getValueFactory().createIRI("ark:/22573/rmaptestagent");
+		this.ID_PROVIDER_IRI = ORAdapter.getValueFactory().createIRI("http://orcid.org/");
+		this.AUTH_ID_IRI = ORAdapter.getValueFactory().createIRI("http://rmap-project.org/identities/rmaptestauthid");
+		this.NAME = ORAdapter.getValueFactory().createLiteral("RMap test Agent");	
 		
-		this.AGENT_IRI2 = typeAdapter.getValueFactory().createIRI("ark:/22573/rmaptestagent2");
-		this.ID_PROVIDER_IRI2 = typeAdapter.getValueFactory().createIRI("http://orcid.org/");
-		this.AUTH_ID_IRI2 = typeAdapter.getValueFactory().createIRI("http://rmap-project.org/identities/rmaptestauthid2");
-		this.NAME2 = typeAdapter.getValueFactory().createLiteral("RMap test Agent 2");		
+		this.AGENT_IRI2 = ORAdapter.getValueFactory().createIRI("ark:/22573/rmaptestagent2");
+		this.ID_PROVIDER_IRI2 = ORAdapter.getValueFactory().createIRI("http://orcid.org/");
+		this.AUTH_ID_IRI2 = ORAdapter.getValueFactory().createIRI("http://rmap-project.org/identities/rmaptestauthid2");
+		this.NAME2 = ORAdapter.getValueFactory().createLiteral("RMap test Agent 2");		
 		
 		requestAgent = new RMapRequestAgent(new URI(AGENT_IRI.stringValue()));
 		requestAgent2 = new RMapRequestAgent(new URI(AGENT_IRI2.stringValue()));
@@ -220,7 +217,7 @@ public class ORMapDiSCOMgrTest  {
 			discomgr.createDiSCO(disco, requestAgent, triplestore);
 			
 			//read DiSCO back
-			IRI dIri = typeAdapter.rMapIri2OpenRdfIri(idIRI);
+			IRI dIri = ORAdapter.rMapIri2OpenRdfIri(idIRI);
 			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri, true, null, null, triplestore).getDisco();
 			RMapIri idIRI2 = rDisco.getId();
 			assertEquals(idIRI.toString(),idIRI2.toString());
@@ -284,7 +281,7 @@ public class ORMapDiSCOMgrTest  {
 			RMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
 			
 			//read DiSCO back
-			IRI dIri = typeAdapter.rMapIri2OpenRdfIri(idIRI);
+			IRI dIri = ORAdapter.rMapIri2OpenRdfIri(idIRI);
 			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri, true, null, null, triplestore).getDisco();
 			RMapIri rIdIRI = rDisco.getId();
 			assertEquals(idIRI.toString(),rIdIRI.toString());
@@ -311,7 +308,7 @@ public class ORMapDiSCOMgrTest  {
 			}
 			//now update with different agent using latest id
 			try{
-				IRI dIri2 = typeAdapter.rMapIri2OpenRdfIri(disco2.getId());
+				IRI dIri2 = ORAdapter.rMapIri2OpenRdfIri(disco2.getId());
 				discomgr.updateDiSCO(dIri2, disco3, requestAgent2, false, triplestore);
 			} catch(Exception ex){
 				ex.printStackTrace();

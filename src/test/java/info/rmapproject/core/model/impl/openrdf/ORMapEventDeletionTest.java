@@ -51,9 +51,7 @@ public class ORMapEventDeletionTest {
 
 	@Autowired
 	protected SesameTriplestore triplestore;
-	
-	protected ORAdapter typeAdapter;
-	
+		
 	protected ValueFactory vf = null;
 	
 	/**
@@ -61,8 +59,7 @@ public class ORMapEventDeletionTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		typeAdapter = new ORAdapter(triplestore);
-		vf = typeAdapter.getValueFactory();
+		vf = ORAdapter.getValueFactory();
 	}
 	
 	/**
@@ -78,7 +75,7 @@ public class ORMapEventDeletionTest {
 			e.printStackTrace();
 			fail("unable to create id");
 		} 
-		IRI context = typeAdapter.uri2OpenRdfIri(id1);
+		IRI context = ORAdapter.uri2OpenRdfIri(id1);
 		
 		Date start = new Date();
 		String startTime = DateUtils.getIsoStringDate(start);
@@ -104,7 +101,7 @@ public class ORMapEventDeletionTest {
 		Statement typeStatement = vf.createStatement(context, RDF.TYPE, RMAP.EVENT, context);
 		
 		List<Statement> deletedObjects= new ArrayList<Statement>();
-		IRI dId = typeAdapter.uri2OpenRdfIri(id2);
+		IRI dId = ORAdapter.uri2OpenRdfIri(id2);
 		
 		Statement delStmt = vf.createStatement(context, RMAP.DELETEDOBJECT, dId, context);
 		deletedObjects.add(delStmt);
@@ -142,14 +139,14 @@ public class ORMapEventDeletionTest {
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
 			resourceList.add(new java.net.URI
 					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
-			RMapIri associatedAgent = typeAdapter.openRdfIri2RMapIri(creatorIRI);
+			RMapIri associatedAgent = ORAdapter.openRdfIri2RMapIri(creatorIRI);
 			RMapLiteral desc =  new RMapLiteral("this is a deletion event");
 			
 			ORMapDiSCO disco = new ORMapDiSCO(associatedAgent, resourceList);	
 			
 			RMapRequestAgent requestAgent = new RMapRequestAgent(associatedAgent.getIri(), new java.net.URI("ark:/29297/testkey"));
 			ORMapEventDeletion event = new ORMapEventDeletion(requestAgent, RMapEventTargetType.DISCO, desc);
-			RMapIri discoId = typeAdapter.openRdfIri2RMapIri(disco.getDiscoContext());
+			RMapIri discoId = ORAdapter.openRdfIri2RMapIri(disco.getDiscoContext());
 			List<RMapIri>deleted = new ArrayList<RMapIri>();
 			deleted.add(discoId);
 			event.setDeletedObjectIds(deleted);

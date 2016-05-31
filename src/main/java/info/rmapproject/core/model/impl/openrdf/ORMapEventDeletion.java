@@ -90,7 +90,7 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 			iris = new ArrayList<RMapIri>();
 			for (Statement stmt:this.deletedObjects){
 				IRI deletedIri = (IRI) stmt.getObject();
-				iris.add(typeAdapter.openRdfIri2RMapIri(deletedIri));
+				iris.add(ORAdapter.openRdfIri2RMapIri(deletedIri));
 			}
 		}
 		return iris;
@@ -108,8 +108,8 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 		if (deletedObjectIds != null){
 			List<Statement> stmts = new ArrayList<Statement>();
 			for (RMapIri rid:deletedObjectIds){
-				Statement stmt = typeAdapter.getValueFactory().createStatement(this.context, RMAP.DELETEDOBJECT,
-						typeAdapter.rMapIri2OpenRdfIri(rid), this.context);
+				Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP.DELETEDOBJECT,
+						ORAdapter.rMapIri2OpenRdfIri(rid), this.context);
 				stmts.add(stmt);
 			}
 			this.deletedObjects = stmts;

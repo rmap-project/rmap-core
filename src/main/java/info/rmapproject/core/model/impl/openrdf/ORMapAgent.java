@@ -49,9 +49,9 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	public ORMapAgent(RMapIri idProvider, RMapIri authId, RMapValue name) 
 			throws RMapException, RMapDefectiveArgumentException {
 		this();
-		this.setIdProviderStmt(typeAdapter.rMapIri2OpenRdfIri(idProvider));
-		this.setAuthIdStmt(typeAdapter.rMapIri2OpenRdfIri(authId));
-		this.setNameStmt(typeAdapter.rMapValue2OpenRdfValue(name));
+		this.setIdProviderStmt(ORAdapter.rMapIri2OpenRdfIri(idProvider));
+		this.setAuthIdStmt(ORAdapter.rMapIri2OpenRdfIri(authId));
+		this.setNameStmt(ORAdapter.rMapValue2OpenRdfValue(name));
 	}
 	
 	/**
@@ -96,7 +96,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		}	
 		
 		//Checks all URIs can be converted to java.net.URI - makes sure they are cross compatible
-		typeAdapter.checkOpenRdfIri2UriCompatibility(stmts);
+		ORAdapter.checkOpenRdfIri2UriCompatibility(stmts);
 		
 		//check there is a type statement, if so get the incoming ID value from that.
 		boolean typeFound = false;
@@ -183,7 +183,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		if (this.nameStmt!= null){
 			Value value = this.nameStmt.getObject();
 			try {
-				name = typeAdapter.openRdfValue2RMapValue(value);
+				name = ORAdapter.openRdfValue2RMapValue(value);
 			} catch(RMapDefectiveArgumentException e) {
 				throw new RMapException("Could not convert Name value [" + value.stringValue() + "] to RMapValue");
 			}
@@ -205,7 +205,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	protected void setNameStmt (Value name) throws RMapDefectiveArgumentException{
 		if (name == null || name.toString().length()==0)
 			{throw new RMapDefectiveArgumentException("RMapAgent name is null or empty");}
-		Statement stmt = typeAdapter.getValueFactory().createStatement(this.context, 
+		Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
 				FOAF.NAME, name, this.context);
 		this.nameStmt = stmt;
 	}
@@ -218,7 +218,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		RMapIri idProvider = null;
 		if (this.idProviderStmt!= null){
 			IRI value = (IRI)this.idProviderStmt.getObject();
-			idProvider = typeAdapter.openRdfIri2RMapIri(value);
+			idProvider = ORAdapter.openRdfIri2RMapIri(value);
 		}
 		return idProvider;
 	}
@@ -237,7 +237,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		if (idProvider == null || idProvider.toString().length()==0)
 			{throw new RMapDefectiveArgumentException("RMapAgent idProvider is null or empty");}
 		
-		Statement stmt = typeAdapter.getValueFactory().createStatement(this.context, 
+		Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
 				RMAP.IDENTITYPROVIDER, idProvider, this.context);
 		this.idProviderStmt = stmt;
 	}
@@ -250,7 +250,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		RMapIri authIdValue = null;
 		if (this.authIdStmt!= null){
 			IRI value = (IRI)this.authIdStmt.getObject();
-			authIdValue = typeAdapter.openRdfIri2RMapIri(value);
+			authIdValue = ORAdapter.openRdfIri2RMapIri(value);
 		}
 		return authIdValue;
 	}
@@ -269,7 +269,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	protected void setAuthIdStmt (IRI authId) throws RMapDefectiveArgumentException{
 		if (authId == null || authId.toString().length()==0)
 			{throw new RMapDefectiveArgumentException("RMapAgent authId is null or empty");}
-		Statement stmt = typeAdapter.getValueFactory().createStatement(this.context, 
+		Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
 				RMAP.USERAUTHID, authId, this.context);
 		this.authIdStmt = stmt;
 	}

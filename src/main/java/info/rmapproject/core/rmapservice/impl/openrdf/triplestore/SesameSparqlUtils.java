@@ -1,7 +1,7 @@
 package info.rmapproject.core.rmapservice.impl.openrdf.triplestore;
 
-import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.request.DateRange;
+import info.rmapproject.core.model.request.RMapStatusFilter;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
@@ -93,17 +93,19 @@ public class SesameSparqlUtils {
 	 * @param statusCode
 	 * @return
 	 */
-	public static String convertRMapStatusToSparqlFilter(RMapStatus statusCode, String objIdQS) {
+	public static String convertRMapStatusToSparqlFilter(RMapStatusFilter statusCode, String objIdQS) {
 		// should not show TOMBSTONED objects... no need to exclude DELETED as these have no statements.
 		String filterSparql = " FILTER NOT EXISTS {?statusChangeEventId <" + RMAP.TOMBSTONEDOBJECT + "> " + objIdQS + " } . ";
-		if (statusCode != null) {
-			if (statusCode == RMapStatus.ACTIVE)	{
-				filterSparql = filterSparql + " FILTER NOT EXISTS {?statusChangeEventId <" + RMAP.INACTIVATEDOBJECT + "> " + objIdQS + "} .";
-			}
-			else if (statusCode == RMapStatus.INACTIVE)	{
-				filterSparql = filterSparql + " FILTER EXISTS {?statusChangeEventId <" + RMAP.INACTIVATEDOBJECT + "> " + objIdQS + "} . ";
-			}
+		if (statusCode == RMapStatusFilter.ACTIVE)	{
+			filterSparql = filterSparql + " FILTER NOT EXISTS {?statusChangeEventId <" + RMAP.INACTIVATEDOBJECT + "> " + objIdQS + "} .";
 		}
+		else if (statusCode == RMapStatusFilter.INACTIVE)	{
+			filterSparql = filterSparql + " FILTER EXISTS {?statusChangeEventId <" + RMAP.INACTIVATEDOBJECT + "> " + objIdQS + "} . ";
+		}
+		else if (statusCode == null) { //hard code ACTIVE only as a default
+			filterSparql = filterSparql + " FILTER NOT EXISTS {?statusChangeEventId <" + RMAP.INACTIVATEDOBJECT + "> " + objIdQS + "} .";
+		}
+		//otherwise no filter for ACTIVE or INACTIVE as it is ALL
 		return filterSparql;
 	}
 	

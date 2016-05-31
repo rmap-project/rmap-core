@@ -74,7 +74,7 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 	public ORMapEventUpdateWithReplace(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI updateObjectId) 
 				throws RMapException, RMapDefectiveArgumentException {
 		this(associatedAgent, targetType);
-		this.setUpdatedObjectId(typeAdapter.openRdfIri2RMapIri(updateObjectId));
+		this.setUpdatedObjectId(ORAdapter.openRdfIri2RMapIri(updateObjectId));
 	}
 	
 	@Override
@@ -93,7 +93,7 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 		RMapIri updatedObjectIri = null;
 		if (this.updatedObjectIdStmt!= null){
 			IRI iri = (IRI) this.updatedObjectIdStmt.getObject();
-			updatedObjectIri = typeAdapter.openRdfIri2RMapIri(iri);
+			updatedObjectIri = ORAdapter.openRdfIri2RMapIri(iri);
 		}
 		return updatedObjectIri;
 	}
@@ -108,8 +108,8 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 	public void setUpdatedObjectId(RMapIri updatedObjectId) 
 			throws RMapException, RMapDefectiveArgumentException {
 		if (updatedObjectId != null){
-			Statement stmt = typeAdapter.getValueFactory().createStatement(this.context, RMAP.UPDATEDOBJECT,
-					typeAdapter.rMapIri2OpenRdfIri(updatedObjectId), this.context);
+			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP.UPDATEDOBJECT,
+					ORAdapter.rMapIri2OpenRdfIri(updatedObjectId), this.context);
 			this.updatedObjectIdStmt = stmt;
 		}
 	}

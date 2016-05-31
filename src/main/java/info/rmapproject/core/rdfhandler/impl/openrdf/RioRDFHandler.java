@@ -17,7 +17,6 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rdfhandler.RDFType;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -35,21 +34,10 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
-import org.springframework.beans.factory.annotation.Autowired;
 
 
 public class RioRDFHandler implements RDFHandler {
-	
-	SesameTriplestore triplestore;
-	ORAdapter typeAdapter;
-
-	@Autowired
-	private void setSesameTriplestore(SesameTriplestore triplestore){
-		this.triplestore = triplestore;
-		this.typeAdapter = new ORAdapter(triplestore);
-	}
-	
-	
+		
 	public RioRDFHandler() {}
 	/**
 	 * Convert Model of RMap object to an OutputStream of RDF
@@ -137,9 +125,9 @@ public class RioRDFHandler implements RDFHandler {
 		Model model = new LinkedHashModel();		
 		
 		for (RMapTriple triple:triples){
-			model.add(typeAdapter.rMapNonLiteral2OpenRdfResource(triple.getSubject()), 
-						typeAdapter.rMapIri2OpenRdfIri(triple.getPredicate()), 
-						typeAdapter.rMapValue2OpenRdfValue(triple.getObject()));
+			model.add(ORAdapter.rMapNonLiteral2OpenRdfResource(triple.getSubject()), 
+						ORAdapter.rMapIri2OpenRdfIri(triple.getPredicate()), 
+						ORAdapter.rMapValue2OpenRdfValue(triple.getObject()));
 		}
 		OutputStream rdf = this.convertStmtListToRDF(model, rdfFormat);
 		return rdf;

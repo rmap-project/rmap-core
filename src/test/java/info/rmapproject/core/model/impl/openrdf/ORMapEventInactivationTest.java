@@ -51,8 +51,6 @@ public class ORMapEventInactivationTest {
 	@Autowired
 	private IdService rmapIdService;
 	
-	ORAdapter typeAdapter;
-	
 	private ValueFactory vf;
 	
 	/**
@@ -60,8 +58,7 @@ public class ORMapEventInactivationTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		typeAdapter = new ORAdapter(triplestore);
-		vf = typeAdapter.getValueFactory();
+		vf = ORAdapter.getValueFactory();
 	}
 
 
@@ -87,7 +84,7 @@ public class ORMapEventInactivationTest {
 		// create new disco
 		IRI creatorIRI = vf.createIRI("http://orcid.org/0000-0000-0000-0000");
 		
-		IRI context = typeAdapter.uri2OpenRdfIri(id1);
+		IRI context = ORAdapter.uri2OpenRdfIri(id1);
 		
 		Date start = new Date();
 		String startTime = DateUtils.getIsoStringDate(start);
@@ -107,7 +104,7 @@ public class ORMapEventInactivationTest {
 		
 		Statement typeStatement = vf.createStatement(context, RDF.TYPE, RMAP.EVENT, context);
 		
-		IRI oldDiscoId = typeAdapter.uri2OpenRdfIri(id2);
+		IRI oldDiscoId = ORAdapter.uri2OpenRdfIri(id2);
 		Statement sourceObjectStatement = vf.createStatement(context, RMAP.INACTIVATEDOBJECT, oldDiscoId, context);
 		
 		
@@ -116,7 +113,7 @@ public class ORMapEventInactivationTest {
 		Literal litEnd = vf.createLiteral(endTime);
 		Statement endTimeStmt = vf.createStatement(context, PROV.ENDEDATTIME, litEnd, context);
 		
-		IRI associatedKey = typeAdapter.uri2OpenRdfIri(new java.net.URI("ark:/29297/testkey"));
+		IRI associatedKey = ORAdapter.uri2OpenRdfIri(new java.net.URI("ark:/29297/testkey"));
 		Statement associatedKeyStmt = vf.createStatement(context, PROV.USED, associatedKey, context);	
 		
 		ORMapEventInactivation event = new ORMapEventInactivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
@@ -129,7 +126,7 @@ public class ORMapEventInactivationTest {
 		assertEquals(RMAP.EVENT.toString(), tStmt.getObject().toString());
 		Model eventModel = event.getAsModel();
 		assertEquals(9, eventModel.size());
-		assertEquals(oldDiscoId,typeAdapter.rMapIri2OpenRdfIri(event.getInactivatedObjectId()));		
+		assertEquals(oldDiscoId,ORAdapter.rMapIri2OpenRdfIri(event.getInactivatedObjectId()));		
 		assertEquals(desc.stringValue(), event.getDescription().getStringValue());
 
 		try{
@@ -170,7 +167,7 @@ public class ORMapEventInactivationTest {
 			e.printStackTrace();
 			fail("unable to create id");
 		} 
-		IRI inactivatedObject = typeAdapter.uri2OpenRdfIri(id1);
+		IRI inactivatedObject = ORAdapter.uri2OpenRdfIri(id1);
 		event.setInactivatedObjectStmt(inactivatedObject);
 		model = event.getAsModel();
 		assertEquals(8,model.size());

@@ -159,9 +159,8 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			throw new RMapException ("null triplestore");
 		}
 				
-		ORAdapter typeAdapter = new ORAdapter(ts);
-		IRI newAgentId = typeAdapter.rMapIri2OpenRdfIri(agent.getId());
-		IRI requestAgentId = typeAdapter.uri2OpenRdfIri(requestAgent.getSystemAgent());
+		IRI newAgentId = ORAdapter.rMapIri2OpenRdfIri(agent.getId());
+		IRI requestAgentId = ORAdapter.uri2OpenRdfIri(requestAgent.getSystemAgent());
 
 		if (!newAgentId.equals(requestAgentId)){
 			// Usually agents create themselves, where this isn't the case we need to check the creating agent exists already
@@ -227,8 +226,8 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		if (ts==null){
 			throw new RMapException ("null triplestore");
 		}
-		ORAdapter typeAdapter = new ORAdapter(ts);
-		IRI agentId = typeAdapter.rMapIri2OpenRdfIri(updatedAgent.getId());
+
+		IRI agentId = ORAdapter.rMapIri2OpenRdfIri(updatedAgent.getId());
 				
 		//check Agent Id exists
 		if (!this.isAgentId(agentId, ts)){
@@ -264,13 +263,13 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		
 		//Remove elements of original agent and replace them with new elements
 		try {
-			Value origName = typeAdapter.rMapValue2OpenRdfValue(origAgent.getName());
-			IRI origIdProvider = typeAdapter.rMapIri2OpenRdfIri(origAgent.getIdProvider());
-			IRI origAuthId = typeAdapter.rMapIri2OpenRdfIri(origAgent.getAuthId());
+			Value origName = ORAdapter.rMapValue2OpenRdfValue(origAgent.getName());
+			IRI origIdProvider = ORAdapter.rMapIri2OpenRdfIri(origAgent.getIdProvider());
+			IRI origAuthId = ORAdapter.rMapIri2OpenRdfIri(origAgent.getAuthId());
 			
-			Value newName = typeAdapter.rMapValue2OpenRdfValue(updatedAgent.getName());
-			IRI newIdProvider = typeAdapter.rMapIri2OpenRdfIri(updatedAgent.getIdProvider());
-			IRI newAuthId = typeAdapter.rMapIri2OpenRdfIri(updatedAgent.getAuthId());
+			Value newName = ORAdapter.rMapValue2OpenRdfValue(updatedAgent.getName());
+			IRI newIdProvider = ORAdapter.rMapIri2OpenRdfIri(updatedAgent.getIdProvider());
+			IRI newAuthId = ORAdapter.rMapIri2OpenRdfIri(updatedAgent.getAuthId());
 			
 			//as a precaution take one predicate at a time to make sure we don't delete anything we shouldn't
 			if (!origName.equals(newName)) {
@@ -497,11 +496,10 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			throw new RMapException("A request agent is required, it's value was null");
 		}
 		
-		ORAdapter adapter = new ORAdapter(ts);
 		URI agentUri = requestAgent.getSystemAgent();		
 		IRI agentIri = null;
 		try {
-			agentIri = adapter.uri2OpenRdfIri(agentUri);
+			agentIri = ORAdapter.uri2OpenRdfIri(agentUri);
 		} catch(RMapException ex){
 			throw new RMapException("The requesting agent parameter is invalid. System Agent could not be converted to an IRI.");
 		}

@@ -46,8 +46,6 @@ public class ORMapEventCreationTest {
 	@Autowired
 	private ORMapEventMgr eventmgr;
 	
-	private ORAdapter typeAdapter;
-	
 	protected ValueFactory vf = null;
 	
 	/**
@@ -55,9 +53,7 @@ public class ORMapEventCreationTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		typeAdapter = new ORAdapter(triplestore);
-		vf = typeAdapter.getValueFactory();
-		
+		vf = ORAdapter.getValueFactory();		
 	}
 
 
@@ -72,7 +68,7 @@ public class ORMapEventCreationTest {
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
 			resourceList.add(new java.net.URI
 					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
-			RMapIri associatedAgent = typeAdapter.openRdfIri2RMapIri(creatorIRI);
+			RMapIri associatedAgent = ORAdapter.openRdfIri2RMapIri(creatorIRI);
 			ORMapDiSCO disco = new ORMapDiSCO(associatedAgent, resourceList);
 			// Make list of created objects
 			List<IRI> iris = new ArrayList<IRI>();
@@ -82,7 +78,7 @@ public class ORMapEventCreationTest {
 			assertEquals(4,model.size());
 			List<RMapIri> createdObjIds = new ArrayList<RMapIri>();
 			for (IRI iri:iris){
-				createdObjIds.add(typeAdapter.openRdfIri2RMapIri(iri));
+				createdObjIds.add(ORAdapter.openRdfIri2RMapIri(iri));
 			}
 			RMapRequestAgent requestAgent = new RMapRequestAgent(associatedAgent.getIri());
 			ORMapEventCreation event = new ORMapEventCreation(requestAgent, RMapEventTargetType.DISCO, null, createdObjIds);

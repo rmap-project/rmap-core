@@ -106,13 +106,13 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 		RMapIri rid = null;
 		if (this.inactivatedObjectStatement!= null){
 			IRI iri = (IRI) this.inactivatedObjectStatement.getObject();
-			rid = typeAdapter.openRdfIri2RMapIri(iri);
+			rid = ORAdapter.openRdfIri2RMapIri(iri);
 		}
 		return rid;
 	}
 	@Override
 	public void setInactivatedObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
-		IRI inactiveIri = typeAdapter.rMapIri2OpenRdfIri(iri);
+		IRI inactiveIri = ORAdapter.rMapIri2OpenRdfIri(iri);
 		this.setInactivatedObjectStmt(inactiveIri);
 	}
 	/**
@@ -129,7 +129,7 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	 */
 	protected void setInactivatedObjectStmt(IRI intactivatedObject) {
 		if (intactivatedObject != null){
-			Statement stmt = typeAdapter.getValueFactory().createStatement(this.context, 
+			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
 					RMAP.INACTIVATEDOBJECT,
 					intactivatedObject, this.context);
 			this.inactivatedObjectStatement = stmt;
@@ -143,7 +143,7 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 		RMapIri rid = null;
 		if (this.derivationStatement!= null){
 			IRI iri = (IRI) this.derivationStatement.getObject();
-			rid = typeAdapter.openRdfIri2RMapIri(iri);
+			rid = ORAdapter.openRdfIri2RMapIri(iri);
 		}
 		return rid;
 	}
@@ -157,7 +157,7 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	
 	@Override
 	public void setDerivedObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
-		IRI derivedIRI = typeAdapter.rMapIri2OpenRdfIri(iri);
+		IRI derivedIRI = ORAdapter.rMapIri2OpenRdfIri(iri);
 		this.setDerivationStmt(derivedIRI);
 	}
 	/**
@@ -167,7 +167,7 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	 */
 	protected void setDerivationStmt(IRI derivedObject) throws RMapException {
 		if (derivedObject != null){
-			Statement stmt = typeAdapter.getValueFactory().createStatement(this.context, 
+			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
 					RMAP.DERIVEDOBJECT,
 					derivedObject, this.context);
 			this.derivationStatement = stmt;

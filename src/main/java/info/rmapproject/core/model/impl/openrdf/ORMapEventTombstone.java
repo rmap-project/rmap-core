@@ -68,7 +68,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 		RMapIri iri = null;
 		if (this.tombstoned!= null){
 			IRI tIri = (IRI) this.tombstoned.getObject();
-			iri = typeAdapter.openRdfIri2RMapIri(tIri);
+			iri = ORAdapter.openRdfIri2RMapIri(tIri);
 		}
 		return iri;
 	}
@@ -86,7 +86,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	 */
 	private void setTombstonedResourceIdStmt(IRI tombstonedResource) throws RMapException {
 		if (tombstonedResource != null){
-			Statement stmt = typeAdapter.getValueFactory().createStatement(this.context, RMAP.TOMBSTONEDOBJECT,
+			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP.TOMBSTONEDOBJECT,
 					tombstonedResource, this.context);
 			this.tombstoned = stmt;
 		}

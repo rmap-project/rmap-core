@@ -52,8 +52,6 @@ public class ORMapEventDerivationTest {
 	@Autowired
 	SesameTriplestore triplestore;
 	
-	ORAdapter typeAdapter;
-	
 	@Autowired
 	private IdService rmapIdService;
 	
@@ -63,8 +61,7 @@ public class ORMapEventDerivationTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		typeAdapter = new ORAdapter(triplestore);
-		vf = typeAdapter.getValueFactory();
+		vf = ORAdapter.getValueFactory();
 	}
 
 
@@ -85,7 +82,7 @@ public class ORMapEventDerivationTest {
 			e.printStackTrace();
 			fail("unable to create id");
 		} 
-		IRI sourceObject = typeAdapter.uri2OpenRdfIri(id1);
+		IRI sourceObject = ORAdapter.uri2OpenRdfIri(id1);
 		
 		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
 		try {
@@ -96,7 +93,7 @@ public class ORMapEventDerivationTest {
 			e.printStackTrace();
 			fail("unable to create resources");
 		}	
-		ORMapDiSCO newDisco = new ORMapDiSCO(typeAdapter.openRdfIri2RMapIri(associatedAgent), resourceList);
+		ORMapDiSCO newDisco = new ORMapDiSCO(ORAdapter.openRdfIri2RMapIri(associatedAgent), resourceList);
 		IRI derivedObject = newDisco.getDiscoContext();
 
 		RMapRequestAgent requestAgent = new RMapRequestAgent(new URI(associatedAgent.stringValue()), new URI("ark:/29297/testkey"));
@@ -149,7 +146,7 @@ public class ORMapEventDerivationTest {
 			e.printStackTrace();
 			fail("unable to create resources");
 		}	
-		RMapIri associatedAgent = typeAdapter.openRdfIri2RMapIri(creatorIRI);
+		RMapIri associatedAgent = ORAdapter.openRdfIri2RMapIri(creatorIRI);
 		ORMapDiSCO newDisco = new ORMapDiSCO(associatedAgent, resourceList);
 		// Make list of created objects
 		List<IRI> iris = new ArrayList<IRI>();
@@ -157,7 +154,7 @@ public class ORMapEventDerivationTest {
 		iris.add(newDiscoContext);
 		Model model = newDisco.getAsModel();
 		assertEquals(4,model.size());
-		IRI context = typeAdapter.uri2OpenRdfIri(id1);		
+		IRI context = ORAdapter.uri2OpenRdfIri(id1);		
 		Date start = new Date();
 		String startTime = DateUtils.getIsoStringDate(start);
 		
@@ -181,12 +178,12 @@ public class ORMapEventDerivationTest {
 		Literal desc = vf.createLiteral("This is a delete event");
 		Statement descriptionStmt = vf.createStatement(context, DC.DESCRIPTION, desc, context);	
 
-		IRI associatedKey = typeAdapter.uri2OpenRdfIri(new java.net.URI("ark:/29297/testkey"));
+		IRI associatedKey = ORAdapter.uri2OpenRdfIri(new java.net.URI("ark:/29297/testkey"));
 		Statement associatedKeyStmt = vf.createStatement(context, PROV.USED, associatedKey, context);			
 		
 		Statement typeStatement = vf.createStatement(context, RDF.TYPE, RMAP.EVENT, context);
 		
-		IRI oldDiscoId = typeAdapter.uri2OpenRdfIri(id2);
+		IRI oldDiscoId = ORAdapter.uri2OpenRdfIri(id2);
 		Statement sourceObjectStatement = vf.createStatement(context, RMAP.HASSOURCEOBJECT, oldDiscoId, context);
 		
 		Statement derivationStatement = vf.createStatement(context, RMAP.DERIVEDOBJECT, newDiscoContext,
@@ -208,8 +205,8 @@ public class ORMapEventDerivationTest {
 		assertEquals(RMAP.EVENT.toString(), tStmt.getObject().toString());
 		Model eventModel = event.getAsModel();
 		assertEquals(11, eventModel.size());
-		assertEquals(oldDiscoId,typeAdapter.rMapIri2OpenRdfIri(event.getSourceObjectId()));
-		assertEquals(newDiscoContext,typeAdapter.rMapIri2OpenRdfIri(event.getDerivedObjectId()));		
+		assertEquals(oldDiscoId,ORAdapter.rMapIri2OpenRdfIri(event.getSourceObjectId()));
+		assertEquals(newDiscoContext,ORAdapter.rMapIri2OpenRdfIri(event.getDerivedObjectId()));		
 		assertEquals(desc.stringValue(), event.getDescription().getStringValue());
 		
 		try{

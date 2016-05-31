@@ -90,7 +90,7 @@ public class ORMapEventInactivation extends ORMapEvent implements
 		RMapIri rid = null;
 		if (this.inactivatedObjectStatement!= null){
 			IRI iri = (IRI) this.inactivatedObjectStatement.getObject();
-			rid = typeAdapter.openRdfIri2RMapIri(iri);
+			rid = ORAdapter.openRdfIri2RMapIri(iri);
 		}
 		return rid;
 	}
@@ -100,7 +100,7 @@ public class ORMapEventInactivation extends ORMapEvent implements
 	 */
 	protected void setInactivatedObjectStmt(IRI inactivatedObject) {
 		if (inactivatedObject != null){
-			Statement stmt = typeAdapter.getValueFactory().createStatement(this.context, 
+			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
 					RMAP.INACTIVATEDOBJECT,
 					inactivatedObject, this.context);
 			this.inactivatedObjectStatement = stmt;
@@ -109,7 +109,7 @@ public class ORMapEventInactivation extends ORMapEvent implements
 
 	@Override
 	public void setInactivatedObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
-		IRI inactiveIri = typeAdapter.rMapIri2OpenRdfIri(iri);
+		IRI inactiveIri = ORAdapter.rMapIri2OpenRdfIri(iri);
 		this.setInactivatedObjectStmt(inactiveIri);
 	}
 	
