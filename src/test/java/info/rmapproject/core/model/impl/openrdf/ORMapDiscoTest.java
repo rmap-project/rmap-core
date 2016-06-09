@@ -221,7 +221,7 @@ public class ORMapDiscoTest {
 	public void testORMapDisco() throws RMapException, RMapDefectiveArgumentException {
 		InputStream stream = new ByteArrayInputStream(discoRDF.getBytes(StandardCharsets.UTF_8));
 		RioRDFHandler handler = new RioRDFHandler();	
-		List <Statement> stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
+		Set <Statement> stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 		ORMapDiSCO disco = new ORMapDiSCO(stmts);
 		assertEquals(14, disco.getRelatedStatementsAsList().size());
 		OutputStream os = handler.disco2Rdf(disco, RDFType.RDFXML);

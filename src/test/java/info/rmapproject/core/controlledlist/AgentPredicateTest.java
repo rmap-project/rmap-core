@@ -3,14 +3,10 @@
  */
 package info.rmapproject.core.controlledlist;
 
-import static org.junit.Assert.assertTrue;
-import info.rmapproject.core.model.impl.openrdf.ORAdapter;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openrdf.model.IRI;
 import org.openrdf.model.vocabulary.DC;
@@ -44,17 +40,17 @@ public class AgentPredicateTest {
 		agentRelations.add(DCTERMS.AGENT);
 	}
 
-	/**
-	 * Test method for {@link info.rmapproject.core.controlledlist.AgentPredicate#isAgentPredicate(java.net.IRI)}.
-	 */
-	@Test
-	public void testIsAgentPredicate() {
-		//TODO: Not currently working because not used or configured - may use code for identifying types later, 
-		//for now leave this here.
-		for (IRI agent:agentRelations){
-			java.net.URI uri = ORAdapter.openRdfIri2URI(agent);
-			assertTrue(AgentPredicate.isAgentPredicate(uri));
-		}
-	}
+//	/**
+//	 * Test method for {@link info.rmapproject.core.controlledlist.AgentPredicate#isAgentPredicate(java.net.IRI)}.
+//	 */
+//	@Test
+//	public void testIsAgentPredicate() {
+//		//TODO: Not currently working because not used or configured - may use code for identifying types later, 
+//		//for now leave this here.
+//		for (IRI agent:agentRelations){
+//			java.net.URI uri = ORAdapter.openRdfIri2URI(agent);
+//			assertTrue(AgentPredicate.isAgentPredicate(uri));
+//		}
+//	}
 
 }

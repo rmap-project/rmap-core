@@ -10,12 +10,14 @@ import java.util.Map;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.http.HTTPRepository;
+import org.springframework.context.annotation.Scope;
 
 /**
  * 
  *  @author khanson, smorrissey
  *
  */
+@Scope("prototype")
 public class SesameHttpTriplestore  extends SesameTriplestore{
 
 	private static final String URL_PROPERTY = "sesamehttp.url";

@@ -8,7 +8,7 @@ import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
-import java.util.List;
+import java.util.Set;
 
 import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
@@ -89,7 +89,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapAgent(List<Statement> stmts)throws RMapException, RMapDefectiveArgumentException {
+	public ORMapAgent(Set<Statement> stmts)throws RMapException, RMapDefectiveArgumentException {
 		//this(); //sets default id and type
 		if (stmts==null){
 			throw new RMapDefectiveArgumentException("Null statement list");

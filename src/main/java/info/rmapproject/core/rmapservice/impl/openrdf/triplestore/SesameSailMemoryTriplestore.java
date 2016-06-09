@@ -14,11 +14,13 @@ import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.memory.MemoryStore;
+import org.springframework.context.annotation.Scope;
 
 /**
  *  @author khansen, smorrissey
  *
  */
+@Scope("prototype")
 public class SesameSailMemoryTriplestore extends SesameTriplestore {
 	
 	private static final String DATA_DIRECTORY_PROPERTY = "sesamesail.dataDirectory";

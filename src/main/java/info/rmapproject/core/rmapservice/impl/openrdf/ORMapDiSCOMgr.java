@@ -50,6 +50,7 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 
 /**
  * Class that creates actual triples for DiSCO, related Events, and
@@ -58,6 +59,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  *  @author khanson, smorrissey
  *
  */
+@Scope("prototype")
 public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	
 	private IdService rmapIdService;
@@ -107,7 +109,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		default:
 			break;		
 		}		
-		List<Statement> discoStmts = null;
+		Set<Statement> discoStmts = null;
 		try {
 			discoStmts = this.getNamedGraph(discoID, ts);		
 		}
@@ -471,7 +473,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			throw new RMapDiSCONotFoundException ("No DisCO found with id " + discoId.stringValue());
 		}
 		do {
-			List<Statement> eventStmts = null;
+			Set<Statement> eventStmts = null;
 			try {
 				//   ? RMap:Deletes discoId  done return deleted
 				eventStmts = ts.getStatements(null, RMAP.DELETEDOBJECT, discoId);
@@ -600,7 +602,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	protected Map<IRI,IRI> lookFoward(IRI discoId, IRI agentId, boolean matchAgent, SesameTriplestore ts) throws RMapObjectNotFoundException{
 		Map<IRI,IRI> event2Disco = new HashMap<IRI,IRI>();			
 		do {
-			List<Statement> eventStmts = eventmgr.getUpdateEvents(discoId, ts);
+			Set<Statement> eventStmts = eventmgr.getUpdateEvents(discoId, ts);
 			if (eventStmts==null || eventStmts.size()==0){
 				break;
 			}
@@ -680,7 +682,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				agents.add(assocAgent);
 			}
 			//TODO  ask:  do we want these?
-			List<Statement> dStatements = this.getNamedGraph(iri, ts);
+			Set<Statement> dStatements = this.getNamedGraph(iri, ts);
 			//	 For each statement in the Disco, find any agents referenced
 			for (Statement stmt:dStatements){
 				Resource subject = stmt.getSubject();

@@ -32,7 +32,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -143,7 +142,7 @@ public class ORMapResourceMgrTest {
 			//create disco				
 			InputStream stream = new ByteArrayInputStream(discoRDF.getBytes(StandardCharsets.UTF_8));
 			RioRDFHandler handler = new RioRDFHandler();	
-			List<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
+			Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
 			requestAgent.setAgentKeyId(new java.net.URI("ark:/29297/testkey"));
 			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
@@ -200,7 +199,7 @@ public class ORMapResourceMgrTest {
 			//create disco				
 			InputStream stream = new ByteArrayInputStream(discoRDF.getBytes(StandardCharsets.UTF_8));
 			RioRDFHandler handler = new RioRDFHandler();	
-			List<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
+			Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
 			IRI keyId = ORAdapter.uri2OpenRdfIri(new java.net.URI("ark:/29297/testkey"));
 			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
@@ -242,7 +241,7 @@ public class ORMapResourceMgrTest {
 			//create disco				
 			InputStream stream = new ByteArrayInputStream(discoRDF.getBytes(StandardCharsets.UTF_8));
 			RioRDFHandler handler = new RioRDFHandler();	
-			List<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
+			Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
 
 			ORMapDiSCO disco2 = new ORMapDiSCO(stmts);
@@ -298,7 +297,7 @@ public class ORMapResourceMgrTest {
 			//create disco				
 			InputStream stream = new ByteArrayInputStream(discoRDF.getBytes(StandardCharsets.UTF_8));
 			RioRDFHandler handler = new RioRDFHandler();	
-			List<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
+			Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
 			requestAgent.setAgentKeyId(new java.net.URI("ark:/29297/testkey"));
 			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
@@ -384,7 +383,7 @@ public class ORMapResourceMgrTest {
 			//create disco				
 			InputStream stream = new ByteArrayInputStream(discoRDF.getBytes(StandardCharsets.UTF_8));
 			RioRDFHandler handler = new RioRDFHandler();	
-			List<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
+			Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
 			requestAgent.setAgentKeyId(new java.net.URI("ark:/29297/testkey"));
 			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);

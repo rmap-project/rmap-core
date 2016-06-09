@@ -40,11 +40,13 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 
 /**
  *  @author khanson, smorrissey
  *
  */
+@Scope("prototype")
 public class ORMapService implements RMapService {
 	
 	private ORMapResourceMgr resourcemgr;

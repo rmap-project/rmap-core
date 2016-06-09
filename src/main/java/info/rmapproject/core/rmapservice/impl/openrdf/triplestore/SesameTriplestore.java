@@ -2,7 +2,9 @@ package info.rmapproject.core.rmapservice.impl.openrdf.triplestore;
 
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openrdf.model.IRI;
@@ -100,14 +102,14 @@ public abstract class SesameTriplestore  {
 		return;
 	}
 	
-	public List <Statement> getStatements(Resource subj, IRI pred, Value obj) throws RepositoryException {
+	public Set <Statement> getStatements(Resource subj, IRI pred, Value obj) throws RepositoryException {
 		return getStatements(subj, pred, obj, false, null);
 	}
 	
-	public List<Statement> getStatements(Resource subj, IRI pred, Value obj, boolean includeInferred, 
+	public Set<Statement> getStatements(Resource subj, IRI pred, Value obj, boolean includeInferred, 
 			Resource context) throws RepositoryException {
 		RepositoryResult<Statement> resultset = null;
-		List <Statement> stmts = new ArrayList <Statement>();
+		Set <Statement> stmts = new HashSet <Statement>();
 		if (context==null)	{
 			resultset = getConnection().getStatements(subj, pred, obj, includeInferred);
 		}
@@ -121,7 +123,7 @@ public abstract class SesameTriplestore  {
 		return stmts;
 	}
 	
-	public List<Statement> getStatements(Resource subj, IRI pred, Value obj,Resource context) throws RepositoryException{
+	public Set<Statement> getStatements(Resource subj, IRI pred, Value obj,Resource context) throws RepositoryException{
 		return this.getStatements(subj, pred, obj, false, context);
 	}
 	
@@ -203,7 +205,7 @@ public abstract class SesameTriplestore  {
 		return bs;
 	}
 
-	public void removeStatements(List<Statement> stmts, Resource...contexts) throws RepositoryException{
+	public void removeStatements(Set<Statement> stmts, Resource...contexts) throws RepositoryException{
 		this.getConnection().remove(stmts, contexts);;
 	}
 	

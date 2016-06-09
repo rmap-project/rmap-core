@@ -423,7 +423,7 @@ public class ORAdapter {
 	 * @return
 	 * @throws RMapException
 	 */
-	public static boolean checkOpenRdfIri2UriCompatibility (List<Statement> stmts) throws RMapException{
+	public static boolean checkOpenRdfIri2UriCompatibility (Set<Statement> stmts) throws RMapException{
 		for (Statement stmt : stmts){
 			boolean isCompatible = checkOpenRdfIri2UriCompatibility(stmt);
 			if (!isCompatible){

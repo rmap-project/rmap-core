@@ -41,11 +41,13 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.RDF;
+import org.springframework.context.annotation.Scope;
 
 /**
  *  @author khanson, smorrissey
  *
  */
+@Scope("prototype")
 public class ORMapEventMgr extends ORMapObjectMgr {
 	
 	protected ORMapEventMgr() throws RMapException {
@@ -164,7 +166,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		if (ts==null){
 			throw new RMapException("null triplestore");
 		}
-		List<Statement> eventStmts = null;
+		Set<Statement> eventStmts = null;
 		try {
 			eventStmts=this.getNamedGraph(eventId, ts);
 		}
@@ -181,7 +183,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return
 	 * @throws RMapException
 	 */
-	public  ORMapEvent createORMapEventFromStmts (List<Statement> eventStmts,
+	public  ORMapEvent createORMapEventFromStmts (Set<Statement> eventStmts,
 			SesameTriplestore ts) throws RMapException {
 		if (eventStmts==null || eventStmts.size()==0){
 			throw new RMapException ("null or emtpy list of event statements");	
@@ -207,11 +209,11 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		Statement tombstoned = null;
 		// for Delete events
 		List<Statement> deletedObjects = new ArrayList<Statement>();;	
-		ORMapEvent event = null;		
-		
-		context = (IRI) eventStmts.get(0).getContext(); 
+		ORMapEvent event = null;	
 		for (Statement stmt:eventStmts){
-			if (! (context.equals(stmt.getContext()))){
+			if (context==null){
+				context = (IRI) stmt.getContext(); 
+			} else if (! (context.equals(stmt.getContext()))){
 				throw new RMapException("Non-match of context in event named graph: " 
 						+ "Expected context: " + context.stringValue() +
 						"; actual context: " + stmt.getContext().stringValue());
@@ -483,7 +485,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	public List<IRI> getAffectedDiSCOs(IRI eventId, SesameTriplestore ts) 
 			throws RMapException{
 
-		List<Statement> affectedObjects= new ArrayList<Statement>();
+		Set<Statement> affectedObjects= new HashSet<Statement>();
 		List<IRI> relatedDiSCOs = new ArrayList<IRI>();
 
 		try {
@@ -967,10 +969,10 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return
 	 * @throws RMapException
 	 */
-	protected List<Statement> getUpdateEvents(IRI targetId, SesameTriplestore ts)
+	protected Set<Statement> getUpdateEvents(IRI targetId, SesameTriplestore ts)
 			throws RMapException {
-		List<Statement> stmts = null;
-		List<Statement> returnStmts = new ArrayList<Statement>();
+		Set<Statement> stmts = null;
+		Set<Statement> returnStmts = new HashSet<Statement>();
 		try {
 			//TOD check this against new event types
 			stmts = ts.getStatements(null, RMAP.INACTIVATEDOBJECT, targetId);
@@ -1033,7 +1035,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 */
 	protected IRI getIdOfCreatedDisco(IRI updateEventID, SesameTriplestore ts){
 		IRI createdDisco = null;
-		List<Statement> stmts = null;
+		Set<Statement> stmts = null;
 		try {
 			stmts = ts.getStatements(updateEventID, PROV.GENERATED, null, updateEventID);
 			if (stmts != null){
@@ -1065,7 +1067,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 */
 	protected List<IRI> getMakeObjectEvents(IRI iri, SesameTriplestore ts)
 			throws RMapException {
-		List<Statement> stmts = null;
+		Set<Statement> stmts = null;
 		List<IRI> returnEventIds = new ArrayList<IRI>();
 		try {
 			//TODO check this against new event types

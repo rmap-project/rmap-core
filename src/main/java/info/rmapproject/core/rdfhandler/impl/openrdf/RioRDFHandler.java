@@ -22,8 +22,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
@@ -72,7 +73,7 @@ public class RioRDFHandler implements RDFHandler {
 	 * @return List of Statements created from RDF InputStsream
 	 * @throws RMapException if null parameters, or invalid rdfType, or error parsing stream
 	 */
-	public List <Statement> convertRDFToStmtList(InputStream rdfIn, RDFType rdfType, String baseUri) 
+	public Set <Statement> convertRDFToStmtList(InputStream rdfIn, RDFType rdfType, String baseUri) 
 	throws RMapException	{
 		if (rdfIn==null){
 			throw new RMapException("Null rdf input stream");
@@ -80,7 +81,7 @@ public class RioRDFHandler implements RDFHandler {
 		if (rdfType==null){
 			throw new RMapException("Null rdf type");
 		}
-		List <Statement> stmts = new ArrayList<Statement>();
+		Set <Statement> stmts = new HashSet<Statement>();
 		RDFFormat rdfFormat = null;
 		try {
 			rdfFormat = this.getRDFFormatConstant(rdfType);
@@ -101,7 +102,7 @@ public class RioRDFHandler implements RDFHandler {
 	@Override
 	public RMapDiSCO rdf2RMapDiSCO(InputStream rdfIn, RDFType rdfFormat, String baseUri)
 			throws RMapException, RMapDefectiveArgumentException {
-		List <Statement> stmts = this.convertRDFToStmtList(rdfIn, rdfFormat, baseUri);
+		Set <Statement> stmts = this.convertRDFToStmtList(rdfIn, rdfFormat, baseUri);
 		ORMapDiSCO disco = new ORMapDiSCO(stmts);
 		return disco;
 	}
@@ -109,7 +110,7 @@ public class RioRDFHandler implements RDFHandler {
 	@Override
 	public RMapAgent rdf2RMapAgent(InputStream rdfIn, RDFType rdfFormat, String baseUri) 
 			throws RMapException, RMapDefectiveArgumentException {
-		List <Statement> stmts = this.convertRDFToStmtList(rdfIn, rdfFormat, baseUri);
+		Set <Statement> stmts = this.convertRDFToStmtList(rdfIn, rdfFormat, baseUri);
 		ORMapAgent agent = new ORMapAgent(stmts);
 		return agent;
 	}

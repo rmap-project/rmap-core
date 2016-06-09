@@ -9,6 +9,7 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 import java.util.List;
+import java.util.Set;
 
 import org.openrdf.model.IRI;
 import org.openrdf.model.Statement;
@@ -98,8 +99,8 @@ public abstract class ORMapObjectMgr {
 	 * @throws RMapException
 	 * @throws RMapObjectNotFoundException
 	 */
-	protected List<Statement> getNamedGraph(IRI id, SesameTriplestore ts) throws RMapObjectNotFoundException, RMapException {
-		List<Statement> matchingTriples = null;
+	protected Set<Statement> getNamedGraph(IRI id, SesameTriplestore ts) throws RMapObjectNotFoundException, RMapException {
+		Set<Statement> matchingTriples = null;
 		try {
 			matchingTriples = ts.getStatements(null, null, null, false, id);     
 		} catch (Exception e) {

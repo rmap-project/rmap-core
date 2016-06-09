@@ -24,12 +24,15 @@ import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 
 /**
  * 
  *  @author khanson, smorrissey
  *
  */
+
+@Scope("prototype")
 public class ORMapResourceMgr extends ORMapObjectMgr {
 	
 	private ORMapDiSCOMgr discomgr;
@@ -408,7 +411,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		if (rIri==null || cIri == null || ts == null){
 			throw new RMapDefectiveArgumentException ("Null parameter");
 		}
-		List<Statement> triples = null;
+		Set<Statement> triples = null;
 		try {
 			triples = ts.getStatements(rIri, RDF.TYPE, null, cIri);
 		} catch (Exception e) {

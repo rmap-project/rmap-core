@@ -104,7 +104,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 *            comprise a disjoint graph, or if cannot create Statements from parameters
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapDiSCO(List<Statement> stmts) throws RMapException, RMapDefectiveArgumentException{
+	public ORMapDiSCO(Set<Statement> stmts) throws RMapException, RMapDefectiveArgumentException{
 		super();	
 		if (stmts==null){
 			throw new RMapDefectiveArgumentException("Null statement list");
