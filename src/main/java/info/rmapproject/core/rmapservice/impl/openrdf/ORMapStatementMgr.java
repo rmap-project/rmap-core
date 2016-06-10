@@ -19,14 +19,12 @@ import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.BindingSet;
-import org.springframework.context.annotation.Scope;
 
 /**
  *  @author khanson, smorrissey
  *
  */
 
-@Scope("prototype")
 public class ORMapStatementMgr extends ORMapObjectMgr {
 	
 	protected ORMapStatementMgr() {

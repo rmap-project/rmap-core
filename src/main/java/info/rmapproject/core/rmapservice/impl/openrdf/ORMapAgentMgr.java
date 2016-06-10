@@ -41,14 +41,12 @@ import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.FOAF;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.BindingSet;
-import org.springframework.context.annotation.Scope;
 
 
 /**
  * @author smorrissey, khanson
  *
  */
-@Scope("prototype")
 public class ORMapAgentMgr extends ORMapObjectMgr {
 	
 	public ORMapAgentMgr() throws RMapException {

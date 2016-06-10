@@ -24,7 +24,6 @@ import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 
 /**
  * 
@@ -32,7 +31,6 @@ import org.springframework.context.annotation.Scope;
  *
  */
 
-@Scope("prototype")
 public class ORMapResourceMgr extends ORMapObjectMgr {
 	
 	private ORMapDiSCOMgr discomgr;

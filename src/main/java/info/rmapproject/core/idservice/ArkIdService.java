@@ -15,12 +15,12 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.context.annotation.Scope;
 
 /**
  * ARK ID generator, taken from Portico and modified for use in RMap. 
  * @author Nigel Kerr, khanson
  */
-
 public class ArkIdService implements IdService {
 	
 	private final Logger log = LogManager.getLogger(this.getClass());

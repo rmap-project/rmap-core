@@ -41,13 +41,11 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.RDF;
-import org.springframework.context.annotation.Scope;
 
 /**
  *  @author khanson, smorrissey
  *
  */
-@Scope("prototype")
 public class ORMapEventMgr extends ORMapObjectMgr {
 	
 	protected ORMapEventMgr() throws RMapException {

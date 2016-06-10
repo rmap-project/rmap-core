@@ -33,7 +33,7 @@ public abstract class SesameTriplestore  {
         
     protected static Repository repository = null;
     protected RepositoryConnection connection = null;
-    protected  ValueFactory valueFactory = null;
+    protected ValueFactory valueFactory = null;
 	
 	protected SesameTriplestore()	{}
 
