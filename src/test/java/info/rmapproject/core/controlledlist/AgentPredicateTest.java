@@ -1,6 +1,3 @@
-/**
- * 
- */
 package info.rmapproject.core.controlledlist;
 
 import java.util.ArrayList;

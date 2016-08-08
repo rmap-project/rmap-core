@@ -2,7 +2,10 @@ package info.rmapproject.core.utils;
 
 
 public final class Constants  {
-		
+
+	  /**File path to RMap Core Spring context*/
+	  public static final String SPRING_CONFIG_FILEPATH = "spring-rmapcore-context.xml";
+	  
 	  /**File path to RMap Core Properties*/
 	  public static final String RMAPCORE_PROPFILE = "rmapcore";
 	  

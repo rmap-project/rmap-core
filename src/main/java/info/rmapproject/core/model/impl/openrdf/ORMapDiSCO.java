@@ -230,10 +230,10 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 			throw new RMapException("No aggregated resource statements found");
 		}
 		this.aggregatedResources = aggResources;
-		if (!this.referencesAggregate(relStatements)){
+		if (!referencesAggregate(relStatements)){
 			throw new RMapException("related statements do no reference aggregated resources");
 		}
-		if (!this.isConnectedGraph(relStatements)){
+		if (!isConnectedGraph(relStatements)){
 			throw new RMapException ("related statements do not form a connected graph");
 		}
 		this.relatedStatements = relStatements;
@@ -245,6 +245,10 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 * @return
 	 */
 	protected boolean referencesAggregate(List<Statement> relatedStatements) throws RMapException{
+		if (relatedStatements!=null && relatedStatements.size()==0){
+			//there are no statements so it is true that "all stmts reference aggregate"
+			return true;
+		}
 		boolean refsAggs = false;
 		if (this.aggregatedResources == null ||  this.aggregatedResources.size()==0){
 			throw new RMapException ("Null or empty aggregated resources");
@@ -254,12 +258,16 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 			resources.add((IRI)stmt.getObject());
 		}
 		// find at least one statement that references at least one aggregated object
-		for (Statement stmt:relatedStatements){
-			Resource subject = stmt.getSubject();			
-			if (resources.contains(subject)){
-				refsAggs = true;
-				break;
-			}		
+		if (relatedStatements.size()>0) {
+			for (Statement stmt:relatedStatements){
+				Resource subject = stmt.getSubject();			
+				if (resources.contains(subject)){
+					refsAggs = true;
+					break;
+				}		
+			}
+		} else {
+			refsAggs = true;
 		}
 		return refsAggs;
 	}
@@ -293,6 +301,11 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 * @throws RMapException
 	 */
 	protected boolean isConnectedGraph(List<Statement> relatedStatements) throws RMapException{
+		if (relatedStatements!=null && relatedStatements.size()==0){
+			//there are no statements, so for the purpose of this RMap there are no disconnected statements...
+			//i.e. graph is connected
+			return true;
+		}
 		boolean isConnected = false;
 		HashMap<Value, Node> nodeMap = new HashMap<Value, Node>();
 		Set<Node> visitedNodes = new HashSet<Node>();

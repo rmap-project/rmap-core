@@ -217,6 +217,26 @@ public class ORMapDiSCOMgrTest  {
 			+ "<dc:description>"  
 			+ description  
 			+ "</dc:description>"  
+			+ "<ore:aggregates rdf:resource=\"http://dx.doi.org/10.1109/ACCESS.2014.2332453\"/>"  
+			+ "<ore:aggregates rdf:resource=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip\"/>"  
+			+ "</rmap:DiSCO>"    	
+	    	+ "</rdf:RDF>";
+	
+	protected String discoNoBodyOrAggregates = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> "  
+			+ "<rdf:RDF "  
+			+ " xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\""  
+			+ " xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\""  
+			+ " xmlns:rmap=\"http://rmap-project.org/rmap/terms/\""  		
+			+ " xmlns:ore=\"http://www.openarchives.org/ore/terms/\""
+			+ " xmlns:dcterms=\"http://purl.org/dc/terms/\""  
+			+ " xmlns:dc=\"http://purl.org/dc/elements/1.1/\""  
+			+ " xmlns:foaf=\"http://xmlns.com/foaf/0.1/\""  
+			+ " xmlns:fabio=\"http://purl.org/spar/fabio/\">"  
+			+ "<rmap:DiSCO>"  
+			+ "<dcterms:creator rdf:resource=\"http://orcid.org/0000-0000-0000-0000\"/>"
+			+ "<dc:description>"  
+			+ description  
+			+ "</dc:description>"  
 			+ "</rmap:DiSCO>"    	
 	    	+ "</rdf:RDF>";
 	
@@ -368,6 +388,58 @@ public class ORMapDiSCOMgrTest  {
 			RioRDFHandler handler = new RioRDFHandler();	
 			Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
+
+			RMapIri idIRI = disco.getId();
+			requestAgent.setAgentKeyId(new java.net.URI("ark:/29297/testkey"));
+			discomgr.createDiSCO(disco, requestAgent, triplestore);
+			
+			//read DiSCO back
+			IRI dIri = ORAdapter.rMapIri2OpenRdfIri(idIRI);
+			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri, true, null, null, triplestore).getDisco();
+			RMapIri idIRI2 = rDisco.getId();
+			assertEquals(idIRI.toString(),idIRI2.toString());
+			String description2 = rDisco.getDescription().toString();
+			assertEquals(description,description2);
+						
+			rmapService.deleteDiSCO(new java.net.URI(idIRI.toString()), requestAgent);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}	
+	}
+
+
+
+	/**
+	 * Test disco with no aggregates specified
+	 * @throws RMapDefectiveArgumentException 
+	 * @throws RMapException 
+	 */
+	@Test
+	public void testCreateDiscoNoBodyOrAggregates() throws RMapException, RMapDefectiveArgumentException {
+				
+		java.net.URI agentId; //used to pass back into rmapService since all of these use java.net.URI
+		
+		try {
+			//create new test agent
+			RMapAgent agent = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
+			agentId=agent.getId().getIri();
+			if (!rmapService.isAgentId(agentId)) {
+				rmapService.createAgent(agent,requestAgent);
+			}
+			if (rmapService.isAgentId(agentId)){
+				System.out.println("Test Agent successfully created!  URI is " + agentId);
+			}
+			
+			// Check the agent was created
+			assertTrue(rmapService.isAgentId(agentId));	
+		
+			// now create DiSCO	
+			InputStream stream = new ByteArrayInputStream(discoNoBodyOrAggregates.getBytes(StandardCharsets.UTF_8));
+			RioRDFHandler handler = new RioRDFHandler();	
+			Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
+			ORMapDiSCO disco = new ORMapDiSCO(stmts);
 			
 			requestAgent.setAgentKeyId(new java.net.URI("ark:/29297/testkey"));
 			
@@ -379,6 +451,7 @@ public class ORMapDiSCOMgrTest  {
 			assertTrue(e.getMessage().contains("No aggregated resource statements"));
 		}	
 	}
+	
 	
 
 	/**
