@@ -9,7 +9,6 @@
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
 
    <context:component-scan base-package="info.rmapproject.core"/>
-   <!-- <context:property-placeholder location="classpath*:*.properties" /> -->
    
    	<bean id="rmapService" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapService" scope="prototype"/>
    

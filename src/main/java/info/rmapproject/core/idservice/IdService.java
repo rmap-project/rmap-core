@@ -7,6 +7,7 @@ import java.net.URI;
 
 
 /**
+ * Interface for ID creation. 
  * @author  khanson, smorrissey
  *
  */
