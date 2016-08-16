@@ -62,9 +62,23 @@ public class RMapSearchParams  {
 	 */
 	OrderBy orderBy;
 	
+	/**
+	 * Instantiates a new RMap search params.
+	 */
 	public RMapSearchParams() {
 	}
 
+	/**
+	 * Instantiates a new RMap search params.
+	 *
+	 * @param from the from date
+	 * @param until the until date
+	 * @param status the status filter
+	 * @param systemAgentsCsv the CSV of system agent URIs to filter by
+	 * @param limit the maximum number of records to retrieve
+	 * @param offset the position of the first record to be retrieved
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
+	 */
 	public RMapSearchParams(String from, String until, String status, String systemAgentsCsv, String limit, String offset) 
 			throws RMapDefectiveArgumentException {
 		setDateRange(new DateRange(from, until));
@@ -74,9 +88,12 @@ public class RMapSearchParams  {
 		setOffset(offset);
 		}
 	
-	/** 
-	 * Retrieve the limit. If none has been configured, this will return the default limit.
-	 * @return
+	/**
+	 *  
+	 * Retrieve the limit (the maximum number of records that can be retrieved in one set). If none has been 
+	 * configured, this will return the default limit.
+	 *
+	 * @return the limit
 	 */
 	public Integer getLimit() {		
 		if (this.limit==null){
@@ -87,6 +104,12 @@ public class RMapSearchParams  {
 		}
 	}
 
+	/**
+	 * Sets the limit (the maximum number of records that can be retrieved in one set).
+	 *
+	 * @param limit the new limit as an integer
+	 * @throws RMapException the RMap exception
+	 */
 	public void setLimit(Integer limit) throws RMapException{
 		if (limit==null) {
 			this.limit=null;
@@ -102,6 +125,12 @@ public class RMapSearchParams  {
 		}
 	}
 	
+	/**
+	 * Sets the limit (the maximum number of records that can be retrieved in one set).
+	 *
+	 * @param limit the new limit as a string
+	 * @throws RMapException the RMap exception
+	 */
 	public void setLimit(String limit) throws RMapException {
 		Integer iLimit = null;
 		if (limit!=null){
@@ -116,6 +145,12 @@ public class RMapSearchParams  {
 		setLimit(iLimit);
 	}	
 
+	/**
+	 * Sets the offset (the number of records into the result set your query will start)
+	 *
+	 * @param offset the new offset as an integer
+	 * @throws RMapException the RMap exception
+	 */
 	public void setOffset(Integer offset) throws RMapException {
 		if (offset==null) {
 			this.offset=null;
@@ -126,6 +161,12 @@ public class RMapSearchParams  {
 		}
 	}
 	
+	/**
+	 * Sets the offset (the number of records into the result set your query will start).
+	 *
+	 * @param sOffset the new offset as a string
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
+	 */
 	public void setOffset(String sOffset) throws RMapDefectiveArgumentException {
 		Integer iOffset = null;
 		if (sOffset != null && sOffset.length()>0) {
@@ -144,7 +185,9 @@ public class RMapSearchParams  {
 	 * For convenience when using pagination, this sets the offset based on 
 	 * the current limit given a page number. If limit is changed after using this
 	 * it will not automatically be reflected in offset.
-	 * @param page
+	 *
+	 * @param page the results page number 
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public void setOffsetByPage(String page) throws RMapDefectiveArgumentException {
 		Integer iPage = null;
@@ -166,6 +209,11 @@ public class RMapSearchParams  {
 		}
 	}
 
+	/**
+	 * Gets the offset (the number of records into the result set your query will start).
+	 *
+	 * @return the offset
+	 */
 	public Integer getOffset() {
 		if (this.offset!=null && this.offset>=0){
 			return this.offset;			
@@ -176,18 +224,40 @@ public class RMapSearchParams  {
 	}
 
 
+	/**
+	 * Gets the date range to filter results by.
+	 *
+	 * @return the date range
+	 */
 	public DateRange getDateRange() {
 		return dateRange;
 	}
 
+	/**
+	 * Sets the date range to filter results by.
+	 *
+	 * @param dateRange the new date range
+	 */
 	public void setDateRange(DateRange dateRange) {
 		this.dateRange = dateRange;
 	}
 	
+	/**
+	 * Sets the date range to filter results by.
+	 *
+	 * @param from the from
+	 * @param until the until
+	 */
 	public void setDateRange(Date from, Date until) {
 		this.dateRange = new DateRange(from, until);
 	}	
 
+	/**
+	 * Gets the status code to filter results by.
+	 *
+	 * @return the status code
+	 * @throws RMapException the RMap exception
+	 */
 	public RMapStatusFilter getStatusCode() throws RMapException {
 		if (this.status!=null){
 			return this.status;
@@ -197,10 +267,20 @@ public class RMapSearchParams  {
 		}
 	}
 
+	/**
+	 * Sets the status code to filter results by.
+	 *
+	 * @param status the new status code
+	 */
 	public void setStatusCode(RMapStatusFilter status) {
 		this.status = status;
 	}
 
+	/**
+	 * Sets the status code to filter results by.
+	 *
+	 * @param sStatus the new status code
+	 */
 	public void setStatusCode(String sStatus) {
 		RMapStatusFilter status = null;
 		if (sStatus!=null){
@@ -209,14 +289,29 @@ public class RMapSearchParams  {
 		this.setStatusCode(status);		
 	}
 	
+	/**
+	 * Gets the set of system agent URIs to filter the results by. 
+	 *
+	 * @return the system agents
+	 */
 	public Set<URI> getSystemAgents() {
 		return systemAgents;
 	}
 
+	/**
+	 * Sets the list of system agent URIs to filter the results by.
+	 *
+	 * @param systemAgents the new system agents
+	 */
 	public void setSystemAgents(Set<URI> systemAgents) {
 		this.systemAgents = systemAgents;
 	}
 	
+	/**
+	 * Adds a system agent URI to the list of agents to filter results by
+	 *
+	 * @param agentUri the agent URI
+	 */
 	public void addSystemAgent(URI agentUri){
 		if (agentUri!=null) {
 			systemAgents.add(agentUri);
@@ -226,9 +321,9 @@ public class RMapSearchParams  {
 	/**
 	 * Converts a CSV passed through the URI as an encoded parameter into a URI list
 	 * e.g. systemAgent list as string to List<URI>
-	 * @param agentUri CSV
-	 * @return
-	 * @throws RMapApiException
+	 *
+	 * @param systemAgentsCsv a CSV containing the list of system agent URIs to filter results by
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public void setSystemAgents(String systemAgentsCsv) throws RMapDefectiveArgumentException {
 		//if empty return null - null is acceptable value for this optional param
@@ -257,10 +352,21 @@ public class RMapSearchParams  {
 		}
 	}
 
+	/**
+	 * Sets the order by setting to be applied to the results list.
+	 *
+	 * @param orderBy the new order by setting
+	 */
 	public void setOrderBy(OrderBy orderBy) {
 		this.orderBy = orderBy;		
 	}
 	
+	/**
+	 * Gets the order by setting.
+	 *
+	 * @return the order by setting
+	 * @throws RMapException the RMap exception
+	 */
 	public OrderBy getOrderBy() throws RMapException {
 		if (this.orderBy!=null){
 			return this.orderBy;			
@@ -270,6 +376,12 @@ public class RMapSearchParams  {
 		}
 	}
 	
+	/**
+	 * Gets the default limit as configured in the properties file.
+	 *
+	 * @return the default limit
+	 * @throws RMapException the RMap exception
+	 */
 	public Integer getDefaultLimit() throws RMapException{
 		Integer limit= null;
 		try{
@@ -283,6 +395,12 @@ public class RMapSearchParams  {
 		return limit;	
 	}
 
+	/**
+	 * Gets the default status code as configured in the properties file.
+	 *
+	 * @return the default status code
+	 * @throws RMapException the RMap exception
+	 */
 	public RMapStatusFilter getDefaultStatusCode() throws RMapException {
 		try {
 			String defaultStatus = ConfigUtils.getPropertyValue(Constants.RMAPCORE_PROPFILE, Constants.DEFAULT_STATUS_FILTER_KEY);
@@ -295,6 +413,12 @@ public class RMapSearchParams  {
 		}
 	}
 	
+	/**
+	 * Gets the default order by setting as configured in the properties file.
+	 *
+	 * @return the default order by setting
+	 * @throws RMapException the RMap exception
+	 */
 	public OrderBy getDefaultOrderBy() throws RMapException {
 		try {
 			String defaultOrderBy = ConfigUtils.getPropertyValue(Constants.RMAPCORE_PROPFILE, Constants.DEFAULT_ORDERBY_FILTER_KEY);
@@ -307,6 +431,13 @@ public class RMapSearchParams  {
 		}
 	}
 	
+	/**
+	 * Gets the max query limit setting as configured in the properties file.  Max query limit is compared to 
+	 * the limit to ensure the number of records being request is below the maximum allowed in one results set
+	 *
+	 * @return the max query limit
+	 * @throws RMapException the RMap exception
+	 */
 	public Integer getMaxQueryLimit() throws RMapException {
 		Integer maxLimit= null;
 		try{
