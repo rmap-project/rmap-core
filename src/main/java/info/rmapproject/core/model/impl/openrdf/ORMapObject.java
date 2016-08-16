@@ -1,6 +1,3 @@
-/**
- * 
- */
 package info.rmapproject.core.model.impl.openrdf;
 
 
@@ -19,23 +16,29 @@ import org.openrdf.model.vocabulary.RDF;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-
 /**
- * Base class for OpenRDF implementation classes of RMapObjects
- * 
- *  @author khanson, smorrissey
+ * Base class for OpenRDF implementation classes of RMapObjects.
  *
+ * @author khanson, smorrissey
  */
 public abstract class ORMapObject implements RMapObject  {
+	
+	/** The object unique ID. */
 	protected IRI id;
+	
+	/** The type statement. */
 	protected Statement typeStatement;
+	
+	/** The context. */
 	protected IRI context;
 
+	/** The RMap ID service instance */
 	protected IdService rmapIdService;
 
 	/**
-	 * Base Constructor for all RMapObjects instances, which must have a unique IRI identifier 
-	 * @throws RMapException 
+	 * Base Constructor for all RMapObjects instances, which must have a unique IRI identifier .
+	 *
+	 * @throws RMapException the RMap exception
 	 */
 	protected ORMapObject() throws RMapException {
 		super();
@@ -49,8 +52,9 @@ public abstract class ORMapObject implements RMapObject  {
 	
 	
 	/**
-	 * Return identifier of object as RMapIri
-	 * @return
+	 * Return identifier of object as RMapIri.
+	 *
+	 * @return the object ID
 	 */
 	public RMapIri getId(){
 		RMapIri id = null;
@@ -61,9 +65,9 @@ public abstract class ORMapObject implements RMapObject  {
 	}
 
 	/**
-	 * Assigns a new id
-	 * @param id
-	 * @throws RMapException
+	 * Assigns a new object ID.
+	 * @param id the new object ID
+	 * @throws RMapException the RMap exception
 	 */
 	protected void setId(IRI id) {		
 		if (id == null || id.toString().length()==0)
@@ -73,9 +77,8 @@ public abstract class ORMapObject implements RMapObject  {
 	}
 
 	/**
-	 * Creates and assigns a new id
-	 * @param id
-	 * @throws RMapException
+	 * Creates and assigns a new id.
+	 * @throws RMapException the RMap exception
 	 */
 	protected void setId() throws RMapException{		
 		try {
@@ -85,9 +88,15 @@ public abstract class ORMapObject implements RMapObject  {
 		}
 	}
 	
+	/**
+	 * Gets the object as an openrdf model. This is basically a Set of openrdf Statements
+	 * @return the object model
+	 * @throws RMapException the RMap exception
+	 */
 	public abstract Model getAsModel() throws RMapException;
 
 	/**
+	 * Gets the type statement.
 	 * @return the typeStatement
 	 */
 	public Statement getTypeStatement() {
@@ -95,7 +104,9 @@ public abstract class ORMapObject implements RMapObject  {
 	}
 	
 	/**
-	 * @param type
+	 * Sets the type statement.
+	 * @param type the new type statement
+	 * @throws RMapException the RMap exception
 	 */
 	protected void setTypeStatement (RMapObjectType type) throws RMapException{
 		if (type==null){
@@ -113,6 +124,9 @@ public abstract class ORMapObject implements RMapObject  {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.RMapObject#getType()
+	 */
 	public RMapObjectType getType() throws RMapException {
 		Value v = this.getTypeStatement().getObject();
 		RMapIri iri = null;
@@ -128,12 +142,15 @@ public abstract class ORMapObject implements RMapObject  {
 	}
 	
 	/**
-	 * @param context
+	 * Sets the context.
+	 * @param context the new context
 	 */
 	protected void setContext (IRI context) {	
 		this.context = context;
 	}
+	
 	/**
+	 * Gets the context.
 	 * @return the context
 	 */
 	public IRI getContext() {

@@ -19,34 +19,43 @@ import info.rmapproject.core.model.request.RMapRequestAgent;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
+ * The concrete class representing the Update Event for the openrdf implementation of RMap.
  * @author khanson, smorrissey
  *
  */
 public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEventUpdate {
+	
+	/** The statement containing the derived object id. */
 	protected Statement derivationStatement;
+	
+	/** The statement containing the inactivated object id. */
 	protected Statement inactivatedObjectStatement;
 
 	/**
-	 * @throws RMapException
+	 * Instantiates a new RMap Update Event.
+	 * @throws RMapException the RMap exception
 	 */
 	protected ORMapEventUpdate() throws RMapException {
 		super();
 		this.setEventTypeStatement(RMapEventType.UPDATE);
 	}
+	
 	/**
-	 * 
-	 * @param eventTypeStmt
-	 * @param eventTargetTypeStmt
-	 * @param associatedAgentStmt
-	 * @param descriptionStmt
-	 * @param startTimeStmt
-	 * @param endTimeStmt
-	 * @param context
-	 * @param typeStatement
-	 * @param createdObjects
-	 * @param derivationStatement
-	 * @param inactivatedObjectStatement
-	 * @throws RMapException
+	 * Instantiates a new RMap Update Event.
+	 *
+	 * @param eventTypeStmt the event type stmt
+	 * @param eventTargetTypeStmt the event target type stmt
+	 * @param associatedAgentStmt the associated agent stmt
+	 * @param descriptionStmt the description stmt
+	 * @param startTimeStmt the start time stmt
+	 * @param endTimeStmt the end time stmt
+	 * @param context the context
+	 * @param typeStatement the type statement
+	 * @param associatedKeyStmt the associated key stmt
+	 * @param createdObjects the list of statements referencing the created object ids
+	 * @param derivationStatement the statement referencing the derived object id
+	 * @param inactivatedObjectStatement the statement referencing the inactivated object id
+	 * @throws RMapException the RMap exception
 	 */
 	public ORMapEventUpdate(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
 			Statement associatedAgentStmt,  Statement descriptionStmt, 
@@ -71,12 +80,13 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	}
 
 	/**
-	 * 
-	 * @param associatedAgent
-	 * @param targetType
-	 * @param inactivatedObject
-	 * @param derivedObject
-	 * @throws RMapException
+	 * Instantiates a new ORMap event update.
+	 *
+	 * @param associatedAgent the associated agent
+	 * @param targetType the target type
+	 * @param inactivatedObject the IRI of the inactivated object
+	 * @param derivedObject the IRI of the derived object
+	 * @throws RMapException the RMap exception
 	 */
 	public ORMapEventUpdate(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI inactivatedObject, IRI derivedObject) 
 	throws RMapException {
@@ -87,6 +97,9 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	}
 
 	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.impl.openrdf.ORMapEventWithNewObjects#getAsModel()
+	 */
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model model = super.getAsModel();
@@ -110,22 +123,29 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 		}
 		return rid;
 	}
+	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.event.RMapEventUpdate#setInactivatedObjectId(info.rmapproject.core.model.RMapIri)
+	 */
 	@Override
 	public void setInactivatedObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
 		IRI inactiveIri = ORAdapter.rMapIri2OpenRdfIri(iri);
 		this.setInactivatedObjectStmt(inactiveIri);
 	}
+	
 	/**
-	 * 
-	 * @return
+	 * Gets the statement containing the inactivated object IRI
+	 *
+	 * @return the statement containing the inactivated object IRI
 	 */
 	public Statement getInactivatedObjectStmt() {
 		return this.inactivatedObjectStatement;
 	}
 	
 	/**
-	 * 
-	 * @param intactivatedObject
+	 * Sets the statement containing the inactivated object IRI
+	 *
+	 * @param intactivatedObject the IRI of the inactivated object
 	 */
 	protected void setInactivatedObjectStmt(IRI intactivatedObject) {
 		if (intactivatedObject != null){
@@ -147,23 +167,30 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 		}
 		return rid;
 	}
+	
 	/**
-	 * 
-	 * @return
+	 * Gets the statement containing the derived object IRI
+	 *
+	 * @return the derivation stmt
 	 */
 	public Statement getDerivationStmt (){
 		return this.derivationStatement;
 	}
 	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.event.RMapEventUpdate#setDerivedObjectId(info.rmapproject.core.model.RMapIri)
+	 */
 	@Override
 	public void setDerivedObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
 		IRI derivedIRI = ORAdapter.rMapIri2OpenRdfIri(iri);
 		this.setDerivationStmt(derivedIRI);
 	}
+	
 	/**
-	 * 
-	 * @param derivedObject
-	 * @throws RMapException
+	 * Sets the statement containing the derived object IRI
+	 *
+	 * @param derivedObject the IRI of the derived object
+	 * @throws RMapException the RMap exception
 	 */
 	protected void setDerivationStmt(IRI derivedObject) throws RMapException {
 		if (derivedObject != null){

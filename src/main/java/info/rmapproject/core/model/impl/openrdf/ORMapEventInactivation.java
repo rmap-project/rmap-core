@@ -18,26 +18,30 @@ import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 
 /**
+ * The concrete class representing the Inactivation Event for the openrdf implementation of RMap.
  * @author smorrissey, khanson
  *
  */
 public class ORMapEventInactivation extends ORMapEvent implements
 		RMapEventInactivation {
 	
+	/** The statement that defines the inactivated object. */
 	protected Statement inactivatedObjectStatement;
 	
 	/**
-	 * 
-	 * @param eventTypeStmt
-	 * @param eventTargetTypeStmt
-	 * @param associatedAgentStmt
-	 * @param descriptionStmt
-	 * @param startTimeStmt
-	 * @param endTimeStmt
-	 * @param context
-	 * @param typeStatement
-	 * @param inactivatedObjectStatement
-	 * @throws RMapException
+	 * Instantiates a new RMap Inactivation Event
+	 *
+	 * @param eventTypeStmt the event type stmt
+	 * @param eventTargetTypeStmt the event target type stmt
+	 * @param associatedAgentStmt the associated agent stmt
+	 * @param descriptionStmt the description stmt
+	 * @param startTimeStmt the start time stmt
+	 * @param endTimeStmt the end time stmt
+	 * @param context the context
+	 * @param typeStatement the type statement
+	 * @param associatedKeyStmt the associated key stmt
+	 * @param inactivatedObjectStatement the inactivated object statement
+	 * @throws RMapException the RMap exception
 	 */
 	public ORMapEventInactivation(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
 			Statement associatedAgentStmt,  Statement descriptionStmt, 
@@ -54,16 +58,21 @@ public class ORMapEventInactivation extends ORMapEvent implements
 
 
 	/**
-	 * @throws RMapException
+	 * Instantiates a new RMap Inactivation Event
+	 *
+	 * @throws RMapException the RMap exception
 	 */
 	protected ORMapEventInactivation() throws RMapException {
 		super();
 		this.setEventTypeStatement(RMapEventType.INACTIVATION);
 	}
+	
 	/**
-	 * @param associatedAgent
-	 * @param targetType
-	 * @throws RMapException
+	 * Instantiates a new RMap Inactivation Event
+	 *
+	 * @param associatedAgent the associated agent
+	 * @param targetType the target type
+	 * @throws RMapException the RMap exception
 	 */
 	public ORMapEventInactivation(RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException {
 		super(associatedAgent, targetType);
@@ -71,10 +80,13 @@ public class ORMapEventInactivation extends ORMapEvent implements
 	}
 
 	/**
-	 * @param associatedAgent
-	 * @param targetType
-	 * @param desc
-	 * @throws RMapException
+	 * Instantiates a new RMap Inactivation Event
+	 *
+	 * @param associatedAgent the associated agent
+	 * @param targetType the target type
+	 * @param desc the desc
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public ORMapEventInactivation(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, RMapValue desc)
 			throws RMapException, RMapDefectiveArgumentException  {
@@ -94,9 +106,30 @@ public class ORMapEventInactivation extends ORMapEvent implements
 		}
 		return rid;
 	}
+	
+
 	/**
-	 * 
-	 * @param inactivatedObject
+	 * Gets the statement containing the IRI of the inactivated object
+	 *
+	 * @return the statement containing the IRI of the inactivated object
+	 */
+	public Statement getInactivatedObjectStatement() {
+		return inactivatedObjectStatement;
+	}
+	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.event.RMapEventInactivation#setInactivatedObjectId(info.rmapproject.core.model.RMapIri)
+	 */
+	@Override
+	public void setInactivatedObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
+		IRI inactiveIri = ORAdapter.rMapIri2OpenRdfIri(iri);
+		this.setInactivatedObjectStmt(inactiveIri);
+	}
+
+	/**
+	 * Sets the statement containing the IRI of the inactivated object
+	 *
+	 * @param inactivatedObject IRI of the inactivated object
 	 */
 	protected void setInactivatedObjectStmt(IRI inactivatedObject) {
 		if (inactivatedObject != null){
@@ -106,13 +139,11 @@ public class ORMapEventInactivation extends ORMapEvent implements
 			this.inactivatedObjectStatement = stmt;
 		}
 	}
-
-	@Override
-	public void setInactivatedObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
-		IRI inactiveIri = ORAdapter.rMapIri2OpenRdfIri(iri);
-		this.setInactivatedObjectStmt(inactiveIri);
-	}
 	
+	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.impl.openrdf.ORMapEvent#getAsModel()
+	 */
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model model = super.getAsModel();
@@ -120,13 +151,6 @@ public class ORMapEventInactivation extends ORMapEvent implements
 			model.add(inactivatedObjectStatement);
 		}
 		return model;
-	}
-
-	/**
-	 * @return the inactivatedObjectStatement
-	 */
-	public Statement getInactivatedObjectStatement() {
-		return inactivatedObjectStatement;
 	}
 
 }

@@ -9,28 +9,35 @@ import java.util.MissingResourceException;
 import org.apache.commons.lang.RandomStringUtils;
 
 import info.rmapproject.core.utils.ConfigUtils;
+import info.rmapproject.core.utils.Constants;
 
 /**
- * @author khanson, smorrissey
+ * This is a random number generator that generates FAKE ARK IDs for testing
+ * THIS SHOULD NOT BE USED IN PRODUCTION!
  *
+ * @author khanson, smorrissey
  */
 public class RNIdService implements IdService {
+
+	/** The property key for the ARK's naan */
+	private static final String NAAN_PROPERTY = "arkservice.idNaan";
 	
-	private static final String ARK_PROPERTIES = "ark";
-	private static String NAAN_KEY = "naan";
+	/** The naan. */
 	private static String NAAN = null;
-	private static String ARKSCHEME = "ark";
+	
+	/** The arkscheme. */
+	private static final String ARKSCHEME = "ark";
 	
 	static{
 		try {
-			NAAN = ConfigUtils.getPropertyValue(ARK_PROPERTIES,NAAN_KEY);
+			NAAN = ConfigUtils.getPropertyValue(Constants.ARKSERVICE_PROPFILE,NAAN_PROPERTY);
 		}
 		catch(MissingResourceException me){}
 		catch (Exception e){}
 	}
 
 	/**
-	 * 
+	 * Instantiates a new Random Number id service.
 	 */
 	public RNIdService() {}
 
@@ -45,6 +52,9 @@ public class RNIdService implements IdService {
 		return uri;
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.idservice.IdService#isValidId(java.net.URI)
+	 */
 	public boolean isValidId(URI id) throws Exception {
 		String prefix = "ark:/"+ NAAN + "/";
 		boolean isValid = id.toASCIIString().startsWith(prefix);

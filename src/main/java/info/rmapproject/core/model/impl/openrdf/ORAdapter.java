@@ -28,21 +28,21 @@ import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.SimpleValueFactory;
 
-
 /**
- * Adapter utilities for conversion between RMap classes and OpenRDF/Sesame classes
- * 
- * @author smorrissey, khanson
+ * Adapter utilities for conversion between RMap classes and OpenRDF/Sesame classes.
  *
+ * @author smorrissey, khanson
  */
 public class ORAdapter {
 
+	/** The value factory instance. */
 	private static ValueFactory valFactory = null;
 	
 	/**
-	 * Get ValueFactory to be used to create Model objects
-	 * @return ValueFactory
-	 * @throws Exception 
+	 * Get ValueFactory to be used to create Model objects.
+	 *
+	 * @return ValueFactory the value factory instance
+	 * @throws RMapException the RMap exception
 	 */
 	public static ValueFactory getValueFactory() throws RMapException {
 		if (valFactory == null){
@@ -56,19 +56,22 @@ public class ORAdapter {
 	
 	/**
 	 * Convert java.net.URI to org.openrdf.model.IRI
+	 *
 	 * @param uri java.net.URI to be converted
 	 * @return org.openrdf.model.IRI
-	 * @throws Exception 
+	 * @throws RMapException the RMap exception
 	 */
 	public static IRI uri2OpenRdfIri (java.net.URI uri) throws RMapException{
 		IRI openIri =  getValueFactory().createIRI(uri.toString());
 		return openIri;
 	}
+	
 	/**
 	 * Convert RMapIri to  org.openrdf.model.IRI
+	 *
 	 * @param rIri RMapIri to be converted
-	 * @return  org.openrdf.model.URI equivalent
-	 * @throws Exception
+	 * @return  org.openrdf.model.IRI equivalent
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public static IRI rMapIri2OpenRdfIri (RMapIri rIri) throws RMapDefectiveArgumentException {
 		IRI iri = null;
@@ -80,11 +83,13 @@ public class ORAdapter {
 		}		
 		return iri;
 	}
+	
 	/**
 	 * Convert RMapBlankNode to  org.openrdf.model.Bnode
+	 *
 	 * @param blank RMapBlankNode to be converted
 	 * @return org.openrdf.model.Bnode
-	 * @throws RMapException
+	 * @throws RMapException the RMap exception
 	 */
 	public static BNode rMapBlankNode2OpenRdfBNode (RMapBlankNode blank) {
 		BNode newBlankNode = getValueFactory().createBNode(blank.getId());
@@ -92,10 +97,11 @@ public class ORAdapter {
 	}
 
 	/**
-	 * 
-	 * @param nonLiteral
-	 * @return
-	 * @throws Exception
+	 * Converts a non literal RMapResource to an org.openrdf.model.Resource.
+	 *
+	 * @param nonLiteral the non literal RMapResource
+	 * @return the equivalent openrdf Resource
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public static Resource rMapNonLiteral2OpenRdfResource(RMapResource nonLiteral) throws RMapDefectiveArgumentException {
 		Resource resource = null;
@@ -117,11 +123,13 @@ public class ORAdapter {
 		}
 		return resource;
 	}
+
 	/**
-	 * 
-	 * @param rLiteral
-	 * @return
-	 * @throws Exception
+	 * Converts an RMapLiteral to an org.openrdf.model.Literal
+	 *
+	 * @param rLiteral the RMapLiteral to be converted
+	 * @return the equivalent openrdf literal
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public static Literal rMapLiteral2OpenRdfLiteral(RMapLiteral rLiteral) throws RMapDefectiveArgumentException {
 		Literal literal = null;
@@ -144,10 +152,17 @@ public class ORAdapter {
 		return literal;
 	}
 	
+	/**
+	 * Converts an RMapValue two an org.openrdf.model.Value.
+	 *
+	 * @param resource the RMapValue to be converted
+	 * @return the equivalent openrdf Value
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
+	 */
 	public static Value rMapValue2OpenRdfValue (RMapValue resource) throws RMapDefectiveArgumentException {
 		Value value = null;
 		if (resource==null){
-			throw new RMapDefectiveArgumentException ("Null RMapLiteral");
+			throw new RMapDefectiveArgumentException ("Null RMapValue provided");
 		}
 		if (resource instanceof RMapResource){
 			value = rMapNonLiteral2OpenRdfResource((RMapResource)resource);
@@ -163,10 +178,11 @@ public class ORAdapter {
 	
 	// Adapter Methods to go from OpenRDF to RMap
 	/**
-	 * 
-	 * @param uri
-	 * @return
-	 * @throws URISyntaxException
+	 * Converts an openrdf IRI to a java.net.URI
+	 *
+	 * @param iri the openrdf IRI to be converted
+	 * @return the equivalent java.net.URI
+	 * @throws RMapException the RMap exception
 	 */
 	public static java.net.URI openRdfIri2URI (IRI iri) throws RMapException{
 		java.net.URI jUri;
@@ -177,11 +193,13 @@ public class ORAdapter {
 		}
 		return jUri;
 	}
+	
 	/**
-	 * 
-	 * @param uri
-	 * @return
-	 * @throws URISyntaxException
+	 * Converts an openrdf IRI to an RMapIri
+	 *
+	 * @param iri the openrdf IRI
+	 * @return the equivalent RMapIri
+	 * @throws RMapException the RMap exception
 	 */
 	public static RMapIri openRdfIri2RMapIri(IRI iri) throws RMapException{
 		RMapIri rmapIri = null;
@@ -189,11 +207,13 @@ public class ORAdapter {
 		rmapIri = new RMapIri(jIri);
 		return rmapIri;
 	}
+	
 	/**
-	 * 
-	 * @param b
-	 * @return
-	 * @throws RMapDefectiveArgumentException
+	 * Converts an openrdf BNode to an RMapBNode.
+	 *
+	 * @param b the openrdf BNode
+	 * @return the equivalent RMapBlankNode
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public static RMapBlankNode openRdfBNode2RMapBlankNode (BNode b) throws RMapDefectiveArgumentException{
 		RMapBlankNode rnode= null;
@@ -203,12 +223,14 @@ public class ORAdapter {
 		rnode = new RMapBlankNode(b.getID());
 		return rnode;
 	}
+	
 	/**
-	 * 
-	 * @param resource
-	 * @return
-	 * @throws RMapDefectiveArgumentException
-	 * @throws URISyntaxException
+	 * Converts and openrdf Resource to a non-literal RMapResource.
+	 *
+	 * @param resource a non-literal openrdf Resource
+	 * @return the equivalent RMapResource
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public static RMapResource openRdfResource2NonLiteral(Resource resource) 
 			throws RMapException, RMapDefectiveArgumentException {
@@ -230,6 +252,14 @@ public class ORAdapter {
 		return nlResource;
 	}
 	
+	/**
+	 * Converts an openrdf literal to an RMapLiteral.
+	 *
+	 * @param literal an openrdf literal
+	 * @return the equivalent RMapLiteral
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
+	 */
 	public static RMapLiteral openRdfLiteral2RMapLiteral(Literal literal)
 			throws RMapException, RMapDefectiveArgumentException {
 		RMapLiteral rLiteral = null;
@@ -252,12 +282,14 @@ public class ORAdapter {
 		}
 		return rLiteral;
 	}
+	
 	/**
-	 * 
-	 * @param value
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
+	 * Converts an openrdf Value to the equivalent RMapValue.
+	 *
+	 * @param value an openrdf Value
+	 * @return the equivalent RMapValue
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public static RMapValue openRdfValue2RMapValue (Value value) 
 			throws RMapException, RMapDefectiveArgumentException {
@@ -282,12 +314,14 @@ public class ORAdapter {
 		}
 		return resource;
 	}
+	
 	/**
-	 * Covert OpenRdf Statement to RMapTriple
+	 * Converts an OpenRdf Statement to an RMapTriple.
+	 *
 	 * @param stmt OpenRdf Statement to be converted
 	 * @return RMapTriple corresponding to OpenRdf Statement
-	 * @throws RMapDefectiveArgumentException
-	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
+	 * @throws RMapException the RMap exception
 	 */
 	public static RMapTriple openRdfStatement2RMapTriple (Statement stmt)
 		throws RMapDefectiveArgumentException, RMapException {
@@ -306,9 +340,10 @@ public class ORAdapter {
 	 * Attempt to convert IRIs in openRdf IRI to a java.net.URI to see if it is compatible
 	 * openRdf is more relaxed about what characters to allow in the URI e.g. "/n" can be put in openRdfUri. 
 	 * This ensures URIs in the statement are compatible with the narrower URI definition in java.net.URI.
-	 * @param uri
-	 * @return boolean
-	 * @throws RMapException
+	 *
+	 * @param iri the IRI to be converted
+	 * @return true if the openrdf IRI can be converted to a java.net.URI.
+	 * @throws RMapException the RMap exception
 	 */
 	public static boolean checkOpenRdfUri2UriCompatibility(IRI iri) throws RMapException {
 		try {
@@ -322,9 +357,10 @@ public class ORAdapter {
 	
 	/**
 	 * Checks each openRDF IRI in a statement for compatibility with java.net.URI. 
-	 * @param stmt
-	 * @return boolean
-	 * @throws RMapException
+	 *
+	 * @param stmt a statement to be checked for URI compatibility
+	 * @return true if all IRIs in a statement are compatible with java.net.URI
+	 * @throws RMapException the RMap exception
 	 */
 	public static boolean checkOpenRdfIri2UriCompatibility (Statement stmt) throws RMapException {
 		if (stmt.getSubject() instanceof IRI) {
@@ -341,8 +377,9 @@ public class ORAdapter {
 	
 	/**
 	 * Converts a list of openRdf URIs to a list of java.net.URIs
-	 * @param openRdfUriList
-	 * @return
+	 *
+	 * @param openRdfUriList a list of openrdf URIs
+	 * @return the equivalent list of java.net.URIs
 	 */
 	public static List<java.net.URI> openRdfUriList2UriList(List<IRI> openRdfUriList) {
 		List<java.net.URI> javaUriList = new ArrayList<java.net.URI>();
@@ -358,9 +395,10 @@ public class ORAdapter {
 	}
 	
 	/**
-	 * Converts a list of java.net.URIs to a list of openRdf URIs	  
-	 * @param javaUriList
-	 * @return
+	 * Converts a list of java.net.URIs to a list of openRdf IRIs	  
+	 *
+	 * @param javaUriList a list of java.net.URIs
+	 * @return the equivalent list of openrdf IRIs
 	 */
 	public static List<IRI> uriList2OpenRdfIriList(List<java.net.URI> javaUriList) {
 		List<IRI> openRdfUriList = new ArrayList<IRI>();
@@ -378,8 +416,9 @@ public class ORAdapter {
 
 	/**
 	 * Converts a set of openRdf IRIs to a set of java.net.URIs
-	 * @param openRdfIriList
-	 * @return
+	 *
+	 * @param openRdfIriList the set of openrdf IRIs
+	 * @return the equivalent set of java.net.URIs
 	 */
 	public static Set<java.net.URI> openRdfIriSet2UriSet(Set<IRI> openRdfIriList) {
 		Set<java.net.URI> javaUriList = new HashSet<java.net.URI>();
@@ -398,8 +437,9 @@ public class ORAdapter {
 
 	/**
 	 * Converts a set of java.net.URIs to an openRDF set of IRIs
-	 * @param uriList
-	 * @return
+	 *
+	 * @param javaUriList a set of java.net.URIs
+	 * @return the equivalent set of openrdf IRIs
 	 */
 	public static Set<IRI> uriSet2OpenRdfIriSet(Set<java.net.URI> javaUriList) {
 		Set<IRI> openRdfIriList = new HashSet<IRI>();
@@ -419,9 +459,10 @@ public class ORAdapter {
 	
 	/**
 	 * Checks each openRDF IRI in a list statement for compatibility with java.net.URI. 
-	 * @param stmts
-	 * @return
-	 * @throws RMapException
+	 *
+	 * @param stmts a set of statements to be validated for java.net.URI compatibility
+	 * @return true if IRIs in all statements are compatible with java.net.URIs
+	 * @throws RMapException the RMap exception
 	 */
 	public static boolean checkOpenRdfIri2UriCompatibility (Set<Statement> stmts) throws RMapException{
 		for (Statement stmt : stmts){

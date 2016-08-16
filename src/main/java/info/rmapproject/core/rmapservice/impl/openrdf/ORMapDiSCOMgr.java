@@ -52,18 +52,29 @@ import org.openrdf.repository.RepositoryException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Class that creates actual triples for DiSCO, related Events, and
- * Statements in the tripleStore;
- * 
- *  @author khanson, smorrissey
+ * A concrete class for managing RMap DiSCOs, implemented using openrdf.
  *
+ * @author khanson, smorrissey
  */
 public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	
+	/** Instance of the RMap ID service. */
 	private IdService rmapIdService;
+	
+	/** Instance of the RMap Agent Manager . */
 	private ORMapAgentMgr agentmgr;
+	
+	/** Instance of the RMap Event Manager */
 	private ORMapEventMgr eventmgr;
 	
+	/**
+	 * Instantiates a new RMap DiSCO Manager
+	 *
+	 * @param rmapIdService the RMap ID service
+	 * @param agentmgr the Agent manager instance
+	 * @param eventmgr the Event manager instance
+	 * @throws RMapException the RMap exception
+	 */
 	@Autowired
 	public ORMapDiSCOMgr(IdService rmapIdService, ORMapAgentMgr agentmgr, ORMapEventMgr eventmgr) throws RMapException {
 		super();
@@ -74,20 +85,23 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	
 	
 	/**
-	 * Return DiSCO DTO corresponding to discoID
-	 * @param discoID
-	 * @param getLinks 
-	 * @param event2disco 
-	 * @param date2event 
-	 * @param ts
-	 * @return
-	 * @throws RMapTombstonedObjectException
-	 * @throws RMapDefectiveArgumentException 
-	 * @throws RMapObjectNotFoundException 
-	 * @throws RMapException 
+	 * Return DiSCO DTO corresponding to the DiSCO IRI.
+	 *
+	 * @param discoID the DiSCO IRI
+	 * @param getLinks true, if the links to next, previous, latest should be set in the DTO; or false if they won't be used.
+	 * @param event2disco map containing IRIs of all versions of the DiSCOs and corresponding Event IRIs
+	 * @param date2event map containing Event dates related to all DiSCO versions and corresponding Event IRI
+	 * @param ts the triplestore instance
+	 * @return the RMap DiSCO DTO
+	 * @throws RMapTombstonedObjectException the RMap tombstoned object exception
+	 * @throws RMapDeletedObjectException the RMap deleted object exception
+	 * @throws RMapException the RMap exception
+	 * @throws RMapObjectNotFoundException the RMap object not found exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public ORMapDiSCODTO readDiSCO(IRI discoID, boolean getLinks, Map<IRI, IRI> event2disco, Map<Date, IRI> date2event, SesameTriplestore ts) 
 	throws RMapTombstonedObjectException, RMapDeletedObjectException, RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
+		//TODO: Revisit this method... it seems a little odd - why are two Map parameters passed and then populated anyway when null.	
 		ORMapDiSCO disco = null;
 		if (discoID ==null){
 			throw new RMapException ("null discoID");
@@ -141,14 +155,15 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	
 	
 	/**
-	 * 
-	 * @param systemAgentId
-	 * @param disco
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
-	 * @throws RMapAgentNotFoundException 
+	 * Creates a new DiSCO
+	 *
+	 * @param disco the new RMap DiSCO
+	 * @param requestAgent the requesting Agent
+	 * @param ts the triplestore instance
+	 * @return an RMap Event
+	 * @throws RMapException the RMap exception
+	 * @throws RMapAgentNotFoundException the RMap agent not found exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public ORMapEvent createDiSCO(ORMapDiSCO disco, RMapRequestAgent requestAgent, SesameTriplestore ts) 
 			throws RMapException, RMapAgentNotFoundException, RMapDefectiveArgumentException{		
@@ -182,7 +197,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		// create triples for all statements in DiSCO
 		// Keep track of resources created by this Event
 		Set<IRI> created = new HashSet<IRI>();
-		// add the DiSCO id as an event-created Resource
+		// add the DiSCO IRI as an event-created Resource
 		created.add(disco.getDiscoContext());
 		
 		//  for type statement add the triple
@@ -240,16 +255,20 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	}
 
 	/**
-	 * 
-	 * @param systemAgentId
-	 * @param justInactivate
-	 * @param oldDiscoId
-	 * @param disco
-	 * @param ts
-	 * @return
-	 * @throws RMapDefectiveArgumentException
-	 * @throws RMapAgentNotFoundException
-	 * @throws RMapException
+	 * Updates an existing DiSCO.  If the requesting agent is the same as the original DiSCO creator
+	 * the previous version of the DiSCO will get the status of "INACTIVE" and the new DiSCO will be linked as a 
+	 * version of it.  If the request agent is different from the original DiSCO creator, the new DiSCO will not
+	 * affect the status of the original, but will be linked as an alternative version of that DiSCO
+	 *
+	 * @param oldDiscoId the original DiSCO IRI
+	 * @param disco the updated RMap DiSCO
+	 * @param requestAgent the requesting agent
+	 * @param justInactivate true, if the DiSCO should be inactivated without a new version being created; or, false if a new version is provided.
+	 * @param ts the triplestore instance
+	 * @return the RMap Event
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
+	 * @throws RMapAgentNotFoundException the RMap agent not found exception
+	 * @throws RMapException the RMap exception
 	 */
 	//try to roll this back!
 	public RMapEvent updateDiSCO(IRI oldDiscoId, ORMapDiSCO disco, RMapRequestAgent requestAgent,  boolean justInactivate, SesameTriplestore ts) 
@@ -336,7 +355,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			// create any new triples for all statements in DiSCO
 			// Keep track of resources created by this Event
 			Set<IRI> created = new HashSet<IRI>();			
-			// add the DiSCO id as an event-created Resource
+			// add the DiSCO IRI as an event-created Resource
 			created.add(disco.getDiscoContext());
 			
 			this.createTriple(ts, disco.getTypeStatement());
@@ -392,16 +411,18 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}
 		return event;
 	}
+	
 	/**
-	 * Soft-delete a DiSCO A read of this DiSCO should return tombstone notice rather 
-	 * than statements in the DiSCO,but DiSCO named graph is not deleted from triplestore
-	 * @param systemAgentId
-	 * @param oldDiscoId
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
-	 * @throws RMapAgentNotFoundException 
+	 * Soft-delete a DiSCO.  A read of this DiSCO after the udpate should return tombstone notice rather 
+	 * than statements in the DiSCO, but DiSCO named graph is not deleted from triplestore.
+	 *
+	 * @param oldDiscoId the DiSCO IRI
+	 * @param requestAgent the requesting agent
+	 * @param ts the triplestore instance
+	 * @return the RMap Event
+	 * @throws RMapException the RMap exception
+	 * @throws RMapAgentNotFoundException the RMap agent not found exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public RMapEvent tombstoneDiSCO(IRI oldDiscoId, RMapRequestAgent requestAgent, SesameTriplestore ts) 
 	throws RMapException, RMapAgentNotFoundException, RMapDefectiveArgumentException {
@@ -448,17 +469,16 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}
 		return event;
 	}
+	
 	/**
-	 * Get status of DiSCO
-	 * If DiSCO has been deleted, then its status is deleted,
-	 * else if DiSCO has been tombstoned, then its status is tombsoned
-	 * else if DiSCO has been updated, then its satus is inactive,
-	 * else status is active
-	 * @param discoId
-	 * @param ts
-	 * @return
-	 * @throws RMapDiSCONotFoundException
-	 * @throws RMapException
+	 * Get the status of a DiSCO
+	 * See RMapStatus enum for possible statuses
+	 *
+	 * @param discoId the DiSCO IRI
+	 * @param ts the triplestore instance
+	 * @return the DiSCO status
+	 * @throws RMapDiSCONotFoundException the RMap DiSCO not found exception
+	 * @throws RMapException the RMap exception
 	 */
 	public RMapStatus getDiSCOStatus(IRI discoId, SesameTriplestore ts) 
 			throws RMapDiSCONotFoundException, RMapException {
@@ -511,15 +531,15 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	/**
 	 * Method to get all versions of DiSCO
 	 * If matchAgent = true, then return only versions created by same agent as creating agent
-	 *                 if false, then return all versions by all agents
-	 * @param discoId
-	 * @param matchAgent true if searching for versions of disco by a particlar agent;
+	 *                 if false, then return all versions by all agents.
+	 *
+	 * @param discoId the DiSCO IRI
+	 * @param matchAgent true if searching for versions of DiSCO by a particular agent;
 	 *                   false if searching for all versions regardless of agent
 	 * @param ts triplestore
-	 * @return Map from IRI of an Event to the IRI of DiSCO created by event, either as creation,
-	 *  update, or derivation
-	 * @throws RMapException
-	 * @throws RMapObjectNotFoundException
+	 * @return Map from IRI of an Event to the IRI of DiSCO created by event, either as creation, update, or derivation
+	 * @throws RMapObjectNotFoundException the RMap object not found exception
+	 * @throws RMapException the RMap exception
 	 */
 	public Map<IRI,IRI> getAllDiSCOVersions(IRI discoId, boolean matchAgent, SesameTriplestore ts) 
 			throws RMapObjectNotFoundException, RMapException {
@@ -533,17 +553,23 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		Map<IRI,IRI> event2Disco = lookBack(discoId, null, true, matchAgent, ts);		
 		return event2Disco;
 	}
+	
 	/**
-	 * 
-	 * @param discoId
-	 * @param agentId
-	 * @param lookFoward
-	 * @param matchAgent
-	 * @param ts
-	 * @return
-	 * @throws RMapObjectNotFoundException 
+	 * When retrieving a list of DiSCO versions, this method retrieves a list of IRIs for previous versions 
+	 * and their corresponding Event IRI. If lookForward is set to true, it will also retreive next versions using
+	 * the lookForward() method
+	 *
+	 * @param discoId the DiSCO IRI
+	 * @param agentId the Agent IRI
+	 * @param lookForward if true, look for Next versions; if false only look at previous versions.
+	 * @param matchAgent if true only versions of DiSCOs matching the current DiSCO should be included;		
+	 * 					if false all DiSCO versions included.
+	 * @param ts the triplestore instance
+	 * @return the map
+	 * @throws RMapObjectNotFoundException the RMap object not found exception
+	 * @throws RMapException the RMap exception
 	 */
-	protected Map<IRI,IRI> lookBack(IRI discoId, IRI agentId, boolean lookFoward, boolean matchAgent, SesameTriplestore ts) 
+	protected Map<IRI,IRI> lookBack(IRI discoId, IRI agentId, boolean lookForward, boolean matchAgent, SesameTriplestore ts) 
 					throws RMapObjectNotFoundException, RMapException {
 		Statement eventStmt = eventmgr.getRMapObjectCreateEventStatement(discoId, ts);
 		if (eventStmt==null){
@@ -566,7 +592,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			}
 			event2Disco.put(eventId,discoId);			
 			if(eventmgr.isCreationEvent(eventId, ts)){					
-				if (lookFoward){
+				if (lookForward){
 					event2Disco.putAll(this.lookFoward(discoId, oldAgentId, matchAgent,ts));
 				}
 				break;
@@ -588,19 +614,23 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		} while (false);		
 		return event2Disco;
 	}
+	
 	/**
-	 * 
-	 * @param discoId
-	 * @param agentId
-	 * @param matchAgent
-	 * @param ts
-	 * @return
-	 * @throws RMapObjectNotFoundException
+	 * When retrieving a list of DiSCO versions, this method retrieves a list of IRIs for future versions 
+	 * and their corresponding Event IRI. 
+	 *
+	 * @param discoId the DiSCO IRI
+	 * @param agentId the Agent IRI
+	 * @param matchAgent if true only versions of DiSCOs matching the current DiSCO should be included;		
+	 * 					if false all DiSCO versions included.
+	 * @param ts the triplestore instance
+	 * @return the map
+	 * @throws RMapObjectNotFoundException the RMap object not found exception
 	 */
 	protected Map<IRI,IRI> lookFoward(IRI discoId, IRI agentId, boolean matchAgent, SesameTriplestore ts) throws RMapObjectNotFoundException{
 		Map<IRI,IRI> event2Disco = new HashMap<IRI,IRI>();			
 		do {
-			Set<Statement> eventStmts = eventmgr.getUpdateEvents(discoId, ts);
+			Set<Statement> eventStmts = eventmgr.getInactivationEvents(discoId, ts);
 			if (eventStmts==null || eventStmts.size()==0){
 				break;
 			}
@@ -630,13 +660,14 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 
 	
 	/**
-	 * Get ID of Agent that asserted a DiSCO i.e isAssociatedWith the create or derive event
-	 * @param iri ID of DiSCO
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDiSCONotFoundException
-	 * @throws RMapObjectNotFoundException
+	 * Get IRI of Agent that asserted a DiSCO i.e isAssociatedWith the create or derive event
+	 *
+	 * @param discoIri the DiSCO IRI
+	 * @param ts the triplestore instance
+	 * @return the DiSCO's asserting Agent
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDiSCONotFoundException the RMap DiSCO not found exception
+	 * @throws RMapObjectNotFoundException the RMap object not found exception
 	 */
 	public IRI getDiSCOAssertingAgent(IRI discoIri, SesameTriplestore ts) 
 			throws RMapException, RMapDiSCONotFoundException, RMapObjectNotFoundException {
@@ -654,14 +685,15 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	
 	
 	/**
-	 * Get ids of any Agents associated with a DiSCO
-	 * @param iri ID of DiSCO
-	 * @param statusCode
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDiSCONotFoundException
-	 * @throws RMapObjectNotFoundException
+	 * Get a set of IRIs for any Agents associated with a DiSCO or referenced in a DiSCO
+	 *
+	 * @param iri DiSCO IRI
+	 * @param statusCode the status code
+	 * @param ts the triplestore instance
+	 * @return A set of IRIs for Agents associated with the DiSCO
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDiSCONotFoundException the RMap DiSCO not found exception
+	 * @throws RMapObjectNotFoundException the RMap object not found exception
 	 */
 	public Set<IRI> getRelatedAgents(IRI iri, RMapStatus statusCode, SesameTriplestore ts) 
 	throws RMapException, RMapDiSCONotFoundException, RMapObjectNotFoundException {
@@ -699,15 +731,17 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		} while (false);		
 		return agents;
 	}
+	
 	/**
-	 * Get ID (IRI) of latest version of a Disco (might be same as DiSCO)
-	 * @param disco ID of DiSCO whose latest version is being rquested
-	 * @param ts
+	 * Get IRI of the latest version of a DiSCO (might be same as current DiSCO).
+	 *
+	 * @param disco IRI of DiSCO whose latest version is being requested
+	 * @param ts the triplestore instance
 	 * @param event2disco Map from events to all versions of DiSCOs
-	 * @return id of latest version of DiSCO
-	 * @throws RMapException
-	 * @throws RMapObjectNotFoundException
-	 * @throws RMapDefectiveArgumentException
+	 * @return IRI of latest version of DiSCO
+	 * @throws RMapException the RMap exception
+	 * @throws RMapObjectNotFoundException the RMap object not found exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	protected IRI getLatestDiSCOIri(IRI disco, SesameTriplestore ts, Map<IRI,IRI>event2disco)
 	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
@@ -721,16 +755,18 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		IRI discoId = event2disco.get(lastEvent);
 		return discoId;
 	}
+	
 	/**
-	 * Get IRI of previous version of this DiSCO
-	 * @param discoID id/IRI of DiSCO
+	 * Get IRI of previous version of this DiSCO.
+	 *
+	 * @param discoID IRI of DiSCO
 	 * @param event2disco Map from events to all versions of DiSCOs
 	 * @param date2event  Map from date events associated with version of DiSCO
-	 * @param ts
+	 * @param ts the triplestore instance
 	 * @return IRI of previous version of this DiSCO, or null if none found
-	 * @throws RMapException
-	 * @throws RMapObjectNotFoundException
-	 * @throws RMapDefectiveArgumentException
+	 * @throws RMapException the RMap exception
+	 * @throws RMapObjectNotFoundException the RMap object not found exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	protected IRI getPreviousIRI(IRI discoID, Map<IRI,IRI>event2disco, Map<Date, IRI> date2event, SesameTriplestore ts)
 	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
@@ -765,15 +801,16 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	}
 	
 	/**
-	 * Get IRI of next version of a DiSCO
-	 * @param discoID  id/IRI of DISCO
+	 * Get IRI of next version of a DiSCO.
+	 *
+	 * @param discoID  IRI of DISCO
 	 * @param event2disco Map from events to all versions of DiSCOs
 	 * @param date2event  Map from date events associated with version of DiSCO
-	 * @param ts
+	 * @param ts the triplestore instance
 	 * @return IRI of next version of DiSCO, or null if none found
-	 * @throws RMapException
-	 * @throws RMapObjectNotFoundException
-	 * @throws RMapDefectiveArgumentException
+	 * @throws RMapException the RMap exception
+	 * @throws RMapObjectNotFoundException the RMap object not found exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	protected IRI getNextIRI(IRI discoID, Map<IRI,IRI>event2disco, Map<Date, IRI> date2event, SesameTriplestore ts)
 	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
@@ -804,11 +841,12 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	}
 
 	/**
-	 * Replaces any occurrences of BNodes in list of statements with RMapidentifier IRIs
-	 * @param stmts
-	 * @param ts
-	 * @return
-	 * @throws RMapException
+	 * Replaces any occurrences of blank nodes (BNode) in list of statements with RMap identifier IRIs.
+	 *
+	 * @param stmts list of statements to check for BNodes
+	 * @param ts the triplestore instance
+	 * @return updated list of statements, now without blank nodes.
+	 * @throws RMapException the RMap exception
 	 */
 	protected List<Statement> replaceBNodeWithRMapId(List<Statement> stmts, SesameTriplestore ts) throws RMapException {
 		if (stmts==null){
@@ -892,12 +930,13 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	}
 	
 	/**
-	 * Confirm 2 identifiers refer to the same creating agent - Agents can only update own DiSCO
-	 * @param discoIri
-	 * @param systemAgentId
-	 * @param ts
-	 * @return
-	 * @throws RMapException
+	 * Confirm 2 identifiers refer to the same creating agent since Agents can only update own DiSCO.
+	 *
+	 * @param discoIri the DiSCO IRI
+	 * @param requestAgent the requesting Agent
+	 * @param ts the triplestore instance
+	 * @return true, if is same creator agent
+	 * @throws RMapException the RMap exception
 	 */
 	protected boolean isSameCreatorAgent (IRI discoIri, RMapRequestAgent requestAgent, SesameTriplestore ts) 
 			throws RMapException {

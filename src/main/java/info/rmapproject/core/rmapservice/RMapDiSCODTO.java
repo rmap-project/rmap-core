@@ -9,28 +9,36 @@ import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 
 /**
- * Data Transfer Object to package up information for response to a read of a DiSCO
- * @author smorrissey
+ * Data Transfer Object to package up information for response to a read of a DiSCO.
  *
+ * @author smorrissey
  */
 public interface RMapDiSCODTO {
+	
 	/**
-	 * Get DiSCO itself
+	 * Get DiSCO itself.
+	 *
 	 * @return RMapDiSCO object
 	 */
 	public RMapDiSCO getRMapDiSCO();
+	
 	/**
-	 * Get DiSCO status
+	 * Get DiSCO status.
+	 *
 	 * @return RMapStatus of DiSCO
 	 */
 	public RMapStatus getStatus();
+	
 	/**
-	 * Get URI of previous DiSCO
+	 * Get URI of previous DiSCO.
+	 *
 	 * @return URI of previous DiSCO, or null if none
 	 */
 	public URI getPreviousURI();
+	
 	/**
-	 * Get URI of next DiSCO
+	 * Get URI of next DiSCO.
+	 *
 	 * @return URI of next DiSCO, or null if none
 	 */
 	public URI getNextURI();

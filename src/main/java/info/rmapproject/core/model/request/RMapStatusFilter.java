@@ -4,27 +4,50 @@
 package info.rmapproject.core.model.request;
 
 
-
-
 /**
- * @author khanson
+ * The Enum to describe possible status filters for an RMap request.
  *
+ * @author khanson
  */
 public enum RMapStatusFilter {
+	
+	/** Filter by RMap Objects with an ACTIVE status. */
 	ACTIVE ("active"),
+	
+	/** Filter by RMap Objects with an INACTIVE status */
 	INACTIVE ("inactive"),
+	
+	/** Show both ACTIVE and INACTIVE RMap Objects. Note that there are also TOMBSTONED and DELETED
+	 * objects, but these are always hidden from public view. */
 	ALL("all");
 
+	/** The string term for the status. */
 	private String statusTerm= null ;
 
+	/**
+	 * Instantiates a new RMap status filter.
+	 *
+	 * @param statusTerm status as String
+	 */
 	RMapStatusFilter(String statusTerm){		
 		this.statusTerm = statusTerm;
 	}
 	
+	/**
+	 * Gets the status filter as a string
+	 *
+	 * @return the status filter as a string
+	 */
 	public String getStatusTerm()  {
 		return this.statusTerm;
 	}
 	
+	/**
+	 * Gets the status filter using the string representation
+	 *
+	 * @param term the status filter as a string
+	 * @return the status
+	 */
 	public static RMapStatusFilter getStatusFromTerm(String term){
 		for (RMapStatusFilter stat: RMapStatusFilter.values()){
 			String statTerm = stat.getStatusTerm();

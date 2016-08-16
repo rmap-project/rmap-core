@@ -1,10 +1,9 @@
 package info.rmapproject.core.model.request;
 
-
 /**
- * Options for ordering search results
- * @author khanson
+ * Options for ordering RMap search results
  *
+ * @author khanson
  */
 public enum OrderBy {
 	/**
@@ -44,16 +43,33 @@ public enum OrderBy {
 	 *
 	DATEDESC_ORDER;*/
 	
+	/** The order by property as string. */
 	private  String orderByProperty= null ;
 
+	/**
+	 * Instantiates a new order by property.
+	 *
+	 * @param orderByProperty the order by property
+	 */
 	OrderBy(String orderByProperty){		
 		this.orderByProperty = orderByProperty;
 	}
 
+	/**
+	 * Gets the order by property.
+	 *
+	 * @return the order by property
+	 */
 	public String getOrderByProperty()  {
 		return this.orderByProperty;
 	}
 		
+	/**
+	 * Gets the order by from property.
+	 *
+	 * @param property the property as a string
+	 * @return the order by property
+	 */
 	public static OrderBy getOrderByFromProperty(String property){
 		for (OrderBy orderby: OrderBy.values()){
 			String compareOrderByVal = orderby.getOrderByProperty().toLowerCase();

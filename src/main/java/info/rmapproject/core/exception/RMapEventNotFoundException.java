@@ -4,48 +4,55 @@
 package info.rmapproject.core.exception;
 
 /**
- * @author smorrissey
+ * Exception occurs when an RMap Event is requested but cannot be found
  *
+ * @author smorrissey
  */
 public class RMapEventNotFoundException extends RMapObjectNotFoundException {
 
-	/**
-	 * 
-	 */
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -2200390531474455796L;
 
 	/**
-	 * 
+	 * Instantiates a new RMap Event not found exception.
 	 */
 	public RMapEventNotFoundException() {
 		super();
 	}
 
 	/**
-	 * @param message
+	 * Instantiates a new RMap Event not found exception.
+	 *
+	 * @param message the message
 	 */
 	public RMapEventNotFoundException(String message) {
 		super(message);
 	}
 
 	/**
-	 * @param cause
+	 * Instantiates a new RMap Event not found exception.
+	 *
+	 * @param cause the cause
 	 */
 	public RMapEventNotFoundException(Throwable cause) {
 		super(cause);
 	}
 
 	/**
-	 * @param message
-	 * @param cause
+	 * Instantiates a new RMap Event not found exception.
+	 *
+	 * @param message the message
+	 * @param cause the cause
 	 */
 	public RMapEventNotFoundException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
 	/**
-	 * @param message
-	 * @param cause
+	 * Instantiates a new RMap Event not found exception.
+	 *
+	 * @param message the message
+	 * @param cause the cause
 	 * @param enableSuppression
 	 * @param writableStackTrace
 	 */

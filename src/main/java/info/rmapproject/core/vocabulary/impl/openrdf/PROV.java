@@ -8,6 +8,11 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.SimpleNamespace;
 import org.openrdf.model.impl.SimpleValueFactory;
 
+/**
+ * The ORE ontology class implemented using openrdf model
+ * 
+ * @author khanson
+ */
 public class PROV {
 
 	/**
@@ -15,9 +20,7 @@ public class PROV {
 	 */
 	public static final String NAMESPACE = Terms.PROV_NAMESPACE;
 
-	/**
-	 * Recommend prefix for the PROV-O elements namespace: "ore"
-	 */
+	/** Recommend prefix for the PROV-O elements namespace: "ore". */
 	public static final String PREFIX = Terms.PROV_PREFIX;
 
 	/**
@@ -27,57 +30,37 @@ public class PROV {
 	public static final Namespace NS = new SimpleNamespace(PREFIX, NAMESPACE);
 
 	
-	/**
-	 * prov:Activity
-	 */
+	/** IRI for prov:Activity class. */
 	public static final IRI ACTIVITY;
 
-	/**
-	 * prov:startedAtTime
-	 */
+	/** IRI for prov:startedAtTime property. */
 	public static final IRI STARTEDATTIME;
 
-	/**
-	 * prov:endedAtTime
-	 */
+	/** IRI for prov:endedAtTime property. */
 	public static final IRI ENDEDATTIME;
 
-	/**
-	 * prov:wasGeneratedBy
-	 */
+	/** IRI for prov:wasGeneratedBy property. */
 	public static final IRI WASGENERATEDBY;
-	/**
-	 * prov:wasDerivedFrom
-	 */
+	
+	/** IRI for prov:wasDerivedFrom property. */
 	public static final IRI WASDERIVEDFROM;
-	/**
-	 * prov:generated
-	 */
+	
+	/** IRI for prov:generated property. */
 	public static final IRI GENERATED;
 
-	/**
-	 * prov:hadActivity
-	 */
+	/** IRI for prov:hadActivity property. */
 	public static final IRI HADACTIVITY;
 
-	/**
-	 * prov:wasAssociatedWith
-	 */
+	/** IRI for prov:wasAssociatedWith property. */
 	public static final IRI WASASSOCIATEDWITH;
 	
-	/**
-	 * prov:wasAttributedTo
-	 */
+	/** IRI for prov:wasAttributedTo property. */
 	public static final IRI WASATTRIBUTEDTO;
 
-	/**
-	 * prov:has_provenance
-	 */
+	/** IRI for prov:has_provenance property. */
 	public static final IRI HAS_PROVENANCE;
 
-	/**
-	 * prov:used
-	 */
+	/** IRI for prov:used property. */
 	public static final IRI USED;
 
 	

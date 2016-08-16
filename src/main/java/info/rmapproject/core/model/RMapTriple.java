@@ -4,21 +4,35 @@
 package info.rmapproject.core.model;
 
 /**
- * @author smorrissey
+ * Models the concept of an RDF triple, which contains a subject, predicate and object
  *
+ * @author smorrissey
  */
 public class RMapTriple {
 
+	/** The subject. */
 	protected RMapResource subject;
+	
+	/** The predicate. */
 	protected RMapIri predicate;
+	
+	/** The object. */
 	protected RMapValue object;
+	
 	/**
-	 * 
+	 * Instantiates a new RMap triple.
 	 */
 	protected RMapTriple() {
 		super();
 	}
 	
+	/**
+	 * Instantiates a new RMap triple.
+	 *
+	 * @param subject the subject
+	 * @param predicate the predicate
+	 * @param object the object
+	 */
 	public RMapTriple(RMapResource subject, RMapIri predicate, RMapValue object){
 		this();
 		this.subject = subject;
@@ -27,6 +41,8 @@ public class RMapTriple {
 	}
 
 	/**
+	 * Gets the subject.
+	 *
 	 * @return the subject
 	 */
 	public RMapResource getSubject() {
@@ -34,6 +50,8 @@ public class RMapTriple {
 	}
 
 	/**
+	 * Gets the predicate.
+	 *
 	 * @return the predicate
 	 */
 	public RMapIri getPredicate() {
@@ -41,6 +59,8 @@ public class RMapTriple {
 	}
 
 	/**
+	 * Gets the object.
+	 *
 	 * @return the object
 	 */
 	public RMapValue getObject() {

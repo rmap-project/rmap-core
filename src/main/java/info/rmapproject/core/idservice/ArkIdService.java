@@ -22,29 +22,60 @@ import org.apache.logging.log4j.Logger;
  */
 public class ArkIdService implements IdService {
 	
+	/** The log. */
 	private final Logger log = LogManager.getLogger(this.getClass());
 	
+	/** The property key for buffer size */
 	private static final String BUFFER_PROPERTY = "arkservice.bufferSize";
+	
+	/** The property key for prefix */
 	private static final String PREFIX_PROPERTY = "arkservice.idPrefix";
+	
+	/** The property key for the ARK's naan */
 	private static final String NAAN_PROPERTY = "arkservice.idNaan";
+	
+	/** The property key for the ARK service URL */
 	private static final String URL_PROPERTY = "arkservice.url";
+	
+	/** The property key that determines how many retries are attempted after a failed service call*/
 	private static final String MAX_RETRY_PROPERTY = "arkservice.maxRetries";
+	
+	/** The default maximum number of retries */
 	private static final String DEFAULT_MAX_RETRY = "2";
 
+	/** An instance of the ArkIdService */
 	private static ArkIdService instance = new ArkIdService();
 
+	/** List of available noids */
 	private final List<String> noids = new ArrayList<String>();
 
+	/** Set a maximum retry attempts value if you want to cap the property setting. -1 means not maximum */
 	private int maxRetryAttempts = -1;
+	
+	/** The ARK ID service url. */
 	private String serviceUrl = "";
+	
+	/** The ARK ID buffer size. */
 	private int bufferSize = -1;
+	
+	/** The ARK ID naan identifier. */
 	private String naanIdentifier = "";
+	
+	/** The ARK prefix. */
 	private String arkPrefix = "ark:/";
 	
+	/**
+	 * Instantiates a new ARK ID service.
+	 */
 	public ArkIdService() {
 		this(Constants.ARKSERVICE_PROPFILE);
 	}
 
+	/**
+	 * Instantiates a new ARK ID with properties service.
+	 *
+	 * @param propertyFileName the property file name
+	 */
 	public ArkIdService(String propertyFileName) {		
 		Map<String, String> properties = new HashMap<String, String>();
 		
@@ -58,8 +89,10 @@ public class ArkIdService implements IdService {
 	
 	/**
 	 * Check a valid id being returned.
+	 *
+	 * @param id the id
 	 * @return boolean
-	 * @throws Exception
+	 * @throws Exception the exception
 	 */
 	public boolean isValidId(URI id) throws Exception {
 		
@@ -76,8 +109,8 @@ public class ArkIdService implements IdService {
 	 * the env prefix defined in LDAP. Also, the number of ids requested also
 	 * defined in LDAP
 	 *
-	 * @return
-	 * @throws Exception
+	 * @return the noid id
+	 * @throws Exception the exception
 	 */
 
 	public synchronized String getNoidId() throws Exception {
@@ -99,13 +132,21 @@ public class ArkIdService implements IdService {
 		}
 	}
 
+	/**
+	 * Gets the number of NOIDs available in the list in memory
+	 *
+	 * @return the number of noids available
+	 */
 	public int howManyAvailable() {
 		return noids.size();
 	}
 
 
-	/** replace this with httpclient or some such at some point.
-	 * Does this method have to be synchronized?  getNoidId is the only caller.  */
+	/**
+	 * When the list of NOID IDs to use for the ARKs is empty, this method refills the list
+	 *
+	 * @throws Exception the exception
+	 */
 	private synchronized void getMoreNoids() throws Exception {
 
 		maxRetryAttempts = 2;
@@ -188,14 +229,27 @@ public class ArkIdService implements IdService {
 		}
 	}
 
+	/**
+	 * Gets the current instance of ArkIdService.
+	 *
+	 * @return instance of ArkIdService
+	 */
 	public static ArkIdService getInstance() {
 		return instance;
 	}
 
+	/**
+	 * Sets the current ArkIdService instance.
+	 *
+	 * @param instance the new Ark ID service instance
+	 */
 	public static void setInstance(ArkIdService instance) {
 		ArkIdService.instance = instance;
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.idservice.IdService#createId()
+	 */
 	public URI createId() throws Exception {
 			try {
 				return new URI(ArkIdService.getInstance().getNoidId());

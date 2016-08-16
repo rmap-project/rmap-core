@@ -26,15 +26,22 @@ import org.openrdf.query.BindingSet;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * 
- *  @author khanson, smorrissey
+ *  A concrete class for managing RMap Resources, implemented using openrdf
  *
+ * @author khanson, smorrissey
  */
 
 public class ORMapResourceMgr extends ORMapObjectMgr {
 	
+	/** Instance of the RMap DiSCO Manager class */
 	private ORMapDiSCOMgr discomgr;
 	
+	/**
+	 * Instantiates a new RMap DiSCO Manager 
+	 *
+	 * @param discomgr the RMap DiSCO Manager instance
+	 * @throws RMapException the RMap exception
+	 */
 	@Autowired
 	public ORMapResourceMgr(ORMapDiSCOMgr discomgr) throws RMapException {
 		super();
@@ -43,12 +50,13 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	
 	/**
 	 * Get list of DiSCO IRIs that have a statement containing the resource. 
-	 * @param resource
-	 * @params params
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
+	 *
+	 * @param resource resource a Resource IRI
+	 * @param params the search filter parameters
+	 * @param ts the triplestore instance
+	 * @return a set of IRIs of DiSCOs that contain a statement referencing the Resource
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public Set<IRI> getResourceRelatedDiSCOS(IRI resource, RMapSearchParams params, SesameTriplestore ts)
 						throws RMapException, RMapDefectiveArgumentException {		
@@ -78,13 +86,14 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	}
 	
 	/**
-	 * Get list of RMap Agent IRIs that have a statement containing the resource.  
-	 * @param iri
-	 * @param statusCode  if null, match any status code
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
+	 * Get set of RMap Agent IRIs that have a statement containing the resource.  
+	 *
+	 * @param resource a Resource IRI
+	 * @param the search filter parameters
+	 * @param ts the triplestore instance
+	 * @return a set of IRIs for Agents that asserted a statement about the Resource
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public Set<IRI> getResourceAssertingAgents(IRI resource, RMapSearchParams params, SesameTriplestore ts)
 					throws RMapException, RMapDefectiveArgumentException {		
@@ -102,17 +111,15 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	}
 
 	/**
-	 * Get list of RMap object IRIs that have a statement containing the resource, filtered by type DiSCO or Agent.  
-	 * @param resource
-	 * @param statusCode
-	 * @param systemAgents
-	 * @param dateFrom
-	 * @param dateTo
-	 * @param ts
-	 * @param rmapType
-	 * @return Set<IRI>
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
+	 * Get set of RMap object IRIs that have a statement containing the resource, filtered by type (DiSCO or Agent).  
+	 *
+	 * @param resource a Resource IRI
+	 * @param the search filter parameters
+	 * @param ts the triplestore instance
+	 * @param rmapType the RMap type to filter by
+	 * @return Set of IRIs for RMap objects that contain a reference to the Resource ID
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	protected Set<IRI> getRelatedObjects(IRI resource, RMapSearchParams params, SesameTriplestore ts, IRI rmapType)
 					throws RMapException, RMapDefectiveArgumentException {	
@@ -181,14 +188,13 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		
 	/**
 	 * Get list of Events IRIs that are associated with an object that references the resource passed in.  
-	 * @param resource
-	 * @param systemAgents
-	 * @param dateFrom
-	 * @param dateTo
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
+	 *
+	 * @param resource a Resource IRI
+	 * @param the search filter parameters
+	 * @param ts the triplestore instance
+	 * @return a set of IRIs for Events that produced a statement referencing the Resource IRI
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public Set<IRI> getResourceRelatedEvents(IRI resource, RMapSearchParams params, SesameTriplestore ts)
 						throws RMapException, RMapDefectiveArgumentException {		
@@ -272,16 +278,14 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 
 	/**
 	 * Get Statements referencing a IRI in subject or object, whose Subject, Predicate, and Object comprise an RMapStatement, 
-	 * and (if statusCode is not null), whose status matches statusCode, agent, and date filters
-	 * @param resource
-	 * @param statusCode
-	 * @param systemAgents
-	 * @param dateFrom
-	 * @param dateTo
-	 * @param ts
-	 * @return
-	 * @throws RMapDefectiveArgumentException
-	 * @throws RMapException
+	 * and (if statusCode is not null), whose status matches statusCode, agent, and date filters.
+	 *
+	 * @param resource a Resource IRI
+	 * @param the search filter parameters
+	 * @param ts the triplestore instance
+	 * @return set of Statements that reference the Resource IRI as either the subject or object
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
+	 * @throws RMapException the RMap exception
 	 */
 	public Set<Statement> getRelatedTriples(IRI resource, RMapSearchParams params, SesameTriplestore ts) 
 			throws RMapDefectiveArgumentException, RMapException {
@@ -396,13 +400,14 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	
 	
 	/**
-	 * Find types of resource in specific context
-	 * @param rIri resource whose type is being checked
-	 * @param cIri context in which to check
-	 * @param ts Triplestore
-	 * @return Set of IRIs that are type(s) of resource in given context, or null if none found
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
+	 * Find types of resource in specific context.
+	 *
+	 * @param rIri IRI of the resource whose type is being checked
+	 * @param cIri IRI of the RMap Object in which to check for a type
+	 * @param ts the triplestore instance
+	 * @return Set of IRIs that are type(s) of resource in given RMap Object, or null if none found
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public Set<IRI> getResourceRdfTypes(IRI rIri, IRI cIri,  SesameTriplestore ts)
 			throws RMapException, RMapDefectiveArgumentException {
@@ -433,13 +438,15 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	}
 	
 	/**
-	 * Find types of resource in any context
-	 * @param rIri resource whose type is being checked
-	 * @param ts TripleStore
-	 * @return Map from context to any types found for that resource in that context, or null if no type statement
-	 * found for resource in any context
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
+	 * Find rdf:types of resource in an RMap Object (Agent or DiSCO)
+	 *
+	 * @param resourceIri the resource IRI
+	 * @param the search filter parameters
+	 * @param ts the triplestore instance
+	 * @return Map from RMap Object ID to any types found for that resource in that object, or null if no type statement
+	 * found for resource in any RMap Object
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public Map<IRI, Set<IRI>> getResourceRdfTypesAllContexts(IRI resourceIri, RMapSearchParams params, SesameTriplestore ts) 
 			throws RMapException, RMapDefectiveArgumentException {

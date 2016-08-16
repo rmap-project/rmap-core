@@ -17,59 +17,70 @@ import java.io.OutputStream;
 import java.util.List;
 
 /**
- * @author smorrissey
+ * The Interface to be used with any RDFHandlers.
  *
+ * @author smorrissey
  */
 public interface RDFHandler {
+	
 	/**
-	 * Deserialize an RDF InputStream into an RMapDiSCO
+	 * Deserialize an RDF InputStream into an RMapDiSCO.
+	 *
 	 * @param rdfIn an RDF InputStream
-	 * @param rdfFormat name of RDF format 
+	 * @param rdfFormat name of RDF format
 	 * @param baseUri for resolving relative URIs; empty string if no relative URIs in stream
 	 * @return RMapDiSCO built from RDF statements in InputStream
 	 * @throws RMapException if InputStream cannot be converted to valid DiSCO
-	 * @throws RMapDefectiveArgumentException 
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public RMapDiSCO rdf2RMapDiSCO(InputStream rdfIn, RDFType rdfFormat, String baseUri) throws RMapException, RMapDefectiveArgumentException;
+	
 	/**
-	 * Deserialize an RDF InputStream into an RMapAgent
-	 * @param rdfIn
-	 * @param rdfFormat
-	 * @param baseUri; empty string if no relative URIs in stream
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
+	 * Deserialize an RDF InputStream into an RMapAgent.
+	 *
+	 * @param rdfIn an RDF InputStream
+	 * @param rdfFormat name of RDF format
+	 * @param baseUri for resolving relative URIs; empty string if no relative URIs in stream
+	 * @return RMapAgent built from RDF statements in InputStream
+	 * @throws RMapException if InputStream cannot be converted to valid Agent
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public RMapAgent rdf2RMapAgent(InputStream rdfIn, RDFType rdfFormat, String baseUri) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
-	 * Serialize RMapTriple list as RDF
-	 * @param List <RMapTriple> to be serialized
+	 * Serialize RMapTriple list as RDF.
+	 *
+	 * @param triples a list of RMap Triple objects to be converted to RDF
 	 * @param rdfFormat RDF Format to be used in serialization
-	 * @return OutputStream with serialized RDF
+	 * @return OutputStream contains serialized RDF
 	 * @throws RMapException if RMapTriple list cannot be serialized as RDF
-	 * @throws RMapDefectiveArgumentException 
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public OutputStream triples2Rdf(List<RMapTriple> triples, RDFType rdfFormat)	throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
-	 * Serialize RMapDiSCO as RDF
+	 * Serialize RMapDiSCO as RDF.
+	 *
 	 * @param disco RMapDiSCO to be serialized
 	 * @param rdfFormat RDF Format to be used in serialization
 	 * @return OutputStream with serialized RDF
 	 * @throws RMapException if RMapDiSCO cannot be serialized as RDF
 	 */
 	public OutputStream disco2Rdf(RMapDiSCO disco, RDFType rdfFormat) throws RMapException;
+	
 	/**
-	 * Serialize RMapEvent as RDF
+	 * Serialize RMapEvent as RDF.
+	 *
 	 * @param event RMapEvent to be serialized
 	 * @param rdfFormat RDF Format to be used in serialization
 	 * @return OutputStream with serialized RDF
 	 * @throws RMapException if RMapEvent cannot be serialized as RDF
 	 */
 	public OutputStream event2Rdf(RMapEvent event, RDFType rdfFormat)throws RMapException;
+	
 	/**
-	 *  Serialize RMapAgent as RDF
+	 *  Serialize RMapAgent as RDF.
+	 *
 	 * @param agent RMapAgent  to be serialized
 	 * @param rdfFormat RDF Format to be used in serialization
 	 * @return OutputStream with serialized RDF

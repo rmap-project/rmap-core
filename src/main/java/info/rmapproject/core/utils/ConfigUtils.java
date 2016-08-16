@@ -13,19 +13,23 @@ import java.util.ResourceBundle;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * @author smorrissey
+ * Utilities to support RMap Core properties
  *
+ * @author smorrissey
  */
 public class ConfigUtils {
 	
+	/** The default property separate character. */
 	public static final String DEFAULT_PROP_SEPARATOR = ",";
 
 	/**
-	 * Convenience method for extracting a single property name/value pair from a property file
+	 * Convenience method for extracting a single property name/value pair from a property file.
+	 *
 	 * @param propFileName base name for property file
 	 * @param propKey property name
 	 * @return String containing property value, or null if not found
-	 * @throws MissingResourceException
+	 * @throws NullPointerException the null pointer exception
+	 * @throws MissingResourceException the missing resource exception
 	 */
 	public static String getPropertyValue(String propFileName, String propKey) throws NullPointerException, MissingResourceException {
 		String propValue = null;
@@ -38,12 +42,14 @@ public class ConfigUtils {
 		}			
 		return propValue;
 	}
+	
 	/**
-	 * Convenience method for extracting several name/value pairs from a single property file
+	 * Convenience method for extracting several name/value pairs from a single property file.
+	 *
 	 * @param propFileName base name of property file
 	 * @return Map<String, String> of all name/value pairs in file
-	 * @throws NullPointerException
-	 * @throws MissingResourceException
+	 * @throws NullPointerException the null pointer exception
+	 * @throws MissingResourceException the missing resource exception
 	 */
 	public static Map<String, String> getPropertyValues(String propFileName) throws NullPointerException, MissingResourceException {
 		Map<String, String> props = null;
@@ -62,15 +68,18 @@ public class ConfigUtils {
 		}
 		return props;
 	}
-	/**	
-	 * Get property value that is a list of Strings rather than a single String value
+	
+	/**
+	 * 	
+	 * Get property value that is a list of Strings rather than a single String value.
+	 *
 	 * @param propFileName name of property file
 	 * @param propKey Property key
 	 * @param separator pattern for Separator character in list of String values (if null, default is ",")
 	 * @return List of values for property, or null if property not found
-	 * @throws NullPointerException
-	 * @throws MissingResourceException
-	 * @throws PatternSyntaxException
+	 * @throws NullPointerException the null pointer exception
+	 * @throws MissingResourceException the missing resource exception
+	 * @throws PatternSyntaxException the pattern syntax exception
 	 */
 	public static List<String> getPropertyValueList (String propFileName, String propKey, String separator) 
 	throws NullPointerException, MissingResourceException, PatternSyntaxException  {
@@ -96,14 +105,16 @@ public class ConfigUtils {
 		}
 		return valueList;
 	}
+	
 	/**
-	 * 
-	 * @param propFileName
-	 * @param separator
-	 * @return
-	 * @throws NullPointerException
-	 * @throws MissingResourceException
-	 * @throws PatternSyntaxException
+	 * Gets the property values list.
+	 *
+	 * @param propFileName the prop file name
+	 * @param separator the separator
+	 * @return the property values list
+	 * @throws NullPointerException the null pointer exception
+	 * @throws MissingResourceException the missing resource exception
+	 * @throws PatternSyntaxException the pattern syntax exception
 	 */
 	public static Map<String,List<String>> getPropertyValuesList (String propFileName,  String separator) 
 	throws NullPointerException, MissingResourceException, PatternSyntaxException  {

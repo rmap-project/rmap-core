@@ -12,22 +12,45 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
- * @author smorrissey, khanson
+ * Enum to define possible RMap Event types.
  *
+ * @author smorrissey, khanson
  */
 public enum RMapEventType {
+	
+	/** Event in which an entirely new object is created without having replaced an existing one, as in UPDATE, DERIVATION. */
 	CREATION(Terms.RMAP_CREATION_PATH),
+	
+	/** Event in which an object is marked as inactive without having been replaced by a new object. */
 	INACTIVATION(Terms.RMAP_INACTIVATION_PATH),
+	
+	/** Event in which a new version of an object is created and previous version still exists but is marked as inactive. */
 	UPDATE(Terms.RMAP_UPDATE_PATH),
+	
+	/** Event in which a new version of an object is created and previous version still exists but stays ACTIVE because it was 
+	 * created by a different Agent. */
 	DERIVATION(Terms.RMAP_DERIVATION_PATH),
+	
+	/** Event in which an object is deleted from public view though it still exists in the database.  Only provenance information is 
+	 * visible publicly. */
 	TOMBSTONE(Terms.RMAP_TOMBSTONE_PATH),
+	
+	/** Event in which an object is deleted both from public view and in the RMap database. Only provenance information is visible to the public. */
 	DELETION(Terms.RMAP_DELETION_PATH),
+	
+	/** Event in which one object is overwritten by another. Specific details of changes are captured in the Event description.
+	 No new object is created.*/
 	REPLACE(Terms.RMAP_REPLACE_PATH);
 	
+	/** The event type ontology path. */
 	private RMapIri eventTypePath= null ;
 
+	/**
+	 * Instantiates a new RMap event type.
+	 *
+	 * @param path the ontology path
+	 */
 	RMapEventType(String path){		
 		try {
 			this.eventTypePath = new RMapIri(new URI(path));
@@ -36,10 +59,21 @@ public enum RMapEventType {
 		}
 	}
 
+	/**
+	 * Gets the ontology path.
+	 *
+	 * @return the ontology path
+	 */
 	public RMapIri getPath()  {
 		return this.eventTypePath;
 	}
 
+    /**
+     * Gets the event type.
+     *
+     * @param path the ontology path
+     * @return the event type
+     */
     public static RMapEventType getEventType(String path) { 
     	Map<String, RMapEventType> lookup = new HashMap<String, RMapEventType>();
         for(RMapEventType eventtype : EnumSet.allOf(RMapEventType.class)) {

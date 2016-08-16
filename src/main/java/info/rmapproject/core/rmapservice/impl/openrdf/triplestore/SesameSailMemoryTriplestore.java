@@ -17,20 +17,33 @@ import org.openrdf.sail.memory.MemoryStore;
 import org.springframework.context.annotation.Scope;
 
 /**
- *  @author khansen, smorrissey
+ * Class for a Sesame triplestore in which the data is stored temporarily in a local memory store. 
+ * Good for testing or temporary data.
+ * 
+ * @author khanson, smorrissey
  *
  */
 @Scope("prototype")
 public class SesameSailMemoryTriplestore extends SesameTriplestore {
 	
+	/** The key for the data directory property */
 	private static final String DATA_DIRECTORY_PROPERTY = "sesamesail.dataDirectory";
 		
+	/** The data directory location. */
 	private String dataDirectory = "";
 	
+	/**
+	 * Instantiates a new Sesame Sail memory triplestore.
+	 */
 	public SesameSailMemoryTriplestore()	{
 		this(Constants.SESAMESERVICE_PROPFILE);
 	}
 
+	/**
+	 * Instantiates a new Sesame Sail memory triplestore.
+	 *
+	 * @param propertyFileName the property file name
+	 */
 	public SesameSailMemoryTriplestore(String propertyFileName) {	
 		Map<String, String> properties = new HashMap<String, String>();
 		properties = ConfigUtils.getPropertyValues(propertyFileName);

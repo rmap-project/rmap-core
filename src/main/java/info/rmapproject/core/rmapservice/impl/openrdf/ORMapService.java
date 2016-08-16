@@ -41,19 +41,44 @@ import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryException;
 import org.springframework.beans.factory.annotation.Autowired;
 
+// TODO: Auto-generated Javadoc
 /**
- *  @author khanson, smorrissey
+ * The concrete class for RMap Service, implemented using openrdf
  *
+ * @author khanson, smorrissey
  */
 public class ORMapService implements RMapService {
-	
+
+	/** Instance of the RMap Resource Manager */
 	private ORMapResourceMgr resourcemgr;
+
+	/** Instance of the RMap DiSCO Manager */
 	private ORMapDiSCOMgr discomgr;
+
+	/** Instance of the RMap Agent Manager */
 	private ORMapAgentMgr agentmgr;
+
+	/** Instance of the RMap Statement Manager */
 	private ORMapStatementMgr statementmgr;
+
+	/** Instance of the RMap Event Manager */
 	private ORMapEventMgr eventmgr;
+	
+	/** An instance of the sesame triplestore for database changes.
+	 * It is declared in the ORMapService so that it can be passed to multiple functions
+	 * across a single interaction */
 	private SesameTriplestore triplestore;
 	
+	/**
+	 * Instantiates a new RMap Service using the various managers
+	 *
+	 * @param resourcemgr the RMap Resource Manager
+	 * @param discomgr the RMap DiSCO Manager
+	 * @param agentmgr the RMap Agent Manager
+	 * @param statementmgr the RMap Statement Manager
+	 * @param eventmgr the RMap Event Manager
+	 * @param triplestore the Sesame triplestore
+	 */
 	@Autowired
 	public ORMapService(ORMapResourceMgr resourcemgr,
 						ORMapDiSCOMgr discomgr,

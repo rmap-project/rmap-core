@@ -4,49 +4,58 @@
 package info.rmapproject.core.exception;
 
 /**
+ * Exception is thrown when a User attempts to update a DiSCO that is not hte latest version of that DiSCO
+ * Only the latest version can be updated.
+ * 
  * @author khanson
  *
  */
 public class RMapNotLatestVersionException extends RMapObjectNotFoundException {
 
-	/**
-	 * 
-	 */
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -2993203569234963L;
 
 	/**
-	 * 
+	 * Instantiates a new RMap not latest version exception.
 	 */
 	public RMapNotLatestVersionException() {
 		super();
 	}
 
 	/**
-	 * @param message
+	 * Instantiates a new RMap not latest version exception.
+	 *
+	 * @param message the message
 	 */
 	public RMapNotLatestVersionException(String message) {
 		super(message);
 	}
 
 	/**
-	 * @param cause
+	 * Instantiates a new RMap not latest version exception.
+	 *
+	 * @param cause the cause
 	 */
 	public RMapNotLatestVersionException(Throwable cause) {
 		super(cause);
 	}
 
 	/**
-	 * @param message
-	 * @param cause
+	 * Instantiates a new RMap not latest version exception.
+	 *
+	 * @param message the message
+	 * @param cause the cause
 	 */
 	public RMapNotLatestVersionException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
 	/**
-	 * @param message
-	 * @param cause
-	 * @param enableSuppression
+	 * Instantiates a new RMap not latest version exception.
+	 *
+	 * @param message the message
+	 * @param cause the cause
+	 * @param enableSuppression 
 	 * @param writableStackTrace
 	 */
 	public RMapNotLatestVersionException(String message, Throwable cause,

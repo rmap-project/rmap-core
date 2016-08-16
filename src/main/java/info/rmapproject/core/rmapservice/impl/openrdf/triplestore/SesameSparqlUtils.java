@@ -12,16 +12,17 @@ import org.openrdf.model.Literal;
 import org.openrdf.model.Value;
 
 /**
- * Some common conversions from openrdf model to SPARQL query pieces
- * @author khanson
+ * Some common conversions from openrdf model to SPARQL query pieces.
  *
+ * @author khanson
  */
 public class SesameSparqlUtils {
 
 	/**
-	 * Converts openrdf Iri to a string that can be slotted into a SPARQL query
-	 * @param iri
-	 * @return
+	 * Converts openrdf Iri to a string that can be slotted into a SPARQL query.
+	 *
+	 * @param iri an IRI to convert to a Sparql parameter
+	 * @return the IRI as a SPARQL snippet 
 	 */
 	public static String convertIriToSparqlParam(IRI iri) {
 		String sIri = iri.stringValue();
@@ -30,9 +31,10 @@ public class SesameSparqlUtils {
 	}
 	
 	/**
-	 * Converts openrdf Value to a string that can be slotted into a SPARQL query
-	 * @param iri
-	 * @return
+	 * Converts openrdf Value to a string that can be slotted into a SPARQL query.
+	 *
+	 * @param value a Value to convert to a Sparql parameter
+	 * @return the Value as a SPARQL snippet 
 	 */
 	public static String convertValueToSparqlParam(Value value) {
 		String sValueLabel = value.stringValue();
@@ -64,9 +66,10 @@ public class SesameSparqlUtils {
 	
 	
 	/**
-	 * Converts a list of systemAgent IRIs into a piece of SPARQL that can be added as a filter to some RMap service calls
-	 * @param systemAgents
-	 * @return
+	 * Converts a list of systemAgent IRIs into a piece of SPARQL that can be added as a filter to some RMap service calls.
+	 *
+	 * @param systemAgents a list of Agent IRIs
+	 * @return the list of Agent IRIs as a SPARQL snippet
 	 */
 	public static String convertSysAgentIriListToSparqlFilter(Set<IRI> systemAgents){
 		String sysAgentSparql = "";
@@ -89,9 +92,13 @@ public class SesameSparqlUtils {
 
 	
 	/**
-	 * Converts an RMapStatus code to an appropriate SPARQL filter
-	 * @param statusCode
-	 * @return
+	 * Converts an RMapStatus code to an appropriate SPARQL filter.
+	 *
+	 * @param statusCode the status code
+	 * @param objIdQS the name given to the object ID field in SPARQL, must be consistent across the query. 
+	 * 				  If, for example, the sparql query says "SELECT DISTINCT ?rmapObjId ", then the value of this
+	 * 				  property is "?rmapObjId"
+	 * @return the string
 	 */
 	public static String convertRMapStatusToSparqlFilter(RMapStatusFilter statusCode, String objIdQS) {
 		// should not show TOMBSTONED objects... no need to exclude DELETED as these have no statements.
@@ -112,10 +119,11 @@ public class SesameSparqlUtils {
 
 	
 	/**
-	 * Converts date range to date filter
-	 * @param from (date)
-	 * @param until (date)
-	 * @return
+	 * Converts date range to date filter that can be embedded in SPARQL query
+	 *
+	 * @param dateRange the date range
+	 * @param startDateParam the start date param
+	 * @return the date filter SPARQL snippet
 	 */
 	public static String convertDateRangeToSparqlFilter(DateRange dateRange, String startDateParam) {
         //FILTER (?startDate > "2016-03-22T10:20:13Z"^^xsd:dateTime) .        
@@ -135,10 +143,11 @@ public class SesameSparqlUtils {
 	}
 	
 	/**
-	 * Creates limit and offset filter for sparql query
-	 * @param limit
-	 * @param offset
-	 * @return
+	 * Creates limit and offset filter for SPARQL query.
+	 *
+	 * @param limit the limit (how many results returned)
+	 * @param offset the offset (the record number to start the result set from)
+	 * @return the limit and offset filter SPARQL snippet 
 	 */
 	public static String convertLimitOffsetToSparqlFilter(Integer limit, Integer offset) {
 		String filterSparql = "";

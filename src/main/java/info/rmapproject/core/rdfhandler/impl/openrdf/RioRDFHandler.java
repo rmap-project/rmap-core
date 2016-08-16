@@ -36,16 +36,25 @@ import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
 
-
+/**
+ * Class to convert linked data objects in RMap (RMapDiSCO, RMapTriple etc) to raw RDF
+ * Implementation of RDFHandler using openrdf's Rio RDF handler.
+ * @author smorrissey, khanson
+ */
 public class RioRDFHandler implements RDFHandler {
 		
-	public RioRDFHandler() {}
 	/**
-	 * Convert Model of RMap object to an OutputStream of RDF
+	 * Instantiates a new Rio RDF handler.
+	 */
+	public RioRDFHandler() {}
+	
+	/**
+	 * Convert Model of RMap object to an OutputStream of RDF.
+	 *
 	 * @param model Model of RMap object to be converted
 	 * @param rdfType RDF Format for serialization
 	 * @return OutputStream containing RDF serialization of RMap object
-	 * @throws RMapException
+	 * @throws RMapException the r map exception
 	 */
 	public OutputStream convertStmtListToRDF(Model model, RDFType rdfType) 
 	throws RMapException	{
@@ -65,8 +74,10 @@ public class RioRDFHandler implements RDFHandler {
 		}
 		return bOut;		
 	}
+	
 	/**
-	 * Deserialize RDF InputStream into a list of Statements
+	 * Deserialize RDF InputStream into a list of Statements.
+	 *
 	 * @param rdfIn InputStream of RDF
 	 * @param rdfType Format of RDF in InputStream
 	 * @param baseUri  String with base URI of any relative URI in InputStream.
@@ -99,6 +110,9 @@ public class RioRDFHandler implements RDFHandler {
 		return stmts;
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rdfhandler.RDFHandler#rdf2RMapDiSCO(java.io.InputStream, info.rmapproject.core.rdfhandler.RDFType, java.lang.String)
+	 */
 	@Override
 	public RMapDiSCO rdf2RMapDiSCO(InputStream rdfIn, RDFType rdfFormat, String baseUri)
 			throws RMapException, RMapDefectiveArgumentException {
@@ -107,6 +121,9 @@ public class RioRDFHandler implements RDFHandler {
 		return disco;
 	}
 	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rdfhandler.RDFHandler#rdf2RMapAgent(java.io.InputStream, info.rmapproject.core.rdfhandler.RDFType, java.lang.String)
+	 */
 	@Override
 	public RMapAgent rdf2RMapAgent(InputStream rdfIn, RDFType rdfFormat, String baseUri) 
 			throws RMapException, RMapDefectiveArgumentException {
@@ -115,6 +132,9 @@ public class RioRDFHandler implements RDFHandler {
 		return agent;
 	}
 	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rdfhandler.RDFHandler#triples2Rdf(java.util.List, info.rmapproject.core.rdfhandler.RDFType)
+	 */
 	@Override
 	public OutputStream triples2Rdf(List<RMapTriple> triples, RDFType rdfFormat) throws RMapException, RMapDefectiveArgumentException	{
 		if (triples == null){
@@ -134,6 +154,9 @@ public class RioRDFHandler implements RDFHandler {
 		return rdf;
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rdfhandler.RDFHandler#disco2Rdf(info.rmapproject.core.model.disco.RMapDiSCO, info.rmapproject.core.rdfhandler.RDFType)
+	 */
 	@Override
 	public OutputStream disco2Rdf(RMapDiSCO disco, RDFType rdfFormat)
 			throws RMapException {
@@ -152,6 +175,9 @@ public class RioRDFHandler implements RDFHandler {
 		return os;
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rdfhandler.RDFHandler#event2Rdf(info.rmapproject.core.model.event.RMapEvent, info.rmapproject.core.rdfhandler.RDFType)
+	 */
 	@Override
 	public OutputStream event2Rdf(RMapEvent event, RDFType rdfFormat)
 			throws RMapException {
@@ -185,6 +211,9 @@ public class RioRDFHandler implements RDFHandler {
 		return os;
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rdfhandler.RDFHandler#agent2Rdf(info.rmapproject.core.model.agent.RMapAgent, info.rmapproject.core.rdfhandler.RDFType)
+	 */
 	@Override
 	public OutputStream agent2Rdf(RMapAgent agent, RDFType rdfFormat)
 			throws RMapException {
@@ -203,6 +232,13 @@ public class RioRDFHandler implements RDFHandler {
 		return os;
 	}
 
+	/**
+	 * Gets the RDF format constant.
+	 *
+	 * @param rdfType the rdf type
+	 * @return the RDF format constant
+	 * @throws Exception the exception
+	 */
 	public RDFFormat getRDFFormatConstant(RDFType rdfType) throws Exception	{
 		RDFFormat rdfFormat = null;		
         switch (rdfType) {

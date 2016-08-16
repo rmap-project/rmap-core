@@ -8,6 +8,11 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.SimpleNamespace;
 import org.openrdf.model.impl.SimpleValueFactory;
 
+/**
+ * The ORE ontology class implemented using openrdf model
+ * 
+ * @author khanson
+ */
 public class ORE {
 
 	/**
@@ -15,9 +20,7 @@ public class ORE {
 	 */
 	public static final String NAMESPACE = Terms.ORE_NAMESPACE;
 
-	/**
-	 * Recommend prefix for the OAI-ORE elements namespace: "ore"
-	 */
+	/** Recommend prefix for the OAI-ORE elements namespace: "ore". */
 	public static final String PREFIX = Terms.ORE_PREFIX;
 
 	/**
@@ -27,25 +30,18 @@ public class ORE {
 	public static final Namespace NS = new SimpleNamespace(PREFIX, NAMESPACE);
 
 	
-	/**
-	 * ore:similarTo
-	 */
+	/** IRI for ore:similarTo property. */
 	public static final IRI SIMILARTO;
 
-	/**
-	 * ore:describes
-	 */
+	/** IRI for ore:describes property. */
 	public static final IRI DESCRIBES;
 
-	/**
-	 * ore:aggregation
-	 */
+	/** IRI for ore:aggregation class. */
 	public static final IRI AGGREGATION;
-	
-	/**
-	 * 
-	 */
+
+	/** IRI for ore:aggregation property. */
 	public static final IRI AGGREGATES;
+	
 	static {
 		final ValueFactory f = SimpleValueFactory.getInstance();
 

@@ -30,31 +30,48 @@ import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.DC;
 
 /**
+ * Abstract Event class, defines core components of RMap Event, specific to OpenRDF object model.
  * @author khanson, smorrissey
  *
  */
 public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
+	
+	/** The event type stmt. */
 	protected Statement eventTypeStmt;  // will be set by constructor of concrete Event class
+	
+	/** The event target type stmt. */
 	protected Statement eventTargetTypeStmt;
+	
+	/** The associated agent stmt. */
 	protected Statement associatedAgentStmt; // must be non-null and set by constructor
+	
+	/** The description stmt. */
 	protected Statement descriptionStmt;
+	
+	/** The start time stmt. */
 	protected Statement startTimeStmt;  // set by constructor
+	
+	/** The end time stmt. */
 	protected Statement endTimeStmt;
+	
+	/** The associated key stmt. */
 	protected Statement associatedKeyStmt; // set by constructor
    
 	/**
-	 *Most likely use is to construct Event for read() method in RMapService from statements
-	 * in Triplestore
-	 * @param eventTypeStmt
-	 * @param eventTargetTypeStmt
-	 * @param associatedAgentStmt
-	 * @param descriptionStmt
-	 * @param startTimeStmt
-	 * @param endTimeStmt
-	 * @param context
-	 * @param typeStatement
-	 * @throws Exception 
-	 * @throws RMapDefectiveArgumentException 
+	 * Instantiates a new ORMapEvent.
+	 * Most likely use is to construct Event for read() method in RMapService from statements
+	 * in Triplestore.
+	 *
+	 * @param eventTypeStmt the event type stmt
+	 * @param eventTargetTypeStmt the event target type stmt
+	 * @param associatedAgentStmt the associated agent stmt
+	 * @param descriptionStmt the description stmt
+	 * @param startTimeStmt the start time stmt
+	 * @param endTimeStmt the end time stmt
+	 * @param context the context
+	 * @param typeStatement the type statement
+	 * @param associatedKeyStmt the associated key stmt
+	 * @throws RMapException the RMap exception
 	 */
 	protected  ORMapEvent(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
 			Statement associatedAgentStmt,  Statement descriptionStmt, 
@@ -76,10 +93,12 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		this.associatedKeyStmt = associatedKeyStmt;
 		setTypeStatement(RMapObjectType.EVENT);
 	}
+	
 	/**
-	 * Constructor sets the start time
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
+	 * Instantiates a new ORMapEvent.
+	 * Constructor sets the start time and ID
+	 *
+	 * @throws RMapException the RMap exception
 	 */
 	protected ORMapEvent() throws RMapException {
 		super();
@@ -93,11 +112,11 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	}
 	
 	/**
-	 * 
-	 * @param associatedAgent
-	 * @param targetType
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
+	 * Instantiates a new ORMapEvent.
+	 *
+	 * @param associatedAgent the associated agent
+	 * @param targetType the target type
+	 * @throws RMapException the RMap exception
 	 */
 	protected ORMapEvent(RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException {
 		this();
@@ -121,11 +140,13 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	}
 	
 	/**
-	 * 
-	 * @param associatedAgent
-	 * @param targetType
-	 * @param desc
-	 * @throws RMapException
+	 * Instantiates a new ORMapEvent.
+	 *
+	 * @param associatedAgent the associated agent
+	 * @param targetType the target type
+	 * @param desc the desc
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	protected ORMapEvent(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, RMapValue desc) 
 			throws RMapException, RMapDefectiveArgumentException {
@@ -138,10 +159,10 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	}	
 	
 	/**
-	 * 
-	 * @param eventType
-	 * @return
-	 * @throws RMapException
+	 * Sets the statement containing the event type.
+	 *
+	 * @param eventType the statement containing the event type
+	 * @throws RMapException the RMap exception
 	 */
 	protected void setEventTypeStatement (RMapEventType eventType) 
 			throws RMapException{
@@ -163,6 +184,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEvent#getEventType()
 	 */
+	@Override
 	public RMapEventType getEventType() throws RMapException {
 		String etype = this.eventTypeStmt.getObject().stringValue();
 		RMapEventType eventType = RMapEventType.getEventType(etype);
@@ -172,15 +194,23 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 			return eventType;
 		}
 	}
+	
 	/**
-	 * 
-	 * @return
+	 * Gets the statement containing the event type
+	 *
+	 * @return the statement containing the event type
 	 */
 	public Statement getEventTypeStmt() {
 		return this.eventTypeStmt;
 	}
 	
 
+	/**
+	 * Sets the statement containing the event target type
+	 *
+	 * @param eventTargetType the statement containing the event target type
+	 * @throws RMapException the RMap exception
+	 */
 	protected void setEventTargetTypeStatement (RMapEventTargetType eventTargetType) 
 			throws RMapException{
 		if (eventTargetType==null){
@@ -201,6 +231,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEvent#getEventTargetType()
 	 */
+	@Override
 	public RMapEventTargetType getEventTargetType() throws RMapException {
 		String tt = this.eventTargetTypeStmt.getObject().stringValue();
 		RMapEventTargetType eventTargetType = RMapEventTargetType.getEventTargetType(tt);
@@ -210,15 +241,23 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 			return eventTargetType;
 		}
 	}
+	
 	/**
-	 * 
-	 * @return
+	 * Gets the statement containing the event target type
+	 *
+	 * @return the statement containing the event target type
 	 */
 	public Statement getEventTargetTypeStmt(){
 		return this.eventTargetTypeStmt;
 	}
 
 	
+	/**
+	 * Sets the statement containing the associated RMap Agent
+	 *
+	 * @param associatedAgent the IRI of the associated RMap Agent
+	 * @throws RMapException the RMap exception
+	 */
 	protected void setAssociatedAgentStatement (IRI associatedAgent) 
 			throws RMapException{
 		if (associatedAgent==null){
@@ -235,6 +274,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEvent#getAssociatedAgent()
 	 */
+	@Override
 	public RMapIri getAssociatedAgent() throws RMapException{
 		RMapIri rUri = null;
 		IRI agentURI = (IRI)this.associatedAgentStmt.getObject();
@@ -243,8 +283,9 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	}
 		
 	/**
-	 * 
-	 * @return
+	 * Gets the statement containing the associated RMap Agent
+	 *
+	 * @return the statement containing the associated RMap Agent
 	 */
 	public Statement getAssociatedAgentStmt() {
 		return this.associatedAgentStmt;
@@ -253,6 +294,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEvent#getDescription()
 	 */
+	@Override
 	public RMapValue getDescription() throws RMapException {
 		RMapValue rResource= null;
 		if (this.descriptionStmt!= null){
@@ -266,14 +308,22 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		}
 		return rResource;
 	}
+	
 	/**
-	 * 
-	 * @return
+	 * Gets the statement containing the Event description
+	 *
+	 * @return the statement containing the Event description
 	 */
 	public Statement getDescriptionStmt() {
 		return this.descriptionStmt;
 	}
 	
+	/**
+	 * Sets the statement containing the associated API key
+	 *
+	 * @param associatedKey the IRI of the associated API key
+	 * @throws RMapException the RMap exception
+	 */
 	protected void setAssociatedKeyStatement (IRI associatedKey) 
 			throws RMapException{
 		if (this.id == null || this.context==null){
@@ -289,6 +339,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEvent#getAssociatedKey()
 	 */
+	@Override
 	public RMapIri getAssociatedKey() throws RMapException {
 		RMapIri rUri = null;
 		if (this.associatedKeyStmt!= null){
@@ -297,9 +348,11 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		}
 		return rUri;
 	}
+	
 	/**
-	 * 
-	 * @return
+	 * Gets the statement containing the associated API key
+	 *
+	 * @return the statement containing the associated API key
 	 */
 	public Statement getAssociatedKeyStmt() {
 		return this.descriptionStmt;
@@ -309,6 +362,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEvent#getStartTime()
 	 */
+	@Override
 	public Date getStartTime() throws RMapException {
 		Date finalResult = null;
 		try {
@@ -321,16 +375,20 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		}		
 		return finalResult;
 	}
+	
 	/**
-	 * 
-	 * @return
+	 * Gets the statement containing the start time
+	 *
+	 * @return the statement containing the start time
 	 */
 	public Statement getStartTimeStmt(){
 		return this.startTimeStmt;
 	}
+	
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEvent#getEndTime()
 	 */
+	@Override
 	public Date getEndTime() throws RMapException {
 		Date finalResult = null;
 		try {
@@ -343,9 +401,11 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		}		
 		return finalResult;
 	}
+	
 	/**
-	 * 
-	 * @return
+	 * Gets the statement containing the end time
+	 *
+	 * @return the statement containing the end time
 	 */
 	public Statement getEndTimeStmt(){
 		return this.endTimeStmt;
@@ -354,6 +414,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEvent#setEndTime(java.util.Date)
 	 */
+	@Override
 	public void setEndTime(Date endTime) throws RMapException {
 		Literal dateLiteral = ORAdapter.getValueFactory().createLiteral(endTime);
 		Statement endTimeStmt = ORAdapter.getValueFactory().createStatement(this.context, PROV.ENDEDATTIME, 
@@ -365,6 +426,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEvent#setDescription(RMapUri)
 	 */
+	@Override
 	public void setDescription(RMapValue description) 
 			throws RMapException, RMapDefectiveArgumentException {
 		if (description != null){
@@ -376,12 +438,17 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	
 	
 	/**
-	 * @return the context
+	 * Gets the DiSCO's context i.e. the DiSCO's graphId.
+	 *
+	 * @return the DiSCO's context IRI
 	 */
 	public IRI getContext() {
 		return context;
 	}
 		
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.impl.openrdf.ORMapObject#getAsModel()
+	 */
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model eventModel = new LinkedHashModel();

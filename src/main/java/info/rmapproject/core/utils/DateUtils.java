@@ -1,6 +1,3 @@
-/**
- * 
- */
 package info.rmapproject.core.utils;
 
 
@@ -12,23 +9,26 @@ import java.util.Date;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 /**
- * @author smorrissey
+ * A class containing some date utilities for the RMap Core project
  *
+ * @author smorrissey
  */
 public class DateUtils {
-	/**
-	 * Format string for ISO-8601 date
-	 */
+	
+	/** Format string for ISO-8601 date. */
 	 public static String ISO8601 = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+	
 	/**
-	 * 
+	 * Instantiates a new date utils.
 	 */
 	private DateUtils() {}
+	
 	/**
-	 * Parse ISO8601 date string into Date object
+	 * Parse ISO 8601 date string into Date object.
+	 *
 	 * @param dateString String containing ISO8601 formatted date
 	 * @return Date object corresponding to dateString
-	 * @throws ParseException
+	 * @throws ParseException the parse exception
 	 */
 	public static Date getDateFromIsoString(String dateString) 
 	throws ParseException{
@@ -37,12 +37,14 @@ public class DateUtils {
 			finalResult = format.parse(dateString);		
 		return finalResult;
 	}
+	
 	/**
-	 * 
-	 * @param date
-	 * @return
-	 * @throws NullPointerException
-	 * @throws IllegalArgumentException
+	 * Gets the date as an ISO 8601 compatible string date.
+	 *
+	 * @param date the date to be converted
+	 * @return the data as an ISO 8601 compatible string
+	 * @throws NullPointerException the null pointer exception
+	 * @throws IllegalArgumentException the illegal argument exception
 	 */
 	public static String getIsoStringDate(Date date)
 	throws NullPointerException, IllegalArgumentException {
@@ -50,9 +52,11 @@ public class DateUtils {
 		String dateString = format.format(date);
 		return dateString;
 	}
+	
 	/**
-     * Converts XMLGregorianCalendar to java.util.Date in Java
-	 * @param calendar
+	 * Converts XMLGregorianCalendar to java.util.Date in Java
+	 *
+	 * @param calendar the calendar
 	 * @return Date
 	 */
     public static Date xmlGregorianCalendarToDate(XMLGregorianCalendar calendar){

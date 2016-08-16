@@ -6,13 +6,19 @@ package info.rmapproject.core.utils;
 import java.util.HashMap;
 import java.util.Map;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author smorrissey
+ * Some common utils used in RMap Core
  *
+ * @author smorrissey
  */
 public class Utils {
+	
 	/**
-	 * Method to invert keys and values in a Map
+	 * Method to invert keys and values in a Map.
+	 *
+	 * @param <K> the key type
+	 * @param <V> the value type
 	 * @param inMap Map to be inverted
 	 * @return inverted Map
 	 */

@@ -4,54 +4,61 @@
 package info.rmapproject.core.exception;
 
 /**
- * @author smorrissey
+ * Exception thrown when a Tombstoned RMap DiSCO is requested
  *
+ * @author smorrissey
  */
 public class RMapTombstonedObjectException extends RuntimeException {
 
-	/**
-	 * 
-	 */
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 463336118510679173L;
 
 	/**
-	 * 
+	 * Instantiates a new RMap tombstoned object exception.
 	 */
 	public RMapTombstonedObjectException() {
 		super();
 	}
 
 	/**
-	 * @param arg0
+	 * Instantiates a new RMap tombstoned object exception.
+	 *
+	 * @param message the message
 	 */
-	public RMapTombstonedObjectException(String arg0) {
-		super(arg0);
+	public RMapTombstonedObjectException(String message) {
+		super(message);
 	}
 
 	/**
-	 * @param arg0
+	 * Instantiates a new RMap tombstoned object exception.
+	 *
+	 * @param cause the cause
 	 */
-	public RMapTombstonedObjectException(Throwable arg0) {
-		super(arg0);
+	public RMapTombstonedObjectException(Throwable cause) {
+		super(cause);
 	}
 
 	/**
-	 * @param arg0
-	 * @param arg1
+	 * Instantiates a new RMap tombstoned object exception.
+	 *
+	 * @param message the message
+	 * @param cause the cause
 	 */
-	public RMapTombstonedObjectException(String arg0, Throwable arg1) {
-		super(arg0, arg1);
+	public RMapTombstonedObjectException(String message, Throwable cause) {
+		super(message, cause);
 	}
 
 	/**
-	 * @param arg0
-	 * @param arg1
-	 * @param arg2
-	 * @param arg3
+	 * Instantiates a new RMap tombstoned object exception.
+	 *
+	 * @param message the message
+	 * @param cause the cause
+	 * @param enableSuppression
+	 * @param writableStackTrace
 	 */
-	public RMapTombstonedObjectException(String arg0, Throwable arg1,
-			boolean arg2, boolean arg3) {
-		super(arg0, arg1, arg2, arg3);
+	public RMapTombstonedObjectException(String message, Throwable cause,
+			boolean enableSuppression, boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
 }

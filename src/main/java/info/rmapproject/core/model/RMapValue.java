@@ -4,13 +4,17 @@
 package info.rmapproject.core.model;
 
 /**
- * @author smorrissey
- * Interface for RDF resources  
- * A resource is something in the world that can be denoted by a literal or an IRI
- * @see http://www.w3.org/TR/rdf11-concepts/#resources-and-statements
+ * Interface for objects that are considered to be an RMapValue. The object of a triple (subject, predicate, object) must be 
+ * either a Literal or a Resource.  Both of these should implement RMapValue
  *
+ * @author smorrissey
  */
 public interface RMapValue {
 	
+	/**
+	 * Gets the string value.
+	 *
+	 * @return the string value
+	 */
 	public String getStringValue();
 }

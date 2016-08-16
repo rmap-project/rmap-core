@@ -16,22 +16,41 @@ import info.rmapproject.core.model.request.RMapRequestAgent;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
- *  @author khanson, smorrissey
+ * The concrete class representing the Tombstone Event for the openrdf implementation of RMap.
+ * @author khanson, smorrissey
  *
  */
 public class ORMapEventTombstone extends ORMapEvent implements
 		RMapEventTombstone {
-	
+
+	/** The statement that defines the tombstoned object. */
 	protected Statement tombstoned;
 
 	/**
-	 * @throws RMapException
+	 * Instantiates a new RMap Tombstoned Event
+	 *
+	 * @throws RMapException the RMap exception
 	 */
 	protected ORMapEventTombstone() throws RMapException {
 		super();
 		this.setEventTypeStatement(RMapEventType.TOMBSTONE);
 	}
 	
+	/**
+	 * Instantiates a new RMap Tombstoned Event
+	 *
+	 * @param eventTypeStmt the event type stmt
+	 * @param eventTargetTypeStmt the event target type stmt
+	 * @param associatedAgentStmt the associated agent stmt
+	 * @param descriptionStmt the description stmt
+	 * @param startTimeStmt the start time stmt
+	 * @param endTimeStmt the end time stmt
+	 * @param context the context
+	 * @param typeStatement the type statement
+	 * @param associatedKeyStmt the associated key stmt
+	 * @param tombstoned statement referencing the IRI of the tombstoned object
+	 * @throws RMapException the RMap exception
+	 */
 	public ORMapEventTombstone(Statement eventTypeStmt, 
 			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
 			Statement descriptionStmt, Statement startTimeStmt,  
@@ -44,10 +63,12 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	}
 
 	/**
-	 * 
-	 * @param associatedAgent
-	 * @param targetType
-	 * @throws RMapException
+	 * Instantiates a new RMap Tombstoned Event
+	 *
+	 * @param associatedAgent the associated agent
+	 * @param targetType the target type
+	 * @param tombstonedResource the IRI of the tombstoned resource
+	 * @throws RMapException the RMap exception
 	 */
 	public ORMapEventTombstone(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI tombstonedResource) throws RMapException {
 		super(associatedAgent, targetType);
@@ -55,6 +76,9 @@ public class ORMapEventTombstone extends ORMapEvent implements
 		this.setTombstonedResourceIdStmt(tombstonedResource);
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.impl.openrdf.ORMapEvent#getAsModel()
+	 */
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model model = super.getAsModel();
@@ -72,17 +96,21 @@ public class ORMapEventTombstone extends ORMapEvent implements
 		}
 		return iri;
 	}
+	
 	/**
-	 * 
-	 * @return
+	 * Gets the statement referencing the IRI of the tombstoned object
+	 *
+	 * @return the statement referencing the IRI of the tombstoned object
 	 */
 	public Statement getTombstonedResourceStmt(){
 		return this.tombstoned;
 	}
+	
 	/**
-	 * 
-	 * @param tombstonedResource
-	 * @throws RMapException
+	 * Sets the statement referencing the IRI of the tombstoned object
+	 *
+	 * @param tombstonedResource the IRI of the tombstoned resource
+	 * @throws RMapException the RMap exception
 	 */
 	private void setTombstonedResourceIdStmt(IRI tombstonedResource) throws RMapException {
 		if (tombstonedResource != null){

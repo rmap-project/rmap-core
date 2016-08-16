@@ -10,9 +10,10 @@ import org.openrdf.model.impl.SimpleValueFactory;
 
 /**
  * Vocabulary constants for the RMapProject Metadata Element Set, version 1.0
+ * The RMap ontology class implemented using openrdf model
  * 
- * @see http://rmap-project.org/elements/
- * @author Karen Hanson
+ * @see http://rmap-project.org/rmap/terms
+ * @author khanson
  */
 public class RMAP {
 
@@ -34,126 +35,86 @@ public class RMAP {
 	public static final Namespace NS = new SimpleNamespace(PREFIX, NAMESPACE);
 
 	
-	/**
-	 * rmap:Object
-	 */
+	/**IRI for the rmap:Object class*/
 	public static final IRI OBJECT;
 	
-	/**
-	 * rmap:DiSCO
-	 */
+	/**IRI for the rmap:DiSCO class*/
 	public static final IRI DISCO;
 
-	/**
-	 * rmap:Agent
-	 */
+	/**IRI for the rmap:Agent class*/
 	public static final IRI AGENT;
 	
-	/**
-	 * rmap:Event
-	 */
+	/**IRI for the rmap:Event class */
 	public static final IRI EVENT;
-	/**
-	 * rmap:eventType
-	 */
+	
+	/**IRI for the rmap:eventType */
 	public static final IRI EVENTTYPE;
-	/**
-	 * rmap:Creation
-	 */
+	
+	/** IRI for the rmap:creation eventType	 */
 	public static final IRI CREATION;
-	/**
-	 * rmap:Update
-	 */
+	
+	/** IRI for the rmap:update eventType */
 	public static final IRI UPDATE;
-	/**
-	 * rmap:Inactivation
-	 */
+	
+	/**IRI for the rmap:inactivation eventType*/
 	public static final IRI INACTIVATION;
-	/**
-	 * rmap:Derivation
-	 */
+	
+	/**IRI for the rmap:derivation eventType */
 	public static final IRI DERIVATION;
-	/**
-	 * rmap:Replace
-	 */
+	
+	/**IRI for the rmap:replace eventType*/
 	public static final IRI REPLACE;
-	/**
-	 * rmap:Tombstone
-	 */
+	
+	/**IRI for the rmap:tombstone eventType*/
 	public static final IRI TOMBSTONE;
-	/**
-	 * rmap:Deletion
-	 */
+	
+	/**IRI for the rmap:deletion eventType*/
 	public static final IRI DELETION;
-	/**
-	 * rmap:targetType
-	 */
+	
+	/**IRI for the rmap:targetType property */
 	public static final IRI TARGETTYPE;
-	/**
-	 * rmap:hasSourceObject
-	 */
+	
+	/**IRI for the rmap:hasSourceObject property */
 	public static final IRI HASSOURCEOBJECT;
-	/**
-	 * 	rmap:derivedObject
-	 */
+	
+	/**IRI for the rmap:derivedObject property */
 	public static final IRI DERIVEDOBJECT;
-	/**
-	 * rmap:inactivatedObject
-	 */
+	
+	/**IRI for the rmap:inactivatedObject property */
 	public static final IRI INACTIVATEDOBJECT;
-	/**
-	 * rmap:tombstonedObject
-	 */
+	
+	/**IRI for the rmap:tombstonedObject property */
 	public static final IRI TOMBSTONEDOBJECT;
-	/**
-	 * rmap:deletedObject
-	 */
+	
+	/**IRI for the rmap:deletedObject property */
 	public static final IRI DELETEDOBJECT;
-	/**
-	 * rmap:updatedObject
-	 */
+	
+	/**IRI for the rmap:updatedObject*/
 	public static final IRI UPDATEDOBJECT;
-	/**
-	 * rmap:identityProvider
-	 */
+	
+	/**IRI for the rmap:identityProvider property*/
 	public static final IRI IDENTITYPROVIDER;
-	/**
-	 * rmap:userAuthId
-	 */
+	
+	/**IRI for the rmap:userAuthId property*/
 	public static final IRI USERAUTHID;
-	/**
-	 * rmap:providerId
-	 */
+	
+	/**IRI for the rmap:providerId property*/
 	public static final IRI PROVIDERID;
-	
 
-	/**
-	 * rmap:Active
-	 */
+	/**IRI for the rmap:active status*/
 	public static final IRI ACTIVE;
-	/**
-	 * rmap:Deleted
-	 */
+	
+	/**IRI for the rmap:deleted status */
 	public static final IRI DELETED;
-	/**
-	 * rmap:Tombstoned
-	 */
+	
+	/**IRI for the rmap:tombstoned status */
 	public static final IRI TOMBSTONED;
-	/**
-	 * rmap:Inactive
-	 */
+	
+	/**IRI for the rmap:inactive status */
 	public static final IRI INACTIVE;
-	
-	
-	
-	
-	/**
-	 * 
-	 */
-	/**
-	* rmap:hasStatus
-	*/
-		public static final IRI HASSTATUS;
+
+	/** IRI for the rmap:hasStatus property*/
+	public static final IRI HASSTATUS;
 	
 	static {
 		final ValueFactory f = SimpleValueFactory.getInstance();

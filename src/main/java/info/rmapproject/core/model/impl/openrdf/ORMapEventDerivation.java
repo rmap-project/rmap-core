@@ -19,17 +19,23 @@ import info.rmapproject.core.model.request.RMapRequestAgent;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
+ * The concrete class representing the Derivation Event for the openrdf implementation of RMap.
  * @author smorrissey, khanson
  *
  */
 public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 		RMapEventDerivation {
 
+	/** The statement containing the source object ID. */
 	protected Statement sourceObjectStatement;
+	
+	/** The statement containing the derived object ID. */
 	protected Statement derivationStatement;
 
 	/**
-	 * @throws RMapException
+	 * Instantiates a new RMap Derivation Event
+	 *
+	 * @throws RMapException the RMap exception
 	 */
 	protected ORMapEventDerivation() throws RMapException {
 		super();
@@ -38,12 +44,13 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 
 
 	/**
-	 * 
-	 * @param associatedAgent
-	 * @param targetType
-	 * @param sourceObject
-	 * @param derivedObject
-	 * @throws RMapException
+	 * Instantiates a new ORMap event derivation.
+	 *
+	 * @param associatedAgent the associated agent
+	 * @param targetType the target type
+	 * @param sourceObject the IRI of the source object
+	 * @param derivedObject the IRI of the derived object
+	 * @throws RMapException the RMap exception
 	 */
 	public ORMapEventDerivation(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI sourceObject, IRI derivedObject) 
 	throws RMapException {
@@ -52,20 +59,23 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 		this.setSourceObjectStmt(sourceObject);
 		this.setDerivationStmt(derivedObject);
 	}
+	
 	/**
-	 * 
-	 * @param eventTypeStmt
-	 * @param eventTargetTypeStmt
-	 * @param associatedAgentStmt
-	 * @param descriptionStmt
-	 * @param startTimeStmt
-	 * @param endTimeStmt
-	 * @param context
-	 * @param typeStatement
-	 * @param createdObjects
-	 * @param derivationStatement
-	 * @param sourceObjectStatement
-	 * @throws RMapException
+	 * Instantiates a new ORMap event derivation.
+	 *
+	 * @param eventTypeStmt the event type stmt
+	 * @param eventTargetTypeStmt the event target type stmt
+	 * @param associatedAgentStmt the associated agent stmt
+	 * @param descriptionStmt the description stmt
+	 * @param startTimeStmt the start time stmt
+	 * @param endTimeStmt the end time stmt
+	 * @param context the context
+	 * @param typeStatement the type statement
+	 * @param associatedKeyStmt the associated key stmt
+	 * @param createdObjects the statements containing the IRIs for the objects created in this event
+	 * @param derivationStatement the statement containing the IRI of the object that was derived as a result of this event
+	 * @param sourceObjectStatement the statemetn containing the IRI of the object that was the source of this event
+	 * @throws RMapException the RMap exception
 	 */
 	public ORMapEventDerivation(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
 			Statement associatedAgentStmt,  Statement descriptionStmt, 
@@ -90,6 +100,9 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 		this.sourceObjectStatement = sourceObjectStatement;
 	}
 	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.impl.openrdf.ORMapEventWithNewObjects#getAsModel()
+	 */
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model model = super.getAsModel();
@@ -113,23 +126,30 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 		}
 		return rid;
 	}
+	
 	/**
-	 * 
-	 * @return
+	 * Gets the statement containing the IRI of the object that was derived in this event
+	 *
+	 * @return the statement containing the IRI of the object that was derived in this event
 	 */
 	public Statement getDerivationStmt (){
 		return this.derivationStatement;
 	}
 	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.event.RMapEventDerivation#setDerivedObjectId(info.rmapproject.core.model.RMapIri)
+	 */
 	@Override
 	public void setDerivedObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
 		IRI derivedIRI = ORAdapter.rMapIri2OpenRdfIri(iri);
 		this.setDerivationStmt(derivedIRI);
 	}
+	
 	/**
-	 * 
-	 * @param derivedObject
-	 * @throws RMapException
+	 * Sets the statement containing the IRI of the object that was derived in this event
+	 *
+	 * @param derivedObject the statement containing the IRI of the object that was derived in this event
+	 * @throws RMapException the RMap exception
 	 */
 	protected void setDerivationStmt(IRI derivedObject) throws RMapException {
 		if (derivedObject != null){
@@ -140,6 +160,9 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.event.RMapEventDerivation#getSourceObjectId()
+	 */
 	@Override
 	public RMapIri getSourceObjectId() throws RMapException {
 		RMapIri rid = null;
@@ -149,10 +172,12 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 		}
 		return rid;
 	}
+	
 	/**
-	 * 
-	 * @param sourceObject
-	 * @throws RMapException
+	 * Sets the statement containing the IRI of the object that was the source in this event
+	 *
+	 * @param sourceObject the statement containing the IRI of the object that was the source in this event
+	 * @throws RMapException the RMap exception
 	 */
 	protected void setSourceObjectStmt (IRI sourceObject) throws RMapException {
 		if (sourceObject != null){
@@ -163,6 +188,9 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.event.RMapEventDerivation#setSourceObjectId(info.rmapproject.core.model.RMapIri)
+	 */
 	@Override
 	public void setSourceObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
 		IRI sourceIRI = ORAdapter.rMapIri2OpenRdfIri(iri);
@@ -170,7 +198,9 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	}
 
 	/**
-	 * @return the sourceObjectStatement
+	 * Gets the statement containing the IRI of the object that was the source in this event
+	 *
+	 * @return the statement containing the IRI of the object that was the source in this event
 	 */
 	public Statement getSourceObjectStatement() {
 		return sourceObjectStatement;

@@ -310,7 +310,7 @@ public class ORMapDiscoTest {
 		List<java.net.URI> list1 = new ArrayList<java.net.URI>();
 		list1.add(ORAdapter.openRdfIri2URI(r));
 		list1.add(ORAdapter.openRdfIri2URI(r2));
-		disco.setAggregratedResources(list1);	
+		disco.setAggregatedResources(list1);	
 		List<Statement>list2 = disco.getAggregatedResourceStatements();
 		assertEquals(2,list2.size());
 		assertTrue(list2.contains(rStmt));
@@ -318,7 +318,7 @@ public class ORMapDiscoTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#setAggregratedResources(java.util.List)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#setAggregatedResources(java.util.List)}.
 	 */
 	@Test
 	public void testSetAggregratedResources() {
@@ -326,8 +326,8 @@ public class ORMapDiscoTest {
 		List<java.net.URI> list1 = new ArrayList<java.net.URI>();
 		list1.add(ORAdapter.openRdfIri2URI(r));
 		list1.add(ORAdapter.openRdfIri2URI(r2));
-		disco.setAggregratedResources(list1);				
-		List<java.net.URI>list2 = disco.getAggregratedResources();
+		disco.setAggregatedResources(list1);				
+		List<java.net.URI>list2 = disco.getAggregatedResources();
 		assertEquals(2,list2.size());
 		assertTrue(list2.contains(ORAdapter.openRdfIri2URI(r)));
 		assertTrue(list2.contains(ORAdapter.openRdfIri2URI(r2)));

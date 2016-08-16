@@ -4,54 +4,61 @@
 package info.rmapproject.core.exception;
 
 /**
- * @author smorrissey
+ * Exception captures case where a defective argument is passed to RMap
  *
+ * @author smorrissey
  */
 public class RMapDefectiveArgumentException extends Exception {
 
-	/**
-	 * 
-	 */
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 8793191899781932688L;
 
 	/**
-	 * 
+	 * Instantiates a new RMap defective argument exception.
 	 */
 	public RMapDefectiveArgumentException() {
 		super();
 	}
 
 	/**
-	 * @param arg0
+	 * Instantiates a new RMap defective argument exception.
+	 *
+	 * @param message the message
 	 */
-	public RMapDefectiveArgumentException(String arg0) {
-		super(arg0);
+	public RMapDefectiveArgumentException(String message) {
+		super(message);
 	}
 
 	/**
-	 * @param arg0
+	 * Instantiates a new RMap defective argument exception.
+	 *
+	 * @param cause the cause
 	 */
-	public RMapDefectiveArgumentException(Throwable arg0) {
-		super(arg0);
+	public RMapDefectiveArgumentException(Throwable cause) {
+		super(cause);
 	}
 
 	/**
-	 * @param arg0
-	 * @param arg1
+	 * Instantiates a new RMap defective argument exception.
+	 *
+	 * @param message the message
+	 * @param cause the cause
 	 */
-	public RMapDefectiveArgumentException(String arg0, Throwable arg1) {
-		super(arg0, arg1);
+	public RMapDefectiveArgumentException(String message, Throwable cause) {
+		super(message, cause);
 	}
 
 	/**
-	 * @param arg0
-	 * @param arg1
-	 * @param arg2
-	 * @param arg3
+	 * Instantiates a new RMap defective argument exception.
+	 *
+	 * @param message the message
+	 * @param cause the cause
+	 * @param enableSuppression 
+	 * @param writableStackTrace 
 	 */
-	public RMapDefectiveArgumentException(String arg0, Throwable arg1,
-			boolean arg2, boolean arg3) {
-		super(arg0, arg1, arg2, arg3);
+	public RMapDefectiveArgumentException(String message, Throwable cause,
+			boolean enableSuppression, boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
 }

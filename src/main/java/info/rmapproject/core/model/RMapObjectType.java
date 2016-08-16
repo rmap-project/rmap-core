@@ -8,14 +8,31 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The Enum for RMap Object Types
+ */
 public enum RMapObjectType {
+	
+	/** RMap DiSCO object. */
 	DISCO (Terms.RMAP_DISCO_PATH), 
+	
+	/** RMap Agent object. */
 	AGENT (Terms.RMAP_AGENT_PATH),
+	
+	/** The RMap event object. */
 	EVENT (Terms.RMAP_EVENT_PATH),
-	OBJECT (Terms.RMAP_OBJECT_PATH); //generic object type
+	
+	/** The generic Object (unspecified type). */
+	OBJECT (Terms.RMAP_OBJECT_PATH); 
 
+	/** The object type ontology path. */
 	private  RMapIri objectTypePath= null ;
 
+	/**
+	 * Instantiates a new RMap object type.
+	 *
+	 * @param path the ontology path for the type
+	 */
 	RMapObjectType(String path){		
 		try {
 			this.objectTypePath = new RMapIri(new URI(path));
@@ -24,10 +41,21 @@ public enum RMapObjectType {
 		}
 	}
 
+	/**
+	 * Gets the ontology path.
+	 *
+	 * @return the ontology path
+	 */
 	public RMapIri getPath()  {
 		return this.objectTypePath;
 	}
 
+    /**
+     * Gets the object type.
+     *
+     * @param path the ontology path
+     * @return the object type
+     */
     public static RMapObjectType getObjectType(RMapIri path) { 
     	Map<String, RMapObjectType> lookup = new HashMap<String, RMapObjectType>();
         for(RMapObjectType objtype : EnumSet.allOf(RMapObjectType.class)) {

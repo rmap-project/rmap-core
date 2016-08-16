@@ -4,49 +4,56 @@
 package info.rmapproject.core.exception;
 
 /**
- * @author smorrissey
+ * Exception occurs when a DiSCO is requested but cannot be found
  *
+ * @author smorrissey
  */
 public class RMapDiSCONotFoundException extends RMapObjectNotFoundException {
 
-	/**
-	 * 
-	 */
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1247316939616876804L;
 
 	/**
-	 * 
+	 * Instantiates a new RMap DiSCO not found exception.
 	 */
 	public RMapDiSCONotFoundException() {
 		super();
 	}
 
 	/**
-	 * @param message
+	 * Instantiates a new RMap DiSCO not found exception.
+	 *
+	 * @param message the message
 	 */
 	public RMapDiSCONotFoundException(String message) {
 		super(message);
 	}
 
 	/**
-	 * @param cause
+	 * Instantiates a new RMap DiSCO not found exception.
+	 *
+	 * @param cause the cause
 	 */
 	public RMapDiSCONotFoundException(Throwable cause) {
 		super(cause);
 	}
 
 	/**
-	 * @param message
-	 * @param cause
+	 * Instantiates a new RMap DiSCO not found exception.
+	 *
+	 * @param message the message
+	 * @param cause the cause
 	 */
 	public RMapDiSCONotFoundException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
 	/**
-	 * @param message
-	 * @param cause
-	 * @param enableSuppression
+	 * Instantiates a new RMap DiSCO not found exception.
+	 *
+	 * @param message the message
+	 * @param cause the cause
+	 * @param enableSuppression 
 	 * @param writableStackTrace
 	 */
 	public RMapDiSCONotFoundException(String message, Throwable cause,

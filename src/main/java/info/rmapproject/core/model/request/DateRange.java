@@ -16,16 +16,35 @@ import java.util.Date;
  */
 public class DateRange {
 
+	/** date when the date range starts. */
 	private Date dateFrom;
+	
+	/** date when the date range ends. */
 	private Date dateUntil;
 		
+	/**
+	 * Instantiates a new date range.
+	 */
 	public DateRange(){}
 	
+	/**
+	 * Instantiates a new date range.
+	 *
+	 * @param from date from
+	 * @param until date until
+	 */
 	public DateRange(Date from, Date until){
 		this.dateFrom = from;
 		this.dateUntil = until;
 	}
 	
+	/**
+	 * Instantiates a new date range.
+	 *
+	 * @param from date from
+	 * @param until date until
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
+	 */
 	public DateRange(String from, String until) throws RMapDefectiveArgumentException{
 		this.dateFrom = convertStrDateToDate(from, true);
 		this.dateUntil = convertStrDateToDate(until, false);
@@ -34,9 +53,12 @@ public class DateRange {
 	/**
 	 * Converts a date passed as yyyyMMddhhmmss as a string into a java Date. e.g. 20160115180000 -> 2016-01-15 6:00:00PM as date
 	 * Supports either date only or datetime
-	 * @param sDate
-	 * @return
-	 * @throws RMapException
+	 *
+	 * @param sDate the date as a string
+	 * @param isFromDate true if the sDate is the from date
+	 * @return the date
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
+	 * @throws RMapException the RMap exception
 	 */
 	private Date convertStrDateToDate(String sDate, boolean isFromDate) throws RMapDefectiveArgumentException {
 		//if empty return null - null is acceptable value for this optional param
@@ -83,19 +105,47 @@ public class DateRange {
 		return dDate;
 	}
 	
+	/**
+	 * Gets the from date, the start point of the date range
+	 *
+	 * @return the from date
+	 */
 	public Date getDateFrom() {
 		return dateFrom;
 	}
+	
+	/**
+	 * Sets the date from.
+	 *
+	 * @param dateFrom the new from date
+	 */
 	public void setDateFrom(Date dateFrom) {
 		this.dateFrom = dateFrom;
 	}
+	
+	/**
+	 * Gets the until date, the end point of the date range
+	 *
+	 * @return until date
+	 */
 	public Date getDateUntil() {
 		return dateUntil;
 	}
+	
+	/**
+	 * Sets the date until.
+	 *
+	 * @param dateUntil the new date until
+	 */
 	public void setDateUntil(Date dateUntil) {
 		this.dateUntil = dateUntil;
 	}
 	
+	/**
+	 * Gets the date from as a ISO standardized UTC date.
+	 *
+	 * @return the UTC date from
+	 */
 	public String getUTCDateFrom(){
 		String utcdate = null;
 		if (this.dateFrom!=null){
@@ -104,6 +154,11 @@ public class DateRange {
 		return utcdate;
 	}
 	
+	/**
+	 * Gets the date until as a ISO standardized UTC date.
+	 *
+	 * @return the UTC date until
+	 */
 	public String getUTCDateUntil(){
 		String utcdate = null;
 		if (this.dateUntil!=null){

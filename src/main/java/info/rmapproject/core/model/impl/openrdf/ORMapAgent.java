@@ -18,20 +18,27 @@ import org.openrdf.model.Value;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.FOAF;
 import org.openrdf.model.vocabulary.RDF;
+
 /**
- * 
- *  @author khanson, smorrissey
+ * Concrete class of RMapAgent, specific to OpenRDF object model.
  *
+ * @author khanson, smorrissey
  */
 public class ORMapAgent extends ORMapObject implements RMapAgent {
+	
+	/** The Agent's name stmt. */
 	protected Statement nameStmt;
+	
+	/** The Agent's id provider stmt. */
 	protected Statement idProviderStmt;
+	
+	/** The Agent's auth id stmt. */
 	protected Statement authIdStmt;
 
 	/**
-	 * 
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
+	 * Instantiates a new RMap Agent.
+	 *
+	 * @throws RMapException the RMap exception
 	 */
 	protected ORMapAgent() throws RMapException {
 		super();
@@ -39,12 +46,15 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		this.setTypeStatement(RMapObjectType.AGENT);
 	}
 	
+
 	/**
-	 * Creates new RMap Agent object based on ID Provider, User Auth ID, and name
-	 * @param idProvider
-	 * @param name
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
+	 * Instantiates a new RMap Agent .
+	 *
+	 * @param idProvider the id provider
+	 * @param authId the auth id
+	 * @param name the name
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public ORMapAgent(RMapIri idProvider, RMapIri authId, RMapValue name) 
 			throws RMapException, RMapDefectiveArgumentException {
@@ -55,23 +65,28 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	}
 	
 	/**
-	 * Creates new RMap Agent object based on user provided agentUri, ID Provider, User Auth ID, and name
-	 * @param agentUri
-	 * @param idProvider
-	 * @param name
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
+	 * Creates new RMap Agent object based on user provided agentIri, ID Provider, User Auth ID, and name.
+	 *
+	 * @param agentIri the Agent IRI
+	 * @param idProvider the ID provider associated with the Agent
+	 * @param authId the Auth ID
+	 * @param name the Agent's name
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapAgent(IRI agentUri, IRI idProvider, IRI authId, Value name) 
+	public ORMapAgent(IRI agentIri, IRI idProvider, IRI authId, Value name) 
 			throws RMapException, RMapDefectiveArgumentException {		
-		this.setId(agentUri);		
+		this.setId(agentIri);		
 		this.setTypeStatement(RMapObjectType.AGENT);
-		this.setContext(agentUri);
+		this.setContext(agentIri);
 		this.setIdProviderStmt(idProvider);
 		this.setAuthIdStmt(authId);
 		this.setNameStmt(name);
 	}
 		
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.impl.openrdf.ORMapObject#getAsModel()
+	 */
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model model = new LinkedHashModel();
@@ -84,10 +99,10 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	
 	/**
 	 * Creates an RMapAgent object from a list of statements - must include statements for 1 name, 1 id provider, 1 user auth id.
-	 * @param stmts
-	 * @param creator
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
+	 *
+	 * @param stmts the set of statements that describe the RMapAgent
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public ORMapAgent(Set<Statement> stmts)throws RMapException, RMapDefectiveArgumentException {
 		//this(); //sets default id and type
@@ -177,6 +192,9 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.agent.RMapAgent#getName()
+	 */
 	@Override
 	public RMapValue getName() throws RMapException {
 		RMapValue name = null;
@@ -192,15 +210,19 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	}
 
 	/**
-	 * @return the nameStmt
+	 * Gets the statement containing the Agent Name.
+	 *
+	 * @return the statement containing the Agent Name
 	 */
 	public Statement getNameStmt() {
 		return nameStmt;
 	}
 	
 	/**
-	 * @param name
-	 * @throws RMapDefectiveArgumentException 
+	 * Sets the statement containing the Agent Name.
+	 *
+	 * @param name statement containing the Agent Name
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	protected void setNameStmt (Value name) throws RMapDefectiveArgumentException{
 		if (name == null || name.toString().length()==0)
@@ -210,8 +232,9 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		this.nameStmt = stmt;
 	}
 
-	/**
-	 * @return idProvider
+	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.agent.RMapAgent#getIdProvider()
 	 */
 	@Override
 	public RMapIri getIdProvider() throws RMapException {
@@ -224,14 +247,19 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	}
 
 	/**
-	 * @return the idProviderStmt
+	 * Gets the statement containing the Agent's ID provider.
+	 *
+	 * @return the statement containing the Agent's ID provider
 	 */
 	public Statement getIdProviderStmt() {
 		return idProviderStmt;
 	}
 	
 	/**
-	 * @param idProvider
+	 * Sets the statement containing the Agent's ID provider.
+	 *
+	 * @param idProvider the new statement containing the Agent's ID provider
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	protected void setIdProviderStmt (IRI idProvider) throws RMapDefectiveArgumentException{
 		if (idProvider == null || idProvider.toString().length()==0)
@@ -242,8 +270,8 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		this.idProviderStmt = stmt;
 	}
 	
-	/**
-	 * @return authId 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.agent.RMapAgent#getAuthId()
 	 */
 	@Override
 	public RMapIri getAuthId() throws RMapException {
@@ -256,15 +284,19 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	}
 	
 	/**
-	 * @return the authIdStmt
+	 * Gets the statement containing the Agent's Auth ID.
+	 *
+	 * @return the statement containing the Agent's Auth ID
 	 */
 	public Statement getAuthIdStmt() {
 		return authIdStmt;
 	}
 	
 	/**
-	 * @param authId
-	 * @throws RMapDefectiveArgumentException 
+	 * Sets the statement containing the Agent's Auth ID.
+	 *
+	 * @param authId the new statement containing the Agent's Auth ID
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	protected void setAuthIdStmt (IRI authId) throws RMapDefectiveArgumentException{
 		if (authId == null || authId.toString().length()==0)

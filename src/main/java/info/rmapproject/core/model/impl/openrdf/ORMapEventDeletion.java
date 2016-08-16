@@ -1,6 +1,3 @@
-/**
- * 
- */
 package info.rmapproject.core.model.impl.openrdf;
 
 import java.util.ArrayList;
@@ -21,32 +18,41 @@ import info.rmapproject.core.model.request.RMapRequestAgent;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
- *  @author khanson, smorrissey
+ * The concrete class representing the Deletion Event for the openrdf implementation of RMap.
  *
+ * @author khanson, smorrissey
  */
 public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion {
 
+	/** The list of Statements containing deleted object IDs. */
 	protected List<Statement> deletedObjects;
+	
 	/**
-	 * @throws RMapException
+	 * Instantiates a new ORMap event deletion.
+	 *
+	 * @throws RMapException the RMap exception
 	 */
 	protected ORMapEventDeletion() throws RMapException {
 		super();
 		this.setEventTypeStatement(RMapEventType.DELETION);
 	}
+	
 	/**
+	 * Instantiates a new RMap Deletion Event
 	 * Most likely use is to construct Event for read() method in RMapService from statements
-	 * in Triplestore
-	 * @param eventTypeStmt
-	 * @param eventTargetTypeStmt
-	 * @param associatedAgentStmt
-	 * @param descriptionStmt
-	 * @param startTimeStmt
-	 * @param endTimeStmt
-	 * @param context
-	 * @param typeStatement
-	 * @param deletedObjects
-	 * @throws RMapException
+	 * in Triplestore.
+	 *
+	 * @param eventTypeStmt the event type stmt
+	 * @param eventTargetTypeStmt the event target type stmt
+	 * @param associatedAgentStmt the associated agent stmt
+	 * @param descriptionStmt the description stmt
+	 * @param startTimeStmt the start time stmt
+	 * @param endTimeStmt the end time stmt
+	 * @param context the context
+	 * @param typeStatement the type statement
+	 * @param associatedKeyStmt the associated key stmt
+	 * @param deletedObjects the deleted objects
+	 * @throws RMapException the RMap exception
 	 */
 	public ORMapEventDeletion(Statement eventTypeStmt, 
 			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
@@ -60,10 +66,13 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	}
 
 	/**
-	 * @param associatedAgent
-	 * @param targetType
-	 * @param desc
-	 * @throws RMapException
+	 * Instantiates a new RMap Deletion Event
+	 *
+	 * @param associatedAgent the associated agent
+	 * @param targetType the target type
+	 * @param desc the desc
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public ORMapEventDeletion(RMapRequestAgent associatedAgent, 
 			RMapEventTargetType targetType, RMapValue desc)
@@ -72,6 +81,9 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 		this.setEventTypeStatement(RMapEventType.DELETION);
 	}
 	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.impl.openrdf.ORMapEvent#getAsModel()
+	 */
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model model = super.getAsModel();
@@ -96,6 +108,11 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 		return iris;
 	}
 	
+	/**
+	 * Gets a list of statements containing deleted object IDs.
+	 *
+	 * @return the list of statements containing the deleted object IDs
+	 */
 	public List<Statement> getDeletedObjectStmts(){
 		return this.deletedObjects;
 	}

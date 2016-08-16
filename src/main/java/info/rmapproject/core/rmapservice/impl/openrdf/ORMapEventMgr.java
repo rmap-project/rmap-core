@@ -1,6 +1,3 @@
-/**
- * 
- */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
@@ -43,21 +40,28 @@ import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.RDF;
 
 /**
- *  @author khanson, smorrissey
+ * A concrete class for managing RMap Events, implemented using openrdf
  *
+ * @author khanson, smorrissey
  */
 public class ORMapEventMgr extends ORMapObjectMgr {
 	
+	/**
+	 * Instantiates a new RMap Event Manager
+	 *
+	 * @throws RMapException the RMap exception
+	 */
 	protected ORMapEventMgr() throws RMapException {
 		super();
 	}
 	
 	/**
-	 * Creates triples that comprise the Event object, and puts into triplesotre
-	 * @param event
-	 * @param ts
-	 * @return
-	 * @throws RMapException
+	 * Creates triples that comprise the Event object, and puts into triplesotre.
+	 *
+	 * @param event the new RMap Event
+	 * @param ts the triplestore instance
+	 * @return the iri
+	 * @throws RMapException the RMap exception
 	 */
 	public IRI createEvent (ORMapEvent event, SesameTriplestore ts) throws RMapException {
 		if (event==null){
@@ -148,12 +152,14 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		}
 		return eventId;
 	}
+	
 	/**
-	 * 
-	 * @param eventId
-	 * @param ts
-	 * @return
-	 * @throws RMapEventNotFoundException
+	 * Retrieve an Event using its IRI and convert it to an RMap Event object
+	 *
+	 * @param eventId the Event IRI
+	 * @param ts the triplestore instance
+	 * @return the ORMap event
+	 * @throws RMapEventNotFoundException the RMap event not found exception
 	 */
 	public ORMapEvent readEvent(IRI eventId, SesameTriplestore ts) 
 	throws RMapEventNotFoundException {
@@ -174,12 +180,14 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		event = createORMapEventFromStmts(eventStmts, ts);
 		return event;
 	}
+	
 	/**
-	 * Construct ORMapEvent object from OpenRdf Statements
-	 * @param eventStmts
-	 * @param ts
-	 * @return
-	 * @throws RMapException
+	 * Construct ORMapEvent object from OpenRdf Statements.
+	 *
+	 * @param eventStmts the set of statements that form the Event object
+	 * @param ts the triplestore instance
+	 * @return the RMap Event object
+	 * @throws RMapException the RMap exception
 	 */
 	public  ORMapEvent createORMapEventFromStmts (Set<Statement> eventStmts,
 			SesameTriplestore ts) throws RMapException {
@@ -422,11 +430,14 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		}
 		return event;
 	}
+	
 	/**
-	 * Return id of event with latest end date
-	 * @param eventIds
-	 * @param ts
-	 * @return
+	 * Give a set of Event IRIs, return the IRI of Event with latest end date.
+	 *
+	 * @param eventIds the set of Event IRIs
+	 * @param ts the triplestore instance
+	 * @return the latest event
+	 * @throws RMapException the RMap exception
 	 */
 	public IRI getLatestEvent (Set<IRI> eventIds,SesameTriplestore ts)
 	throws RMapException {
@@ -437,12 +448,14 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		Date latestDate = dates.last(); 
 		return date2event.get(latestDate);
 	}
+	
 	/**
-	 * 
-	 * @param eventIds
-	 * @param ts
-	 * @return
-	 * @throws RMapException
+	 * Given a set of Event IRIs, this retrieves a date to Event URI map for those Events
+	 *
+	 * @param eventIds set of Event IRIs
+	 * @param ts the triplestore instance
+	 * @return a date-to-EventURI map
+	 * @throws RMapException the RMap exception
 	 */
 	public Map <Date, IRI> getDate2EventMap(Set<IRI> eventIds,SesameTriplestore ts)
 	throws RMapException {
@@ -474,11 +487,14 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		}
 		return date2event;
 	}
+	
 	/**
-	 * Get DiSCOs that are impacted by the Event
-	 * @param eventId
-	 * @param ts
-	 * @return
+	 * Get DiSCOs that are impacted by a specific Event.
+	 *
+	 * @param eventId the Event IRI
+	 * @param ts the triplestore instance
+	 * @return a list of IRIs for the affected DiSCOs
+	 * @throws RMapException the RMap exception
 	 */
 	public List<IRI> getAffectedDiSCOs(IRI eventId, SesameTriplestore ts) 
 			throws RMapException{
@@ -561,11 +577,12 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 *  RMAP.EVENT_TOMBSTONED_OBJECT
 	 *  RMAP.EVENT_INACTIVATED_OBJECT
 	 *  RMAP.EVENT_SOURCE_OBJECT
-	 * @param discoid
-	 * @param ts
-	 * @return
-	 * @throws RMapDiSCONotFoundException
-	 * @throws RMapException
+	 *
+	 * @param discoid the DiSCO IRI
+	 * @param ts the triplestore instance
+	 * @return a set of IRIs for DiSCOs related to the Event IRIs
+	 * @throws RMapDiSCONotFoundException the RMap di SCO not found exception
+	 * @throws RMapException the RMap exception
 	 */
 	public Set<IRI> getDiscoRelatedEventIds(IRI discoid, SesameTriplestore ts) 
 			throws RMapDiSCONotFoundException, RMapException {
@@ -612,11 +629,13 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 *  RMAP.EVENT_UPDATED_OBJECT (Update Agent)
 	 *  RMAP.EVENT_TOMBSTONED_OBJECT - included to future proof possibility of agent deletion
 	 *  RMAP.EVENT_DELETED_OBJECT - included to future proof possibility of agent deletion
-	 * @param agentid
-	 * @param ts
-	 * @return
-	 * @throws RMapDiSCONotFoundException
-	 * @throws RMapException
+	 *
+	 * @param agentid the Agent IRI
+	 * @param ts the triplestore instance
+	 * @return a set of IRIs for the Agents related to an Event
+	 * @throws RMapAgentNotFoundException the RMap Agent not found exception
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDiSCONotFoundException the RMap DiSCO not found exception
 	 */
 	public Set<IRI> getAgentRelatedEventIds(IRI agentid, SesameTriplestore ts) 
 			throws RMapAgentNotFoundException, RMapException {
@@ -659,10 +678,11 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * For creation and update events, includes statements associated with 
 	 * DiSCOs associated with event
 	 * Includes Agent associated with event
-	 * Does NOT descend on Statements to get subject and object resources
-	 * @param eventId
-	 * @param ts
-	 * @return
+	 * Does NOT descend on Statements to get subject and object resources.
+	 *
+	 * @param eventId the Event IRI
+	 * @param ts the triplestore instance
+	 * @return a list of IRIs for Resources affected by a specific Event
 	 */
 	public List<IRI> getAffectedResources (IRI eventId,SesameTriplestore ts){
 		Set<IRI> resources = new HashSet<IRI>();
@@ -678,12 +698,15 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	}
 	
 	/**
-	 * Get Agents affected by an Event
-	 * Currently ONLY getting single system agent
-	 * @param eventId
-	 * @param ts
-	 * @return
-	 * @throws RMapException
+	 * Get RMap Agents affected by an Event
+	 * Currently ONLY getting single RMap Agent.
+	 *
+	 * @param eventId the Event IRI
+	 * @param ts the triplestore instance
+	 * @return a list of IRIs of Agents affected by an Event
+	 * @throws RMapException the RMap exception
+	 * @throws RMapAgentNotFoundException the RMap agent not found exception
+	 * @throws RMapEventNotFoundException the RMap event not found exception
 	 */
 	public List<IRI> getAffectedAgents (IRI eventId, SesameTriplestore ts)
     throws RMapException, RMapAgentNotFoundException, RMapEventNotFoundException {
@@ -724,12 +747,15 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		}
 		return agents;
 	}
+	
 	/**
-	 * 
-	 * @param eventId
-	 * @param ts
-	 * @return
-	 * @throws RMapException
+	 * Retrieves the Event type for a specific Event IRI
+	 *
+	 * @param eventId the Event IRI
+	 * @param ts the triplestore instance
+	 * @return the Event type
+	 * @throws RMapEventNotFoundException the RMap event not found exception
+	 * @throws RMapException the RMap exception
 	 */
 	public RMapEventType getEventType (IRI eventId, SesameTriplestore ts) 
 	throws RMapEventNotFoundException, RMapException{
@@ -757,13 +783,15 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		RMapEventType eType = RMapEventType.getEventType(type.stringValue());
 		return eType;
 	}
+	
 	/**
-	 * 
-	 * @param eventId
-	 * @param ts
-	 * @return
-	 * @throws RMapEventNotFoundException
-	 * @throws RMapException
+	 * Gets the Event target type.
+	 *
+	 * @param eventId the Event IRI
+	 * @param ts the triplestore instance
+	 * @return the event target type
+	 * @throws RMapEventNotFoundException the RMap event not found exception
+	 * @throws RMapException the RMap exception
 	 */
 	public RMapEventTargetType getEventTargetType (IRI eventId, SesameTriplestore ts) 
 	throws RMapEventNotFoundException, RMapException{
@@ -803,12 +831,13 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	}
 	
 	/**
-	 * Get start date associated with event
-	 * @param eventId
-	 * @param ts
-	 * @return
-	 * @throws RMapEventNotFoundException
-	 * @throws RMapException
+	 * Get start date associated with event.
+	 *
+	 * @param eventId the Event IRI
+	 * @param ts the triplestore instance
+	 * @return the event start date
+	 * @throws RMapEventNotFoundException the RMap event not found exception
+	 * @throws RMapException the RMap exception
 	 */
 	public Date getEventStartDate (IRI eventId, SesameTriplestore ts) 
 		throws RMapEventNotFoundException, RMapException{
@@ -839,60 +868,71 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	}
 	
 	/**
-	 * 
-	 * @param eventId
-	 * @param ts
-	 * @return
+	 * Checks if an Event has the type CREATION.
+	 *
+	 * @param eventId the Event IRI
+	 * @param ts the triplestore instance
+	 * @return true, if is CREATION event
 	 */
 	protected boolean isCreationEvent(IRI eventId, SesameTriplestore ts){
 		RMapEventType et = this.getEventType(eventId, ts);
 		return et.equals(RMapEventType.CREATION);
 	}
+	
 	/**
-	 * 
-	 * @param eventId
-	 * @param ts
-	 * @return
+	 * Checks if an Event has the type UPDATE.
+	 *
+	 * @param eventId the Event IRI
+	 * @param ts the triplestore instance
+	 * @return true, if is update event
 	 */
 	protected boolean isUpdateEvent(IRI eventId, SesameTriplestore ts){
 		RMapEventType et = this.getEventType(eventId, ts);
 		return et.equals(RMapEventType.UPDATE);
 	}
+	
 	/**
-	 * 
-	 * @param eventId
-	 * @param ts
-	 * @return
+	 * Checks if an Event has the type DERIVATION.
+	 *
+	 * @param eventId the Event IRI
+	 * @param ts the triplestore instance
+	 * @return true, if is DERIVATION event
 	 */
 	protected boolean isDerivationEvent (IRI eventId, SesameTriplestore ts){
 		RMapEventType et = this.getEventType(eventId, ts);
 		return et.equals(RMapEventType.DERIVATION);
 	}
+	
 	/**
-	 * 
-	 * @param eventId
-	 * @param ts
-	 * @return
+	 * Checks if an Event has the type INACTIVATION.
+	 *
+	 * @param eventId the Event IRI
+	 * @param ts the triplestore instance
+	 * @return true, if is inactivate event
 	 */
 	protected boolean isInactivateEvent (IRI eventId, SesameTriplestore ts){
 		RMapEventType et = this.getEventType(eventId, ts);
 		return et.equals(RMapEventType.INACTIVATION);
 	}
+	
 	/**
-	 * 
-	 * @param eventId
-	 * @param ts
-	 * @return
+	 * Checks if an Event has the type TOMBSTONE.
+	 *
+	 * @param eventId the Event IRI
+	 * @param ts the triplestore instance
+	 * @return true, if is TOMBSTONE event
 	 */
 	protected boolean isTombstoneEvent(IRI eventId, SesameTriplestore ts){
 		RMapEventType et = this.getEventType(eventId, ts);
 		return et.equals(RMapEventType.TOMBSTONE);
 	}
+	
 	/**
-	 * 
-	 * @param eventId
-	 * @param ts
-	 * @return
+	 * Checks if an Event has the type DELETION.
+	 *
+	 * @param eventId the Event IRI
+	 * @param ts the triplestore instance
+	 * @return true, if is DELETION event
 	 */
 	protected boolean isDeleteEvent(IRI eventId, SesameTriplestore ts){
 		RMapEventType et = this.getEventType(eventId, ts);
@@ -900,12 +940,13 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	}
 	
 	/**
-	 * Get identifier for the system agent associated an event
-	 * @param event
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapAgentNotFoundException
+	 * Get identifier for the RMap Agent associated an Event.
+	 *
+	 * @param event the Event IRI
+	 * @param ts the triplestore instance
+	 * @return the IRI of the Agent that initiated the Event Event
+	 * @throws RMapException the RMap exception
+	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 */
 	protected IRI getEventAssocAgent (IRI event, SesameTriplestore ts) throws RMapException {
 		IRI agent = null;
@@ -929,12 +970,14 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		}
 		return agent;
 	}
+	
 	/**
-	 * Find the creation Event associated with a DiSCO
-	 * @param iri
-	 * @param ts
-	 * @return
-	 * @throws RMapException
+	 * Find the creation Event statement associated with an RMap Object (DiSCO or Agent)
+	 *
+	 * @param iri the IRI of the RMap Object
+	 * @param ts the triplestore instance
+	 * @return the RMap Object creation event statement
+	 * @throws RMapException the RMap exception
 	 */
 	protected Statement getRMapObjectCreateEventStatement(IRI iri, SesameTriplestore ts) 
 	throws RMapException {
@@ -958,16 +1001,15 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		return stmt;
 	}
 
-	
-	
 	/**
-	 * Get ids of Events that update or derive from a DiSCO
-	 * @param targetId
-	 * @param ts
-	 * @return
-	 * @throws RMapException
+	 * Get a list of inactivation Event Statements associated with an RMap Object
+	 *
+	 * @param targetId the RMap Object IRI
+	 * @param ts the triplestore instance
+	 * @return the update events
+	 * @throws RMapException the RMap exception
 	 */
-	protected Set<Statement> getUpdateEvents(IRI targetId, SesameTriplestore ts)
+	protected Set<Statement> getInactivationEvents(IRI targetId, SesameTriplestore ts)
 			throws RMapException {
 		Set<Statement> stmts = null;
 		Set<Statement> returnStmts = new HashSet<Statement>();
@@ -997,11 +1039,13 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		}		
 		return returnStmts;
 	}
-
+	
+	
 	/**
-	 * Get id of source of old version of DiSCO from Update event
-	 * @param eventId id of update event
-	 * @param ts Triplestore
+	 * Get IRI of the source DiSCO for an updated DiSCO using the Update event.
+	 *
+	 * @param eventId IRI of update event
+	 * @param ts the triplestore instance
 	 * @return new version of DiSCO from Update event or null if not found
 	 */
 	protected IRI getIdOfOldDisco(IRI eventId, SesameTriplestore ts){
@@ -1025,11 +1069,13 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		}
 		return sourceDisco;
 	}
+	
 	/**
-	 * Get id of created DiSCO from UpdateEvent
-	 * @param updateEventID ID of update event
-	 * @param ts Triplestore
-	 * @return id of created DiSCO from UpdateEvent, or null if not found
+	 * Get IRI of a created DiSCO from an update Event.
+	 *
+	 * @param updateEventID IRI of an update event
+	 * @param ts the triplestore instance
+	 * @return IRI of created DiSCO from UpdateEvent, or null if not found
 	 */
 	protected IRI getIdOfCreatedDisco(IRI updateEventID, SesameTriplestore ts){
 		IRI createdDisco = null;
@@ -1057,11 +1103,12 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 
 
 	/**
-	 * Get IDs of Events that generate a new DiSCO or Agent through derivation or creation
-	 * @param targetId
-	 * @param ts
-	 * @return
-	 * @throws RMapException
+	 * Get a list of IRIs for Events that generated a specific new DiSCO or Agent through derivation or creation.
+	 *
+	 * @param iri the IRI of the DiSCO or Agent
+	 * @param ts the triplestore instance
+	 * @return the list of IRIs for Events that created the RMap Object
+	 * @throws RMapException the RMap exception
 	 */
 	protected List<IRI> getMakeObjectEvents(IRI iri, SesameTriplestore ts)
 			throws RMapException {

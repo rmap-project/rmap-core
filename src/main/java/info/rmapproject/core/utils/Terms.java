@@ -1,111 +1,296 @@
 package info.rmapproject.core.utils;
 
+/**
+ * Class to define constants for the ontology paths used in RMap
+ */
 public final class Terms  {
+
+ 	/*RMap vocabulary constants*/
 	
-	 /*RMap vocabulary constants*/
-	 public static final String RMAP_NAMESPACE = "http://rmap-project.org/rmap/terms/";
-	 public static final String RMAP_PREFIX = "rmap";
-
-	 public static final String RMAP_OBJECT = "Object";
-	 public static final String RMAP_DISCO = "DiSCO";
-	 public static final String RMAP_AGENT = "Agent";
-	 public static final String RMAP_EVENT = "Event";
-	 public static final String RMAP_EVENTTYPE = "eventType";
-	 public static final String RMAP_CREATION = "Creation";
-	 public static final String RMAP_UPDATE = "Update";
-	 public static final String RMAP_INACTIVATION = "Inactivation";
-	 public static final String RMAP_DERIVATION = "Derivation";
-	 public static final String RMAP_TOMBSTONE = "Tombstone";
-	 public static final String RMAP_DELETION = "Deletion";
-	 public static final String RMAP_REPLACE = "Replace";
-	 public static final String RMAP_EVENTTARGETTYPE = "eventTargetType";
-	 public static final String RMAP_HASSOURCEOBJECT = "hasSourceObject";
-	 public static final String RMAP_INACTIVATEDOBJECT = "inactivatedObject";
-	 public static final String RMAP_DERIVEDOBJECT = "derivedObject";
-	 public static final String RMAP_TOMBSTONEDOBJECT = "tombstonedObject";
-	 public static final String RMAP_DELETEDOBJECT = "deletedObject";
-	 public static final String RMAP_UPDATEDOBJECT = "updatedObject";
-	 public static final String RMAP_PROVIDERID = "providerId";
-	 public static final String RMAP_IDENTITYPROVIDER = "identityProvider";
-	 public static final String RMAP_USERAUTHID = "userAuthId";
-
-	 public static final String RMAP_HASSTATUS = "hasStatus";
-	 public static final String RMAP_ACTIVE = "Active";
-	 public static final String RMAP_INACTIVE = "Inactive";
-	 public static final String RMAP_DELETED = "Deleted";
-	 public static final String RMAP_TOMBSTONED = "Tombstoned";
+	/** The RMap Namespace. */
+	public static final String RMAP_NAMESPACE = "http://rmap-project.org/rmap/terms/";
 	 
-	 /*Path requests...*/
+ 	/** The RMap prefix. */
+ 	public static final String RMAP_PREFIX = "rmap";
+
+	 /** The term for the RMap Object class. */
+ 	public static final String RMAP_OBJECT = "Object";
+
+	 /** The term for the RMap DiSCO class, a subclass of Object. */
+ 	public static final String RMAP_DISCO = "DiSCO";
+
+	 /** The term for the RMap Agent class, a subclass of Object. */
+ 	public static final String RMAP_AGENT = "Agent";
+
+	 /** The term for the RMap Event class, a subclass of Object. */
+ 	public static final String RMAP_EVENT = "Event";
+	 
+ 	/** The term for the eventType property. */
+ 	public static final String RMAP_EVENTTYPE = "eventType";
+
+ 	/** The term for the creation event type. */
+ 	public static final String RMAP_CREATION = "creation";
+
+ 	/** The term for the update event type. */
+ 	public static final String RMAP_UPDATE = "update";
+
+ 	/** The term for the inactivation event type. */
+ 	public static final String RMAP_INACTIVATION = "inactivation";
+
+ 	/** The term for the derivation event type. */
+ 	public static final String RMAP_DERIVATION = "derivation";
+
+ 	/** The term for the tombstone event type. */
+ 	public static final String RMAP_TOMBSTONE = "tombstone";
+
+ 	/** The term for the deletion event type. */
+ 	public static final String RMAP_DELETION = "deletion";
+
+ 	/** The term for the replace event type. */
+ 	public static final String RMAP_REPLACE = "replace";
+
+ 	/** The term for the eventTargetType property. */
+ 	public static final String RMAP_EVENTTARGETTYPE = "eventTargetType";
+
+ 	/** The term for the hasSourceObject property of an Event. */
+ 	public static final String RMAP_HASSOURCEOBJECT = "hasSourceObject";
+
+ 	/** The term for the inactivatedObject property of an Event. */
+ 	public static final String RMAP_INACTIVATEDOBJECT = "inactivatedObject";
+
+ 	/** The term for the derivedObject property of an Event. */
+ 	public static final String RMAP_DERIVEDOBJECT = "derivedObject";
+
+ 	/** The term for the tombstonedObject property of an Event. */
+ 	public static final String RMAP_TOMBSTONEDOBJECT = "tombstonedObject";
+
+ 	/** The term for the deletedObject property. */
+ 	public static final String RMAP_DELETEDOBJECT = "deletedObject";
+
+ 	/** The term for the updatedObject property of an Event. */
+ 	public static final String RMAP_UPDATEDOBJECT = "updatedObject";
+
+ 	/** The term for the providerId property of an Agent. */
+ 	public static final String RMAP_PROVIDERID = "providerId";
+
+ 	/** The term for the identityProvider property of an Agent. */
+ 	public static final String RMAP_IDENTITYPROVIDER = "identityProvider";
+
+ 	/** The term for the userAuthId property of an Agent. */
+ 	public static final String RMAP_USERAUTHID = "userAuthId";
+
+ 	/** The term for the hasStatus property. */
+ 	public static final String RMAP_HASSTATUS = "hasStatus";
+
+ 	/** The term for the active status. */
+ 	public static final String RMAP_ACTIVE = "active";
+
+ 	/** The term for the inactive status. */
+ 	public static final String RMAP_INACTIVE = "inactive";
+
+ 	/** The term for the deleted status. */
+ 	public static final String RMAP_DELETED = "deleted";
+
+ 	/** The term for the tombstoned status. */
+ 	public static final String RMAP_TOMBSTONED = "tombstoned";
+
+ 	/*Path requests...*/
+	 /** The full path for the RMap Object class. */
 	 public static final String RMAP_OBJECT_PATH = RMAP_NAMESPACE + RMAP_OBJECT;
-	 public static final String RMAP_DISCO_PATH = RMAP_NAMESPACE + RMAP_DISCO;
-	 public static final String RMAP_AGENT_PATH = RMAP_NAMESPACE + RMAP_AGENT;
-	 public static final String RMAP_EVENT_PATH = RMAP_NAMESPACE + RMAP_EVENT;
-	 public static final String RMAP_EVENTTYPE_PATH = RMAP_NAMESPACE + RMAP_EVENTTYPE;
-	 public static final String RMAP_CREATION_PATH = RMAP_NAMESPACE + RMAP_CREATION;
-	 public static final String RMAP_UPDATE_PATH = RMAP_NAMESPACE + RMAP_UPDATE;
-	 public static final String RMAP_INACTIVATION_PATH = RMAP_NAMESPACE + RMAP_INACTIVATION;
-	 public static final String RMAP_DERIVATION_PATH = RMAP_NAMESPACE + RMAP_DERIVATION;
-	 public static final String RMAP_TOMBSTONE_PATH = RMAP_NAMESPACE + RMAP_TOMBSTONE;
-	 public static final String RMAP_DELETION_PATH = RMAP_NAMESPACE + RMAP_DELETION;
-	 public static final String RMAP_REPLACE_PATH = RMAP_NAMESPACE + RMAP_REPLACE;
-	 public static final String RMAP_EVENTTARGETTYPE_PATH = RMAP_NAMESPACE + RMAP_EVENTTARGETTYPE;
-	 public static final String RMAP_HASSOURCEOBJECT_PATH = RMAP_NAMESPACE + RMAP_HASSOURCEOBJECT;
-	 public static final String RMAP_INACTIVATEDOBJECT_PATH = RMAP_NAMESPACE + RMAP_INACTIVATEDOBJECT;
-	 public static final String RMAP_DERIVEDOBJECT_PATH = RMAP_NAMESPACE + RMAP_DERIVEDOBJECT;
-	 public static final String RMAP_TOMBSTONEDOBJECT_PATH = RMAP_NAMESPACE + RMAP_TOMBSTONEDOBJECT;
-	 public static final String RMAP_DELETEDOBJECT_PATH = RMAP_NAMESPACE + RMAP_DELETEDOBJECT;
-	 public static final String RMAP_UPDATEDOBJECT_PATH = RMAP_NAMESPACE + RMAP_UPDATEDOBJECT;
-	 public static final String RMAP_HASSTATUS_PATH = RMAP_NAMESPACE + RMAP_HASSTATUS;
-	 public static final String RMAP_ACTIVE_PATH = RMAP_NAMESPACE + RMAP_ACTIVE;
-	 public static final String RMAP_INACTIVE_PATH = RMAP_NAMESPACE + RMAP_INACTIVE;
-	 public static final String RMAP_DELETED_PATH = RMAP_NAMESPACE + RMAP_DELETED;
-	 public static final String RMAP_TOMBSTONED_PATH = RMAP_NAMESPACE + RMAP_TOMBSTONED;
-	 public static final String RMAP_PROVIDERID_PATH = RMAP_NAMESPACE + RMAP_PROVIDERID;
-	 public static final String RMAP_IDENTITYPROVIDER_PATH = RMAP_NAMESPACE + RMAP_IDENTITYPROVIDER;
-	 public static final String RMAP_USERAUTHID_PATH = RMAP_NAMESPACE + RMAP_USERAUTHID;
 
-	 /*PROV vocabulary constants*/
+	 /** The full path for the RMap DiSCO class. */
+ 	public static final String RMAP_DISCO_PATH = RMAP_NAMESPACE + RMAP_DISCO;
+
+	 /** The full path for the RMap Agent class. */
+ 	public static final String RMAP_AGENT_PATH = RMAP_NAMESPACE + RMAP_AGENT;
+
+	 /** The full path for the RMap Event class. */
+ 	public static final String RMAP_EVENT_PATH = RMAP_NAMESPACE + RMAP_EVENT;
+
+ 	/** The full path for the eventType property. */
+ 	public static final String RMAP_EVENTTYPE_PATH = RMAP_NAMESPACE + RMAP_EVENTTYPE;
+
+ 	/** The full path for the creation eventType. */
+ 	public static final String RMAP_CREATION_PATH = RMAP_NAMESPACE + RMAP_CREATION;
+
+ 	/** The full path for the update eventType. */
+ 	public static final String RMAP_UPDATE_PATH = RMAP_NAMESPACE + RMAP_UPDATE;
+
+ 	/** The full path for the inactivation eventType. */
+ 	public static final String RMAP_INACTIVATION_PATH = RMAP_NAMESPACE + RMAP_INACTIVATION;
+
+ 	/** The full path for the derivation eventType. */
+ 	public static final String RMAP_DERIVATION_PATH = RMAP_NAMESPACE + RMAP_DERIVATION;
+
+ 	/** The full path for the tombstone eventType. */
+ 	public static final String RMAP_TOMBSTONE_PATH = RMAP_NAMESPACE + RMAP_TOMBSTONE;
+
+ 	/** The full path for the deletion eventType. */
+ 	public static final String RMAP_DELETION_PATH = RMAP_NAMESPACE + RMAP_DELETION;
+
+ 	/** The full path for the replace eventType. */
+ 	public static final String RMAP_REPLACE_PATH = RMAP_NAMESPACE + RMAP_REPLACE;
+
+ 	/** The full path for the eventTargetType property. */
+ 	public static final String RMAP_EVENTTARGETTYPE_PATH = RMAP_NAMESPACE + RMAP_EVENTTARGETTYPE;
+
+ 	/** The full path for the hasSourceObject property. */
+ 	public static final String RMAP_HASSOURCEOBJECT_PATH = RMAP_NAMESPACE + RMAP_HASSOURCEOBJECT;
+
+ 	/** The full path for the inactivatedObject property. */
+ 	public static final String RMAP_INACTIVATEDOBJECT_PATH = RMAP_NAMESPACE + RMAP_INACTIVATEDOBJECT;
+
+ 	/** The full path for the derivedObject property. */
+ 	public static final String RMAP_DERIVEDOBJECT_PATH = RMAP_NAMESPACE + RMAP_DERIVEDOBJECT;
+
+ 	/** The full path for the tombstonedObject property. */
+ 	public static final String RMAP_TOMBSTONEDOBJECT_PATH = RMAP_NAMESPACE + RMAP_TOMBSTONEDOBJECT;
+
+ 	/** The full path for the deletedObject property. */
+ 	public static final String RMAP_DELETEDOBJECT_PATH = RMAP_NAMESPACE + RMAP_DELETEDOBJECT;
+
+ 	/** The full path for the updatedObject property. */
+ 	public static final String RMAP_UPDATEDOBJECT_PATH = RMAP_NAMESPACE + RMAP_UPDATEDOBJECT;
+
+ 	/** The full path for the hasStatus property. */
+ 	public static final String RMAP_HASSTATUS_PATH = RMAP_NAMESPACE + RMAP_HASSTATUS;
+
+ 	/** The full path for the active status. */
+ 	public static final String RMAP_ACTIVE_PATH = RMAP_NAMESPACE + RMAP_ACTIVE;
+
+ 	/** The full path for the inactive status. */
+ 	public static final String RMAP_INACTIVE_PATH = RMAP_NAMESPACE + RMAP_INACTIVE;
+
+ 	/** The full path for the deleted status. */
+ 	public static final String RMAP_DELETED_PATH = RMAP_NAMESPACE + RMAP_DELETED;
+
+ 	/** The full path for the tombstoned status. */
+ 	public static final String RMAP_TOMBSTONED_PATH = RMAP_NAMESPACE + RMAP_TOMBSTONED;
+
+ 	/** The full path for the providerId property of an Agent. */
+ 	public static final String RMAP_PROVIDERID_PATH = RMAP_NAMESPACE + RMAP_PROVIDERID;
+
+ 	/** The full path for the identityProvider property of an Agent. */
+ 	public static final String RMAP_IDENTITYPROVIDER_PATH = RMAP_NAMESPACE + RMAP_IDENTITYPROVIDER;
+
+ 	/** The full path for the userAuthId property of an Agent. */
+ 	public static final String RMAP_USERAUTHID_PATH = RMAP_NAMESPACE + RMAP_USERAUTHID;
+
+ 	
+ 	
+ 	/*PROV vocabulary constants*/
+
+ 	/** The PROV namespace. */
 	 public static final String PROV_NAMESPACE = "http://www.w3.org/ns/prov#";
-	 public static final String PROV_PREFIX = "prov";
-	 public static final String PROV_ACTIVITY = "Activity";
-	 public static final String PROV_STARTEDATTIME = "startedAtTime";
-	 public static final String PROV_ENDEDATTIME = "endedAtTime";
-	 public static final String PROV_WASASSOCIATEDWITH = "wasAssociatedWith";
-	 public static final String PROV_WASGENERATEDBY = "wasGeneratedBy";
-	 public static final String PROV_WASDERIVEDFROM = "wasDerivedFrom";
-	 public static final String PROV_GENERATED = "generated";
-	 public static final String PROV_HADACTIVITY = "hadActivity";
-	 public static final String PROV_WASATTRIBUTEDTO = "wasAttributedTo";
-	 public static final String PROV_HASPROVENANCE = "has_provenance";
-	 public static final String PROV_USED = "used";
-	 
-	 public static final String PROV_ACTIVITY_PATH = PROV_NAMESPACE + PROV_ACTIVITY;
-	 public static final String PROV_STARTEDATTIME_PATH = PROV_NAMESPACE + PROV_STARTEDATTIME;
-	 public static final String PROV_ENDEDATTIME_PATH = PROV_NAMESPACE + PROV_ENDEDATTIME;
-	 public static final String PROV_WASASSOCIATEDWITH_PATH = PROV_NAMESPACE + PROV_WASASSOCIATEDWITH;
-	 public static final String PROV_WASGENERATEDBY_PATH = PROV_NAMESPACE + PROV_WASGENERATEDBY;
-	 public static final String PROV_WASDERIVEDFROM_PATH = PROV_NAMESPACE + PROV_WASDERIVEDFROM;
-	 public static final String PROV_GENERATED_PATH = PROV_NAMESPACE + PROV_GENERATED;
-	 public static final String PROV_HADACTIVITY_PATH = PROV_NAMESPACE + PROV_HADACTIVITY;
-	 public static final String PROV_WASATTRIBUTEDTO_PATH = PROV_NAMESPACE + PROV_WASATTRIBUTEDTO;
-	 public static final String PROV_HASPROVENANCE_PATH = PROV_NAMESPACE + PROV_HASPROVENANCE;
-	 public static final String PROV_USED_PATH = PROV_NAMESPACE + PROV_USED;
+
+	 /** The PROV prefix. */
+ 	public static final String PROV_PREFIX = "prov";
+
+	 /** The term for the Prov Activity class. */
+ 	public static final String PROV_ACTIVITY = "Activity";
+
+ 	/** The term for the startedAtTime property. */
+ 	public static final String PROV_STARTEDATTIME = "startedAtTime";
+
+ 	/** The term for the endedAtTime property. */
+ 	public static final String PROV_ENDEDATTIME = "endedAtTime";
+
+ 	/** The term for the wasAssociatedWith property. */
+ 	public static final String PROV_WASASSOCIATEDWITH = "wasAssociatedWith";
+
+ 	/** The term for the wasGeneratedBy property. */
+ 	public static final String PROV_WASGENERATEDBY = "wasGeneratedBy";
+
+ 	/** The term for the wasDerivedFrom property. */
+ 	public static final String PROV_WASDERIVEDFROM = "wasDerivedFrom";
+
+ 	/** The term for the generated property. */
+ 	public static final String PROV_GENERATED = "generated";
+
+ 	/** The term for the hadActivity property. */
+ 	public static final String PROV_HADACTIVITY = "hadActivity";
+
+ 	/** The term for the wasAttributedTo property. */
+ 	public static final String PROV_WASATTRIBUTEDTO = "wasAttributedTo";
+
+ 	/** The term for the has_provenance property. */
+ 	public static final String PROV_HASPROVENANCE = "has_provenance";
+
+ 	/** The term for the used property. */
+ 	public static final String PROV_USED = "used";
+
+	 /** The full path for the PROV Activity class. */
+ 	public static final String PROV_ACTIVITY_PATH = PROV_NAMESPACE + PROV_ACTIVITY;
+
+ 	/** The full path for the startedAtTime property. */
+ 	public static final String PROV_STARTEDATTIME_PATH = PROV_NAMESPACE + PROV_STARTEDATTIME;
+
+ 	/** The full path for the endedAtTime property. */
+ 	public static final String PROV_ENDEDATTIME_PATH = PROV_NAMESPACE + PROV_ENDEDATTIME;
+
+ 	/** The full path for the wasAssociatedWith property. */
+ 	public static final String PROV_WASASSOCIATEDWITH_PATH = PROV_NAMESPACE + PROV_WASASSOCIATEDWITH;
+
+ 	/** The full path for the wasGeneratedBy property. */
+ 	public static final String PROV_WASGENERATEDBY_PATH = PROV_NAMESPACE + PROV_WASGENERATEDBY;
+
+ 	/** The full path for the wasDerivedFrom property. */
+ 	public static final String PROV_WASDERIVEDFROM_PATH = PROV_NAMESPACE + PROV_WASDERIVEDFROM;
+
+ 	/** The full path for the generated property. */
+ 	public static final String PROV_GENERATED_PATH = PROV_NAMESPACE + PROV_GENERATED;
+
+ 	/** The full path for the hadActivity property. */
+ 	public static final String PROV_HADACTIVITY_PATH = PROV_NAMESPACE + PROV_HADACTIVITY;
+
+ 	/** The full path for the wasAttributedTo property. */
+ 	public static final String PROV_WASATTRIBUTEDTO_PATH = PROV_NAMESPACE + PROV_WASATTRIBUTEDTO;
+
+ 	/** The full path for the hasProvenance property. */
+ 	public static final String PROV_HASPROVENANCE_PATH = PROV_NAMESPACE + PROV_HASPROVENANCE;
+
+ 	/** The full path for the used property. */
+ 	public static final String PROV_USED_PATH = PROV_NAMESPACE + PROV_USED;
 	  
  
-	 /*ORE vocabulary constants*/
-	 public static final String ORE_NAMESPACE = "http://www.openarchives.org/ore/terms/";
-	 public static final String ORE_PREFIX = "ore";
-	 public static final String ORE_SIMILARTO = "simlarTo";
-	 public static final String ORE_DESCRIBES = "describes";
-	 public static final String ORE_AGGREGATION = "Aggregation";
-	 public static final String ORE_AGGREGATES = "aggregates";
+ 	
+ 	
+ 	/*ORE vocabulary constants*/
 
-	 public static final String ORE_SIMILARTO_PATH = ORE_NAMESPACE + ORE_SIMILARTO;
-	 public static final String ORE_DESCRIBES_PATH = ORE_NAMESPACE + ORE_DESCRIBES;
-	 public static final String ORE_AGGREGATION_PATH = ORE_NAMESPACE + ORE_AGGREGATION;
-	 public static final String ORE_AGGREGATES_PATH = ORE_NAMESPACE + ORE_AGGREGATES;
+ 	/** The ORE namespace. */
+	 public static final String ORE_NAMESPACE = "http://www.openarchives.org/ore/terms/";
+	 
+ 	/** The ORE prefix. */
+ 	public static final String ORE_PREFIX = "ore";
+
+ 	/** The term for the similarTo property. */
+ 	public static final String ORE_SIMILARTO = "simlarTo";
+
+ 	/** The term for the describes property. */
+ 	public static final String ORE_DESCRIBES = "describes";
+
+ 	/** The term for the Aggregation class. */
+ 	public static final String ORE_AGGREGATION = "Aggregation";
+
+ 	/** The term for the aggregates property. */
+ 	public static final String ORE_AGGREGATES = "aggregates";
+
+ 	/** The full path for the similarTo property. */
+ 	public static final String ORE_SIMILARTO_PATH = ORE_NAMESPACE + ORE_SIMILARTO;
+
+ 	/** The full path for the describes property. */
+ 	public static final String ORE_DESCRIBES_PATH = ORE_NAMESPACE + ORE_DESCRIBES;
+
+ 	/** The full path for the Aggregation class. */
+ 	public static final String ORE_AGGREGATION_PATH = ORE_NAMESPACE + ORE_AGGREGATION;
+
+ 	/** The full path for the aggregates property. */
+ 	public static final String ORE_AGGREGATES_PATH = ORE_NAMESPACE + ORE_AGGREGATES;
 	 		  	  
-	 private Terms(){
+	 /**
+ 	 * Instantiates the Terms class.
+ 	 */
+ 	private Terms(){
 		    //this prevents even the native class from calling this ctor as well :
 		    throw new AssertionError();
 		  }

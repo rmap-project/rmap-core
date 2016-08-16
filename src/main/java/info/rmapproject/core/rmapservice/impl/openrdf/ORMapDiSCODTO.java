@@ -14,19 +14,29 @@ import info.rmapproject.core.rmapservice.RMapDiSCODTO;
 import org.openrdf.model.IRI;
 
 /**
+ * A concrete class for a DiSCO Data Transfer Object, implemented using openrdf. 
+ * 
  * @author smorrissey
- *
  */
 public class ORMapDiSCODTO implements RMapDiSCODTO {
 		
+	/** The RMapDiSCO. */
 	protected ORMapDiSCO disco;
+	
+	/** The status of the DiSCO. */
 	protected RMapStatus status;
+	
+	/** The IRI of the previous version of the DiSCO (null if it doesn't exist). */
 	protected IRI previous;
+
+	/** The IRI of the next version of the DiSCO (null if it doesn't exist). */
 	protected IRI next;
+
+	/** The IRI of the latest version of the DiSCO. */
 	protected IRI latest;
 
 	/**
-	 * 
+	 * Instantiates a new RMap DiSCO DTO.
 	 */
 	public ORMapDiSCODTO() {
 		super();
@@ -85,63 +95,81 @@ public class ORMapDiSCODTO implements RMapDiSCODTO {
 	}
 
 	/**
-	 * @return the disco
+	 * Gets the RMap DiSCO.
+	 *
+	 * @return the DiSCO
 	 */
 	public ORMapDiSCO getDisco() {
 		return disco;
 	}
 
 	/**
-	 * @param disco the disco to set
+	 * Sets the RMap DiSCO.
+	 *
+	 * @param disco the DiSCO to set
 	 */
 	public void setDisco(ORMapDiSCO disco) {
 		this.disco = disco;
 	}
 
 	/**
-	 * @return the previous
+	 * Gets the IRI of the previous version of the DiSCO.
+	 *
+	 * @return the IRI of the previous version of the DiSCO
 	 */
 	public IRI getPrevious() {
 		return previous;
 	}
 
 	/**
-	 * @param previous the previous to set
+	 * Sets the IRI of the previous version of the DiSCO.
+	 *
+	 * @param previous the IRI of the previous version of the DiSCO
 	 */
 	public void setPrevious(IRI previous) {
 		this.previous = previous;
 	}
 
 	/**
-	 * @return the next
+	 * Gets the IRI of the next version of the DiSCO.
+	 *
+	 * @return the IRI of the next version of the DiSCO.
 	 */
 	public IRI getNext() {
 		return next;
 	}
 
 	/**
-	 * @param next the next to set
+	 * Sets the IRI of the next version of the DiSCO.
+	 *
+	 * @param next the IRI of the next version of the DiSCO.
 	 */
 	public void setNext(IRI next) {
 		this.next = next;
 	}
 
 	/**
-	 * @return the latest
+	 * Gets the IRI of the latest version of the DiSCO.
+	 *
+	 * @return the IRI of the latest version of the DiSCO.
 	 */
 	public IRI getLatest() {
 		return latest;
 	}
 
 	/**
-	 * @param latest the latest to set
+	 * Sets the IRI of the latest version of the DiSCO.
+	 *
+	 * @param latest the IRI of the latest version of the DiSCO.
 	 */
 	public void setLatest(IRI latest) {
 		this.latest = latest;
 	}
 
 	/**
-	 * @param status the status to set
+	 * Sets the DiSCO status.
+	 *
+	 * @param status the status of the DiSCO
 	 */
 	public void setStatus(RMapStatus status) {
 		this.status = status;

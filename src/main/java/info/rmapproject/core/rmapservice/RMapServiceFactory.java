@@ -13,10 +13,17 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class RMapServiceFactory {
 
+	/** The name of the Spring bean that defines the class to use for the RMapService instance. */
 	public static final String RMAPSERVICE_BEANNAME = "RMapService";
 	
+	/** An instance of the RMapService object. */
 	private static RMapService rmapService;
 	
+	/**
+	 * Creates a new RMapService object.
+	 *
+	 * @return the RMapService instance
+	 */
 	public static RMapService createService() {
 		try {
 			if (rmapService == null){

@@ -17,32 +17,40 @@ import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 
 /**
- *  @author khanson, smorrissey
- *
+ * The concrete class representing the Update with Replace Event for the openrdf implementation of RMap.
+ * @author khanson, smorrissey
  */
 public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEventUpdateWithReplace {
 
+	/** The statement containing the IRI of the updated object. */
 	protected Statement updatedObjectIdStmt;
+	
 	/**
-	 * @throws RMapException
+	 * Instantiates a new RMap Update with Replace Event.
+	 *
+	 * @throws RMapException the RMap exception
 	 */
 	protected ORMapEventUpdateWithReplace() throws RMapException {
 		super();
 		this.setEventTypeStatement(RMapEventType.REPLACE);
 	}
+	
 	/**
+	 * Instantiates a new RMap Update with Replace Event.
 	 * Most likely use is to construct Event for read() method in RMapService from statements
-	 * in Triplestore
-	 * @param eventTypeStmt
-	 * @param eventTargetTypeStmt
-	 * @param associatedAgentStmt
-	 * @param descriptionStmt
-	 * @param startTimeStmt
-	 * @param endTimeStmt
-	 * @param context
-	 * @param typeStatement
-	 * @param updatedObjectIdStmt
-	 * @throws RMapException
+	 * in Triplestore.
+	 *
+	 * @param eventTypeStmt the event type stmt
+	 * @param eventTargetTypeStmt the event target type stmt
+	 * @param associatedAgentStmt the associated agent stmt
+	 * @param descriptionStmt the description stmt
+	 * @param startTimeStmt the start time stmt
+	 * @param endTimeStmt the end time stmt
+	 * @param context the context
+	 * @param typeStatement the type statement
+	 * @param associatedKeyStmt the statement containing the IRI of the associated key
+	 * @param updatedObjectIdStmt the statement containing the IRI of the updated object
+	 * @throws RMapException the RMap exception
 	 */
 	public ORMapEventUpdateWithReplace(Statement eventTypeStmt, 
 			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
@@ -56,9 +64,11 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 	}
 
 	/**
-	 * @param associatedAgent
-	 * @param targetType
-	 * @throws RMapException
+	 * Instantiates a new RMap Update with Replace Event.
+	 *
+	 * @param associatedAgent the associated agent
+	 * @param targetType the target type
+	 * @throws RMapException the RMap exception
 	 */
 	public ORMapEventUpdateWithReplace(RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException {
 		super(associatedAgent, targetType);
@@ -66,10 +76,13 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 	}
 	
 	/**
-	 * @param associatedAgent
-	 * @param targetType
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
+	 * Instantiates a new RMap Update with Replace Event.
+	 *
+	 * @param associatedAgent the associated agent
+	 * @param targetType the target type
+	 * @param updateObjectId the IRI of the updated object
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public ORMapEventUpdateWithReplace(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI updateObjectId) 
 				throws RMapException, RMapDefectiveArgumentException {
@@ -77,6 +90,9 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 		this.setUpdatedObjectId(ORAdapter.openRdfIri2RMapIri(updateObjectId));
 	}
 	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.impl.openrdf.ORMapEvent#getAsModel()
+	 */
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model model = super.getAsModel();
@@ -98,6 +114,11 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 		return updatedObjectIri;
 	}
 	
+	/**
+	 * Gets the statement containing the IRI of the updated object
+	 *
+	 * @return the statement containing the IRI of the updated object
+	 */
 	public Statement getUpdatedObjectStmt(){
 		return this.updatedObjectIdStmt;
 	}

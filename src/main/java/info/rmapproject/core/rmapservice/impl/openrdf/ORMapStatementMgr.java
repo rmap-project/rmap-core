@@ -21,24 +21,31 @@ import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.BindingSet;
 
 /**
- *  @author khanson, smorrissey
+ * A concrete class for managing RMap Statements using the openrdf API.
  *
+ * @author khanson, smorrissey
  */
 
 public class ORMapStatementMgr extends ORMapObjectMgr {
 	
+	/**
+	 * Instantiates a RMap Statement Manager object
+	 */
 	protected ORMapStatementMgr() {
 		super();
 	}
+	
 	/**
-	 * Get DiSCO IRIs that contains Statement corresponding to subject, predicate, object provided
-	 * @param subject
-	 * @param predicate
-	 * @param object
-	 * @param ts 
-	 * @return List of DiSCO IRIs
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
+	 * Get DiSCO IRIs that contains a Statement corresponding to the subject, predicate, object provided.
+	 *
+	 * @param subject the statement subject
+	 * @param predicate the statement predicate
+	 * @param object the statement object
+	 * @param params the search filter parameters
+	 * @param ts the triplestore instance
+	 * @return List of DiSCO IRIs that contain statement provided
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public List<IRI> getRelatedDiSCOs (IRI subject, IRI predicate, Value object, RMapSearchParams params, SesameTriplestore ts) 
 			throws RMapException, RMapDefectiveArgumentException {
@@ -69,14 +76,16 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	
 
 	/**
-	 * Get Agent IRIs that contains Statement corresponding to subject, predicate, object provided
-	 * @param subject
-	 * @param predicate
-	 * @param object
-	 * @param ts 
-	 * @return List of Agent IRIs
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
+	 * Get Agent IRIs that contains Statement corresponding to subject, predicate, object provided.
+	 *
+	 * @param subject the statement subject
+	 * @param predicate the statement predicate
+	 * @param object the statement object
+	 * @param params the search filter parameters
+	 * @param ts the triplestore instance
+	 * @return List of Agent IRIs that contain the statement provided
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public List<IRI> getRelatedAgents (IRI subject, IRI predicate, Value object,  
 			RMapSearchParams params, SesameTriplestore ts) 
@@ -107,19 +116,17 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	}
 
 	/**
-	 * Generic method for getRelatedAgents and getRelatedDiSCOs - returns list of IRIs of objects that contain statement provided
-	 * @param subject
-	 * @param predicate
-	 * @param object
-	 * @param statusCode
-	 * @param systemAgents
-	 * @param dateFrom
-	 * @param dateTo
-	 * @param ts
-	 * @param rmapType
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
+	 * Generic method for getRelatedAgents and getRelatedDiSCOs - returns list of IRIs of objects that contain statement provided.
+	 *
+	 * @param subject the statement subject
+	 * @param predicate the statement predicate
+	 * @param object the statement object
+	 * @param params the search filter parameters
+	 * @param ts the triplestore instance
+	 * @param rmapType the RMap type
+	 * @return a list of IRIs for RMap Objects that contain the statement provided
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	protected List <IRI> getRelatedObjects(IRI subject, IRI predicate, Value object, RMapSearchParams params, SesameTriplestore ts, IRI rmapType)
 			throws RMapException, RMapDefectiveArgumentException {
@@ -195,17 +202,16 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 
 
 	/**
-	 * Get Agent IRIs that asserted the Statement corresponding to subject, predicate, object provided
-	 * @param subject
-	 * @param predicate
-	 * @param object
-	 * @param statusCode
-	 * @param dateFrom
-	 * @param dateTo
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
+	 * Get Agent IRIs that asserted the Statement corresponding to subject, predicate, object provided.
+	 *
+	 * @param subject the statement subject
+	 * @param predicate the statement predicate
+	 * @param object the statement object
+	 * @param params the search filter parameters
+	 * @param ts the triplestore instance
+	 * @return a set of IRIs for Agents that asserted the statement provided
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public Set<IRI> getAssertingAgents (IRI subject, IRI predicate, Value object, RMapSearchParams params,
 					SesameTriplestore ts) throws RMapException, RMapDefectiveArgumentException {

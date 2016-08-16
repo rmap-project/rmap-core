@@ -42,25 +42,33 @@ import org.openrdf.model.vocabulary.FOAF;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.BindingSet;
 
-
 /**
- * @author smorrissey, khanson
+ * A concrete class for managing RMap Agents, implemented using openrdf
  *
+ * @author smorrissey, khanson
  */
 public class ORMapAgentMgr extends ORMapObjectMgr {
 	
+	/**
+	 * Instantiates a new RMap Agent Manager
+	 *
+	 * @throws RMapException the RMap exception
+	 */
 	public ORMapAgentMgr() throws RMapException {
 		super();
 	}
 
 	/**
-	 * 
-	 * @param agentId
-	 * @param ts
-	 * @return
-	 * @throws RMapAgentNotFoundException
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
+	 * Get an Agent using Agent IRI and a specific triplestore instance
+	 *
+	 * @param agentId the Agent IRI
+	 * @param ts the triplestore instance
+	 * @return the ORMap agent
+	 * @throws RMapAgentNotFoundException the RMap agent not found exception
+	 * @throws RMapException the RMap exception
+	 * @throws RMapTombstonedObjectException the RMap tombstoned object exception
+	 * @throws RMapDeletedObjectException the RMap deleted object exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public ORMapAgent readAgent(IRI agentId, SesameTriplestore ts)
 			throws RMapAgentNotFoundException, RMapException,  RMapTombstonedObjectException, 
@@ -93,13 +101,15 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		ORMapAgent agent = new ORMapAgent(agentStmts);
 		return agent;
 	}
+	
 	/**
-	 * 
-	 * @param agentId
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapAgentNotFoundException
+	 * Gets the current status of the Agent using the Agent IRI and a specific triplestore instance
+	 *
+	 * @param agentId the Agent IRI
+	 * @param ts the triplestore instance
+	 * @return the agent status
+	 * @throws RMapException the RMap exception
+	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 */
 	public RMapStatus getAgentStatus(IRI agentId, SesameTriplestore ts) throws RMapException, RMapAgentNotFoundException {
 		RMapStatus status = null;
@@ -143,12 +153,14 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	}
 
 	/**
-	 * @param agent
-	 * @param creatingAgentIri 
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
+	 * Creates the agent.
+	 *
+	 * @param agent the RMap Agent
+	 * @param requestAgent the requesting Agent
+	 * @param ts the triplestore instance
+	 * @return the ORMap event
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public ORMapEvent createAgent (ORMapAgent agent, RMapRequestAgent requestAgent, SesameTriplestore ts)
 	throws RMapException, RMapDefectiveArgumentException {
@@ -207,13 +219,16 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	
 
 	/**
-	 * 
-	 * @param updatedAgent
-	 * @param creatingAgentIri 
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
+	 * Updates an existing Agent. Note that Agent updates replace the original Agent, and then
+	 * capture the changes in an Event. This is different from DiSCO updates in which a new 
+	 * version of the DiSCO is created
+	 *
+	 * @param updatedAgent the new version of the Agent
+	 * @param requestAgent the requesting Agent
+	 * @param ts the triplestore instance
+	 * @return the ORMap event
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public ORMapEvent updateAgent (ORMapAgent updatedAgent, RMapRequestAgent requestAgent, SesameTriplestore ts)
 	throws RMapException, RMapDefectiveArgumentException {
@@ -320,13 +335,14 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	}
 	
 	/**
-	 * Get DiSCOs that were created by the Agent provided
-	 * @param agentId
-	 * @param params
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
+	 * Get a list of URIs for DiSCOs that were created by the Agent provided, filtered by the parameters provided.
+	 *
+	 * @param agentId the Agent IRI
+	 * @param params the search filter parameters
+	 * @param ts the triplestore instance
+	 * @return a list of URIs for DiSCOs that were created by the Agent 
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public List<IRI> getAgentDiSCOs(IRI agentId, RMapSearchParams params, SesameTriplestore ts) 
 			throws RMapException, RMapDefectiveArgumentException {
@@ -407,14 +423,14 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	}
 	
 	/**
-	 * Get a list of IRIs for Events initiated by the Agent provided.
-	 * @param agentId
-	 * @param dateFrom
-	 * @param dateTo
-	 * @param ts
-	 * @return
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
+	 * Get a list of IRIs for Events initiated by an Agent, filtered by the search parameters provided.
+	 *
+	 * @param agentId the Agent IRI
+	 * @param params the search filter parameters
+	 * @param ts the triplestore instance
+	 * @return a list of IRIs for Events initiated by the Agent.
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */	
 	public List<IRI> getAgentEventsInitiated(IRI agentId, RMapSearchParams params, SesameTriplestore ts) 
 			throws RMapException, RMapDefectiveArgumentException {
@@ -483,12 +499,13 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	}
 	
 	/**
-	 * Checks the request agent exists in RMap and has a valid URI
-	 * @param requestAgent
-	 * @param ts
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
-	 * @throws RMapAgentNotFoundException
+	 * Checks the requesting Agent exists in RMap and has a valid IRI.
+	 *
+	 * @param requestAgent the requesting Agent
+	 * @param ts the triplestore instance
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
+	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 */
 	public void validateRequestAgent(RMapRequestAgent requestAgent, SesameTriplestore ts) 
 			throws RMapException, RMapDefectiveArgumentException, RMapAgentNotFoundException{
@@ -511,10 +528,11 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	
 	
 	/**
-	 * 
-	 * @param agent
-	 * @param ts
-	 * @throws RMapException
+	 * Uses the RMap Agent object to create the corresponding Statements in the RMap database
+	 *
+	 * @param agent the RMap Agent
+	 * @param ts the triplestore instance
+	 * @throws RMapException the RMap exception
 	 */
 	public void createAgentTriples (ORMapAgent agent, SesameTriplestore ts) 
 	throws RMapException {

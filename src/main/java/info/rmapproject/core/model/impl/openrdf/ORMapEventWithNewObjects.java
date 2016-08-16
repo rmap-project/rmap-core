@@ -21,25 +21,29 @@ import info.rmapproject.core.model.request.RMapRequestAgent;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 
 /**
+ * Abstract class representing all Events that generate new objects for the openrdf implementation of RMap.
  * @author smorrissey
  *
  */
 public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 		RMapEventWithNewObjects {
 	
+	/** List of statements that have references to IRIs of created objects. */
 	protected List<Statement> createdObjects;
 
 	/**
-	 * @param eventTypeStmt
-	 * @param eventTargetTypeStmt
-	 * @param associatedAgentStmt
-	 * @param descriptionStmt
-	 * @param startTimeStmt
-	 * @param endTimeStmt
-	 * @param context
-	 * @param typeStatement
-	 * @param associatedKeyStmt - Null if none specified
-	 * @throws RMapException
+	 * Instantiates a new RMap Event in which new objects were created.
+	 *
+	 * @param eventTypeStmt the event type stmt
+	 * @param eventTargetTypeStmt the event target type stmt
+	 * @param associatedAgentStmt the statement containing a reference to the associated Agent IRI
+	 * @param descriptionStmt the description stmt
+	 * @param startTimeStmt the start time stmt
+	 * @param endTimeStmt the end time stmt
+	 * @param context the context
+	 * @param typeStatement the type statement
+	 * @param associatedKeyStmt - the statement containing a reference to the associated API key IRI, null if none provided
+	 * @throws RMapException the RMap exception
 	 */
 	protected ORMapEventWithNewObjects(Statement eventTypeStmt,
 			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
@@ -52,27 +56,33 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 	}
 
 	/**
-	 * @throws RMapException
+	 * Instantiates a new RMap Event in which new objects were created.
+	 *
+	 * @throws RMapException the RMap exception
 	 */
 	protected ORMapEventWithNewObjects() throws RMapException {
 		super();
 	}
 
 	/**
-	 * @param associatedAgent
-	 * @param targetType
-	 * @throws RMapException
+	 * Instantiates a new RMap Event in which new objects were created.
+	 *
+	 * @param associatedAgent the associated agent
+	 * @param targetType the target type
+	 * @throws RMapException the RMap exception
 	 */
 	protected ORMapEventWithNewObjects(RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException {
 		super(associatedAgent, targetType);
 	}
 
 	/**
-	 * @param associatedAgent
-	 * @param targetType
-	 * @param desc
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException 
+	 * Instantiates a new RMap Event in which new objects were created.
+	 *
+	 * @param associatedAgent the associated agent
+	 * @param targetType the target type
+	 * @param desc the desc
+	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	protected ORMapEventWithNewObjects(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, RMapValue desc)
 			throws RMapException, RMapDefectiveArgumentException {
@@ -115,17 +125,19 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 	}
 
 	/**
-	 * 
-	 * @return
+	 * Gets list of statements containing a reference to the created object IRIs
+	 *
+	 * @return the created object statements
 	 */
 	public List<Statement> getCreatedObjectStatements(){
 		return this.createdObjects;
 	}
 		
 	/**
-	 * 
-	 * @param createdObjects
-	 * @throws RMapException
+	 * Sets the list of statements containing a reference to the created object IRIs
+	 *
+	 * @param createdObjects a list of created object IRIs
+	 * @throws RMapException the RMap exception
 	 */
 	public void setCreatedObjectIdsFromIRI (Set<IRI> createdObjects) throws RMapException {
 		List<Statement> stmts = null;
@@ -140,6 +152,9 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.impl.openrdf.ORMapEvent#getAsModel()
+	 */
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model model = super.getAsModel();
