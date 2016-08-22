@@ -12,10 +12,10 @@
    
    	<bean id="rmapService" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapService" scope="prototype"/>
    
-    <!--  random number class (for small tests)
-    <bean id="rmapIdService" class="info.rmapproject.core.idservice.impl.randomnumber.RNIdService"/>
+    <!--  random number class (for tests)
+    <bean id="rmapIdService" class="info.rmapproject.core.idservice.impl.randomnumber.RandomStringIdService"/>
     -->
-    <bean id="rmapIdService" class="info.rmapproject.core.idservice.ArkIdService" scope="prototype"/>
+    <bean id="rmapIdService" class="info.rmapproject.core.idservice.HttpUrlIdService"/>
     
     <bean id="rdfHandler" class="info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler"/>
         

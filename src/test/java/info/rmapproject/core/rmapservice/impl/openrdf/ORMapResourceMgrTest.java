@@ -48,7 +48,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 
 @RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath*:/spring-rmapcore-testcontext.xml" })
+@ContextConfiguration({ "classpath:spring-rmapcore-context.xml" })
 public class ORMapResourceMgrTest {
 	
 	@Autowired
@@ -279,6 +279,7 @@ public class ORMapResourceMgrTest {
 			assertTrue(sEventIris.contains(eventId.toString()));
 			assertTrue(sEventIris.contains(updateEventId.toString()));
 			rmapService.deleteDiSCO(disco.getId().getIri(), requestAgent);
+			rmapService.deleteDiSCO(disco2.getId().getIri(), requestAgent);
 			
 		} catch (Exception e) {
 			e.printStackTrace();

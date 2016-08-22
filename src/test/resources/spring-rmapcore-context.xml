@@ -11,23 +11,22 @@
    <context:component-scan base-package="info.rmapproject.core"/>
    <!-- <context:property-placeholder location="classpath*:*.properties" /> -->
    
-   	<bean id="rmapService" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapService"/>
+   	<bean id="rmapService" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapService" scope="prototype"/>
    
     <!--  random number class (for small tests)
-    <bean id="rmapIdService" class="info.rmapproject.core.idservice.impl.randomnumber.RNIdService"/>
+    <bean id="rmapIdService" class="info.rmapproject.core.idservice.HttpUrlIdService"/>
     -->
-    <bean id="rmapIdService" class="info.rmapproject.core.idservice.ArkIdService"/>
+    <bean id="rmapIdService" class="info.rmapproject.core.idservice.RandomStringIdService"/>
     
     <bean id="rdfHandler" class="info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler"/>
         
 	<!--  in memory triplestore for tests-->
-	<bean id="triplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore"/>
-	
-    <!-- <bean id="triplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameHttpTriplestore"/>  -->
- 	<bean id="resourcemgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapResourceMgr"/>
- 	<bean id="discomgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr"/>
- 	<bean id="statementmgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapStatementMgr"/>
- 	<bean id="eventmgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapEventMgr"/>
- 	<bean id="agentmgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr"/>
+	<bean id="triplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore" scope="prototype"/>
+ 	
+ 	<bean id="resourcemgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapResourceMgr" scope="prototype"/>
+ 	<bean id="discomgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr" scope="prototype"/>
+ 	<bean id="statementmgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapStatementMgr" scope="prototype"/>
+ 	<bean id="eventmgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapEventMgr" scope="prototype"/>
+ 	<bean id="agentmgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr" scope="prototype"/>
 	
 </beans>

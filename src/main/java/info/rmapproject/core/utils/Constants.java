@@ -8,14 +8,14 @@ public final class Constants  {
 	  /** File path to RMap Core Spring context. */
 	  public static final String SPRING_CONFIG_FILEPATH = "spring-rmapcore-context.xml";
 	  
+	  /** The name of the Spring bean that defines the class to use for the RMapService instance. */
+	  public static final String RMAPSERVICE_BEANNAME = "rmapService";
+		
+	  /** File path to RMap Core Spring context. */
+	  public static final String ID_SERVICE_BEAN_NAME = "rmapIdService";
+	  
 	  /** File path to RMap Core Properties. */
 	  public static final String RMAPCORE_PROPFILE = "rmapcore";
-	  
-	  /** File path to Ark Properties. */
-	  public static final String ARKSERVICE_PROPFILE = "rmapcore";
-	  
-	  /** File path to Sesame Service Properties. */
-	  public static final String SESAMESERVICE_PROPFILE = "rmapcore";
 	  	  
 	  /** Default maximum number of records returned from triple store in one go. */
 	  public static final String DEFAULT_QUERY_LIMIT_KEY="rmapcore.defaultQueryLimit"; 

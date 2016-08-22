@@ -36,7 +36,7 @@ public class SesameSailMemoryTriplestore extends SesameTriplestore {
 	 * Instantiates a new Sesame Sail memory triplestore.
 	 */
 	public SesameSailMemoryTriplestore()	{
-		this(Constants.SESAMESERVICE_PROPFILE);
+		this(Constants.RMAPCORE_PROPFILE);
 	}
 
 	/**

@@ -68,21 +68,21 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			throw new RMapException ("Cannot create null Event");
 		}
 		IRI eventId = event.getContext();
-		this.createTriple(ts, event.getTypeStatement());
-		this.createTriple(ts, event.getEventTypeStmt());
-		this.createTriple(ts, event.getEventTargetTypeStmt());
-		this.createTriple(ts, event.getAssociatedAgentStmt());
-		this.createTriple(ts, event.getStartTimeStmt());
-		this.createTriple(ts, event.getEndTimeStmt());
+		this.createStatement(ts, event.getTypeStatement());
+		this.createStatement(ts, event.getEventTypeStmt());
+		this.createStatement(ts, event.getEventTargetTypeStmt());
+		this.createStatement(ts, event.getAssociatedAgentStmt());
+		this.createStatement(ts, event.getStartTimeStmt());
+		this.createStatement(ts, event.getEndTimeStmt());
 		if (event.getDescriptionStmt()!= null){
-			this.createTriple(ts, event.getDescriptionStmt());
+			this.createStatement(ts, event.getDescriptionStmt());
 		}
 		if (event instanceof ORMapEventCreation){
 			ORMapEventCreation crEvent = (ORMapEventCreation)event;
 			List<Statement> stmts = crEvent.getCreatedObjectStatements();
 			if (stmts != null && !stmts.isEmpty()){
 				for (Statement stmt:stmts){
-					this.createTriple(ts, stmt);
+					this.createStatement(ts, stmt);
 				}
 			}			
 		}
@@ -90,16 +90,16 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			ORMapEventUpdate upEvent = (ORMapEventUpdate)event;
 			Statement inactivated = upEvent.getInactivatedObjectStmt();
 			if (inactivated != null){
-				this.createTriple(ts, inactivated);
+				this.createStatement(ts, inactivated);
 			}
 			Statement derivationSource = upEvent.getDerivationStmt();
 			if (derivationSource != null){
-				this.createTriple(ts, derivationSource);
+				this.createStatement(ts, derivationSource);
 			}
 			List<Statement> stmts = upEvent.getCreatedObjectStatements();
 			if (stmts != null && !stmts.isEmpty()){
 				for (Statement stmt:stmts){
-					this.createTriple(ts, stmt);
+					this.createStatement(ts, stmt);
 				}
 			}	
 		}
@@ -107,36 +107,36 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			ORMapEventInactivation inEvent = (ORMapEventInactivation)event;
 			Statement inactivated = inEvent.getInactivatedObjectStatement();
 			if (inactivated != null){
-				this.createTriple(ts, inactivated);
+				this.createStatement(ts, inactivated);
 			}
 		}
 		else if (event instanceof ORMapEventDerivation){
 			ORMapEventDerivation dEvent = (ORMapEventDerivation)event;
 			Statement sourceStmt = dEvent.getSourceObjectStatement();
 			if (sourceStmt != null){
-				this.createTriple(ts,sourceStmt);
+				this.createStatement(ts,sourceStmt);
 			}
 			Statement derivationSource = dEvent.getDerivationStmt();
 			if (derivationSource != null){
-				this.createTriple(ts, derivationSource);
+				this.createStatement(ts, derivationSource);
 			}
 			List<Statement> stmts = dEvent.getCreatedObjectStatements();
 			if (stmts != null && !stmts.isEmpty()){
 				for (Statement stmt:stmts){
-					this.createTriple(ts, stmt);
+					this.createStatement(ts, stmt);
 				}
 			}	
 		}
 		else if (event instanceof ORMapEventTombstone){
 			ORMapEventTombstone tsEvent = (ORMapEventTombstone)event;
-			this.createTriple(ts, tsEvent.getTombstonedResourceStmt());
+			this.createStatement(ts, tsEvent.getTombstonedResourceStmt());
 		}
 		else if (event instanceof ORMapEventDeletion){
 			ORMapEventDeletion dEvent = (ORMapEventDeletion)event;
 			List<Statement> stmts = dEvent.getDeletedObjectStmts();
 			if (stmts != null && !stmts.isEmpty()){
 				for (Statement stmt:stmts){
-					this.createTriple(ts, stmt);
+					this.createStatement(ts, stmt);
 				}
 			}
 		}
@@ -144,7 +144,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			ORMapEventUpdateWithReplace replEvent = (ORMapEventUpdateWithReplace)event;
 			Statement updatedObjectStmt = replEvent.getUpdatedObjectStmt();
 			if (updatedObjectStmt != null){
-				this.createTriple(ts, updatedObjectStmt);
+				this.createStatement(ts, updatedObjectStmt);
 			}
 		}
 		else {

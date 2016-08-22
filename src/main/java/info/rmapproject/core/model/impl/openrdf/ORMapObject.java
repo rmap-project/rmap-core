@@ -7,6 +7,7 @@ import info.rmapproject.core.idservice.IdService;
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapObject;
 import info.rmapproject.core.model.RMapObjectType;
+import info.rmapproject.core.utils.Constants;
 
 import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
@@ -45,8 +46,8 @@ public abstract class ORMapObject implements RMapObject  {
 		//TODO: This is not great, need to rethink this in a refactor, but for now doing dependency injection here 
 		//means we would need to convert all ORMapObject extensions to managed beans.  
 		@SuppressWarnings("resource")
-		ApplicationContext appContext = new ClassPathXmlApplicationContext("spring-rmapcore-context.xml");
-		this.rmapIdService = (IdService) appContext.getBean("rmapIdService"); 
+		ApplicationContext appContext = new ClassPathXmlApplicationContext(Constants.SPRING_CONFIG_FILEPATH);
+		this.rmapIdService = (IdService) appContext.getBean(Constants.ID_SERVICE_BEAN_NAME); 
 		//this.setId();	
 	}
 	
@@ -82,7 +83,9 @@ public abstract class ORMapObject implements RMapObject  {
 	 */
 	protected void setId() throws RMapException{		
 		try {
-			setId(ORAdapter.uri2OpenRdfIri(rmapIdService.createId()));
+			IRI objId = ORAdapter.uri2OpenRdfIri(rmapIdService.createId());
+			setId(objId);
+			
 		} catch (Exception e) {
 			throw new RMapException("Could not generate valid ID for RMap object", e);
 		}

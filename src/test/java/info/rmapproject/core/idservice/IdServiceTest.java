@@ -20,19 +20,19 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 
 @RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath*:/spring-rmapcore-testcontext.xml" })
+@ContextConfiguration({ "classpath:spring-rmapcore-context.xml" })
 public class IdServiceTest {
 
 	@Autowired
 	private IdService rmapIdService;
 
 	/**
-	 * Test method for {@link info.rmapproject.core.idservice.ArkIdService}.
+	 * Test method for {@link info.rmapproject.core.idservice.RandomStringIdService}.
 	 */
 	@Test
-	public void testGetArkIdService() {
+	public void testGetHttpUrlIdService() {
 		try {
-			assertTrue(rmapIdService instanceof info.rmapproject.core.idservice.ArkIdService);
+			assertTrue(rmapIdService instanceof info.rmapproject.core.idservice.RandomStringIdService);
 		} catch (Exception e) {
 			fail("Exception thrown " + e.getMessage());
 			e.printStackTrace();
@@ -42,7 +42,7 @@ public class IdServiceTest {
 	
 
 	/**
-	 * Test method for {@link info.rmapproject.core.idservice.ArkIdService#createId}.
+	 * Test method for {@link info.rmapproject.core.idservice.RandomStringIdService#createId}.
 	 */
 	@Test
 	public void testGetNoids() {

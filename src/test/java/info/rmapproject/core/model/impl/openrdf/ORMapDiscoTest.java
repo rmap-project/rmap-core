@@ -46,7 +46,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  *
  */
 @RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath*:/spring-rmapcore-testcontext.xml" })
+@ContextConfiguration({ "classpath:spring-rmapcore-context.xml" })
 public class ORMapDiscoTest {
 	
 	protected ValueFactory vf = null;

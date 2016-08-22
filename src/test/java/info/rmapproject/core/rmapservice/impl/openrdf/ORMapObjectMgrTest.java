@@ -48,7 +48,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 
 @RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath*:/spring-rmapcore-testcontext.xml" })
+@ContextConfiguration({ "classpath:spring-rmapcore-context.xml" })
 public class ORMapObjectMgrTest {
 
 	@Autowired
@@ -85,7 +85,7 @@ public class ORMapObjectMgrTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr#createTriple(info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore, org.openrdf.model.Statement)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr#createStatement(info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore, org.openrdf.model.Statement)}.
 	 */
 	@Test
 	public void testCreateTriple() {
@@ -105,7 +105,7 @@ public class ORMapObjectMgrTest {
 
 		try {
 			Statement stmt = ORAdapter.getValueFactory().createStatement(subject, predicate, object,context);
-			discomgr.createTriple(triplestore, stmt);
+			discomgr.createStatement(triplestore, stmt);
 			Statement gStmt = null;
 			gStmt = triplestore.getStatement(subject, predicate, object, context);
 			assertNotNull(gStmt);

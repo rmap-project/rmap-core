@@ -34,7 +34,7 @@ public abstract class ORMapObjectMgr {
 	 * @param stmt the statement to be persisted
 	 * @throws RMapException the RMap exception
 	 */
-	public void createTriple(SesameTriplestore ts, Statement stmt) throws RMapException {
+	public void createStatement(SesameTriplestore ts, Statement stmt) throws RMapException {
 		try {
 			ts.addStatement(stmt);
 		} catch (Exception e) {

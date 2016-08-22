@@ -30,7 +30,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -199,7 +198,12 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		// keep track of objects created during this event
 		Set<IRI> created = new HashSet<IRI>();
 		created.add(agent.getContext());
-		this.createAgentTriples(agent, ts);
+		
+		Model model = agent.getAsModel();
+		for (Statement stmt : model){
+			this.createStatement(ts, stmt);			
+		}
+		
 		// update the event with created object IDS
 		event.setCreatedObjectIdsFromIRI(created);		
 		// end the event, write the event triples, and commit everything
@@ -525,24 +529,6 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			throw new RMapAgentNotFoundException("The requesting agent is invalid. No Agent exists with IRI " + agentIri.stringValue());
 		}
 	}
-	
-	
-	/**
-	 * Uses the RMap Agent object to create the corresponding Statements in the RMap database
-	 *
-	 * @param agent the RMap Agent
-	 * @param ts the triplestore instance
-	 * @throws RMapException the RMap exception
-	 */
-	public void createAgentTriples (ORMapAgent agent, SesameTriplestore ts) 
-	throws RMapException {
-		Model model = agent.getAsModel();
-		Iterator<Statement> iterator = model.iterator();
-		while (iterator.hasNext()){
-			Statement stmt = iterator.next();
-			this.createTriple(ts, stmt);
-		}
-		return;
-	}
+
 		
 }

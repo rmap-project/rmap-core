@@ -2,10 +2,10 @@ package info.rmapproject.core.model.impl.openrdf;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapTriple;
-import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.vocabulary.impl.openrdf.ORE;
@@ -16,18 +16,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.openrdf.model.BNode;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.repository.RepositoryException;
 
 /**
  * Each DiSCO is a named graph.  Constituent statements will share same context, which is same
@@ -433,16 +435,16 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		if (aggregratedResources != null){
 			IRI predicate = ORE.AGGREGATES;
 			aggResources = new ArrayList<Statement>();
-				for (java.net.URI rmapResource:aggregratedResources){
-					Resource resource = ORAdapter.uri2OpenRdfIri(rmapResource);
-					try {
-						Statement newStmt = ORAdapter.getValueFactory().createStatement
-								(this.context, predicate,resource,this.context);
-						aggResources.add(newStmt);
-					} catch (Exception e) {
-						throw new RMapException (e);
-					}
-				}// end for		
+			for (java.net.URI rmapResource:aggregratedResources){
+				Resource resource = ORAdapter.uri2OpenRdfIri(rmapResource);
+				try {
+					Statement newStmt = ORAdapter.getValueFactory().createStatement
+							(this.context, predicate,resource,this.context);
+					aggResources.add(newStmt);
+				} catch (Exception e) {
+					throw new RMapException (e);
+				}
+			}// end for		
 		}
 		this.aggregatedResources = aggResources;
 	}
@@ -632,24 +634,27 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model discoModel = new LinkedHashModel();
-		discoModel.add(typeStatement);
-		discoModel.add(creator);
+		discoModel.add(getTypeStatement());
+		discoModel.add(getCreatorStmt());
 		if (description != null){
-			discoModel.add(description);
+			discoModel.add(getDescriptonStatement());
 		}
 		if (providerIdStmt != null){
-			discoModel.add(providerIdStmt);
+			discoModel.add(getProviderIdStmt());
 		}
-		for (Statement aggRes: aggregatedResources){
-			discoModel.add(aggRes);
+		if (provGeneratedByStmt != null){ 
+			discoModel.add(getProvGeneratedByStmt());
 		}
+		
+		List<Statement> aggResStmts = getAggregatedResourceStatements();
+		discoModel.addAll(aggResStmts);
+		
 		if (relatedStatements != null){
-			for (Statement stmt:relatedStatements){
-				discoModel.add(stmt);
-			}
+			discoModel.addAll(getRelatedStatementsAsList());
 		}
 		return discoModel;
 	}
+			
 	
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.disco.RMapDiSCO#getRelatedStatements()
@@ -716,5 +721,96 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		}
 		this.relatedStatements = stmts;
 	}
+		
+	/**
+	 * Replaces any occurrences of blank nodes (BNode) in the related statements list
+	 * with a newly minted ID. This only needs to be called when generating a new DiSCO.
+	 * When reading a DiSCO, there should be no blank nodes.
+	 *
+	 * @param stmts list of statements to check for BNodes
+	 * @param ts the triplestore instance
+	 * @return updated list of statements, now without blank nodes.
+	 * @throws RMapException the RMap exception
+	 */
+	public void replaceBNodesWithIds() throws RMapException {
+		
+		if (relatedStatements==null){
+				
+			List<Statement>newStmts = new ArrayList<Statement>();
+			Map<BNode, IRI> bnode2iri = new HashMap<BNode, IRI>();
+			for (Statement stmt:relatedStatements){
+				Resource subject = stmt.getSubject();
+				Value object = stmt.getObject();
+				BNode bSubject = null;
+				BNode bObject = null;
+				if (subject instanceof BNode ) {
+					bSubject = (BNode)subject;				
+				}
+				if (object instanceof BNode){
+					bObject = (BNode)object;
+				}
+				if (bSubject==null && bObject==null){
+					newStmts.add(stmt);
+					continue;
+				}
+				Resource newSubject = null;
+				Value newObject = null;
+				// if subject is BNODE, replace with IRI (if necessary, create the IRI and add mapping)
+				if (bSubject != null){
+					IRI bReplace = bnode2iri.get(bSubject);
+					if (bReplace==null){
+						java.net.URI newId=null;
+						try {
+							newId = rmapIdService.createId();
+						} catch (Exception e) {
+							throw new RMapException (e);
+						}
+	
+						bReplace = ORAdapter.uri2OpenRdfIri(newId);
+						bnode2iri.put(bSubject, bReplace);
+						newSubject = bReplace;
+					}
+					else {
+						newSubject = bReplace;
+					}
+				}
+				else {
+					newSubject = subject;
+				}
+				// if object is BNODE, replace with IRI (if necessary, create the IRI and add mapping)
+				if (bObject != null){
+					IRI bReplace = bnode2iri.get(bObject);
+					if (bReplace==null){
+						java.net.URI newId=null;
+						try {
+							newId = rmapIdService.createId();
+						} catch (Exception e) {
+							throw new RMapException (e);
+						}
+						bReplace = ORAdapter.uri2OpenRdfIri(newId);
+						bnode2iri.put(bObject, bReplace);
+						newObject = bReplace;
+					}
+					else {
+						newObject = bReplace;
+					}
+				}
+				else {
+					newObject = object;
+				}
+				// now create new statement with bnodes replaced
+				Statement newStmt=null;
+				try {
+					newStmt = ORAdapter.getValueFactory().createStatement(newSubject, stmt.getPredicate(), newObject, stmt.getContext());
+				} catch (RepositoryException e) {
+					e.printStackTrace();
+					throw new RMapException (e);
+				}
+				newStmts.add(newStmt);
+				continue;
+			}
+			relatedStatements = newStmts;
+		}
+	}	
 
 }

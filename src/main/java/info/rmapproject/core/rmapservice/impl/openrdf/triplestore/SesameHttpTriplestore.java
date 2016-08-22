@@ -46,7 +46,7 @@ public class SesameHttpTriplestore  extends SesameTriplestore{
      * Instantiates a new Sesame HTTP triplestore.
      */
     public SesameHttpTriplestore()	{
-		this(Constants.SESAMESERVICE_PROPFILE);
+		this(Constants.RMAPCORE_PROPFILE);
 	}
 	
 	/**
