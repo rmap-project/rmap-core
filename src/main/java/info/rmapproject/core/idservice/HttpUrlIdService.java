@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * Copyright 2016 Johns Hopkins University
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * This software was produced as part of the RMap Project (http://rmap-project.info),
+ * The RMap Project was funded by the Alfred P. Sloan Foundation and is a 
+ * collaboration between Data Conservancy, Portico, and IEEE.
+ *******************************************************************************/
 package info.rmapproject.core.idservice;
 
 import info.rmapproject.core.utils.ConfigUtils;
@@ -13,10 +32,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-// TODO: Auto-generated Javadoc
+
 /**
  * This is derived from an ARK ID generator, taken from Portico and generalized to use with
  * simple http url based ID generator services.  This ID generator can be pointed at a web-based
@@ -27,7 +46,7 @@ import org.apache.logging.log4j.Logger;
 public class HttpUrlIdService implements IdService {
 	
 	/** The log. */
-	private final Logger log = LogManager.getLogger(this.getClass());
+	private static final Logger log = LoggerFactory.getLogger(HttpUrlIdService.class);
 	
 	/**  The property key for the ARK service URL. */
 	private static final String URL_PROPERTY = "idservice.idMinterUrl";
@@ -168,7 +187,7 @@ public class HttpUrlIdService implements IdService {
 			try {
 				getMoreNoids();
 			} catch (Exception e) {
-				log.fatal("While trying to fill more noids, caught exception",
+				log.error("While trying to fill more noids, caught exception",
 						e);
 			}
 		}
@@ -240,10 +259,10 @@ public class HttpUrlIdService implements IdService {
 							}
 						}
 					} else {
-						log.fatal("UNSUCCESSFUL HTTP REQUEST TO NOID SERVICE and  HTTP RETURN CODE is : " + noidCon.getResponseCode());
+						log.error("UNSUCCESSFUL HTTP REQUEST TO NOID SERVICE and  HTTP RETURN CODE is : " + noidCon.getResponseCode());
 					}
 			} catch(Exception e){
-				log.fatal("EXCEPTION CONNECTING TO NOID SERVER", e);
+				log.error("EXCEPTION CONNECTING TO NOID SERVER", e);
 
 			} finally {
 
@@ -252,14 +271,14 @@ public class HttpUrlIdService implements IdService {
 						reader.close();
 					}
 				} catch (Exception e) {
-					log.fatal("Exception while closing Buffered Reader", e);
+					log.error("Exception while closing Buffered Reader", e);
 				}
 				try {
 					if (noidCon != null){
 						noidCon.disconnect();
 					}
 				} catch (Exception e) {
-					log.fatal("Exception while closing http connection to noid service ", e);
+					log.error("Exception while closing http connection to noid service ", e);
 				}
 			}
 			shouldRetry = (retryCounter < maxRetryAttempts && noids.size() == 0);
@@ -269,7 +288,7 @@ public class HttpUrlIdService implements IdService {
 				try{
 					wait(10000);
 				}catch(InterruptedException ie){
-					log.fatal("Wait interrupted in retry loop", ie);
+					log.error("Wait interrupted in retry loop", ie);
 				}
 
 			}

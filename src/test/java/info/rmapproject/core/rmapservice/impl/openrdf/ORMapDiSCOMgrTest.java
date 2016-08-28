@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * Copyright 2016 Johns Hopkins University
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * This software was produced as part of the RMap Project (http://rmap-project.info),
+ * The RMap Project was funded by the Alfred P. Sloan Foundation and is a 
+ * collaboration between Data Conservancy, Portico, and IEEE.
+ *******************************************************************************/
 /**
  * 
  */
@@ -10,6 +29,7 @@ import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapNotLatestVersionException;
 import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
@@ -116,9 +136,6 @@ public class ORMapDiSCOMgrTest  {
 			+ "</dc:description>"  
 			+ "<ore:aggregates rdf:resource=\"http://dx.doi.org/10.1109/ACCESS.2014.2332453\"/>"  
 			+ "<ore:aggregates rdf:resource=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip\"/>"  
-			+ "<ore:aggregates rdf:nodeID=\"N65570\" />"
-			+ "<ore:aggregates rdf:nodeID=\"N65575\" />"
-			+ "<ore:aggregates rdf:nodeID=\"N65580\" />"
 			+ "</rmap:DiSCO>"  
 	    	+ "<fabio:JournalArticle rdf:about=\"http://dx.doi.org/10.1109/ACCESS.2014.2332453\">"  
 	    	+ "<dc:title>Toward Scalable Systems for Big Data Analytics: A Technology Tutorial</dc:title>"  
@@ -148,7 +165,7 @@ public class ORMapDiSCOMgrTest  {
 	    	+ "<rdf:type rdf:resource=\"http://purl.org/dc/terms/Agent\" />"
 		    + "</rdf:Description>"
 	    	+ "<rdf:Description rdf:nodeID=\"N65580\">"
-	    	+ "<foaf:name>René Widera</foaf:name>"
+	    	+ "<foaf:name>Renï¿½ Widera</foaf:name>"
 	    	+ "<rdf:type rdf:resource=\"http://purl.org/dc/terms/Agent\" />"
 	    	+ "</rdf:Description>"	    	
 	    	+ "</rdf:RDF>";
@@ -197,7 +214,7 @@ public class ORMapDiSCOMgrTest  {
 	    	+ "<rdf:type rdf:resource=\"http://purl.org/dc/terms/Agent\" />"
 		    + "</rdf:Description>"
 	    	+ "<rdf:Description rdf:nodeID=\"N65580\">"
-	    	+ "<foaf:name>René Widera</foaf:name>"
+	    	+ "<foaf:name>Renï¿½ Widera</foaf:name>"
 	    	+ "<rdf:type rdf:resource=\"http://purl.org/dc/terms/Agent\" />"
 	    	+ "</rdf:Description>"	    	
 	    	+ "</rdf:RDF>";
@@ -254,12 +271,12 @@ public class ORMapDiSCOMgrTest  {
 	@Before
 	public void setUp() throws Exception {
 		//these will be used for a test agent.
-		this.AGENT_IRI = ORAdapter.getValueFactory().createIRI("ark:/22573/rmaptestagent");
+		this.AGENT_IRI = ORAdapter.getValueFactory().createIRI("rmap:rmaptestagent");
 		this.ID_PROVIDER_IRI = ORAdapter.getValueFactory().createIRI("http://orcid.org/");
 		this.AUTH_ID_IRI = ORAdapter.getValueFactory().createIRI("http://rmap-project.org/identities/rmaptestauthid");
 		this.NAME = ORAdapter.getValueFactory().createLiteral("RMap test Agent");	
 		
-		this.AGENT_IRI2 = ORAdapter.getValueFactory().createIRI("ark:/22573/rmaptestagent2");
+		this.AGENT_IRI2 = ORAdapter.getValueFactory().createIRI("rmap:rmaptestagent2");
 		this.ID_PROVIDER_IRI2 = ORAdapter.getValueFactory().createIRI("http://orcid.org/");
 		this.AUTH_ID_IRI2 = ORAdapter.getValueFactory().createIRI("http://rmap-project.org/identities/rmaptestauthid2");
 		this.NAME2 = ORAdapter.getValueFactory().createLiteral("RMap test Agent 2");		
@@ -299,7 +316,7 @@ public class ORMapDiSCOMgrTest  {
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
 			RMapIri idIRI = disco.getId();
 			
-			requestAgent.setAgentKeyId(new java.net.URI("ark:/29297/testkey"));
+			requestAgent.setAgentKeyId(new java.net.URI("rmap:testkey"));
 			
 			discomgr.createDiSCO(disco, requestAgent, triplestore);
 			
@@ -348,7 +365,7 @@ public class ORMapDiSCOMgrTest  {
 			RioRDFHandler handler = new RioRDFHandler();	
 			Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);			
-			requestAgent.setAgentKeyId(new java.net.URI("ark:/29297/testkey"));
+			requestAgent.setAgentKeyId(new java.net.URI("rmap:testkey"));
 			
 			discomgr.createDiSCO(disco, requestAgent, triplestore);
 			
@@ -390,7 +407,7 @@ public class ORMapDiSCOMgrTest  {
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
 
 			RMapIri idIRI = disco.getId();
-			requestAgent.setAgentKeyId(new java.net.URI("ark:/29297/testkey"));
+			requestAgent.setAgentKeyId(new java.net.URI("rmap:testkey"));
 			discomgr.createDiSCO(disco, requestAgent, triplestore);
 			
 			//read DiSCO back
@@ -441,7 +458,7 @@ public class ORMapDiSCOMgrTest  {
 			Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
 			
-			requestAgent.setAgentKeyId(new java.net.URI("ark:/29297/testkey"));
+			requestAgent.setAgentKeyId(new java.net.URI("rmap:testkey"));
 			
 			discomgr.createDiSCO(disco, requestAgent, triplestore);
 				
@@ -497,7 +514,7 @@ public class ORMapDiSCOMgrTest  {
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
 			RMapIri idIRI = disco.getId();
 			
-			URI keyId = new URI("ark:/29297/testkey");
+			URI keyId = new URI("rmap:testkey");
 			requestAgent.setAgentKeyId(keyId);
 			RMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
 			
@@ -560,47 +577,51 @@ public class ORMapDiSCOMgrTest  {
 	 * @throws RMapDefectiveArgumentException 
 	 * @throws RMapException 
 	 */
-	/*@Test
+	@Test
 	public void testCreateAndUpdateDiSCOWithBNodes() throws RMapException, RMapDefectiveArgumentException {
-		
-		RMapService rmapService=RMapServiceFactoryIOC.getFactory().createService();
-		
+
 		java.net.URI agentId; //used to pass back into rmapService since all of these use java.net.URI
 		
 		try {
 			
-			SesameTriplestore ts = SesameTriplestoreFactoryIOC.getFactory().createTriplestore();
-			//check test agent ok
-			agentId=ORAdapter.openRdfIri2URI(AGENT_IRI);
-			// Check the agent was created
-			assertTrue(rmapService.isAgentId(agentId));	
-		
-			// now create DiSCO	with bnodes
+			//create new test agent
+			RMapAgent agent = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
+			agentId=agent.getId().getIri();
+			if (!rmapService.isAgentId(agentId)) {
+				rmapService.createAgent(agent,requestAgent);
+			}
+			if (rmapService.isAgentId(agentId)){
+				System.out.println("Test Agent successfully created!  URI is " + agentId);
+			}
+			
+
+			// now create DiSCO	
 			InputStream stream = new ByteArrayInputStream(discoRDFBnodes.getBytes(StandardCharsets.UTF_8));
 			RioRDFHandler handler = new RioRDFHandler();	
-			List<Statement>stmts = handler.convertRDFToStmtList(stream, "RDFXML", "http://rmapdns.ddns.net:8080/api/disco/");
+			Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
 			RMapIri idIRI = disco.getId();
-			ORMapDiSCOMgr discoMgr = new ORMapDiSCOMgr();
-			discoMgr.createDiSCO(ORAdapter.uri2OpenRdfIri(agentId), disco, ts);
 			
-			//read DiSCO back
+			RMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
+						
 			IRI dIri = ORAdapter.rMapIri2OpenRdfIri(idIRI);
-			ORMapDiSCO rDisco = discoMgr.readDiSCO(dIri, true, null, null, ts).getDisco();
-			RMapIri rIdIRI = rDisco.getId();
-			assertEquals(idIRI.toString(),rIdIRI.toString());
+			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri, true, null, null, triplestore).getDisco();
+			RMapIri idIRI2 = rDisco.getId();
+			assertEquals(idIRI.toString(),idIRI2.toString());
 			String description2 = rDisco.getDescription().toString();
 			assertEquals(description,description2);
+			RMapTriple triple = rDisco.getRelatedStatements().get(19);
+			assertTrue(triple.getSubject() instanceof RMapIri);
+			rmapService.deleteDiSCO(disco.getId().getIri(), requestAgent);
+			assertEquals(event.getAssociatedAgent().toString(),agentId.toString());
 			
-			// now update with Bnodes	
-			ORMapDiSCO disco2 = new ORMapDiSCO(stmts);
-			discoMgr.updateDiSCO(ORAdapter.uri2OpenRdfIri(agentId), false, dIri, disco2, ts);
-
+			
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail();
 		}	
-	}*/
+	}
 	
 
 }
