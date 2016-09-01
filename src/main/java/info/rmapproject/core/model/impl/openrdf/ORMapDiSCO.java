@@ -237,9 +237,6 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 						(subject, predicate, object, this.context));
 			}
 		}
-		if (this.creator==null){
-			throw new RMapException("No disco creator statement found");
-		}
 		if (aggResources.isEmpty()){
 			throw new RMapException("No aggregated resource statements found");
 		}
@@ -654,7 +651,10 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	public Model getAsModel() throws RMapException {
 		Model discoModel = new LinkedHashModel();
 		discoModel.add(getTypeStatement());
-		discoModel.add(getCreatorStmt());
+		
+		if (creator!=null){
+			discoModel.add(getCreatorStmt());
+		}
 		if (description != null){
 			discoModel.add(getDescriptonStatement());
 		}

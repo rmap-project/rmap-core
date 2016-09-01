@@ -548,7 +548,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 				map = new HashMap<IRI, Set<IRI>>();
 				for (BindingSet bindingSet:resultset) {
 					IRI rmapObjId = (IRI) bindingSet.getBinding("rmapObjId").getValue();
-					Value typeVal = (Value) bindingSet.getBinding("type").getValue();
+					Value typeVal = bindingSet.getBinding("type").getValue();
 					if (!(typeVal instanceof IRI)){
 						continue;
 					}

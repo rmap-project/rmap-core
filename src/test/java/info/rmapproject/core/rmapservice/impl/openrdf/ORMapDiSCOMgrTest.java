@@ -257,6 +257,12 @@ public class ORMapDiSCOMgrTest  {
 			+ "</rmap:DiSCO>"    	
 	    	+ "</rdf:RDF>";
 	
+
+	protected String discoAggregatesOnly = "@prefix ore: <http://www.openarchives.org/ore/terms/> ."
+			+ "[] a <http://rmap-project.org/rmap/terms/DiSCO> ;"
+			+ "  ore:aggregates <http://url1.org/1> ;"
+			+ "  ore:aggregates <http://url2.org/2> .";
+	
 	private IRI AGENT_IRI = null; 
 	private IRI ID_PROVIDER_IRI = null;
 	private IRI AUTH_ID_IRI = null;
@@ -456,6 +462,49 @@ public class ORMapDiSCOMgrTest  {
 			InputStream stream = new ByteArrayInputStream(discoNoBodyOrAggregates.getBytes(StandardCharsets.UTF_8));
 			RioRDFHandler handler = new RioRDFHandler();	
 			Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
+			ORMapDiSCO disco = new ORMapDiSCO(stmts);
+			
+			requestAgent.setAgentKeyId(new java.net.URI("rmap:testkey"));
+			
+			discomgr.createDiSCO(disco, requestAgent, triplestore);
+				
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			assertTrue(e.getMessage().contains("No aggregated resource statements"));
+		}	
+	}
+	
+	
+
+	/**
+	 * Test simplest form of DiSCO with no creator or stmt, just 2 aggregates
+	 * @throws RMapDefectiveArgumentException 
+	 * @throws RMapException 
+	 */
+	@Test
+	public void testCreateDiSCOAggregatesOnly() throws RMapException, RMapDefectiveArgumentException {
+				
+		java.net.URI agentId; //used to pass back into rmapService since all of these use java.net.URI
+		
+		try {
+			//create new test agent
+			RMapAgent agent = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
+			agentId=agent.getId().getIri();
+			if (!rmapService.isAgentId(agentId)) {
+				rmapService.createAgent(agent,requestAgent);
+			}
+			if (rmapService.isAgentId(agentId)){
+				System.out.println("Test Agent successfully created!  URI is " + agentId);
+			}
+			
+			// Check the agent was created
+			assertTrue(rmapService.isAgentId(agentId));	
+		
+			// now create DiSCO	
+			InputStream stream = new ByteArrayInputStream(discoAggregatesOnly.getBytes(StandardCharsets.UTF_8));
+			RioRDFHandler handler = new RioRDFHandler();	
+			Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.TURTLE, "");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
 			
 			requestAgent.setAgentKeyId(new java.net.URI("rmap:testkey"));

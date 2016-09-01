@@ -386,7 +386,7 @@ public class ORAdapter {
 			checkOpenRdfUri2UriCompatibility((IRI)stmt.getSubject());
 		}
 		
-		checkOpenRdfUri2UriCompatibility((IRI)stmt.getPredicate());
+		checkOpenRdfUri2UriCompatibility(stmt.getPredicate());
 		
 		if (stmt.getObject() instanceof IRI) {
 			checkOpenRdfUri2UriCompatibility((IRI)stmt.getObject());

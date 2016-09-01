@@ -47,7 +47,7 @@ public class RMapServiceFactory {
 			if (rmapService == null){
 				@SuppressWarnings("resource")
 				ApplicationContext context = new ClassPathXmlApplicationContext(Constants.SPRING_CONFIG_FILEPATH);
-				rmapService = (RMapService)context.getBean(Constants.RMAPSERVICE_BEANNAME, RMapService.class);
+				rmapService = context.getBean(Constants.RMAPSERVICE_BEANNAME, RMapService.class);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
